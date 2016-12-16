@@ -161,7 +161,7 @@
                 <section class="switch-part switch-part3">
                     <div id="js-friends">
                     
-                      <a target="_blank" class="main-nav-link switch-friends-link" href="http://luuman.github.io/">name</a>
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="http://yusank.github.io/">name</a>
                     
                     </div>
                 </section>
@@ -234,7 +234,12 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap">
+      <div class="body-wrap"><link rel="stylesheet" href="css/loading-style.css">
+<div id="loader-wrapper">
+    <div id="loader"></div>
+</div>
+
+
   
     <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -299,7 +304,16 @@
 
   
   
-</div>
+
+<!-- loading -->
+<script>window.jQuery || document.write('<script src="js/jquery-1.9.1.min.js"><\/script>')</script>
+<script type="text/javascript">
+    $(window).load(function() {                              // makes sure the whole site is loaded
+        $('#loader').fadeOut();                              // will first fade out the loading animation
+            $('#loader-wrapper').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website.
+        $('body').delay(350).css({'overflow-y':'visible'});
+    })
+</script></div>
       <footer id="footer">
     <div class="outer">
         <div id="footer-info">
