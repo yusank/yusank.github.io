@@ -67,6 +67,10 @@
         <p class="header-subtitle">yusank blog</p>
         
         
+            <form>
+                <input type="text" class="st-default-search-input search" id="search" placeholder=" Search...">
+            </form>
+        
         
             <div id="switch-btn" class="switch-btn">
                 <div class="icon">
@@ -252,29 +256,8 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
           <div class="article-meta">
-              <a href="/2016/12/16/falsky/" class="archive-article-date">
-      <time datetime="2016-12-16T11:47:20.000Z" itemprop="datePublished">12-16</time>
-</a>
-        </div>
-         
-        <div class="article-info info-on-archive">
-          
-
-          
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
               <a href="/2016/12/16/hello-world/" class="archive-article-date">
-      <time datetime="2016-12-16T03:26:52.000Z" itemprop="datePublished">12-16</time>
+      <time datetime="2016-12-16T12:46:25.000Z" itemprop="datePublished">12-16</time>
 </a>
         </div>
          
@@ -405,6 +388,23 @@
     });
 </script>
 
+
+    <script type="text/javascript">
+      window.onload = function(){
+        document.getElementById("search").onclick = function(){
+            console.log("search")
+            search();
+        }
+      }
+      function search(){
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+        (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+        e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','A1Pz-LKMXbrzcFg2FWi6','2.0.0');
+      }
+    </script>
 
   </div>
 </body>
