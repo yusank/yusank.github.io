@@ -1,24 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Yusank Blog</title>
-  <subtitle>yusank blog</subtitle>
+  <title>Yusank&#39;s blog</title>
+  
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
-  <updated>2016-12-16T12:48:35.000Z</updated>
-  <id>http://yoursite.com/</id>
+  <link href="http://yusank.github.io/"/>
+  <updated>2016-12-19T06:14:14.000Z</updated>
+  <id>http://yusank.github.io/</id>
   
   <author>
-    <name>Yusan K</name>
+    <name>Yusank</name>
     
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Material 的配置</title>
+    <link href="http://yusank.github.io/2016/12/18/%20Material%20%E5%8E%9F%E8%B4%A8/"/>
+    <id>http://yusank.github.io/2016/12/18/ Material 原质/</id>
+    <published>2016-12-18T06:14:14.000Z</published>
+    <updated>2016-12-19T06:14:14.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Material-原质"><a href="#Material-原质" class="headerlink" title="Material 原质"></a>Material 原质</h1><p><a href="https://material.vss.im" target="_blank" rel="external">Material Theme</a></p>
+<blockquote>
+<p>Nature, Source</p>
+<p>stay with light`s</p>
+</blockquote>
+<h2 id="Contents-目录"><a href="#Contents-目录" class="headerlink" title="Contents 目录"></a>Contents 目录</h2><ul>
+<li><a href="#general-概括">General 概括</a></li>
+<li><a href="#demo-演示">Demo 演示</a></li>
+<li><a href="#quick-start-快速开始">Quick start 快速开始</a></li>
+<li><a href="#docs-文档">Docs 文档</a></li>
+<li><a href="#contributing-贡献">Contributing 贡献</a></li>
+<li><a href="#license-许可证">License 许可证</a></li>
+<li><a href="#render-渲染">Render 渲染</a></li>
+<li><a href="https://material.vss.im/changelog/" target="_blank" rel="external">Changelog 开发日志</a></li>
+</ul>
+<h2 id="General-概括"><a href="#General-概括" class="headerlink" title="General 概括"></a>General 概括</h2><p><a href="https://viosey.com" target="_blank" rel="external"><img src="https://img.shields.io/badge/author-Viosey-blue.svg?style=flat-square" alt="Author"></a><br><a href=""><img src="https://img.shields.io/badge/version-1.2.4-green.svg?style=flat-square" alt="Version"></a><br><a href="https://hexo.io" target="_blank" rel="external"><img src="https://img.shields.io/badge/hexo-3.0+-green.svg?style=flat-square" alt="Hexo"></a><br><a href="https://travis-ci.org/viosey/hexo-theme-material" target="_blank" rel="external"><img src="https://img.shields.io/travis/viosey/hexo-theme-material.svg?style=flat-square" alt="Build Status"></a><br><a href="http://jq.qq.com/?_wv=1027&amp;k=40Vdy24" target="_blank" rel="external"><img src="https://img.shields.io/badge/QQ%20%E7%BE%A4-566308505-brightgreen.svg?style=flat-square" alt="QQ Group"></a></p>
+<h2 id="Demo-演示"><a href="#Demo-演示" class="headerlink" title="Demo 演示"></a>Demo 演示</h2><p><a href="https://blog.viosey.com" target="_blank" rel="external">Viosey’s Blog</a></p>
+<h2 id="Quick-start-快速开始"><a href="#Quick-start-快速开始" class="headerlink" title="Quick start 快速开始"></a>Quick start 快速开始</h2><p><a href="https://material.vss.im/en/start/#install-material" target="_blank" rel="external">Install Material</a>    </p>
+<p><a href="https://material.vss.im/start/#install-material" target="_blank" rel="external">安装 Material</a></p>
+<h2 id="Docs-文档"><a href="#Docs-文档" class="headerlink" title="Docs 文档"></a>Docs 文档</h2><p><a href="https://material.vss.im/en/" target="_blank" rel="external">Material Theme Docs</a></p>
+<p><a href="https://material.vss.im" target="_blank" rel="external">Material 主题文档</a></p>
+<blockquote>
+<p><a href="https://github.com/viosey/material-theme-docs" target="_blank" rel="external">Docs Markdown Files</a></p>
+</blockquote>
+<h2 id="Contributing-贡献"><a href="#Contributing-贡献" class="headerlink" title="Contributing 贡献"></a>Contributing 贡献</h2><p>All kinds of contributions (enhancements, new features, documentation &amp; code improvements, issues &amp; bugs reporting) are welcome.</p>
+<p>欢迎各种形式的贡献，包括但不限于优化，添加功能，文档 &amp; 代码的改进，问题和 bugs 的报告。期待您的 <code>Pull Request</code>。</p>
+<h2 id="License-许可证"><a href="#License-许可证" class="headerlink" title="License 许可证"></a>License 许可证</h2><p><a href="https://github.com/viosey/hexo-theme-material/blob/master/LICENSE" target="_blank" rel="external"><img src="https://img.shields.io/github/license/viosey/hexo-theme-material.svg?style=flat-square" alt="license"></a></p>
+<p>Open sourced under the GPL v3.0 license.</p>
+<p>根据 GPL V3.0 许可证开源。</p>
+<h2 id="Render-渲染"><a href="#Render-渲染" class="headerlink" title="Render 渲染"></a>Render 渲染</h2><p><img src="https://qiniu.viosey.com/img/Material-Phone-Render.png" alt=""></p>
+<p><img src="https://qiniu.viosey.com/img/Materia-themel-overview-tiny.png" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Material-原质&quot;&gt;&lt;a href=&quot;#Material-原质&quot; class=&quot;headerlink&quot; title=&quot;Material 原质&quot;&gt;&lt;/a&gt;Material 原质&lt;/h1&gt;&lt;p&gt;&lt;a href=&quot;https://material.vss.im&quot; 
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>Python 资源大全</title>
-    <link href="http://yoursite.com/2016/12/17/awesomepython/"/>
-    <id>http://yoursite.com/2016/12/17/awesomepython/</id>
+    <link href="http://yusank.github.io/2016/12/17/awesomepython/"/>
+    <id>http://yusank.github.io/2016/12/17/awesomepython/</id>
     <published>2016-12-17T12:55:55.000Z</published>
     <updated>2016-12-16T12:48:35.000Z</updated>
     
@@ -1137,9 +1186,105 @@
   </entry>
   
   <entry>
+    <title>xx-net 使用方法</title>
+    <link href="http://yusank.github.io/2016/12/17/xxnet/"/>
+    <id>http://yusank.github.io/2016/12/17/xxnet/</id>
+    <published>2016-12-17T05:13:13.000Z</published>
+    <updated>2016-12-19T05:13:13.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>注意：    </p>
+<ol>
+<li>由于封锁严重，软件自带IP已经被封杀殆尽。因此需要<strong>数分钟到数小时的初始化IP扫描</strong>，方能正常运行。    </li>
+<li>虽然系统内置了公共appid, 还是建议[[部署自己的appid|how to create my appids]]，公共appid限制看视频。需要注意的是，只有当你能访问Google之后，才能部署自己的APPID。    </li>
+</ol>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>总体来说，使用XX-Net科学上网，大致需要如下步骤：    </p>
+<ol>
+<li><strong>[[获取XX-Net|<a href="https://github.com/XX-net/XX-Net/blob/master/code/default/download.md" target="_blank" rel="external">https://github.com/XX-net/XX-Net/blob/master/code/default/download.md</a>]]</strong>    </li>
+<li><strong>设置和初始化</strong>：安装、设置完成后，如果无法翻墙，则需要等待后台程序扫描IP（10分钟到数小时）。    </li>
+<li>[可选]<strong>[[创建和使用自己的appid|how to create my appids]]</strong>    </li>
+<li><strong>[[设置代理]]</strong>    </li>
+<li>[强烈建议]<strong>获取和配置可靠的浏览器</strong>（[[Firefox火狐浏览器|使用Firefox浏览器]]，或[[Chrome谷歌浏览器|使用Chrome浏览器]]），并使用[[代理切换插件|安装和使用-SwitchyOmega]]。</li>
+</ol>
+<p>下面分别介绍各个操作系统平台下的使用方法：</p>
+<h1 id="Windows系统"><a href="#Windows系统" class="headerlink" title="Windows系统"></a>Windows系统</h1><ol>
+<li>双击 start.vbs或者start.bat启动。<ul>
+<li>Win7/8/10：将提示请求管理员权限（出于[[安装CA证书|GoAgent Import CA]]的需要）。请点击同意。</li>
+</ul>
+</li>
+<li>启动完毕后，将弹出浏览器，访问 <a href="http://localhost:8085/" target="_blank" rel="external">http://localhost:8085/</a> （[[配置页面简介]]）</li>
+<li>右下角将出现托盘图标：点击可弹出上述的XX-Net配置页面, 右键可显示[[常用功能菜单|托盘右键菜单]]。</li>
+<li>第一次启动, 会提示在桌面建立快捷方式,可根据自己需要选择。</li>
+</ol>
+<ul>
+<li>推荐[[使用Chrome浏览器]], [[安装SwichySharp|安装和使用SwichySharp]], 可在XX-Net目录中的SwitchySharp文件夹下找到插件和配置文件。</li>
+<li>也可以选择[[使用Firefox（火狐）浏览器|使用Firefox浏览器]]。需[[手动导入证书|GoAgent Import CA#Firefox浏览器手动导入的方式]]</li>
+<li><p>启动失败，请关闭后双击start.bat再次启动程序，把日志发到bug反馈区  </p>
+</li>
+<li><p>WinXP，需要破解tcp连接数，推荐使用<a href="https://github.com/XX-net/tcp-z/archive/master.zip" target="_blank" rel="external">tcp-z</a>  </p>
+</li>
+<li>Win8，win10 的APP，需要使用：<a href="https://loopback.codeplex.com/" target="_blank" rel="external">https://loopback.codeplex.com/</a>   </li>
+<li>Windows Server 2008，需要安装  Visual C++ 2008 Redistributable - x86  </li>
+</ul>
+<p>针对两种常用浏览器，分别有详细的新手图文教程：[[使用Firefox浏览器]]、[[使用Chrome浏览器]]</p>
+<h1 id="Mac系统"><a href="#Mac系统" class="headerlink" title="Mac系统"></a>Mac系统</h1><ol>
+<li>双击 start 启动</li>
+<li>证书将被自动导入，如果还有提示非安全连接，请手动导入data/gae_proxy/CA.crt证书</li>
+</ol>
+<p>注：</p>
+<ul>
+<li>命令行启动方式：./start</li>
+<li>推荐[[使用Chrome|使用Chrome浏览器]]和[[SwitchyOmega扩展|安装和使用SwichySharp]]</li>
+<li>部分版本可能需要手动升级python。命令为：brew upgrade</li>
+</ul>
+<h1 id="Linux系统"><a href="#Linux系统" class="headerlink" title="Linux系统"></a>Linux系统</h1><ul>
+<li><p>执行 ./start 启动</p>
+</li>
+<li><p>自动导入证书，需安装 libnss3-tools 包<br><code>sudo apt-get install libnss3-tools</code></p>
+</li>
+<li>没有安装PyGtk的，需要先安装gtk：<br><code>sudo apt-get install python-gtk2</code></li>
+<li>配置http代理 localhost 8087, 勾选全部协议使用这个代理。<br>如Firefox，如果管理页面弹不出，请在地址栏输入127.0.0.1:8085，注意和代理端口的区别：<br><img src="https://github.com/sonichy/CMDU/blob/master/Firefox%E4%BB%A3%E7%90%86%E8%AE%BE%E7%BD%AE.png" alt=""><br>推荐Chrome + SwitchyOmega</li>
+<li>ubuntu 下，可能需要安装<br> <code>sudo apt-get install python-openssl</code><br> <code>sudo apt-get install libffi-dev</code><br> <code>sudo apt-get install -y python-gtk2</code><br> <code>sudo apt-get install python-appindicator</code><br> <code>sudo apt-get install libnss3-tools</code>  </li>
+<li>后台运行：在终端中运行：<br> <code>code/default/xx_net.sh start/stop/restart</code></li>
+<li>开机自启：在/etc/rc.local中添加一行：<br> <code>sudo /home/username/xxnet/code/default/xx_net.sh start</code></li>
+</ul>
+<h2 id="关于-ArchLinux"><a href="#关于-ArchLinux" class="headerlink" title="关于 ArchLinux"></a>关于 ArchLinux</h2><ul>
+<li>可能需要的包: <code>python-pyopenssl python2-pyopenssl libffi pygtk python2-notify nss</code>  </li>
+</ul>
+<h2 id="关于-Fedora"><a href="#关于-Fedora" class="headerlink" title="关于 Fedora"></a>关于 Fedora</h2><ul>
+<li>添加 <a href="https://github.com/FZUG/repo/wiki/%E6%B7%BB%E5%8A%A0-FZUG-%E6%BA%90" target="_blank" rel="external">FZUG 源</a>，安装 xx-net</li>
+<li>执行 <code>xx-net</code> 或 <code>systemctl --user start xx-net</code> (后台)启动</li>
+<li>配置浏览器代理插件</li>
+</ul>
+<h1 id="其他平台"><a href="#其他平台" class="headerlink" title="其他平台"></a>其他平台</h1><h2 id="OpenWrt"><a href="#OpenWrt" class="headerlink" title="OpenWrt"></a>OpenWrt</h2><ul>
+<li>[[在OpenWrt里运行XX-Net]]<br></li>
+<li>[[在装有梅林固件的Netgear R6300V2上安装XX Net]]<br></li>
+</ul>
+<h2 id="Android"><a href="#Android" class="headerlink" title="Android"></a>Android</h2><p>  计划开发中<br>  [[Android技术设计]]</p>
+<h1 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h1><h2 id="关于服务端"><a href="#关于服务端" class="headerlink" title="关于服务端"></a>关于服务端</h2><ul>
+<li>服务端兼容 GoAgent 3.1.x/3.2.x的客户端</li>
+<li>虽然系统内置了公共appid, 还是建议[[部署自己的appid|how to create my appids]]。</li>
+</ul>
+<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><p>如果出现异常，请翻阅[[故障速查手册]]，查看常见问题和解决方法。    </p>
+<p>无法解决的，参考[[异常处理|How-to-get-start-error-log]]，将问题反馈到：<br><code>https://github.com/XX-net/XX-Net/issues</code><br><code>https://groups.google.com/forum/#!forum/xx-net</code>  </p>
+<p>提交issue时请贴出状态页、GAE_proxy日志、部署日志，以便开发者和其他用户更好地帮助你。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;注意：    &lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;由于封锁严重，软件自带IP已经被封杀殆尽。因此需要&lt;strong&gt;数分钟到数小时的初始化IP扫描&lt;/strong&gt;，方能正常运行。    &lt;/li&gt;
+&lt;li&gt;虽然系统内置了公共appid, 还是建议[[部署自己的appid|how 
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>Hello World</title>
-    <link href="http://yoursite.com/2016/12/16/hello-world/"/>
-    <id>http://yoursite.com/2016/12/16/hello-world/</id>
+    <link href="http://yusank.github.io/2016/12/16/hello-world/"/>
+    <id>http://yusank.github.io/2016/12/16/hello-world/</id>
     <published>2016-12-16T03:26:52.000Z</published>
     <updated>2016-12-16T12:12:02.000Z</updated>
     
