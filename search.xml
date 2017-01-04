@@ -7,7 +7,7 @@
       <title><![CDATA[Docker 进阶与实践（第一讲）]]></title>
       <url>http://yusank.github.io/2017/01/03/Docker/</url>
       <content type="html"><![CDATA[<p>学习 Docker 技术，每看完一章或够写一篇文章的时候就上传一次. 这一篇讲容器技术。以下正文。。。<br><a id="more"></a></p>
-<h2 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h2><h3 id="容器技术"><a href="#容器技术" class="headerlink" title="容器技术"></a>容器技术</h3><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=437292675&auto=1&height=66"></iframe>
+<h2 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h2><h3 id="容器技术"><a href="#容器技术" class="headerlink" title="容器技术"></a>容器技术</h3><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=436514254&auto=1&height=66"></iframe>
 
 <p>对于容器，目前并没有一个严格的定义，但是普遍被认可的说法是，它首先必须是一个相对独立的环境，在这一点上有点类似虚拟机，但是没有虚拟机那么彻底。另外，在一个容器环境中，应该最小化其对外界的影响，比如不能在容器中吧host上的资源耗尽，这就是资源的控制。</p>
 <p>容器技术之所以受欢迎，一个重要的原因是它已经集成到了 Linux 内核中，已经被当作 Linux 内核原生提供的特征。当然其他平台也有相应的容器技术，但是我们讨论的以及Docker涉及的都是指 Linux 平台上的容器技术。</p>
