@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yusank.github.io/"/>
-  <updated>2017-01-08T06:18:20.000Z</updated>
+  <updated>2017-01-08T06:19:36.000Z</updated>
   <id>http://yusank.github.io/</id>
   
   <author>
@@ -20,10 +20,9 @@
     <link href="http://yusank.github.io/2017/01/07/Go%20Channel%20%E8%AF%A6%E8%A7%A3/"/>
     <id>http://yusank.github.io/2017/01/07/Go Channel 详解/</id>
     <published>2017-01-07T04:20:00.000Z</published>
-    <updated>2017-01-08T06:18:20.000Z</updated>
+    <updated>2017-01-08T06:19:36.000Z</updated>
     
     <content type="html"><![CDATA[<p>讲解 Golang 的 channel（通道），学 go 语言的有必要看一下。以下正文。。。</p>
-<hr>
 <h1 id="Go-Channel-详解"><a href="#Go-Channel-详解" class="headerlink" title="Go Channel 详解"></a>Go Channel 详解</h1><p>Channel是Go中的一个核心类型，你可以把它看成一个管道，通过它并发核心单元就可以发送或者接收数据进行通讯(communication)。</p>
 <p>它的操作符是箭头 <strong>&lt;-</strong> 。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ch &lt;- v</div><div class="line">v := &lt;-ch  <span class="comment">// 从Channel ch中接收数据，并将数据赋值给v.</span></div></pre></td></tr></table></figure>
@@ -112,8 +111,7 @@
     <summary type="html">
     
       &lt;p&gt;讲解 Golang 的 channel（通道），学 go 语言的有必要看一下。以下正文。。。&lt;/p&gt;
-&lt;hr&gt;
-&lt;h1 id=&quot;Go-Channel-详解&quot;&gt;&lt;a href=&quot;#Go-Channel-详解&quot; class=&quot;headerlink&quot; title=&quot;Go Chan
+&lt;h1 id=&quot;Go-Channel-详解&quot;&gt;&lt;a href=&quot;#Go-Channel-详解&quot; class=&quot;headerlink&quot; title=&quot;Go Channel 详
     
     </summary>
     
