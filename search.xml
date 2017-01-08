@@ -4,7 +4,7 @@
   
     
     <entry>
-      <title></title>
+      <title><![CDATA[Go Channel]]></title>
       <url>http://yusank.github.io/2017/01/07/Go%20Channel/</url>
       <content type="html"><![CDATA[<p>讲解 Golang 的 channel（通道），学 go 语言的有必要看一下。以下正文。。。</p>
 <hr>
