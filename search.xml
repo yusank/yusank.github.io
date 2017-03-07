@@ -4,6 +4,116 @@
   
     
     <entry>
+      <title><![CDATA[Vim 快捷键]]></title>
+      <url>http://yusank.github.io/2017/04/07/Vimkyboard/</url>
+      <content type="html"><![CDATA[<h1 id="Vim-快捷键"><a href="#Vim-快捷键" class="headerlink" title="Vim 快捷键"></a>Vim 快捷键</h1><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=387592&auto=1&height=66"></iframe>
+
+<h2 id="一-移动："><a href="#一-移动：" class="headerlink" title="一. 移动："></a>一. 移动：</h2><pre><code>h,j,k,l: 左，下，上，右。
+w: 下一个词的词首。
+e:下一个词的词尾。&lt;!--more--&gt;
+</code></pre><p>​    b:上一个词的词首。</p>
+<pre><code>&lt;&gt;: v 模式选中后进行缩进。
+</code></pre><h2 id="二-跳转："><a href="#二-跳转：" class="headerlink" title="二. 跳转："></a>二. 跳转：</h2><pre><code>%: 可以匹配{},&quot;&quot;,(),[]之间跳转。
+H、M、L：直接跳转到当前屏幕的顶部、中部、底部。
+</code></pre><p>“#H”：跳转到当前屏的第#行。            <em>// 由于markdown语法原因，加上了双引号，实际用的时候没有双引号的</em>, 以下所有加引号的雷同。</p>
+<p>“#L”：跳转到当前屏的倒数第#行。</p>
+<pre><code>zt: 当前编辑行置为屏顶。
+zz: 当前编辑行置为屏中。
+zb: 当前编辑行置为屏底。
+G：直接跳转到文件的底部。
+gg: 跳转到文件首。
+():跳转到当前的行首、行尾。
+{}：向上、向下跳转到最近的空行。
+[{：跳转到目前区块开头。
+]}：跳转到目前区块结尾。
+0: 跳转到行首。
+$: 跳转到行尾。
+2$: 跳转到下一行的行尾。
+</code></pre><p>“#”：跳转到该行的第#个位置。</p>
+<p>“#G”: 15G,跳转到15行。</p>
+<pre><code>:#：跳转到#行。
+f&apos;n&apos;：跳转到下一个&quot;n&quot;字母后。
+ctrl+b: 向后翻一页。
+ctrl+f：向前翻一页。
+ctrl+u: 向后翻半页。
+ctrl+d: 向前翻半页。
+ctry+e: 下滚一行。
+</code></pre><h2 id="三-选择："><a href="#三-选择：" class="headerlink" title="三. 选择："></a>三. 选择：</h2><pre><code>1.V: 选择一行。
+2.^V: 矩形选择。
+3.v3w: 选择三个字符。  
+</code></pre><h2 id="四-编辑："><a href="#四-编辑：" class="headerlink" title="四. 编辑："></a>四. 编辑：</h2><ol>
+<li><p>新增：<br>i: 光标前插入。</p>
+<pre><code>I: 在当前行首插入。
+a: 光标后插入。
+A: 当前行尾插入。
+O: 在当前行之前插入新行。
+o: 在当前行之后插入新行。
+</code></pre></li>
+<li><p>修改 c(change) 为主：<br>r: 替换光标所在处的字符。</p>
+<pre><code>R：替换光标所到之处的字符。
+cw: 更改光标所在处的字到字尾处。
+c#w: c3w 修改3个字符。
+C：修改到行尾。
+ci&apos;：修改配对标点符号中的文本内容。
+di&apos;：删除配对标点符号中的文本内容。
+yi&apos;：复制配对标点符号中的文本内容。
+vi&apos;：选中配对标点符号中的文本内容。
+s：替换当前一个光标所处字符。
+</code></pre><p>​    “#S”：删除 # 行，并以新文本代替。</p>
+</li>
+</ol>
+<ol>
+<li><p>删除 d(delete) 为主：<br>D：删除到行尾。</p>
+<pre><code>X: 每按一次，删除光标所在位置的前面一个字符。
+x: 每按一次，删除光标所在位置的后面一个字符。
+</code></pre><p>​    “#x”: 删除光标所在位置后面6个字符。<br>  d^: 删至行首。<br>  d$: 删至行尾。<br>  dd:(剪切)删除光标所在行。<br>  dw: 删除一个单词/光标之后的单词剩余部分。<br>  d4w: 删除4个word。</p>
+</li>
+</ol>
+<p>​    “#dd”: 从光标所在行开始删除#行。</p>
+<pre><code>daB: 删除{}及其内的内容。
+diB: 删除{}中的内容。
+n1,n2 d：将n1,n2行之间的内容删除。
+</code></pre><ol>
+<li><p>查找：<br>/： 输入关键字，发现不是要找的，直接在按n，向后查找直到找到为止。</p>
+<pre><code>?： 输入关键字，发现不是要找的，直接在按n，向前查找直到找到为止。
+*: 在当前页向后查找同一字。
+</code></pre><p>​    “#”: 在当前页向前查找同一字。</p>
+</li>
+<li><p>复制 y(yank)为主：<br>yw: 将光标所在之处到字尾的字符复制到缓冲区中。</p>
+<p>“#yw”: 复制#个字到缓冲区。</p>
+<p>  Y：相当于yy, 复制整行。</p>
+</li>
+</ol>
+<p>​    “#yy”:表示复制从光标所在的该行往下数#行文字。</p>
+<pre><code>    p: 粘贴。所有与y相关的操作必用p来结合粘贴。
+    n1,n2 co n3：复制第n1行到第n2行之间的内容到第n3行后面。
+6. 大小写转换：
+      gUU: 将当前行的字母改为大写。
+              guu: 将当前行的字母改为小写。
+              gUw: 将当前光标下的单词改为大写。
+              guw: 将当前光标下的单词改为小写。
+              a. 整篇大写:
+              ggguG
+              gg: 光标到文件第一个字符。
+              gu: 把选择范围全部小写。
+              G: 到文件结束。
+              b. 整篇小写：gggUG
+7. 其它：
+      J：当前行和下一行合并成一行。
+8. 移动：
+      n1,n2 m n3：将n1行到n2行之间的内容移至n3行下。
+</code></pre><h2 id="五-退出："><a href="#五-退出：" class="headerlink" title="五.退出："></a>五.退出：</h2><pre><code>1. w filename: 保存正在编辑的文件filename
+2. wq filename: 保存后退出正在编辑的文件filename
+3. q：退出不保存。
+</code></pre><h2 id="六-窗口操作："><a href="#六-窗口操作：" class="headerlink" title="六.窗口操作："></a>六.窗口操作：</h2><pre><code>1. ctrl+w p: 在两个分割窗口之间来回切换。
+2. ctrl+w j: 跳到下面的分割窗
+3. ctrl+w h: 跳到左边的分割窗。
+4. ctrl+w k: 跳到上面的分割窗。
+5. ctrl+w l: 跳到右边的分割窗。
+</code></pre>]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[跨域资源共享 CORS 详解]]></title>
       <url>http://yusank.github.io/2017/01/30/CORS/</url>
       <content type="html"><![CDATA[<h1 id="跨域资源共享-CORS-详解"><a href="#跨域资源共享-CORS-详解" class="headerlink" title="跨域资源共享 CORS 详解"></a>跨域资源共享 CORS 详解</h1><p>CORS是一个W3C标准，全称是”跨域资源共享”（Cross-origin resource sharing）。<br>它允许浏览器向跨源服务器，发出<code>XMLHttpRequest</code>请求，从而克服了AJAX只能<strong>同源</strong>使用的限制。<br>本文详细介绍CORS的内部机制。<br><a id="more"></a></p>
