@@ -323,7 +323,7 @@
                 <!-- Post Content -->
                 <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
 	
-		<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>找到一个炒鸡流弊的东西。。。</p>
+		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>找到一个炒鸡流弊的东西。。。</p>
 <a id="more"></a>
 <h1 id="Hexo-博客中插入视频-音乐"><a href="#Hexo-博客中插入视频-音乐" class="headerlink" title="Hexo 博客中插入视频/音乐"></a>Hexo 博客中插入视频/音乐</h1><p>博客中插入音乐/视频，可以让博客的逼格瞬间提高。作为优秀的静态博客，Hexo 当然也少不了这些高大上的功能。</p>
 <h2 id="Markdown-通用音乐-视频插入方法"><a href="#Markdown-通用音乐-视频插入方法" class="headerlink" title="Markdown 通用音乐/视频插入方法"></a>Markdown 通用音乐/视频插入方法</h2><p>Markdown 作为轻量级的标记语言，兼容 html 语法，所以可以直接在 Markdown 文档中使用 html 语法。</p>
@@ -347,22 +347,69 @@
 <p>安装成功后，在 Markdown 文档中添加 APlayer 和 DPlayer 标签即可。</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123;% aplayer "Caffeine" "Jeff Williams" "http://7xq131.com1.z0.glb.clouddn.com/Preparation.mp3" "autoplay" %&#125;</div><div class="line">&#123;% dplayer "url=http://devtest.qiniudn.com/若能绽放光芒.mp4" "api=http://dplayer.daoapp.io" "pic=http://devtest.qiniudn.com/若能绽放光芒.png" "id=9E2E3368B56CDBB4" "loop=yes" "theme=#FADFA3" "autoplay=false" "token=tokendemo" %&#125;</div></pre></td></tr></table></figure>
 <p>APlayer 和 DPlayer 具体参数设置可以到 GitHub 项目主页，不过默认参数足够了。</p>
-<div id="aplayer0" class="aplayer" style="margin-bottom: 20px;"></div>
-		<script>
-			new APlayer({
-				element: document.getElementById("aplayer0"),
-				narrow: false,
-				autoplay: true,
-				showlrc: 0,
-				music: {
-					title: "Zobbi Dobbi",
-					author: "Three ediot",
-					url: "http://oid1xlj7h.bkt.clouddn.com/Sonu%20Nigam,Shreya%20Ghoshal%20-%20Zoobi%20Doobi.mp3",
-					pic: "",
-				}
-			});
-		</script>    
-<div id="dplayer0" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer0 = new DPlayer({"element":document.getElementById("dplayer0"),"autoplay":false,"theme":"#FADFA3","loop":true,"video":{"url":"http://oid1xlj7h.bkt.clouddn.com/WeChatSight72.mp4"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo"}});</script>
+<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;">
+				<pre class="aplayer-lrc-content">'[00:00.00]Zoobi Doobi
+[00:00.38]Sonu Nigam & Shreya Ghoshal
+[00:00.53]LRC：Meselson (QQ 445942376)
+[00:01.18]
+[00:03.50]Gungunati hain yeh hawayein 
+[00:12.73]Gungunata hai gagan
+[00:19.91]Gaa raha hai yeh saara aalam
+[00:26.90]Zoobi do… param pum… 
+[00:37.35]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[00:42.67]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann 
+[00:47.99]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[00:53.30]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann 
+[00:58.34]Shaakhon pe pattey gaa rahe hain Phoolon pe bhanvre gaa rahe
+[01:03.69]Deewani kirine gaa rahi hain Yeh panchhi gaa rahe
+[01:08.38]Ohhh Bagiya mein do phoolon ki Ho rahi hai guft-gu 
+[01:14.02]Jaisa filmon mein hota hai Ho raha hai hu-bahoo
+[01:19.18]I iiii iii.. 
+[01:20.11]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[01:25.21]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[01:30.52]
+[01:30.81]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[01:35.98]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[01:40.68]
+[02:02.67]Rimjhim rimjhim rimjhim San san san san hawaa
+[02:07.63]Tip tip tip tip boondein Gurrati bijliyaan
+[02:13.00]Bheegi bheegi saree mein Yun thumke lagati tu
+[02:18.24]Ho raha hai hu bahoo
+[02:23.58]I iiii iii.. 
+[02:24.23]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[02:29.16]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[02:32.50]
+[02:34.30]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[02:39.58]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[02:45.70]
+[03:06.55]Amber ka chand zameen par Itra ke gaa raha
+[03:12.02]Ek tim tim toota tara Ithla ka gaa raha
+[03:17.29]Hai raat akeli tanha Mujhe choo le aake tu
+[03:22.47]Jaisa filmon mein hota hai Ho raha hai hubahoo
+[03:27.24]I iiii iii.. 
+[03:27.78]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[03:33.28]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[03:38.57]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[03:43.79]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[03:48.58]LRC：Meselson (QQ 445942376)
+[03:50.47]THE END
+</pre>
+			</div>
+			<script>
+				new APlayer({
+					element: document.getElementById("aplayer1"),
+					narrow: false,
+					autoplay: 1,
+					showlrc: 2,
+					music: {
+						title: "Zoobi Doobi",
+						author: "Three ediot",
+						url: "http://oid1xlj7h.bkt.clouddn.com/Sonu%20Nigam,Shreya%20Ghoshal%20-%20Zoobi%20Doobi.mp3",
+						pic: "http://oid1xlj7h.bkt.clouddn.com/3_idiots_wallpaper.jpg",
+					}
+				});
+			</script>    
+<div id="dplayer1" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer1 = new DPlayer({"element":document.getElementById("dplayer1"),"autoplay":false,"theme":"#FADFA3","loop":true,"video":{"url":"http://oid1xlj7h.bkt.clouddn.com/WeChatSight72.mp4"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo"}});</script>
 <p>APlayer 和 DPlayer 均支持 HTTPS。</p>
 <p>上述两种方法都有优缺点，选择一种适合自己的方法，打造自己专属的博客吧。</p>
 <p>转载：【login926】login926.github.io</p>

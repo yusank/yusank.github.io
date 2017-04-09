@@ -6,7 +6,7 @@
     <entry>
       <title><![CDATA[Hexo 博客添加视频和音乐]]></title>
       <url>http://yusank.github.io/2017/04/09/HexoMedia/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>找到一个炒鸡流弊的东西。。。</p>
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>找到一个炒鸡流弊的东西。。。</p>
 <a id="more"></a>
 <h1 id="Hexo-博客中插入视频-音乐"><a href="#Hexo-博客中插入视频-音乐" class="headerlink" title="Hexo 博客中插入视频/音乐"></a>Hexo 博客中插入视频/音乐</h1><p>博客中插入音乐/视频，可以让博客的逼格瞬间提高。作为优秀的静态博客，Hexo 当然也少不了这些高大上的功能。</p>
 <h2 id="Markdown-通用音乐-视频插入方法"><a href="#Markdown-通用音乐-视频插入方法" class="headerlink" title="Markdown 通用音乐/视频插入方法"></a>Markdown 通用音乐/视频插入方法</h2><p>Markdown 作为轻量级的标记语言，兼容 html 语法，所以可以直接在 Markdown 文档中使用 html 语法。</p>
@@ -30,22 +30,69 @@
 <p>安装成功后，在 Markdown 文档中添加 APlayer 和 DPlayer 标签即可。</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123;% aplayer "Caffeine" "Jeff Williams" "http://7xq131.com1.z0.glb.clouddn.com/Preparation.mp3" "autoplay" %&#125;</div><div class="line">&#123;% dplayer "url=http://devtest.qiniudn.com/若能绽放光芒.mp4" "api=http://dplayer.daoapp.io" "pic=http://devtest.qiniudn.com/若能绽放光芒.png" "id=9E2E3368B56CDBB4" "loop=yes" "theme=#FADFA3" "autoplay=false" "token=tokendemo" %&#125;</div></pre></td></tr></table></figure>
 <p>APlayer 和 DPlayer 具体参数设置可以到 GitHub 项目主页，不过默认参数足够了。</p>
-<div id="aplayer0" class="aplayer" style="margin-bottom: 20px;"></div>
-		<script>
-			new APlayer({
-				element: document.getElementById("aplayer0"),
-				narrow: false,
-				autoplay: true,
-				showlrc: 0,
-				music: {
-					title: "Zobbi Dobbi",
-					author: "Three ediot",
-					url: "http://oid1xlj7h.bkt.clouddn.com/Sonu%20Nigam,Shreya%20Ghoshal%20-%20Zoobi%20Doobi.mp3",
-					pic: "",
-				}
-			});
-		</script>    
-<div id="dplayer0" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer0 = new DPlayer({"element":document.getElementById("dplayer0"),"autoplay":false,"theme":"#FADFA3","loop":true,"video":{"url":"http://oid1xlj7h.bkt.clouddn.com/WeChatSight72.mp4"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo"}});</script>
+<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;">
+				<pre class="aplayer-lrc-content">'[00:00.00]Zoobi Doobi
+[00:00.38]Sonu Nigam & Shreya Ghoshal
+[00:00.53]LRC：Meselson (QQ 445942376)
+[00:01.18]
+[00:03.50]Gungunati hain yeh hawayein 
+[00:12.73]Gungunata hai gagan
+[00:19.91]Gaa raha hai yeh saara aalam
+[00:26.90]Zoobi do… param pum… 
+[00:37.35]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[00:42.67]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann 
+[00:47.99]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[00:53.30]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann 
+[00:58.34]Shaakhon pe pattey gaa rahe hain Phoolon pe bhanvre gaa rahe
+[01:03.69]Deewani kirine gaa rahi hain Yeh panchhi gaa rahe
+[01:08.38]Ohhh Bagiya mein do phoolon ki Ho rahi hai guft-gu 
+[01:14.02]Jaisa filmon mein hota hai Ho raha hai hu-bahoo
+[01:19.18]I iiii iii.. 
+[01:20.11]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[01:25.21]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[01:30.52]
+[01:30.81]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[01:35.98]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[01:40.68]
+[02:02.67]Rimjhim rimjhim rimjhim San san san san hawaa
+[02:07.63]Tip tip tip tip boondein Gurrati bijliyaan
+[02:13.00]Bheegi bheegi saree mein Yun thumke lagati tu
+[02:18.24]Ho raha hai hu bahoo
+[02:23.58]I iiii iii.. 
+[02:24.23]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[02:29.16]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[02:32.50]
+[02:34.30]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[02:39.58]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[02:45.70]
+[03:06.55]Amber ka chand zameen par Itra ke gaa raha
+[03:12.02]Ek tim tim toota tara Ithla ka gaa raha
+[03:17.29]Hai raat akeli tanha Mujhe choo le aake tu
+[03:22.47]Jaisa filmon mein hota hai Ho raha hai hubahoo
+[03:27.24]I iiii iii.. 
+[03:27.78]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[03:33.28]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[03:38.57]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[03:43.79]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[03:48.58]LRC：Meselson (QQ 445942376)
+[03:50.47]THE END
+</pre>
+			</div>
+			<script>
+				new APlayer({
+					element: document.getElementById("aplayer1"),
+					narrow: false,
+					autoplay: 1,
+					showlrc: 2,
+					music: {
+						title: "Zoobi Doobi",
+						author: "Three ediot",
+						url: "http://oid1xlj7h.bkt.clouddn.com/Sonu%20Nigam,Shreya%20Ghoshal%20-%20Zoobi%20Doobi.mp3",
+						pic: "http://oid1xlj7h.bkt.clouddn.com/3_idiots_wallpaper.jpg",
+					}
+				});
+			</script>    
+<div id="dplayer1" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer1 = new DPlayer({"element":document.getElementById("dplayer1"),"autoplay":false,"theme":"#FADFA3","loop":true,"video":{"url":"http://oid1xlj7h.bkt.clouddn.com/WeChatSight72.mp4"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo"}});</script>
 <p>APlayer 和 DPlayer 均支持 HTTPS。</p>
 <p>上述两种方法都有优缺点，选择一种适合自己的方法，打造自己专属的博客吧。</p>
 <p>转载：【login926】login926.github.io</p>
@@ -55,16 +102,16 @@
     <entry>
       <title><![CDATA[Vim 快捷键]]></title>
       <url>http://yusank.github.io/2017/04/07/Vimkyboard/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Vim-快捷键"><a href="#Vim-快捷键" class="headerlink" title="Vim 快捷键"></a>Vim 快捷键</h1><h2 id="一-移动："><a href="#一-移动：" class="headerlink" title="一. 移动："></a>一. 移动：</h2><pre><code>h,j,k,l: 左，下，上，右。
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Vim-快捷键"><a href="#Vim-快捷键" class="headerlink" title="Vim 快捷键"></a>Vim 快捷键</h1><h2 id="一-移动："><a href="#一-移动：" class="headerlink" title="一. 移动："></a>一. 移动：</h2><pre><code>h,j,k,l: 左，下，上，右。
 w: 下一个词的词首。
 e:下一个词的词尾。
 </code></pre><p>​    b:上一个词的词首。</p>
 <pre><code>&lt;&gt;: v 模式选中后进行缩进。
 </code></pre><a id="more"></a>
-<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;"></div>
+<div id="aplayer0" class="aplayer" style="margin-bottom: 20px;"></div>
 		<script>
 			new APlayer({
-				element: document.getElementById("aplayer1"),
+				element: document.getElementById("aplayer0"),
 				narrow: false,
 				autoplay: true,
 				showlrc: 0,
@@ -76,7 +123,7 @@ e:下一个词的词尾。
 				}
 			});
 		</script>
-<div id="dplayer1" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer1 = new DPlayer({"element":document.getElementById("dplayer1"),"autoplay":false,"theme":"#FADFA3","loop":true,"video":{"url":"http://oid1xlj7h.bkt.clouddn.com/WeChatSight72.mp4"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo"}});</script>
+<div id="dplayer0" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer0 = new DPlayer({"element":document.getElementById("dplayer0"),"autoplay":false,"theme":"#FADFA3","loop":true,"video":{"url":"http://oid1xlj7h.bkt.clouddn.com/WeChatSight72.mp4"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo"}});</script>
 <h2 id="二-跳转："><a href="#二-跳转：" class="headerlink" title="二. 跳转："></a>二. 跳转：</h2><pre><code>%: 可以匹配{},&quot;&quot;,(),[]之间跳转。
 H、M、L：直接跳转到当前屏幕的顶部、中部、底部。
 </code></pre><p>“#H”：跳转到当前屏的第#行。            <em>// 由于markdown语法原因，加上了双引号，实际用的时候没有双引号的</em>, 以下所有加引号的雷同。</p>
@@ -181,7 +228,7 @@ d4w: 删除4个word。
     <entry>
       <title><![CDATA[跨域资源共享 CORS 详解]]></title>
       <url>http://yusank.github.io/2017/01/30/CORS/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="跨域资源共享-CORS-详解"><a href="#跨域资源共享-CORS-详解" class="headerlink" title="跨域资源共享 CORS 详解"></a>跨域资源共享 CORS 详解</h1><p>CORS是一个W3C标准，全称是”跨域资源共享”（Cross-origin resource sharing）。<br>它允许浏览器向跨源服务器，发出<code>XMLHttpRequest</code>请求，从而克服了AJAX只能<strong>同源</strong>使用的限制。<br>本文详细介绍CORS的内部机制。<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="跨域资源共享-CORS-详解"><a href="#跨域资源共享-CORS-详解" class="headerlink" title="跨域资源共享 CORS 详解"></a>跨域资源共享 CORS 详解</h1><p>CORS是一个W3C标准，全称是”跨域资源共享”（Cross-origin resource sharing）。<br>它允许浏览器向跨源服务器，发出<code>XMLHttpRequest</code>请求，从而克服了AJAX只能<strong>同源</strong>使用的限制。<br>本文详细介绍CORS的内部机制。<br><a id="more"></a></p>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=5110131&auto=1&height=66"></iframe>
 
 <h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>CORS需要浏览器和服务器同时支持。目前，所有浏览器都支持该功能，IE浏览器不能低于IE10。</p>
@@ -275,7 +322,7 @@ d4w: 删除4个word。
     <entry>
       <title><![CDATA[Go Channel]]></title>
       <url>http://yusank.github.io/2017/01/07/Go%20Channel/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>讲解 Golang 的 channel（通道），学 go 语言的有必要看一下。以下正文。。。</p>
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>讲解 Golang 的 channel（通道），学 go 语言的有必要看一下。以下正文。。。</p>
 <hr>
 <h1 id="Go-Channel-详解"><a href="#Go-Channel-详解" class="headerlink" title="Go Channel 详解"></a>Go Channel 详解</h1><p>Channel是Go中的一个核心类型，你可以把它看成一个管道，通过它并发核心单元就可以发送或者接收数据进行通讯(communication)。</p>
 <p>它的操作符是箭头 <strong>&lt;-</strong> 。</p>
@@ -366,7 +413,7 @@ d4w: 删除4个word。
     <entry>
       <title><![CDATA[Docker 进阶与实践（第一讲）]]></title>
       <url>http://yusank.github.io/2017/01/03/Docker/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>学习 Docker 技术，每看完一章或够写一篇文章的时候就上传一次. 这一篇讲容器技术。以下正文。。。<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>学习 Docker 技术，每看完一章或够写一篇文章的时候就上传一次. 这一篇讲容器技术。以下正文。。。<br><a id="more"></a></p>
 <h2 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h2><h3 id="容器技术"><a href="#容器技术" class="headerlink" title="容器技术"></a>容器技术</h3><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=437292675&auto=1&height=66"></iframe>
 
 <p>对于容器，目前并没有一个严格的定义，但是普遍被认可的说法是，它首先必须是一个相对独立的环境，在这一点上有点类似虚拟机，但是没有虚拟机那么彻底。另外，在一个容器环境中，应该最小化其对外界的影响，比如不能在容器中吧host上的资源耗尽，这就是资源的控制。</p>
@@ -429,7 +476,7 @@ d4w: 删除4个word。
     <entry>
       <title><![CDATA[Goddbye 2016 and Hello 2017]]></title>
       <url>http://yusank.github.io/2016/12/31/%E5%86%8D%E8%A7%81%E4%BA%862016%EF%BC%8C%E4%BD%A0%E5%A5%BD2017/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>突然想写一篇文章纪念一下我的2016，语文水平不是很好，要是写的不好，就不要在意太多的细节了，以下正文。。。。<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>突然想写一篇文章纪念一下我的2016，语文水平不是很好，要是写的不好，就不要在意太多的细节了，以下正文。。。。<br><a id="more"></a></p>
 <h2 id="再见了2016，你好2017"><a href="#再见了2016，你好2017" class="headerlink" title="再见了2016，你好2017"></a>再见了2016，你好2017</h2><p>来点音乐吧，</p>
 <p><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=186560&auto=0&height=66"></iframe><br>​    纵观过去的这一年，发生了很多我没有预料的到时事儿，不管是感情还是学习工作方面。</p>
 <p>​    去年的今天我做了不少的计划，许了不少的愿，但是实现了几个没做到几个，现在我是真想不出来。从我现在的情况来看，2016过得并不是很糟糕，也许可以用过得还不错的这句话来形容。</p>
@@ -446,7 +493,7 @@ d4w: 删除4个word。
     <entry>
       <title><![CDATA[linux命令]]></title>
       <url>http://yusank.github.io/2016/12/28/linux%E5%91%BD%E4%BB%A4/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>welcome to learn terminal command!!!<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>welcome to learn terminal command!!!<br><a id="more"></a></p>
 <h1 id="linux命令"><a href="#linux命令" class="headerlink" title="linux命令"></a>linux命令</h1><h3 id="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"><a href="#永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！" class="headerlink" title="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"></a>永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！</h3><h2 id="实用性"><a href="#实用性" class="headerlink" title="实用性"></a>实用性</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo !!</div></pre></td></tr></table></figure>
 <p>以root权限执行上一条命令（注意上一条命令的内容，以免发生意外）</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls -l | sed &apos;1d&apos; | sort -n -k5 | awk &apos;&#123;printf &quot;%15s %10s\n&quot;, $9,$5&#125;&apos;</div></pre></td></tr></table></figure>
@@ -498,7 +545,7 @@ d4w: 删除4个word。
     <entry>
       <title><![CDATA[Material 的配置]]></title>
       <url>http://yusank.github.io/2016/12/18/%20Material%20%E5%8E%9F%E8%B4%A8/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Material-原质"><a href="#Material-原质" class="headerlink" title="Material 原质"></a>Material 原质</h1><p><a href="https://material.vss.im" target="_blank" rel="external">Material Theme</a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Material-原质"><a href="#Material-原质" class="headerlink" title="Material 原质"></a>Material 原质</h1><p><a href="https://material.vss.im" target="_blank" rel="external">Material Theme</a></p>
 <blockquote>
 <p>Nature, Source</p>
 <p>stay with light`s</p>
@@ -535,7 +582,7 @@ d4w: 删除4个word。
     <entry>
       <title><![CDATA[Python 资源大全]]></title>
       <url>http://yusank.github.io/2016/12/17/awesomepython/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Python-资源大全中文版"><a href="#Python-资源大全中文版" class="headerlink" title="Python 资源大全中文版"></a>Python 资源大全中文版</h1><a id="more"></a>
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Python-资源大全中文版"><a href="#Python-资源大全中文版" class="headerlink" title="Python 资源大全中文版"></a>Python 资源大全中文版</h1><a id="more"></a>
 <p>我想很多程序员应该记得 GitHub 上有一个 Awesome - XXX 系列的资源整理。<a href="https://github.com/vinta/awesome-python" target="_blank" rel="external">awesome-python</a> 是 vinta 发起维护的 Python 资源列表，内容包括：Web框架、网络爬虫、网络内容提取、模板引擎、数据库、数据可视化、图片处理、文本处理、自然语言处理、机器学习、日志、代码分析等。由伯乐在线持续更新。</p>
 <p>Awesome 系列虽然挺全，但基本只对收录的资源做了极为简要的介绍，如果有更详细的中文介绍，对相应开发者的帮助会更大。这也是我们发起这个开源项目的初衷。</p>
 <hr>
@@ -1644,7 +1691,7 @@ d4w: 删除4个word。
     <entry>
       <title><![CDATA[xx-net 使用方法]]></title>
       <url>http://yusank.github.io/2016/12/17/xxnet/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>注意：    </p>
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>注意：    </p>
 <ol>
 <li>由于封锁严重，软件自带IP已经被封杀殆尽。因此需要<strong>数分钟到数小时的初始化IP扫描</strong>，方能正常运行。    </li>
 <li>虽然系统内置了公共appid, 还是建议[[部署自己的appid|how to create my appids]]，公共appid限制看视频。需要注意的是，只有当你能访问Google之后，才能部署自己的APPID。    </li>
@@ -1725,7 +1772,7 @@ d4w: 删除4个word。
     <entry>
       <title><![CDATA[Hello World]]></title>
       <url>http://yusank.github.io/2016/12/16/hello-world/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.<br><a id="more"></a></p>
 <h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
 <p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
 <h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
