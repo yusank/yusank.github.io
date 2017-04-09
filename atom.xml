@@ -23,7 +23,7 @@
     <updated>2017-04-09T07:13:11.000Z</updated>
     
     <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>测试添加歌单。。。。<br><a id="more"></a></p>
-<h1 id="测试歌单"><a href="#测试歌单" class="headerlink" title="测试歌单"></a>测试歌单</h1><div id="aplayer2" class="aplayer" style="margin-bottom: 20px;">
+<h1 id="测试歌单"><a href="#测试歌单" class="headerlink" title="测试歌单"></a>测试歌单</h1><div id="aplayer1" class="aplayer" style="margin-bottom: 20px;">
 				<pre class="aplayer-lrc-content">'[00:00.00]
 [00:00.95]匆匆那年
 [00:01.78](电影《匆匆那年》同名主题曲)
@@ -104,7 +104,7 @@
 			</div>
 			<script>
 				new APlayer({
-					element: document.getElementById("aplayer2"),
+					element: document.getElementById("aplayer1"),
 					narrow: false,
 					autoplay: false,
 					showlrc: 2,
@@ -251,10 +251,10 @@ e:下一个词的词尾。
 </code></pre><p>​    b:上一个词的词首。</p>
 <pre><code>&lt;&gt;: v 模式选中后进行缩进。
 </code></pre><a id="more"></a>
-<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;"></div>
+<div id="aplayer2" class="aplayer" style="margin-bottom: 20px;"></div>
 		<script>
 			new APlayer({
-				element: document.getElementById("aplayer1"),
+				element: document.getElementById("aplayer2"),
 				narrow: false,
 				autoplay: true,
 				showlrc: 0,
