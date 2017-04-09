@@ -22,7 +22,22 @@
     <published>2017-04-09T07:13:11.000Z</published>
     <updated>2017-04-09T07:13:11.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="测试歌单"><a href="#测试歌单" class="headerlink" title="测试歌单"></a>测试歌单</h1>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="测试歌单"><a href="#测试歌单" class="headerlink" title="测试歌单"></a>测试歌单</h1><div id="aplayer2" class="aplayer" style="margin-bottom: 20px;"></div>
+		<script>
+			new APlayer({
+				element: document.getElementById("aplayer2"),
+				narrow: false,
+				autoplay: false,
+				showlrc: 0,
+				music: {
+					title: "匆匆那年",
+					author: "王菲",
+					url: "http://oid1xlj7h.bkt.clouddn.com/%E7%8E%8B%E8%8F%B2%20-%20%E5%8C%86%E5%8C%86%E9%82%A3%E5%B9%B4.mp3",
+					pic: "http://oid1xlj7h.bkt.clouddn.com/ccnn.txt",
+				}
+			});
+		</script>
+
 			<script>
 				console.error("SyntaxError: Unexpected token }");
 			</script>]]></content>
