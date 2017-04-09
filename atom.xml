@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yusank.github.io/"/>
-  <updated>2017-04-09T05:13:11.000Z</updated>
+  <updated>2017-04-09T07:13:11.000Z</updated>
   <id>http://yusank.github.io/</id>
   
   <author>
@@ -14,6 +14,27 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Hexo 添加歌单</title>
+    <link href="http://yusank.github.io/2017/04/09/testlist/"/>
+    <id>http://yusank.github.io/2017/04/09/testlist/</id>
+    <published>2017-04-09T07:13:11.000Z</published>
+    <updated>2017-04-09T07:13:11.000Z</updated>
+    
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="测试歌单"><a href="#测试歌单" class="headerlink" title="测试歌单"></a>测试歌单</h1>
+			<script>
+				console.error("SyntaxError: Unexpected token /");
+			</script>]]></content>
+    
+    <summary type="html">
+    
+      &lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;h1 id=&quot;测试歌单&quot;&gt;&lt;a href=&quot;#测试歌单&quot; class=&quot;hea
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>Hexo 博客添加视频和音乐</title>

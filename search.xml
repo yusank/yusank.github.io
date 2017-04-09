@@ -4,6 +4,15 @@
   
     
     <entry>
+      <title><![CDATA[Hexo 添加歌单]]></title>
+      <url>http://yusank.github.io/2017/04/09/testlist/</url>
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="测试歌单"><a href="#测试歌单" class="headerlink" title="测试歌单"></a>测试歌单</h1>
+			<script>
+				console.error("SyntaxError: Unexpected token /");
+			</script>]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Hexo 博客添加视频和音乐]]></title>
       <url>http://yusank.github.io/2017/04/09/HexoMedia/</url>
       <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>找到一个炒鸡流弊的东西。。。</p>
