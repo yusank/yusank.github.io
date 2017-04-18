@@ -73,7 +73,7 @@
 <p>安装成功后，在 Markdown 文档中添加 APlayer 和 DPlayer 标签即可。</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123;% aplayer "Caffeine" "Jeff Williams" "http://7xq131.com1.z0.glb.clouddn.com/Preparation.mp3" "autoplay" %&#125;</div><div class="line">&#123;% dplayer "url=http://devtest.qiniudn.com/若能绽放光芒.mp4" "api=http://dplayer.daoapp.io" "pic=http://devtest.qiniudn.com/若能绽放光芒.png" "id=9E2E3368B56CDBB4" "loop=yes" "theme=#FADFA3" "autoplay=false" "token=tokendemo" %&#125;</div></pre></td></tr></table></figure>
 <p>APlayer 和 DPlayer 具体参数设置可以到 GitHub 项目主页，不过默认参数足够了。</p>
-<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;">
+<div id="aplayer0" class="aplayer" style="margin-bottom: 20px;">
 				<pre class="aplayer-lrc-content">'[00:00.00]Zoobi Doobi
 [00:00.38]Sonu Nigam & Shreya Ghoshal
 [00:00.53]LRC：Meselson (QQ 445942376)
@@ -123,7 +123,7 @@
 			</div>
 			<script>
 				new APlayer({
-					element: document.getElementById("aplayer1"),
+					element: document.getElementById("aplayer0"),
 					narrow: false,
 					autoplay: 1,
 					showlrc: 2,
@@ -135,7 +135,7 @@
 					}
 				});
 			</script>    
-<div id="dplayer1" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer1 = new DPlayer({"element":document.getElementById("dplayer1"),"autoplay":false,"theme":"#FADFA3","loop":true,"video":{"url":"http://oid1xlj7h.bkt.clouddn.com/WeChatSight72.mp4"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo"}});</script>
+<div id="dplayer0" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer0 = new DPlayer({"element":document.getElementById("dplayer0"),"autoplay":false,"theme":"#FADFA3","loop":true,"video":{"url":"http://oid1xlj7h.bkt.clouddn.com/WeChatSight72.mp4"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo"}});</script>
 <p>APlayer 和 DPlayer 均支持 HTTPS。</p>
 <p>上述两种方法都有优缺点，选择一种适合自己的方法，打造自己专属的博客吧。</p>
 <p>转载：【login926】login926.github.io</p>
@@ -163,10 +163,10 @@ e:下一个词的词尾。
 </code></pre><p>​    b:上一个词的词首。</p>
 <pre><code>&lt;&gt;: v 模式选中后进行缩进。
 </code></pre><a id="more"></a>
-<div id="aplayer0" class="aplayer" style="margin-bottom: 20px;"></div>
+<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;"></div>
 		<script>
 			new APlayer({
-				element: document.getElementById("aplayer0"),
+				element: document.getElementById("aplayer1"),
 				narrow: false,
 				autoplay: true,
 				showlrc: 0,
@@ -178,7 +178,7 @@ e:下一个词的词尾。
 				}
 			});
 		</script>
-<div id="dplayer0" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer0 = new DPlayer({"element":document.getElementById("dplayer0"),"autoplay":false,"theme":"#FADFA3","loop":true,"video":{"url":"http://oid1xlj7h.bkt.clouddn.com/WeChatSight72.mp4"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo"}});</script>
+<div id="dplayer1" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer1 = new DPlayer({"element":document.getElementById("dplayer1"),"autoplay":false,"theme":"#FADFA3","loop":true,"video":{"url":"http://oid1xlj7h.bkt.clouddn.com/WeChatSight72.mp4"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo"}});</script>
 <h2 id="二-跳转："><a href="#二-跳转：" class="headerlink" title="二. 跳转："></a>二. 跳转：</h2><pre><code>%: 可以匹配{},&quot;&quot;,(),[]之间跳转。
 H、M、L：直接跳转到当前屏幕的顶部、中部、底部。
 </code></pre><p>“#H”：跳转到当前屏的第#行。            <em>// 由于markdown语法原因，加上了双引号，实际用的时候没有双引号的</em>, 以下所有加引号的雷同。</p>
