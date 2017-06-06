@@ -323,10 +323,8 @@
                 <!-- Post Content -->
                 <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
 	
-		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>welcome to learn terminal command!!!<br><a id="more"></a></p>
-<h1 id="linux命令"><a href="#linux命令" class="headerlink" title="linux命令"></a>linux命令</h1><h3 id="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"><a href="#永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！" class="headerlink" title="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"></a>永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！</h3><h2 id="实用性"><a href="#实用性" class="headerlink" title="实用性"></a>实用性</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo !!</div></pre></td></tr></table></figure>
-<p>以root权限执行上一条命令（注意上一条命令的内容，以免发生意外）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls -l | sed &apos;1d&apos; | sort -n -k5 | awk &apos;&#123;printf &quot;%15s %10s\n&quot;, $9,$5&#125;&apos;</div></pre></td></tr></table></figure>
+		<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>welcome to learn terminal command!!!<br><a id="more"></a></p>
+<h1 id="linux命令"><a href="#linux命令" class="headerlink" title="linux命令"></a>linux命令</h1><h3 id="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"><a href="#永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！" class="headerlink" title="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"></a>永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！</h3><h2 id="实用性"><a href="#实用性" class="headerlink" title="实用性"></a>实用性</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls -l | sed &apos;1d&apos; | sort -n -k5 | awk &apos;&#123;printf &quot;%15s %10s\n&quot;, $9,$5&#125;&apos;</div></pre></td></tr></table></figure>
 <p>按文件大小增序打印出当前目录下的文件名及其文件大小(单位字节）</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ history | awk &apos;&#123;print $2&#125;&apos; | sort | uniq -c | sort -rn | head -10</div></pre></td></tr></table></figure>
 <p>输出你最常用的十条命令</p>
@@ -371,10 +369,13 @@
 </ul>
 </li>
 </ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo !!</div></pre></td></tr></table></figure>
+<p>以root权限执行上一条命令（注意上一条命令的内容，以免发生意外）</p>
+<p>例如：在Ubuntu 安装软件或插件的时候需要用到这个命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-get install nginx</div></pre></td></tr></table></figure>
 <p>查看和修改：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ cat</div><div class="line">$ more</div><div class="line">$ less</div><div class="line">$ head</div><div class="line">$ tail</div><div class="line"></div><div class="line">$ vi</div><div class="line">$ vim</div><div class="line"></div><div class="line">$ mkdir</div><div class="line">$ touch</div></pre></td></tr></table></figure>
 <h3 id="git"><a href="#git" class="headerlink" title="git"></a>git</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git</div></pre></td></tr></table></figure>
-<p>必须得会的一个命令。本地库的管理用的</p>
 <p>先给出比较常用的</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git add &lt;一个或多个文件名(文件名之间是用空格，也可以是一个点，表示添加全部)&gt;</div></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git commit -m &quot;注释&quot;</div></pre></td></tr></table></figure>
