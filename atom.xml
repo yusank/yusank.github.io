@@ -17,8 +17,8 @@
   
   <entry>
     <title>Hexo 添加歌单</title>
-    <link href="http://yusank.github.io/2017/04/09/testlist/"/>
-    <id>http://yusank.github.io/2017/04/09/testlist/</id>
+    <link href="http://yusank.github.io/testlist.html/"/>
+    <id>http://yusank.github.io/testlist.html/</id>
     <published>2017-04-09T07:13:11.000Z</published>
     <updated>2017-04-09T07:13:11.000Z</updated>
     
@@ -44,8 +44,8 @@
   
   <entry>
     <title>Hexo 博客添加视频和音乐</title>
-    <link href="http://yusank.github.io/2017/04/09/HexoMedia/"/>
-    <id>http://yusank.github.io/2017/04/09/HexoMedia/</id>
+    <link href="http://yusank.github.io/HexoMedia.html/"/>
+    <id>http://yusank.github.io/HexoMedia.html/</id>
     <published>2017-04-09T05:13:11.000Z</published>
     <updated>2017-04-09T05:13:11.000Z</updated>
     
@@ -73,7 +73,7 @@
 <p>安装成功后，在 Markdown 文档中添加 APlayer 和 DPlayer 标签即可。</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123;% aplayer "Caffeine" "Jeff Williams" "http://7xq131.com1.z0.glb.clouddn.com/Preparation.mp3" "autoplay" %&#125;</div><div class="line">&#123;% dplayer "url=http://devtest.qiniudn.com/若能绽放光芒.mp4" "api=http://dplayer.daoapp.io" "pic=http://devtest.qiniudn.com/若能绽放光芒.png" "id=9E2E3368B56CDBB4" "loop=yes" "theme=#FADFA3" "autoplay=false" "token=tokendemo" %&#125;</div></pre></td></tr></table></figure>
 <p>APlayer 和 DPlayer 具体参数设置可以到 GitHub 项目主页，不过默认参数足够了。</p>
-<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;">
+<div id="aplayer0" class="aplayer" style="margin-bottom: 20px;">
 				<pre class="aplayer-lrc-content">'[00:00.00]Zoobi Doobi
 [00:00.38]Sonu Nigam & Shreya Ghoshal
 [00:00.53]LRC：Meselson (QQ 445942376)
@@ -123,7 +123,7 @@
 			</div>
 			<script>
 				new APlayer({
-					element: document.getElementById("aplayer1"),
+					element: document.getElementById("aplayer0"),
 					narrow: false,
 					autoplay: 1,
 					showlrc: 2,
@@ -152,8 +152,8 @@
   
   <entry>
     <title>Vim 快捷键</title>
-    <link href="http://yusank.github.io/2017/04/07/Vimkyboard/"/>
-    <id>http://yusank.github.io/2017/04/07/Vimkyboard/</id>
+    <link href="http://yusank.github.io/Vimkyboard.html/"/>
+    <id>http://yusank.github.io/Vimkyboard.html/</id>
     <published>2017-04-07T07:07:00.000Z</published>
     <updated>2017-04-07T07:07:01.000Z</updated>
     
@@ -163,10 +163,10 @@ e:下一个词的词尾。
 </code></pre><p>​    b:上一个词的词首。</p>
 <pre><code>&lt;&gt;: v 模式选中后进行缩进。
 </code></pre><a id="more"></a>
-<div id="aplayer0" class="aplayer" style="margin-bottom: 20px;"></div>
+<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;"></div>
 		<script>
 			new APlayer({
-				element: document.getElementById("aplayer0"),
+				element: document.getElementById("aplayer1"),
 				narrow: false,
 				autoplay: true,
 				showlrc: 0,
@@ -294,8 +294,8 @@ e:下一个词的词尾。
   
   <entry>
     <title>跨域资源共享 CORS 详解</title>
-    <link href="http://yusank.github.io/2017/01/30/CORS/"/>
-    <id>http://yusank.github.io/2017/01/30/CORS/</id>
+    <link href="http://yusank.github.io/CORS.html/"/>
+    <id>http://yusank.github.io/CORS.html/</id>
     <published>2017-01-30T07:07:00.000Z</published>
     <updated>2017-01-30T07:07:01.000Z</updated>
     
@@ -400,8 +400,8 @@ e:下一个词的词尾。
   
   <entry>
     <title>Go Channel</title>
-    <link href="http://yusank.github.io/2017/01/07/Go%20Channel/"/>
-    <id>http://yusank.github.io/2017/01/07/Go Channel/</id>
+    <link href="http://yusank.github.io/Go%20Channel.html/"/>
+    <id>http://yusank.github.io/Go Channel.html/</id>
     <published>2017-01-07T04:20:00.000Z</published>
     <updated>2017-01-08T06:31:42.000Z</updated>
     
@@ -503,8 +503,8 @@ e:下一个词的词尾。
   
   <entry>
     <title>Docker 进阶与实践（第一讲）</title>
-    <link href="http://yusank.github.io/2017/01/03/Docker/"/>
-    <id>http://yusank.github.io/2017/01/03/Docker/</id>
+    <link href="http://yusank.github.io/Docker.html/"/>
+    <id>http://yusank.github.io/Docker.html/</id>
     <published>2017-01-03T10:11:00.000Z</published>
     <updated>2017-01-04T06:12:00.000Z</updated>
     
@@ -578,8 +578,8 @@ e:下一个词的词尾。
   
   <entry>
     <title>Goddbye 2016 and Hello 2017</title>
-    <link href="http://yusank.github.io/2016/12/31/%E5%86%8D%E8%A7%81%E4%BA%862016%EF%BC%8C%E4%BD%A0%E5%A5%BD2017/"/>
-    <id>http://yusank.github.io/2016/12/31/再见了2016，你好2017/</id>
+    <link href="http://yusank.github.io/%E5%86%8D%E8%A7%81%E4%BA%862016%EF%BC%8C%E4%BD%A0%E5%A5%BD2017.html/"/>
+    <id>http://yusank.github.io/再见了2016，你好2017.html/</id>
     <published>2016-12-31T09:07:55.000Z</published>
     <updated>2016-12-31T09:07:56.000Z</updated>
     
@@ -607,8 +607,8 @@ e:下一个词的词尾。
   
   <entry>
     <title>linux命令</title>
-    <link href="http://yusank.github.io/2016/12/28/linux%E5%91%BD%E4%BB%A4/"/>
-    <id>http://yusank.github.io/2016/12/28/linux命令/</id>
+    <link href="http://yusank.github.io/linux%E5%91%BD%E4%BB%A4.html/"/>
+    <id>http://yusank.github.io/linux命令.html/</id>
     <published>2016-12-28T05:13:13.000Z</published>
     <updated>2016-12-28T05:13:13.000Z</updated>
     
@@ -703,8 +703,8 @@ e:下一个词的词尾。
   
   <entry>
     <title>Material 的配置</title>
-    <link href="http://yusank.github.io/2016/12/18/%20Material%20%E5%8E%9F%E8%B4%A8/"/>
-    <id>http://yusank.github.io/2016/12/18/ Material 原质/</id>
+    <link href="http://yusank.github.io/%20Material%20%E5%8E%9F%E8%B4%A8.html/"/>
+    <id>http://yusank.github.io/ Material 原质.html/</id>
     <published>2016-12-18T06:14:14.000Z</published>
     <updated>2016-12-19T06:14:14.000Z</updated>
     
@@ -752,8 +752,8 @@ e:下一个词的词尾。
   
   <entry>
     <title>Python 资源大全</title>
-    <link href="http://yusank.github.io/2016/12/17/awesomepython/"/>
-    <id>http://yusank.github.io/2016/12/17/awesomepython/</id>
+    <link href="http://yusank.github.io/awesomepython.html/"/>
+    <id>http://yusank.github.io/awesomepython.html/</id>
     <published>2016-12-17T12:55:55.000Z</published>
     <updated>2016-12-16T12:48:35.000Z</updated>
     
@@ -1873,8 +1873,8 @@ e:下一个词的词尾。
   
   <entry>
     <title>xx-net 使用方法</title>
-    <link href="http://yusank.github.io/2016/12/17/xxnet/"/>
-    <id>http://yusank.github.io/2016/12/17/xxnet/</id>
+    <link href="http://yusank.github.io/xxnet.html/"/>
+    <id>http://yusank.github.io/xxnet.html/</id>
     <published>2016-12-17T05:13:13.000Z</published>
     <updated>2016-12-19T05:13:13.000Z</updated>
     
@@ -1968,8 +1968,8 @@ e:下一个词的词尾。
   
   <entry>
     <title>Hello World</title>
-    <link href="http://yusank.github.io/2016/12/16/hello-world/"/>
-    <id>http://yusank.github.io/2016/12/16/hello-world/</id>
+    <link href="http://yusank.github.io/hello-world.html/"/>
+    <id>http://yusank.github.io/hello-world.html/</id>
     <published>2016-12-16T12:12:02.000Z</published>
     <updated>2016-12-16T12:12:02.000Z</updated>
     

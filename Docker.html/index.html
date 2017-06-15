@@ -4,7 +4,7 @@
     <!-- Title -->
     
     <title>
-        跨域资源共享 CORS 详解 | Yusank&#39;s blog
+        Docker 进阶与实践（第一讲） | Yusank&#39;s blog
     </title>
     
     <!-- Favicons -->
@@ -40,7 +40,7 @@
     <!-- The Open Graph protocol -->
     <meta property="og:url" content="http://yusank.github.io">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="跨域资源共享 CORS 详解 | Yusank&#39;s blog">
+    <meta property="og:title" content="Docker 进阶与实践（第一讲） | Yusank&#39;s blog">
     <meta property="og:description" content="live with light`s die with darkness">
     
      <!--[if lte IE 9]>
@@ -212,7 +212,7 @@
 	<ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
 		for="post-toc-trigger-btn">
 			
-			<ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#跨域资源共享-CORS-详解"><span class="post-toc-number">1.</span> <span class="post-toc-text">跨域资源共享 CORS 详解</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#一、简介"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">一、简介</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#二、两种请求"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">二、两种请求</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#三、简单请求"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">三、简单请求</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#3-1-基本流程"><span class="post-toc-number">1.3.1.</span> <span class="post-toc-text">3.1 基本流程</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#3-2-withCredentials-属性"><span class="post-toc-number">1.3.2.</span> <span class="post-toc-text">3.2 withCredentials 属性</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#四、非简单请求"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">四、非简单请求</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#4-1-预检请求"><span class="post-toc-number">1.4.1.</span> <span class="post-toc-text">4.1 预检请求</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#4-2-预检请求的回应"><span class="post-toc-number">1.4.2.</span> <span class="post-toc-text">4.2 预检请求的回应</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#4-3-浏览器的正常请求和回应"><span class="post-toc-number">1.4.3.</span> <span class="post-toc-text">4.3 浏览器的正常请求和回应</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#五、与JSONP的比较"><span class="post-toc-number">1.5.</span> <span class="post-toc-text">五、与JSONP的比较</span></a></li></ol></li></ol>
+			<ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Docker"><span class="post-toc-number">1.</span> <span class="post-toc-text">Docker</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#容器技术"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">容器技术</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#容器的创建原理"><span class="post-toc-number">2.</span> <span class="post-toc-text">容器的创建原理</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Cgroup"><span class="post-toc-number"></span> <span class="post-toc-text">Cgroup</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Cgroup-是什么"><span class="post-toc-number">1.</span> <span class="post-toc-text">Cgroup 是什么</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Namespace"><span class="post-toc-number"></span> <span class="post-toc-text">Namespace</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Namespace-是什么"><span class="post-toc-number">1.</span> <span class="post-toc-text">Namespace 是什么</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#容器造就-Docker"><span class="post-toc-number"></span> <span class="post-toc-text">容器造就 Docker</span></a>
 		
 <!--			<li class="mdl-menu__item">Some Action</li>-->
 	</ul>
@@ -232,10 +232,10 @@
 	<!-- Paradox Post Header -->
 	
 		<!-- Custom Thumbnail -->
-		<div class="post_thumbnail-custom mdl-card__media mdl-color-text--grey-50" style="background-image:url(http://codecondo.com/wp-content/uploads/2014/04/4-Minimal-Web-Frameworks-for-Go.png?478983)">
+		<div class="post_thumbnail-custom mdl-card__media mdl-color-text--grey-50" style="background-image:url(https://d3nmt5vlzunoa1.cloudfront.net/phpstorm/files/2015/10/large_v-trans.png)">
 	
         <p class="article-headline-p">
-            跨域资源共享 CORS 详解
+            Docker 进阶与实践（第一讲）
         </p>
     </div>
 
@@ -253,7 +253,7 @@
     <!-- Author Name & Date -->
     <div>
         <strong>Yusank</strong>
-        <span>1月 30, 2017</span>
+        <span>1月 03, 2017</span>
     </div>
     
     <div class="section-spacer"></div>
@@ -297,21 +297,21 @@
     
     
     <!-- Share Twitter -->
-    <a class="post_share-link" href="https://twitter.com/intent/tweet?text=跨域资源共享 CORS 详解&url=http://yusank.github.io//2017/01/30/CORS/index.html&via=Yusank" target="_blank">
+    <a class="post_share-link" href="https://twitter.com/intent/tweet?text=Docker 进阶与实践（第一讲）&url=http://yusank.github.io//Docker.html/index.html&via=Yusank" target="_blank">
         <li class="mdl-menu__item">
             分享到 Twitter
         </li>
     </a>
     
     <!-- Share Google+ -->
-    <a class="post_share-link" href="https://plus.google.com/share?url=http://yusank.github.io//2017/01/30/CORS/index.html" target="_blank">
+    <a class="post_share-link" href="https://plus.google.com/share?url=http://yusank.github.io//Docker.html/index.html" target="_blank">
         <li class="mdl-menu__item">
             分享到 Google+
         </li>
     </a>
     
     <!-- Share Weibo -->
-    <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=跨域资源共享 CORS 详解&url=http://yusank.github.io//2017/01/30/CORS/index.html&pic=&searchPic=false&style=simple" target="_blank">
+    <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=Docker 进阶与实践（第一讲）&url=http://yusank.github.io//Docker.html/index.html&pic=&searchPic=false&style=simple" target="_blank">
         <li class="mdl-menu__item">
             分享到微博
         </li>
@@ -323,94 +323,63 @@
                 <!-- Post Content -->
                 <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
 	
-		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="跨域资源共享-CORS-详解"><a href="#跨域资源共享-CORS-详解" class="headerlink" title="跨域资源共享 CORS 详解"></a>跨域资源共享 CORS 详解</h1><p>CORS是一个W3C标准，全称是”跨域资源共享”（Cross-origin resource sharing）。<br>它允许浏览器向跨源服务器，发出<code>XMLHttpRequest</code>请求，从而克服了AJAX只能<strong>同源</strong>使用的限制。<br>本文详细介绍CORS的内部机制。<br><a id="more"></a></p>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=5110131&auto=1&height=66"></iframe>
+		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>学习 Docker 技术，每看完一章或够写一篇文章的时候就上传一次. 这一篇讲容器技术。以下正文。。。<br><a id="more"></a></p>
+<h2 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h2><h3 id="容器技术"><a href="#容器技术" class="headerlink" title="容器技术"></a>容器技术</h3><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=437292675&auto=1&height=66"></iframe>
 
-<h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>CORS需要浏览器和服务器同时支持。目前，所有浏览器都支持该功能，IE浏览器不能低于IE10。</p>
-<p>整个CORS通信过程，都是浏览器自动完成，不需要用户参与。对于开发者来说，CORS通信与同源的AJAX通信没有差别，代码完全一样。浏览器一旦发现AJAX请求跨源，就会自动添加一些附加的头信息，有时还会多出一次附加的请求，但用户不会有感觉。</p>
-<p>因此，实现CORS通信的关键是服务器。只要服务器实现了CORS接口，就可以跨源通信。</p>
-<h2 id="二、两种请求"><a href="#二、两种请求" class="headerlink" title="二、两种请求"></a>二、两种请求</h2><p>浏览器将CORS请求分成两类：简单请求（simple request）和非简单请求（not-so-simple request）。</p>
-<p>只要同时满足以下两大条件，就属于简单请求。</p>
-<blockquote>
-<p>1) 请求方法是以下三种方法之一：</p>
+<p>对于容器，目前并没有一个严格的定义，但是普遍被认可的说法是，它首先必须是一个相对独立的环境，在这一点上有点类似虚拟机，但是没有虚拟机那么彻底。另外，在一个容器环境中，应该最小化其对外界的影响，比如不能在容器中吧host上的资源耗尽，这就是资源的控制。</p>
+<p>容器技术之所以受欢迎，一个重要的原因是它已经集成到了 Linux 内核中，已经被当作 Linux 内核原生提供的特征。当然其他平台也有相应的容器技术，但是我们讨论的以及Docker涉及的都是指 Linux 平台上的容器技术。</p>
+<p>一般来说，容器技术主要包括Namespace和Cgroup两个内核特征。</p>
 <ul>
-<li>HEAD</li>
-<li>GET</li>
-<li>POST</li>
+<li>Namespace 命名空间，它主要做的是访问隔离。其原理是对一类资源进行抽象，并将其封装在一起提供给容器使用，对于这类资源，因为每个容器都有自己的抽象，而他们彼此之间是不可见的，所以就做到访问隔离。</li>
+<li>Cgroup是 control group 的简称，又称为控制组，它主要是控制资源控制。其原理是将一组进程放在一个控制组里，通过给这个控制组分配指定的可用资源，达到控制这一组进程可用资源的目的。</li>
 </ul>
-<p>（2）HTTP的头信息不超出以下几种字段：</p>
+<p>容器最核心技术是 Namespace+Cgroup，但是光有这两个抽象的技术概念是无法组成一个完整的容器的。<br>对于 linux 容器的最小组成，是由一下四个部分构成：</p>
 <ul>
-<li>Accept</li>
-<li>Accept-Language</li>
-<li>Content-Language</li>
-<li>Last-Event-ID</li>
-<li>Content-Type：只限于三个值<code>application/x-www-form-urlencoded</code>、<code>multipart/form-data</code>、<code>text/plain</code></li>
+<li>Cgroup： 资源控制。</li>
+<li>Namespace： 访问隔离。</li>
+<li>rootfs： 系统文件隔离。</li>
+<li>容器引擎： 生命周期控制。</li>
 </ul>
-</blockquote>
-<p>凡是不同时满足上面两个条件，就属于非简单请求。</p>
-<p>浏览器对这两种请求的处理，是不一样的。</p>
-<h2 id="三、简单请求"><a href="#三、简单请求" class="headerlink" title="三、简单请求"></a>三、简单请求</h2><h3 id="3-1-基本流程"><a href="#3-1-基本流程" class="headerlink" title="3.1 基本流程"></a>3.1 基本流程</h3><p>对于简单请求，浏览器直接发出CORS请求。具体来说，就是在头信息之中，增加一个<code>Origin</code>字段。</p>
-<p>下面是一个例子，浏览器发现这次跨源AJAX请求是简单请求，就自动在头信息之中，添加一个<code>Origin</code>字段。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">GET</span> <span class="string">/cors</span> HTTP/1.1</div><div class="line"><span class="attribute">Origin</span>: http://api.bob.com</div><div class="line"><span class="attribute">Host</span>: api.alice.com</div><div class="line"><span class="attribute">Accept-Language</span>: en-US</div><div class="line"><span class="attribute">Connection</span>: keep-alive</div><div class="line"><span class="attribute">User-Agent</span>: Mozilla/5.0...</div></pre></td></tr></table></figure>
-<p>上面的头信息中，<code>Origin</code>字段用来说明，本次请求来自哪个源（协议 + 域名 + 端口）。服务器根据这个值，决定是否同意这次请求。</p>
-<p>如果<code>Origin</code>指定的源，不在许可范围内，服务器会返回一个正常的HTTP回应。浏览器发现，这个回应的头信息没有包含<code>Access-Control-Allow-Origin</code>字段（详见下文），就知道出错了，从而抛出一个错误，被<code>XMLHttpRequest</code>的<code>onerror</code>回调函数捕获。注意，这种错误无法通过状态码识别，因为HTTP回应的状态码有可能是200。</p>
-<p>如果<code>Origin</code>指定的域名在许可范围内，服务器返回的响应，会多出几个头信息字段。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">Access-Control-Allow-Origin</span>: http://api.bob.com</div><div class="line"><span class="attribute">Access-Control-Allow-Credentials</span>: true</div><div class="line"><span class="attribute">Access-Control-Expose-Headers</span>: FooBar</div><div class="line"><span class="attribute">Content-Type</span>: text/html; charset=utf-8</div></pre></td></tr></table></figure>
-<p>上面的头信息之中，有三个与CORS请求相关的字段，都以<code>Access-Control-</code>开头。</p>
-<p><strong>（1）Access-Control-Allow-Origin</strong></p>
-<p>该字段是必须的。它的值要么是请求时<code>Origin</code>字段的值，要么是一个<code>*</code>，表示接受任意域名的请求。</p>
-<p><strong>（2）Access-Control-Allow-Credentials</strong></p>
-<p>该字段可选。它的值是一个布尔值，表示是否允许发送Cookie。默认情况下，Cookie不包括在CORS请求之中。设为<code>true</code>，即表示服务器明确许可，Cookie可以包含在请求中，一起发给服务器。这个值也只能设为<code>true</code>，如果服务器不要浏览器发送Cookie，删除该字段即可。</p>
-<p><strong>（3）Access-Control-Expose-Headers</strong></p>
-<p>该字段可选。CORS请求时，<code>XMLHttpRequest</code>对象的<code>getResponseHeader()</code>方法只能拿到6个基本字段：<code>Cache-Control</code>、<code>Content-Language</code>、<code>Content-Type</code>、<code>Expires</code>、<code>Last-Modified</code>、<code>Pragma</code>。如果想拿到其他字段，就必须在<code>Access-Control-Expose-Headers</code>里面指定。上面的例子指定，<code>getResponseHeader(&#39;FooBar&#39;)</code>可以返回<code>FooBar</code>字段的值。</p>
-<h3 id="3-2-withCredentials-属性"><a href="#3-2-withCredentials-属性" class="headerlink" title="3.2 withCredentials 属性"></a>3.2 withCredentials 属性</h3><p>上面说到，CORS请求默认不发送Cookie和HTTP认证信息。如果要把Cookie发到服务器，一方面要服务器同意，指定<code>Access-Control-Allow-Credentials</code>字段。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">Access-Control-Allow-Credentials</span>: true</div></pre></td></tr></table></figure>
-<p>另一方面，开发者必须在AJAX请求中打开<code>withCredentials</code>属性。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</div><div class="line">xhr.withCredentials = <span class="literal">true</span>;</div></pre></td></tr></table></figure>
-<p>否则，即使服务器同意发送Cookie，浏览器也不会发送。或者，服务器要求设置Cookie，浏览器也不会处理。</p>
-<p>但是，如果省略<code>withCredentials</code>设置，有的浏览器还是会一起发送Cookie。这时，可以显式关闭<code>withCredentials</code>。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">xhr.withCredentials = <span class="literal">false</span>;</div></pre></td></tr></table></figure>
-<p>需要注意的是，如果要发送Cookie，<code>Access-Control-Allow-Origin</code>就不能设为星号，必须指定明确的、与请求网页一致的域名。同时，Cookie依然遵循同源政策，只有用服务器域名设置的Cookie才会上传，其他域名的Cookie并不会上传，且（跨源）原网页代码中的<code>document.cookie</code>也无法读取服务器域名下的Cookie。</p>
-<h2 id="四、非简单请求"><a href="#四、非简单请求" class="headerlink" title="四、非简单请求"></a>四、非简单请求</h2><h3 id="4-1-预检请求"><a href="#4-1-预检请求" class="headerlink" title="4.1 预检请求"></a>4.1 预检请求</h3><p>非简单请求是那种对服务器有特殊要求的请求，比如请求方法是<code>PUT</code>或<code>DELETE</code>，或者<code>Content-Type</code>字段的类型是<code>application/json</code>。</p>
-<p>非简单请求的CORS请求，会在正式通信之前，增加一次HTTP查询请求，称为”预检”请求（preflight）。</p>
-<p>浏览器先询问服务器，当前网页所在的域名是否在服务器的许可名单之中，以及可以使用哪些HTTP动词和头信息字段。只有得到肯定答复，浏览器才会发出正式的<code>XMLHttpRequest</code>请求，否则就报错。</p>
-<p>下面是一段浏览器的JavaScript脚本。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> url = <span class="string">'http://api.alice.com/cors'</span>;</div><div class="line"><span class="keyword">var</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</div><div class="line">xhr.open(<span class="string">'PUT'</span>, url, <span class="literal">true</span>);</div><div class="line">xhr.setRequestHeader(<span class="string">'X-Custom-Header'</span>, <span class="string">'value'</span>);</div><div class="line">xhr.send();</div></pre></td></tr></table></figure>
-<p>上面代码中，HTTP请求的方法是<code>PUT</code>，并且发送一个自定义头信息<code>X-Custom-Header</code>。</p>
-<p>浏览器发现，这是一个非简单请求，就自动发出一个”预检”请求，要求服务器确认可以这样请求。下面是这个”预检”请求的HTTP头信息。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">OPTIONS</span> <span class="string">/cors</span> HTTP/1.1</div><div class="line"><span class="attribute">Origin</span>: http://api.bob.com</div><div class="line"><span class="attribute">Access-Control-Request-Method</span>: PUT</div><div class="line"><span class="attribute">Access-Control-Request-Headers</span>: X-Custom-Header</div><div class="line"><span class="attribute">Host</span>: api.alice.com</div><div class="line"><span class="attribute">Accept-Language</span>: en-US</div><div class="line"><span class="attribute">Connection</span>: keep-alive</div><div class="line"><span class="attribute">User-Agent</span>: Mozilla/5.0...</div></pre></td></tr></table></figure>
-<p>“预检”请求用的请求方法是<code>OPTIONS</code>，表示这个请求是用来询问的。头信息里面，关键字段是<code>Origin</code>，表示请求来自哪个源。</p>
-<p>除了<code>Origin</code>字段，”预检”请求的头信息包括两个特殊字段。</p>
-<p><strong>（1）Access-Control-Request-Method</strong></p>
-<p>该字段是必须的，用来列出浏览器的CORS请求会用到哪些HTTP方法，上例是<code>PUT</code>。</p>
-<p><strong>（2）Access-Control-Request-Headers</strong></p>
-<p>该字段是一个逗号分隔的字符串，指定浏览器CORS请求会额外发送的头信息字段，上例是<code>X-Custom-Header</code>。</p>
-<h3 id="4-2-预检请求的回应"><a href="#4-2-预检请求的回应" class="headerlink" title="4.2 预检请求的回应"></a>4.2 预检请求的回应</h3><p>服务器收到”预检”请求以后，检查了<code>Origin</code>、<code>Access-Control-Request-Method</code>和<code>Access-Control-Request-Headers</code>字段以后，确认允许跨源请求，就可以做出回应。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 <span class="number">200</span> OK</div><div class="line"><span class="attribute">Date</span>: Mon, 01 Dec 2008 01:15:39 GMT</div><div class="line"><span class="attribute">Server</span>: Apache/2.0.61 (Unix)</div><div class="line"><span class="attribute">Access-Control-Allow-Origin</span>: http://api.bob.com</div><div class="line"><span class="attribute">Access-Control-Allow-Methods</span>: GET, POST, PUT</div><div class="line"><span class="attribute">Access-Control-Allow-Headers</span>: X-Custom-Header</div><div class="line"><span class="attribute">Content-Type</span>: text/html; charset=utf-8</div><div class="line"><span class="attribute">Content-Encoding</span>: gzip</div><div class="line"><span class="attribute">Content-Length</span>: 0</div><div class="line"><span class="attribute">Keep-Alive</span>: timeout=2, max=100</div><div class="line"><span class="attribute">Connection</span>: Keep-Alive</div><div class="line"><span class="attribute">Content-Type</span>: text/plain</div></pre></td></tr></table></figure>
-<p>上面的HTTP回应中，关键的是<code>Access-Control-Allow-Origin</code>字段，表示<code>http://api.bob.com</code>可以请求数据。该字段也可以设为星号，表示同意任意跨源请求。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">Access-Control-Allow-Origin</span>: *</div></pre></td></tr></table></figure>
-<p>如果浏览器否定了”预检”请求，会返回一个正常的HTTP回应，但是没有任何CORS相关的头信息字段。这时，浏览器就会认定，服务器不同意预检请求，因此触发一个错误，被<code>XMLHttpRequest</code>对象的<code>onerror</code>回调函数捕获。控制台会打印出如下的报错信息。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">XMLHttpRequest cannot load http://api.alice.com.</div><div class="line">Origin http://api.bob.com is not allowed by Access-Control-Allow-Origin.</div></pre></td></tr></table></figure>
-<p>服务器回应的其他CORS相关字段如下。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">Access-Control-Allow-Methods</span>: GET, POST, PUT</div><div class="line"><span class="attribute">Access-Control-Allow-Headers</span>: X-Custom-Header</div><div class="line"><span class="attribute">Access-Control-Allow-Credentials</span>: true</div><div class="line"><span class="attribute">Access-Control-Max-Age</span>: 1728000</div></pre></td></tr></table></figure>
-<p><strong>（1）Access-Control-Allow-Methods</strong></p>
-<p>该字段必需，它的值是逗号分隔的一个字符串，表明服务器支持的所有跨域请求的方法。注意，返回的是所有支持的方法，而不单是浏览器请求的那个方法。这是为了避免多次”预检”请求。</p>
-<p><strong>（2）Access-Control-Allow-Headers</strong></p>
-<p>如果浏览器请求包括<code>Access-Control-Request-Headers</code>字段，则<code>Access-Control-Allow-Headers</code>字段是必需的。它也是一个逗号分隔的字符串，表明服务器支持的所有头信息字段，不限于浏览器在”预检”中请求的字段。</p>
-<p><strong>（3）Access-Control-Allow-Credentials</strong></p>
-<p>该字段与简单请求时的含义相同。</p>
-<p><strong>（4）Access-Control-Max-Age</strong></p>
-<p>该字段可选，用来指定本次预检请求的有效期，单位为秒。上面结果中，有效期是20天（1728000秒），即允许缓存该条回应1728000秒（即20天），在此期间，不用发出另一条预检请求。</p>
-<h3 id="4-3-浏览器的正常请求和回应"><a href="#4-3-浏览器的正常请求和回应" class="headerlink" title="4.3 浏览器的正常请求和回应"></a>4.3 浏览器的正常请求和回应</h3><p>一旦服务器通过了”预检”请求，以后每次浏览器正常的CORS请求，就都跟简单请求一样，会有一个<code>Origin</code>头信息字段。服务器的回应，也都会有一个<code>Access-Control-Allow-Origin</code>头信息字段。</p>
-<p>下面是”预检”请求之后，浏览器的正常CORS请求。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">PUT</span> <span class="string">/cors</span> HTTP/1.1</div><div class="line"><span class="attribute">Origin</span>: http://api.bob.com</div><div class="line"><span class="attribute">Host</span>: api.alice.com</div><div class="line"><span class="attribute">X-Custom-Header</span>: value</div><div class="line"><span class="attribute">Accept-Language</span>: en-US</div><div class="line"><span class="attribute">Connection</span>: keep-alive</div><div class="line"><span class="attribute">User-Agent</span>: Mozilla/5.0...</div></pre></td></tr></table></figure>
-<p>上面头信息的<code>Origin</code>字段是浏览器自动添加的。</p>
-<p>下面是服务器正常的回应。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">Access-Control-Allow-Origin</span>: http://api.bob.com</div><div class="line"><span class="attribute">Content-Type</span>: text/html; charset=utf-8</div></pre></td></tr></table></figure>
-<p>上面头信息中，<code>Access-Control-Allow-Origin</code>字段是每次回应都必定包含的。</p>
-<h2 id="五、与JSONP的比较"><a href="#五、与JSONP的比较" class="headerlink" title="五、与JSONP的比较"></a>五、与JSONP的比较</h2><p>CORS与JSONP的使用目的相同，但是比JSONP更强大。</p>
-<p>JSONP只支持<code>GET</code>请求，CORS支持所有类型的HTTP请求。JSONP的优势在于支持老式浏览器，以及可以向不支持CORS的网站请求数据。</p>
-<p>（完）</p>
+<h2 id="容器的创建原理"><a href="#容器的创建原理" class="headerlink" title="容器的创建原理"></a>容器的创建原理</h2><p>代码一<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">pid = clone(fun, <span class="built_in">stack</span>, flags, clone_arg);</div><div class="line"></div><div class="line">(flags: CLONE_NEWPID | CLONE_NEWNS |</div><div class="line">     CLONE_NEWUSER | CLONE_NEWNET |</div><div class="line">     CLONE_NEWIPC | CLONE_NEWUTS |</div><div class="line">        ...)</div></pre></td></tr></table></figure></p>
+<ul>
+<li>对于以上代码，通过clone系统调用，并传入各个Namespace对应的clone flag，创建了一个新的子进程，该进程拥有自己的Namespace。从上面的代码可以看出，该进程拥有自己的pid,mount,user,net,ipc,uts namespace 。</li>
+</ul>
+<p>代码二：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> <span class="variable">$pid</span> &gt; /sys/fs/cgroup/cpu/tasks</div><div class="line"><span class="built_in">echo</span> <span class="variable">$pid</span> &gt; /sys/fs/cgroup/cpuset/tasks</div><div class="line"><span class="built_in">echo</span> <span class="variable">$pid</span> &gt; /sys/fs/cgroup/blkio/tasks</div><div class="line"><span class="built_in">echo</span> <span class="variable">$pid</span> &gt; /sys/fs/cgroup/memory/tasks</div><div class="line"><span class="built_in">echo</span> <span class="variable">$pid</span> &gt; /sys/fs/cgroup/devices/tasks</div><div class="line"><span class="built_in">echo</span> <span class="variable">$pid</span> &gt; /sys/fs/cgroup/freezer/tasks</div></pre></td></tr></table></figure></p>
+<ul>
+<li>对于代码二，将代码一中的pid写入各个Cgroup子系统中，这样该进程就可以受到相应Cgroup子系统的控制。</li>
+</ul>
+<p>代码三：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">fun</span></span> ()</div><div class="line">&#123;</div><div class="line">    ...</div><div class="line">    </div><div class="line">    pivot_root(<span class="string">"path_of_rootfs/"</span>, path);</div><div class="line">    ...</div><div class="line">    </div><div class="line">    <span class="built_in">exec</span>(<span class="string">"/bin/bash"</span>);</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<ul>
+<li>对于代码三，该fun函数由上面生成的新进程执行，在fun函数中，通过<code>pivot_root</code>系统调用，使进程进入新的<code>rootfs</code>，之后通过<code>exec</code>系统调用，在新的<code>Namespace</code>,<code>Cgroup</code>,<code>rootfs</code>中执行<code>&quot;/bin/bash&quot;</code>程序。</li>
+</ul>
+<p>通过以上操作，成功在一个“容器”中运行了一个bash程序。对于Cgroup和Namespace的技术细节，我们下一节详细描述</p>
+<h1 id="Cgroup"><a href="#Cgroup" class="headerlink" title="Cgroup"></a>Cgroup</h1><h2 id="Cgroup-是什么"><a href="#Cgroup-是什么" class="headerlink" title="Cgroup 是什么"></a>Cgroup 是什么</h2><p>Cgroup是control group 的简写，属于 Linux 内核提供的一个特性，用于限制和隔离一组进程对系统资源的使用。这些资源主要包括 CPU， 内存， block I/O（数据块 I/O） 和网络宽带。<br>Cgroup 从 2.6.24版本进入内核主线，目前各大发行版linux都默认打开了 Cgroup 特性</p>
+<p>从实现的角度来看，Cgroup 实现了一个通用的进程分组的框架，而不同资源的具体管理则是由各个 Cgroup 子系统实现的。截止内核4.1版本，Cgroup 中实现的子系统的及其作用如下：</p>
+<ul>
+<li>devices： 设备权限控制</li>
+<li>cpuset： 分配指定的CPU和内存节点</li>
+<li>cpu： 控制 CPU 占用率</li>
+<li>cpuacct： 统计 CPU 使用情况</li>
+<li>memory： 限制内存的使用上限</li>
+<li>freezer： 冻结（暂停）Cgroup 中的进程</li>
+<li>net_cls： 配合tc（traffic controller）限制网络宽带</li>
+<li>net_prio： 设置进程的网络流量优先级</li>
+<li>huge_tlb： 限制HugeTLB（块表缓冲区）的使用</li>
+<li>perf_event： 允许 Perf 工具基于Cgroup分组做性能测试</li>
+</ul>
+<h1 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h1><h2 id="Namespace-是什么"><a href="#Namespace-是什么" class="headerlink" title="Namespace 是什么"></a>Namespace 是什么</h2><p>Namespace 是将内核的全局资源做封装，使得每个Namespace都有有一份独立的资源，因此不同的进程各自的 Namespace 内对同一个资源的使用不会互相干扰。<br>举个例子，执行 sethostname 这个系统调用时，可以改变系统的主机名，这个主机名就是一个内核的全局资源。内核通过实现 UTS Namespace，可以将不同的进程分隔在不同的 UTS Namespace 中，在某个 Namespace 修改主机名时，另一个 Namespace 的主机名还是保持不变。</p>
+<p>目前 Linux 内核总共实现了6种 Namespace：</p>
+<ul>
+<li>IPC： 隔离 System V IPC 和 POSIX 消息队列</li>
+<li>Network： 隔离网络资源</li>
+<li>Mount： 隔离文件系统挂载点</li>
+<li>PID： 隔离进程 ID</li>
+<li>UTS： 隔离主机名和域名</li>
+<li>User： 隔离用户 ID 和 组 ID</li>
+</ul>
+<p>Namespace 和 Cgroup 的使用是灵活的，同时也有不少需要注意的地方，因此直接操作 Namespace 和 Cgroup 并不是很容易。正是因为这些原因，Docker 通过 Libcontainer 来处理这些底层的事情。这样一来，Docker 只需简单地调用 Libcontainer 的 API ，就能将完整的容器搭建起来。而作为 Docker 的用户，就更不用操心这些事情了。</p>
+<h1 id="容器造就-Docker"><a href="#容器造就-Docker" class="headerlink" title="容器造就 Docker"></a>容器造就 Docker</h1><p>关于容器是否是 Docker 的技术核心技术，业界一直存在着争议。</p>
+<p>在理解了容器，理解了容器的核心技术 Cgroup 和 Namespace，理解了容器技术如何巧妙且轻量地实现“容器”本身的资源控制和访问隔离之后，可以看到 Docker 和容器是一种完美的融合和辅助相成的关系，它们不是唯一的搭配，但一定是最完美的结合（目前来说）。与其说是容器造就了 Docker ， 不如说是它们造就了彼此，容器技术让 Docker 得到更多的应用和推广，Docker 也使得容器技术被更多人熟知。<br>[须知]：<b>转载请标明出处，请尊重笔者和作者的功劳，O(∩_∩)O谢谢！</b><br>[参考]:<b>Docker 进阶与实践  </b><i>华为Docker实践小组 著（机械工业出版社）</i></p>
 
 	
 	
@@ -457,7 +426,7 @@
     
     <!-- Prev Nav -->
     
-        <a href="/2017/04/07/Vimkyboard/" id="post_nav-newer" class="prev-content">
+        <a href="/Go Channel.html/" id="post_nav-newer" class="prev-content">
             <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
                 <i class="material-icons">arrow_back</i>
             </button>
@@ -471,7 +440,7 @@
 
     <!-- Next Nav -->
     
-        <a href="/2017/01/07/Go Channel/" id="post_nav-older" class="next-content">
+        <a href="/再见了2016，你好2017.html/" id="post_nav-older" class="next-content">
             旧篇
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
