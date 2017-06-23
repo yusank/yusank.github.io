@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yusank.github.io/"/>
-  <updated>2017-04-09T07:13:11.000Z</updated>
+  <updated>2017-06-22T08:52:01.000Z</updated>
   <id>http://yusank.github.io/</id>
   
   <author>
@@ -14,6 +14,194 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Unix 网络编程</title>
+    <link href="http://yusank.github.io/Unix-Network.html/"/>
+    <id>http://yusank.github.io/Unix-Network.html/</id>
+    <published>2017-06-22T08:52:00.000Z</published>
+    <updated>2017-06-22T08:52:01.000Z</updated>
+    
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Unix-网络编程"><a href="#Unix-网络编程" class="headerlink" title="Unix 网络编程"></a>Unix 网络编程</h1><p>​                                                                        <strong>卷II - 进程间通信</strong></p>
+<p>IPC是进程间通信（interprocess communication）的简称。传统上该术语描述的是运行在某个操作系统之上的不同进程间各种消息传递（<em>message passing</em>）的方式。</p>
+<p>进程间的通信一般是一下四种形式：</p>
+<ul>
+<li>消息传递（管道、FIFO和消息队列）；</li>
+<li>同步（互斥量、条件变量、读写锁、文件和记录锁、信号量）；</li>
+<li>共享内存（匿名的和具名的）；</li>
+<li>远程过程调用（Solaris 门和 Sun RPC）。</li>
+</ul>
+<h1 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h1><p><strong>消息传递：</strong></p>
+<ul>
+<li><p>管道和FIFO；</p>
+</li>
+<li><p>Posix 消息队列；</p>
+</li>
+<li><p>System V消息队列。</p>
+<p>​</p>
+</li>
+</ul>
+<h2 id="管道和FIFO"><a href="#管道和FIFO" class="headerlink" title="管道和FIFO"></a>管道和FIFO</h2><p>管道是最初的Unix IPC 形式。由于管道没有名字，所以它只能用于有亲缘关系的进程间的通信。</p>
+<p><strong>实现机制：</strong></p>
+<p>管道是由内核管理的一个缓冲区，相当于我们放入内存中的一个纸条。管道的一端连接一个进程的输出。这个进程会向管道中放入信息。管道的另一端连接一个进程的输入，这个进程取出被放入管道的信息。一个缓冲区不需要很大，它<strong>被设计成为环形的数据结构</strong>，以便管道可以被循环利用。当管道中没有信息的话，从管道中读取的进程会等待，直到另一端的进程放入信息。当管道被放满信息的时候，尝试放入信息的进程会等待，直到另一端的进程取出信息。当两个进程都终结的时候，管道也自动消失。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">pipe</span> <span class="params">(<span class="keyword">int</span> fd[<span class="number">2</span>])</span></span></div><div class="line">  						<span class="comment">//返回：若成功返回0，若出错返回-1</span></div></pre></td></tr></table></figure>
+<p>该函数返回两个文件描述符：fd[0] 和 fd[1]。前者打开来读，后者打开来写。</p>
+<p>管道尽管是单个进程创建，但是管道的典型用途是为两个不同的进程（一个父进程，一个子进程）提供进程间的通信手段。</p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-02-22%20at%2011.49.01%20AM.png" alt="Screen Shot 2017-02-22 at 11.49.01 AM"></p>
+<p>​                                             数据流 &gt;&gt;&gt;&gt;&gt;&gt;</p>
+<p>首先是，由一个进程（它将成为父进程）创建一个 pipe 后调用 fork 派生一个自身的副本，接着关闭着个 pipe 的读成端，子进程关闭同一个 pipe 的写入端。这就是进程间提供了一个单向数据流，如下图。</p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-02-22%20at%2011.56.11%20AM.png" alt="Screen Shot 2017-02-22 at 11.56.11 AM"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> n;</div><div class="line">    <span class="keyword">int</span> fd[<span class="number">2</span>];</div><div class="line">    <span class="keyword">pid_t</span> pid;</div><div class="line">    <span class="keyword">char</span> line[MAXLINE];</div><div class="line">   </div><div class="line">    <span class="keyword">if</span>(pipe(fd) === <span class="number">0</span>)&#123;                 <span class="comment">/* 先建立管道得到一对文件描述符 */</span></div><div class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span>((pid = fork()) == <span class="number">0</span>)            <span class="comment">/* 父进程把文件描述符复制给子进程 */</span></div><div class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(pid &gt; <span class="number">0</span>)&#123;                <span class="comment">/* 父进程写 */</span></div><div class="line">        close(fd[<span class="number">0</span>]);                <span class="comment">/* 关闭读描述符 */</span></div><div class="line">        write(fd[<span class="number">1</span>], <span class="string">"\nhello world\n"</span>, <span class="number">14</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span>&#123;                            <span class="comment">/* 子进程读 */</span></div><div class="line">        close(fd[<span class="number">1</span>]);                <span class="comment">/* 关闭写端 */</span></div><div class="line">        n = read(fd[<span class="number">0</span>], line, MAXLINE);</div><div class="line">        write(STDOUT_FILENO, line, n);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><em>technically，自从可以在进程间传递描述符后，管道也能用于无亲缘关系的进程间，而现实中管道通常用于具有共同祖先的进程间。</em></p>
+<p><strong>FIFO：命名管道(named PIPE)</strong></p>
+<p>管道尽管对很多操作来说是很有用的，但是它的根本局限性在于没有名字，从而只能由亲缘关系的进程（父子进程）使用。为了解决这一问题，Linux提供了FIFO方式连接进程。有了FIFO之后这一缺点得以改正。FIFO有时也称之为有名管道（named pipe）。FIFO除了有管道的功能外，它还允许无亲缘关系的进程的通信。pipe 和 FIFO 都是使用通常的 read 和 write 函数访问的。</p>
+<p>FIFO (First in, First out)为一种特殊的文件类型，它在文件系统中有对应的路径。当一个进程以读(r)的方式打开该文件，而另一个进程以写(w)的方式打开该文件，那么内核就会在这两个进程之间建立管道，所以FIFO实际上也由内核管理，不与硬盘打交道。之所以叫FIFO，是因为管道本质上是一个先进先出的队列数据结构，最早放入的数据被最先读出来，从而保证信息交流的顺序。FIFO只是借用了文件系统(file system,命名管道是一种特殊类型的文件，因为Linux中所有事物都是文件，它在文件系统中以文件名的形式存在。)来为管道命名。写模式的进程向FIFO文件中写入，而读模式的进程从FIFO文件中读出。当删除FIFO文件时，管道连接也随之消失。<strong>FIFO的好处在于我们可以通过文件的路径来识别管道，从而让没有亲缘关系的进程之间建立连接</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mkfifo</span> <span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *pathname, <span class="keyword">mode_t</span> mode)</span></span>;</div><div class="line">												<span class="comment">// 返回： 成功返回0，出错返回 -1</span></div></pre></td></tr></table></figure>
+<p>其中 <em>pathname</em> 是一个普通的 Unix 路径名，它是该 FIFO 的名字。</p>
+<p>mkfifo 函数中参数 <em>mode</em> 指定 FIFO 的读写权限。</p>
+<p>mkfifo 函数是要么创建一个新的 FIFO ，要么返回一个 EEXIST 错误（如果该 FIFO 已存在），如果不希望创建一个新的 FIFO 那就用 open 函数就可以。</p>
+<p>FIFO 不能打开既写又读。</p>
+<p>如果一个 FIFO 只读不写，只写不读都会形成阻塞。</p>
+<p>下边是一个简单地例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span>  </span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span>  </span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span>  </span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span>  </span></div><div class="line">      </div><div class="line"><span class="meta"># <span class="meta-keyword">define</span> FIFO1  <span class="meta-string">"/tmp/my_fifo"</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>  </span></div><div class="line">&#123;  </div><div class="line">    <span class="keyword">int</span> res = mkfifo(<span class="string">"/tmp/my_fifo"</span>, <span class="number">0777</span>);  </div><div class="line">    <span class="keyword">if</span> (res == <span class="number">0</span>)  </div><div class="line">    &#123;  </div><div class="line">        <span class="built_in">printf</span>(<span class="string">"FIFO created/n"</span>);  </div><div class="line">    &#125;  </div><div class="line">  <span class="comment">/*打开FIFO*/</span></div><div class="line">  <span class="comment">//writefd = Open(FIFO1, O_WRONLY | O_NONBLOCK, 0)	</span></div><div class="line">  <span class="comment">//readfd = Open(FIFO1, O_RDONLY, 0)</span></div><div class="line">     <span class="built_in">exit</span>(EXIT_SUCCESS);  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><em>open</em> 第二个参数中的选项O_NONBLOCK，选项O_NONBLOCK表示非阻塞，加上这个选项后，表示open调用是非阻塞的，如果没有这个选项，则表示open调用是阻塞的。</p>
+<ul>
+<li>对于以只读方式（O_RDONLY）打开的FIFO文件，如果open调用是阻塞的（即第二个参数为O_RDONLY），除非有一个进程以写方式打开同一个FIFO，否则它不会返回；如果open调用是非阻塞的的（即第二个参数为O_RDONLY|O_NONBLOCK），则即使没有其他进程以写方式打开同一个FIFO文件，open调用将成功并立即返回。</li>
+<li>对于以只写方式（O_WRONLY）打开的FIFO文件，如果open调用是阻塞的（即第二个参数为O_WRONLY），open调用将被阻塞，直到有一个进程以只读方式打开同一个FIFO文件为止；如果open调用是非阻塞的（即第二个参数为O_WRONLY|O_NONBLOCK），open总会立即返回，但如果没有其他进程以只读方式打开同一个FIFO文件，open调用将返回-1，并且FIFO也不会被打开。</li>
+</ul>
+<p>关于管道或 FIFO 的读写的若干规则：</p>
+<ul>
+<li>如果请求读出的数据量多于管道或 FIFO 中当前的可用数据量，那么只会返回这些可用的数据。</li>
+<li>如果请求你写入的数据的字节数小于或等于 PIPE_BUF (可原子地写入往一个管道或 FIFO 的最大数据量， Posix 要求至少为512)，那么 write 操作保证是原子的。这意味着，如果两个进程差不多同时往同一个管道或 FIFO 写，那么不管是先写入来自第一个进程的所有数据再写第二个，还是顺序颠倒过来。系统都不会相互混杂来自两个进程的数据。然而如果数据的字节数大于 PIPE_BUF ，那么 write 操作不能保证是原子的。</li>
+<li>不止以上这些。。。</li>
+</ul>
+<p><strong>小结</strong>： FIFO 与管道类似，但是它用 mkfifo 创建，之后需要open 打开。打开管道必须小心，因为许多规则（read 只写管道、write 只读管道、从空的管道或FIFO read 等的情况的返回结果。）制约着 open 的阻塞与否。</p>
+<h2 id="Posix-IPC"><a href="#Posix-IPC" class="headerlink" title="Posix IPC"></a>Posix IPC</h2><p>Posix–可移植性操作系统接口（Protable operating system interface）</p>
+<p>有关Unix标准化的大多数活动是由 Posix 和 Open Group 做的。</p>
+<p>Posix 不是单一的标准，是一系列的标准。</p>
+<p>以下三种类型的IPC合成为“Posix IPC”</p>
+<ul>
+<li>Posix 消息队列</li>
+<li>Posix 信号量</li>
+<li>Posix 共享内存区</li>
+</ul>
+<h2 id="Posix-消息队列"><a href="#Posix-消息队列" class="headerlink" title="Posix 消息队列"></a>Posix 消息队列</h2><p>消息队列可认为是个消息链表。有足够写权限的进程可往队列放置信息，有足够读权限的进程可从队列读取信息。每一个信息都是一条记录，它是由发送者赋予一个优先级。在某个进程往一个队列写入消息之前，并不需要另一个进程在该队列上等待消息的到达。这根管道和 FIFO 是相反的。</p>
+<p>一个进程可以往某些队列写入一些信息，然后终止，再让另外一个进程在以后的某个时刻读取这些信息。</p>
+<p>Posix 消息队列和下面讲的System V 消息队列有许多的相似性。以下是主要的差别：</p>
+<ul>
+<li>对 Posix 消息队列的读总是返回最高优先级的最早消息，对 System V 消息队列的读则可以返回任意指定优先级的消息；</li>
+<li>当往一个空队列放置一个信息时，Posix 消息队列允许产生一个信号或启动一个线程，System V消息队列则是不提供类似的机制。</li>
+</ul>
+<p>队列中的每一个消息都有如下属性：</p>
+<ul>
+<li>一个无符号整数优先级（Posix）或 一个长整数类型（system V）；</li>
+<li>消息的数据部分长度（可以为0）；</li>
+<li>数据本身（如果长度大于0）。</li>
+</ul>
+<p>一个消息队列的可能布局。</p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/unix%20%E7%BD%91%E7%BB%9C.png" alt="unix 网络"></p>
+<p>我们所设想的是一个链表，该链表的有中含有当前队列的两个属性：队列中允许的最大开销数以及每一个消息的最大大小。</p>
+<p><strong>mq_open ,mq_close 和 mq_unlink 函数 </strong>：</p>
+<p>mq_open 函数创建一个新的消息队列或打开一个已存在的消息队列。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"><span class="keyword">mqd_t</span> mq_open (<span class="keyword">const</span> <span class="keyword">char</span> *name, <span class="keyword">int</span> oflag, ...</div><div class="line">              <span class="comment">/* mode_t mode, struct mq_attr *attr  */</span>);</div><div class="line">							<span class="comment">//返回： 成功返回消息对列描述符，出错返回-1</span></div></pre></td></tr></table></figure>
+<p>其中 <em>name</em> 有自己的一套命名规则，因为 Posix IPC 使用“Posix IPC 名字”进行标识。为方便于移植起见，Posix IPC 名字必须以斜杠符开头并且不能再包含任何斜杠符。</p>
+<p><em>oflag</em> 是O_RDONLY、O_WRONLY 或     O_RDWR 之一， 可能按位或上O_CREATE(若不存在则创建)、O_EXCL(与O_CREATE一起，若已存在返回EEXIST 错误)或 O_NONBLOCK（非阻塞标识符）。</p>
+<p>当实际操作创建一个新的消息队列时（指定O_CREATE标志，且请求的队列不存在），<em>mode</em> 和 <em>attr</em> 参数是需要的。mode上面介绍过。attr参数用于给新队列指定某些属性。</p>
+<p>mq_open 返回值称为<strong>消息队列描述符（message queue descriptor）</strong>，这个值用作其他消息队列函数的第一参数。</p>
+<p>已打开的消息队列是由 mq_close 关闭的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_close</span><span class="params">(<span class="keyword">mqd_t</span> mqdes)</span></span></div><div class="line">  													<span class="comment">//返回： 成功返回0，出错返回-1</span></div></pre></td></tr></table></figure>
+<p>关闭之后调用进程不再使用该描述符，但其消息队列并不从系统中删除。一个进程终止时，它打开着的消息队列都关闭，就像调用mq_close 一样。</p>
+<p>要从系统中删除消息队列则用mq_unlink 函数，其第一参数为 mq_open 的第一参数 <em>name</em>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_unlink</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *name)</span></span></div><div class="line">												<span class="comment">//返回： 成功返回0，出错返回-1</span></div></pre></td></tr></table></figure>
+<p><strong>mq_getattr 和 mq_setattr 函数</strong></p>
+<p>消息队列有四个属性，这两个函数是获取和修改这些属性。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mq_flags		<span class="comment">//队列阻塞标志位</span></div><div class="line">mq_maxmsg		<span class="comment">//队列最大允许消息数</span></div><div class="line">mq_msgsize		<span class="comment">//队列消息最大字节数</span></div><div class="line">mq_curmsgs		<span class="comment">//队列当前消息条数</span></div></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_getattr</span><span class="params">(<span class="keyword">mqd_t</span> mqdes,<span class="keyword">struct</span> mq_attr *attr)</span></span>;</div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_setattr</span><span class="params">(<span class="keyword">mqd_t</span> mqdes,<span class="keyword">const</span> <span class="keyword">struct</span> mq_attr *attr, <span class="keyword">struct</span> mq_attr *oattr)</span></span>;</div><div class="line">												<span class="comment">//返回：均成功返回0，出错返回-1</span></div></pre></td></tr></table></figure>
+<p><strong>mq_send 和 mq_receive 函数</strong></p>
+<p>​    这两个函数分别往一个队列放置一个信息和从一个队列取走一个消息。每一个消息都有优先级，它是一个小于MQ_PRIO_MAX 的无符号整数。Posix要求这个上限至少为32.</p>
+<p>​    mq_receive 总是返回所指定队列中优先级最高的的最早消息，而且该优先级能随该消息的内容及其长度一同返回。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_send</span><span class="params">(<span class="keyword">mqd_t</span> mqdes, <span class="keyword">const</span> <span class="keyword">char</span> *ptr, <span class="keyword">size_t</span> len, <span class="keyword">unsigned</span> <span class="keyword">int</span> prio)</span></span>;</div><div class="line">											<span class="comment">//返回： 成功返回0，出错返回-1</span></div><div class="line"><span class="keyword">ssize_t</span> mq_reccevie(<span class="keyword">mqd_t</span> mqdes, <span class="keyword">char</span> *ptr, <span class="keyword">size_t</span> len, <span class="keyword">unsigned</span> <span class="keyword">int</span> *priop);</div><div class="line">											<span class="comment">//返回： 成功返回消息中的字节数，出错返回-1</span></div></pre></td></tr></table></figure>
+<p>mq_receive 的 <em>len</em> 参数的值不能小于能加到所指定队列中的最大大小（该队列 mq_attr 结构的 mq_msgsize ）。要是 <em>len</em> 小于该值， mq_receive立即返回 EMSGSIZE 错误。</p>
+<p>mq_send 的 <em>prio</em> 参数是待发信息的优先级，其值必须小于 MQ_PRIO_MAX 。如果 mq_receive 的 <em>priop</em> 参数是一个非空指针，所返回消息的优先级就通过该指针存放。如果应用不必使用优先级不同的消息，那就给mq_send 指针值为0的优先级，给 mq_receive 指定一个空指针作为其最后一个参数。</p>
+<p>往某个队列中增加一个消息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span></span></div><div class="line"><span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></div><div class="line">&#123;</div><div class="line">  <span class="keyword">mqd_t</span>		mqd;		<span class="comment">//描述符</span></div><div class="line">  <span class="keyword">void</span>		*ptr;		<span class="comment">//指向缓冲区的指针</span></div><div class="line">  <span class="keyword">size_t</span>	len;		<span class="comment">//长度</span></div><div class="line">  <span class="keyword">uint_t</span>	prio;		<span class="comment">//优先度</span></div><div class="line">  </div><div class="line">  <span class="keyword">if</span> (argc != <span class="number">4</span>)</div><div class="line">    err_quit(<span class="string">"usage: mqsend &lt;name&gt; &lt;#bytes&gt; &lt;priority&gt;"</span>);</div><div class="line">  len = atoi(argv[<span class="number">2</span>]);</div><div class="line">  prio = atoi(argv[<span class="number">3</span>]);</div><div class="line">  </div><div class="line">  mqd = Mq_open(argv[<span class="number">1</span>], O_WRONLY);	<span class="comment">// 创建一个消息队列</span></div><div class="line">  </div><div class="line">  ptr = Calloc(len, <span class="keyword">sizeof</span>(<span class="keyword">char</span>));<span class="comment">// 所用的缓冲区用colloc分配，该函数会把该缓冲区初始化为0</span></div><div class="line">  Mq_send(mqd, ptr, len, prio);</div><div class="line">  </div><div class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>待发消息的大小和优先级必须作为命令行参数指定。</p>
+<p>从某队列读出下一个信息</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"unpipc.h"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span></span></div><div class="line"><span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></div><div class="line">&#123;</div><div class="line">  <span class="keyword">int</span> 		c,flags;</div><div class="line">  <span class="keyword">mqd_t</span>		maq;</div><div class="line">  <span class="keyword">ssize_t</span>	n;</div><div class="line">  <span class="keyword">uint_t</span>	prio;</div><div class="line">  <span class="keyword">void</span>		*buff;</div><div class="line">  <span class="keyword">struct</span>	mq_attr	attr;</div><div class="line">  </div><div class="line">  flags = O_RDONLY;</div><div class="line">  <span class="keyword">while</span> ( (c = Getopt(argc, argv, <span class="string">"n"</span>)) != <span class="number">-1</span>) &#123;</div><div class="line">    <span class="keyword">switch</span> (c) &#123;</div><div class="line">      <span class="keyword">case</span> <span class="string">'n'</span>:</div><div class="line">        flags |= O_NONBLOCK;</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">if</span> (optind != argc - <span class="number">1</span>)</div><div class="line">    err_quit(<span class="string">"usage: mqreceive [-n] &lt;name&gt;"</span>);</div><div class="line">  </div><div class="line">  mqd =Mq_open(argv[optind], flags);</div><div class="line">  Mq_getattr(mqd, &amp;attr);</div><div class="line">  </div><div class="line">  buff = Malloc(attr.mq_msgsize);</div><div class="line">  </div><div class="line">  n = Mq_receive(mqd, buff, attr.mq_msgsize, &amp;prio);</div><div class="line">  <span class="built_in">printf</span>(<span class="string">"read %ld bytes, priority = %u\n"</span>, (<span class="keyword">long</span>) n, prio);</div><div class="line">  </div><div class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>命令行选项 -n 指定非阻塞属性，这样如果所指定的队列中没有消息， 则返回一个错误。</p>
+<p>调用 mq_getattr 打开队列并取得属性。需要确定最大消息大小，因为必须为调用的 mq_receive 分配一个这样大小的缓冲区。最后输出所读出消息的大小及其属性。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">solaris %mqcreate /test1							创建并获取属性</div><div class="line">solaris %mqgetattr /test1</div><div class="line">max</div><div class="line"></div><div class="line">solaris % mqsend /test1 100 9999					以无效的优先级发送</div><div class="line">mq_send error: Invalid argument</div><div class="line"></div><div class="line">solaris % mqsend /test1 100 6						100字节，优先级6 </div><div class="line">solaris % mqsend /test1 50 18 						50字节，优先级18</div><div class="line">solaris % mqsend /test1 33 18 						33字节，优先级18</div><div class="line"></div><div class="line">solaris % mqreceive /test1</div><div class="line">read 50 bytes, priority = 18						返回优先级最高的最早消息</div><div class="line">solaris % mqreceive /test1</div><div class="line">read 33 bytes, priority = 18</div><div class="line">solaris % mqreceive /test1</div><div class="line">read 100 bytes, priority = 6</div><div class="line">solaris % mqreceive /test1							指定非阻塞属性，队列为空</div><div class="line">mq_recevie error: Resource temporarily unavalibale</div></pre></td></tr></table></figure>
+<p>消息队列限制：</p>
+<ul>
+<li>mq_mqxmsg            队列的最大消息数</li>
+<li>mq_msgsize                  给定消息的最大字节数</li>
+<li>MQ_OPEN_MAX            一个进程能够同时拥有的打开着消息队列的组大数目（Posix要求至少为8）</li>
+<li>MQ_PRIO_MAX             任意消息的最大优先级值加1（Posix要求至少为32）</li>
+</ul>
+<p><strong>mq_notify 函数</strong></p>
+<p>Posix 消息队列允许异步事件通知（ <em>asynchronous event notifiction</em>），以告知何时有一个消息放置到了某个空消息队列中。</p>
+<h2 id="System-V-消息队列"><a href="#System-V-消息队列" class="headerlink" title="System V 消息队列"></a>System V 消息队列</h2><p>以下三种类型的IPC称为 System V IPC：</p>
+<ul>
+<li>System V 消息队列；</li>
+<li>System V 信号量；</li>
+<li>System V 共享内存区。</li>
+</ul>
+<p>这个称为作为这三个IPC机制的通称是因为它们源自 System V Unix 。这三种IPC最先出现在AT&amp;T System v UNIX上面，并遵循XSI标准，有时候也被称为XSI IPC。</p>
+<p>System V 消息队列使用<em>消息队列标识符（message queue identifier）</em> 标识。有足够权限的任何进程可往队列放置信息，有足够权限的任何进程可从队列读取信息。跟 Posix 一样，在某个进程往一个队列写入消息之前，不求另外某个进程正在等待该队列上一个消息的到达。</p>
+<p>对于系统的每个消息队列，内核维护一个定义在 <code>&lt;sys/msg.h&gt;</code>  头文件中的信息结构.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> msqid_ds &#123;</div><div class="line">    <span class="keyword">struct</span> ipc_perm 	msg_perm   <span class="comment">//operation permission structure</span></div><div class="line">    <span class="keyword">struct</span> msg			*msg_frist <span class="comment">//ptr to frist message on queue</span></div><div class="line">    <span class="keyword">struct</span> msg			*msg_last  <span class="comment">//ptr to last message on queue</span></div><div class="line">    <span class="keyword">msglen_t</span>			msg_cbytes <span class="comment">//current #bytes on queue</span></div><div class="line">    <span class="keyword">msgqnum_t</span>       	msg_qnum   <span class="comment">//number of messages currently on queue</span></div><div class="line">    <span class="keyword">msglen_t</span>        	msg_qbytes <span class="comment">//maximum number of bytes allowed on queue</span></div><div class="line">    <span class="keyword">pid_t</span>           	msg_lspid  <span class="comment">//process ID of last msgsnd()</span></div><div class="line">    <span class="keyword">pid_t</span>           	msg_lrpid  <span class="comment">//process ID of last msgrcv()</span></div><div class="line">    <span class="keyword">time_t</span>          	msg_stime  <span class="comment">//time of last msgsnd()</span></div><div class="line">    <span class="keyword">time_t</span>          	msg_rtime  <span class="comment">//time of last msgrcv()</span></div><div class="line">    <span class="keyword">time_t</span>          	msg_ctime  <span class="comment">//time of last change</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><em>Unix 98 不要求有 msg_frist、msg_last 和 msg_cbytes 成员。然而普通的源自 <a href="http://pubs.opengroup.org/onlinepubs/7908799/xsh/sysmsg.h.html" target="_blank" rel="external">System V</a> 的实现中可以找到这三个成员。就算提供了这两个指针，那么它们指向的是内核内存空间，对于应用来说基本没有作用的。</em></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/unix%20%E7%BD%91%E7%BB%9C%20%281%29.png" alt="unix 网络 (1)"></p>
+<p>我们可以将内核中某个特定的消息队列画为一个消息链表，如图。</p>
+<p><strong>msgget 函数</strong></p>
+<p>msgget 函数用于创建一个新的消息队列或访问一个已存在的消息队列。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgget</span> <span class="params">(<span class="keyword">key_t</span> key, <span class="keyword">int</span> oflag)</span>	</span></div><div class="line">  											<span class="comment">//返回： 成功返回非负标识符，出错返回-1</span></div></pre></td></tr></table></figure>
+<p>返回值是一个整数标识符，其他三个msg函数就用它来指代该队列。</p>
+<p>oflag是读写权限的组合。（稍微复杂。。。）</p>
+<p>当创建一个新的消息队列的时，msqid_ds 结构的如下成员被初始化。</p>
+<ul>
+<li><p>msg_perm 结构的 uid 和 cuid 成员被设置成当前进程的有效用户ID，gid 和 cgid 成员被设置成当前的进程的有效组ID。</p>
+</li>
+<li><p>oflag 中的读写权限位存放在msg_perm.mode 中。</p>
+</li>
+<li><p>msg_qnum、msg_lspid，msg_lrpid、msg_stime 和 msg_rtime 被设置为0.</p>
+</li>
+<li><p>msg_ctime 被设置为当前时间。</p>
+</li>
+<li><p>msg_qbytes 被设置成系统限制值。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> ipc_perm</div><div class="line">&#123;</div><div class="line"><span class="keyword">key_t</span>        		key;            <span class="comment">/*调用shmget()时给出的关键字*/</span></div><div class="line"><span class="keyword">uid_t</span>           	uid;            <span class="comment">/*共享内存所有者的有效用户ID */</span></div><div class="line"><span class="keyword">gid_t</span>          		gid;            <span class="comment">/* 共享内存所有者所属组的有效组ID*/</span> </div><div class="line"><span class="keyword">uid_t</span>          		cuid;           <span class="comment">/* 共享内存创建 者的有效用户ID*/</span></div><div class="line"><span class="keyword">gid_t</span>         		cgid;           <span class="comment">/* 共享内存创建者所属组的有效组ID*/</span></div><div class="line"><span class="keyword">mode_t</span>			   	mode;    		<span class="comment">/* Permissions + SHM_DEST和SHM_LOCKED标志*/</span></div><div class="line"><span class="keyword">ulong_t</span>		    	seq;          	<span class="comment">/* 序列号*/</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+</ul>
+<p><strong>msgsnd 函数</strong></p>
+<p>使用 msgget 函数打开一个消息队列后，使用 msgsnd 函数往其上放置一个消息。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgsnd</span><span class="params">(<span class="keyword">int</span> msqid, <span class="keyword">const</span> <span class="keyword">void</span> *ptr,<span class="keyword">size_t</span> length, <span class="keyword">int</span> flag)</span></span>;</div></pre></td></tr></table></figure>
+<p>其中msqid 是由msgget 函数返回的标识符。ptr 是一个结构指针，该结构具有如下的模板：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> msgbuf &#123;</div><div class="line"> 	<span class="keyword">long</span> 	mtype;			<span class="comment">/*message type ,must be &gt; 0*/</span></div><div class="line"> 	<span class="keyword">char</span>	mtext[<span class="number">1</span>]		<span class="comment">/*message data*/</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p><em>消息类型必须大于0，因为对于 msgrcv 函数来说，非正的消息类型用作特殊的指示器。</em></p>
+<p><em>mtext虽然起名是 text ，但是消息类型并不局限于文本。任何形式的数据都是允许的。内核根本不解释消                      息数据的内容。ptr 所指向的是一个含有消息类型的长整数，消息本身则紧跟着它之后。</em></p>
+<p>msgsnd 的 <em>length</em> 参数以字节为单位指定待发送消息的长度。是用户自定义的，可以是0.</p>
+<p><em>flag</em> 参数既可以是0，也可以是IPC_NOWAIT 。IPC_NOWAIT 标志使得 msgsnd 调用非阻塞：如果没有存放新消息的可用空间，该函数马上返回。这个条件可能发生的情况包括：</p>
+<ul>
+<li>在指定的队列中已有太多的字节（对应 该队列的msqid_ds 结构中的msg_qbytes 值）；</li>
+<li>在系统范围存在太多的消息。</li>
+</ul>
+<p>如果两个条件一个存在，而且IPC_NOWAIT标志已指定，msgsnd 就返回一个EAGAIN 错误。如果两个条件一个存在，标志未指定，那么调用线程就被投入睡眠，直到：</p>
+<ul>
+<li>具备存放新消息的空间；</li>
+<li>由 msqgid 标识的消息队列从系统中删除（这个情况下回返回一个EIDRM 错误）；</li>
+<li>调用线程被某个捕获的信息所中断。</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;h1 id=&quot;Unix-网络编程&quot;&gt;&lt;a href=&quot;#Unix-网络编程&quot; 
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>Hexo 添加歌单</title>
@@ -286,194 +474,6 @@ e:下一个词的词尾。
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;​    b:上一个词的词首。&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;&amp;lt;&amp;gt;: v 模式选中后进行缩进。
 &lt;/code&gt;&lt;/pre&gt;
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>Unix 网络编程</title>
-    <link href="http://yusank.github.io/Unix-Network.html/"/>
-    <id>http://yusank.github.io/Unix-Network.html/</id>
-    <published>2017-02-22T08:52:00.000Z</published>
-    <updated>2017-02-22T08:52:01.000Z</updated>
-    
-    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Unix-网络编程"><a href="#Unix-网络编程" class="headerlink" title="Unix 网络编程"></a>Unix 网络编程</h1><p>​                                                                        <strong>卷II - 进程间通信</strong></p>
-<p>IPC是进程间通信（interprocess communication）的简称。传统上该术语描述的是运行在某个操作系统之上的不同进程间各种消息传递（<em>message passing</em>）的方式。</p>
-<p>进程间的通信一般是一下四种形式：</p>
-<ul>
-<li>消息传递（管道、FIFO和消息队列）；</li>
-<li>同步（互斥量、条件变量、读写锁、文件和记录锁、信号量）；</li>
-<li>共享内存（匿名的和具名的）；</li>
-<li>远程过程调用（Solaris 门和 Sun RPC）。</li>
-</ul>
-<h1 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h1><p><strong>消息传递：</strong></p>
-<ul>
-<li><p>管道和FIFO；</p>
-</li>
-<li><p>Posix 消息队列；</p>
-</li>
-<li><p>System V消息队列。</p>
-<p>​</p>
-</li>
-</ul>
-<h2 id="管道和FIFO"><a href="#管道和FIFO" class="headerlink" title="管道和FIFO"></a>管道和FIFO</h2><p>管道是最初的Unix IPC 形式。由于管道没有名字，所以它只能用于有亲缘关系的进程间的通信。</p>
-<p><strong>实现机制：</strong></p>
-<p>管道是由内核管理的一个缓冲区，相当于我们放入内存中的一个纸条。管道的一端连接一个进程的输出。这个进程会向管道中放入信息。管道的另一端连接一个进程的输入，这个进程取出被放入管道的信息。一个缓冲区不需要很大，它<strong>被设计成为环形的数据结构</strong>，以便管道可以被循环利用。当管道中没有信息的话，从管道中读取的进程会等待，直到另一端的进程放入信息。当管道被放满信息的时候，尝试放入信息的进程会等待，直到另一端的进程取出信息。当两个进程都终结的时候，管道也自动消失。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">pipe</span> <span class="params">(<span class="keyword">int</span> fd[<span class="number">2</span>])</span></span></div><div class="line">  						<span class="comment">//返回：若成功返回0，若出错返回-1</span></div></pre></td></tr></table></figure>
-<p>该函数返回两个文件描述符：fd[0] 和 fd[1]。前者打开来读，后者打开来写。</p>
-<p>管道尽管是单个进程创建，但是管道的典型用途是为两个不同的进程（一个父进程，一个子进程）提供进程间的通信手段。</p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-02-22%20at%2011.49.01%20AM.png" alt="Screen Shot 2017-02-22 at 11.49.01 AM"></p>
-<p>​                                             数据流 &gt;&gt;&gt;&gt;&gt;&gt;</p>
-<p>首先是，由一个进程（它将成为父进程）创建一个 pipe 后调用 fork 派生一个自身的副本，接着关闭着个 pipe 的读成端，子进程关闭同一个 pipe 的写入端。这就是进程间提供了一个单向数据流，如下图。</p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-02-22%20at%2011.56.11%20AM.png" alt="Screen Shot 2017-02-22 at 11.56.11 AM"></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> n;</div><div class="line">    <span class="keyword">int</span> fd[<span class="number">2</span>];</div><div class="line">    <span class="keyword">pid_t</span> pid;</div><div class="line">    <span class="keyword">char</span> line[MAXLINE];</div><div class="line">   </div><div class="line">    <span class="keyword">if</span>(pipe(fd) === <span class="number">0</span>)&#123;                 <span class="comment">/* 先建立管道得到一对文件描述符 */</span></div><div class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span>((pid = fork()) == <span class="number">0</span>)            <span class="comment">/* 父进程把文件描述符复制给子进程 */</span></div><div class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(pid &gt; <span class="number">0</span>)&#123;                <span class="comment">/* 父进程写 */</span></div><div class="line">        close(fd[<span class="number">0</span>]);                <span class="comment">/* 关闭读描述符 */</span></div><div class="line">        write(fd[<span class="number">1</span>], <span class="string">"\nhello world\n"</span>, <span class="number">14</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span>&#123;                            <span class="comment">/* 子进程读 */</span></div><div class="line">        close(fd[<span class="number">1</span>]);                <span class="comment">/* 关闭写端 */</span></div><div class="line">        n = read(fd[<span class="number">0</span>], line, MAXLINE);</div><div class="line">        write(STDOUT_FILENO, line, n);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><em>technically，自从可以在进程间传递描述符后，管道也能用于无亲缘关系的进程间，而现实中管道通常用于具有共同祖先的进程间。</em></p>
-<p><strong>FIFO：命名管道(named PIPE)</strong></p>
-<p>管道尽管对很多操作来说是很有用的，但是它的根本局限性在于没有名字，从而只能由亲缘关系的进程（父子进程）使用。为了解决这一问题，Linux提供了FIFO方式连接进程。有了FIFO之后这一缺点得以改正。FIFO有时也称之为有名管道（named pipe）。FIFO除了有管道的功能外，它还允许无亲缘关系的进程的通信。pipe 和 FIFO 都是使用通常的 read 和 write 函数访问的。</p>
-<p>FIFO (First in, First out)为一种特殊的文件类型，它在文件系统中有对应的路径。当一个进程以读(r)的方式打开该文件，而另一个进程以写(w)的方式打开该文件，那么内核就会在这两个进程之间建立管道，所以FIFO实际上也由内核管理，不与硬盘打交道。之所以叫FIFO，是因为管道本质上是一个先进先出的队列数据结构，最早放入的数据被最先读出来，从而保证信息交流的顺序。FIFO只是借用了文件系统(file system,命名管道是一种特殊类型的文件，因为Linux中所有事物都是文件，它在文件系统中以文件名的形式存在。)来为管道命名。写模式的进程向FIFO文件中写入，而读模式的进程从FIFO文件中读出。当删除FIFO文件时，管道连接也随之消失。<strong>FIFO的好处在于我们可以通过文件的路径来识别管道，从而让没有亲缘关系的进程之间建立连接</strong></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mkfifo</span> <span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *pathname, <span class="keyword">mode_t</span> mode)</span></span>;</div><div class="line">												<span class="comment">// 返回： 成功返回0，出错返回 -1</span></div></pre></td></tr></table></figure>
-<p>其中 <em>pathname</em> 是一个普通的 Unix 路径名，它是该 FIFO 的名字。</p>
-<p>mkfifo 函数中参数 <em>mode</em> 指定 FIFO 的读写权限。</p>
-<p>mkfifo 函数是要么创建一个新的 FIFO ，要么返回一个 EEXIST 错误（如果该 FIFO 已存在），如果不希望创建一个新的 FIFO 那就用 open 函数就可以。</p>
-<p>FIFO 不能打开既写又读。</p>
-<p>如果一个 FIFO 只读不写，只写不读都会形成阻塞。</p>
-<p>下边是一个简单地例子：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span>  </span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span>  </span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span>  </span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span>  </span></div><div class="line">      </div><div class="line"><span class="meta"># <span class="meta-keyword">define</span> FIFO1  <span class="meta-string">"/tmp/my_fifo"</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>  </span></div><div class="line">&#123;  </div><div class="line">    <span class="keyword">int</span> res = mkfifo(<span class="string">"/tmp/my_fifo"</span>, <span class="number">0777</span>);  </div><div class="line">    <span class="keyword">if</span> (res == <span class="number">0</span>)  </div><div class="line">    &#123;  </div><div class="line">        <span class="built_in">printf</span>(<span class="string">"FIFO created/n"</span>);  </div><div class="line">    &#125;  </div><div class="line">  <span class="comment">/*打开FIFO*/</span></div><div class="line">  <span class="comment">//writefd = Open(FIFO1, O_WRONLY | O_NONBLOCK, 0)	</span></div><div class="line">  <span class="comment">//readfd = Open(FIFO1, O_RDONLY, 0)</span></div><div class="line">     <span class="built_in">exit</span>(EXIT_SUCCESS);  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><em>open</em> 第二个参数中的选项O_NONBLOCK，选项O_NONBLOCK表示非阻塞，加上这个选项后，表示open调用是非阻塞的，如果没有这个选项，则表示open调用是阻塞的。</p>
-<ul>
-<li>对于以只读方式（O_RDONLY）打开的FIFO文件，如果open调用是阻塞的（即第二个参数为O_RDONLY），除非有一个进程以写方式打开同一个FIFO，否则它不会返回；如果open调用是非阻塞的的（即第二个参数为O_RDONLY|O_NONBLOCK），则即使没有其他进程以写方式打开同一个FIFO文件，open调用将成功并立即返回。</li>
-<li>对于以只写方式（O_WRONLY）打开的FIFO文件，如果open调用是阻塞的（即第二个参数为O_WRONLY），open调用将被阻塞，直到有一个进程以只读方式打开同一个FIFO文件为止；如果open调用是非阻塞的（即第二个参数为O_WRONLY|O_NONBLOCK），open总会立即返回，但如果没有其他进程以只读方式打开同一个FIFO文件，open调用将返回-1，并且FIFO也不会被打开。</li>
-</ul>
-<p>关于管道或 FIFO 的读写的若干规则：</p>
-<ul>
-<li>如果请求读出的数据量多于管道或 FIFO 中当前的可用数据量，那么只会返回这些可用的数据。</li>
-<li>如果请求你写入的数据的字节数小于或等于 PIPE_BUF (可原子地写入往一个管道或 FIFO 的最大数据量， Posix 要求至少为512)，那么 write 操作保证是原子的。这意味着，如果两个进程差不多同时往同一个管道或 FIFO 写，那么不管是先写入来自第一个进程的所有数据再写第二个，还是顺序颠倒过来。系统都不会相互混杂来自两个进程的数据。然而如果数据的字节数大于 PIPE_BUF ，那么 write 操作不能保证是原子的。</li>
-<li>不止以上这些。。。</li>
-</ul>
-<p><strong>小结</strong>： FIFO 与管道类似，但是它用 mkfifo 创建，之后需要open 打开。打开管道必须小心，因为许多规则（read 只写管道、write 只读管道、从空的管道或FIFO read 等的情况的返回结果。）制约着 open 的阻塞与否。</p>
-<h2 id="Posix-IPC"><a href="#Posix-IPC" class="headerlink" title="Posix IPC"></a>Posix IPC</h2><p>Posix–可移植性操作系统接口（Protable operating system interface）</p>
-<p>有关Unix标准化的大多数活动是由 Posix 和 Open Group 做的。</p>
-<p>Posix 不是单一的标准，是一系列的标准。</p>
-<p>以下三种类型的IPC合成为“Posix IPC”</p>
-<ul>
-<li>Posix 消息队列</li>
-<li>Posix 信号量</li>
-<li>Posix 共享内存区</li>
-</ul>
-<h2 id="Posix-消息队列"><a href="#Posix-消息队列" class="headerlink" title="Posix 消息队列"></a>Posix 消息队列</h2><p>消息队列可认为是个消息链表。有足够写权限的进程可往队列放置信息，有足够读权限的进程可从队列读取信息。每一个信息都是一条记录，它是由发送者赋予一个优先级。在某个进程往一个队列写入消息之前，并不需要另一个进程在该队列上等待消息的到达。这根管道和 FIFO 是相反的。</p>
-<p>一个进程可以往某些队列写入一些信息，然后终止，再让另外一个进程在以后的某个时刻读取这些信息。</p>
-<p>Posix 消息队列和下面讲的System V 消息队列有许多的相似性。以下是主要的差别：</p>
-<ul>
-<li>对 Posix 消息队列的读总是返回最高优先级的最早消息，对 System V 消息队列的读则可以返回任意指定优先级的消息；</li>
-<li>当往一个空队列放置一个信息时，Posix 消息队列允许产生一个信号或启动一个线程，System V消息队列则是不提供类似的机制。</li>
-</ul>
-<p>队列中的每一个消息都有如下属性：</p>
-<ul>
-<li>一个无符号整数优先级（Posix）或 一个长整数类型（system V）；</li>
-<li>消息的数据部分长度（可以为0）；</li>
-<li>数据本身（如果长度大于0）。</li>
-</ul>
-<p>一个消息队列的可能布局。</p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/unix%20%E7%BD%91%E7%BB%9C.png" alt="unix 网络"></p>
-<p>我们所设想的是一个链表，该链表的有中含有当前队列的两个属性：队列中允许的最大开销数以及每一个消息的最大大小。</p>
-<p><strong>mq_open ,mq_close 和 mq_unlink 函数 </strong>：</p>
-<p>mq_open 函数创建一个新的消息队列或打开一个已存在的消息队列。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"><span class="keyword">mqd_t</span> mq_open (<span class="keyword">const</span> <span class="keyword">char</span> *name, <span class="keyword">int</span> oflag, ...</div><div class="line">              <span class="comment">/* mode_t mode, struct mq_attr *attr  */</span>);</div><div class="line">							<span class="comment">//返回： 成功返回消息对列描述符，出错返回-1</span></div></pre></td></tr></table></figure>
-<p>其中 <em>name</em> 有自己的一套命名规则，因为 Posix IPC 使用“Posix IPC 名字”进行标识。为方便于移植起见，Posix IPC 名字必须以斜杠符开头并且不能再包含任何斜杠符。</p>
-<p><em>oflag</em> 是O_RDONLY、O_WRONLY 或     O_RDWR 之一， 可能按位或上O_CREATE(若不存在则创建)、O_EXCL(与O_CREATE一起，若已存在返回EEXIST 错误)或 O_NONBLOCK（非阻塞标识符）。</p>
-<p>当实际操作创建一个新的消息队列时（指定O_CREATE标志，且请求的队列不存在），<em>mode</em> 和 <em>attr</em> 参数是需要的。mode上面介绍过。attr参数用于给新队列指定某些属性。</p>
-<p>mq_open 返回值称为<strong>消息队列描述符（message queue descriptor）</strong>，这个值用作其他消息队列函数的第一参数。</p>
-<p>已打开的消息队列是由 mq_close 关闭的。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_close</span><span class="params">(<span class="keyword">mqd_t</span> mqdes)</span></span></div><div class="line">  													<span class="comment">//返回： 成功返回0，出错返回-1</span></div></pre></td></tr></table></figure>
-<p>关闭之后调用进程不再使用该描述符，但其消息队列并不从系统中删除。一个进程终止时，它打开着的消息队列都关闭，就像调用mq_close 一样。</p>
-<p>要从系统中删除消息队列则用mq_unlink 函数，其第一参数为 mq_open 的第一参数 <em>name</em>。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_unlink</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *name)</span></span></div><div class="line">												<span class="comment">//返回： 成功返回0，出错返回-1</span></div></pre></td></tr></table></figure>
-<p><strong>mq_getattr 和 mq_setattr 函数</strong></p>
-<p>消息队列有四个属性，这两个函数是获取和修改这些属性。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mq_flags		<span class="comment">//队列阻塞标志位</span></div><div class="line">mq_maxmsg		<span class="comment">//队列最大允许消息数</span></div><div class="line">mq_msgsize		<span class="comment">//队列消息最大字节数</span></div><div class="line">mq_curmsgs		<span class="comment">//队列当前消息条数</span></div></pre></td></tr></table></figure>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_getattr</span><span class="params">(<span class="keyword">mqd_t</span> mqdes,<span class="keyword">struct</span> mq_attr *attr)</span></span>;</div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_setattr</span><span class="params">(<span class="keyword">mqd_t</span> mqdes,<span class="keyword">const</span> <span class="keyword">struct</span> mq_attr *attr, <span class="keyword">struct</span> mq_attr *oattr)</span></span>;</div><div class="line">												<span class="comment">//返回：均成功返回0，出错返回-1</span></div></pre></td></tr></table></figure>
-<p><strong>mq_send 和 mq_receive 函数</strong></p>
-<p>​    这两个函数分别往一个队列放置一个信息和从一个队列取走一个消息。每一个消息都有优先级，它是一个小于MQ_PRIO_MAX 的无符号整数。Posix要求这个上限至少为32.</p>
-<p>​    mq_receive 总是返回所指定队列中优先级最高的的最早消息，而且该优先级能随该消息的内容及其长度一同返回。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_send</span><span class="params">(<span class="keyword">mqd_t</span> mqdes, <span class="keyword">const</span> <span class="keyword">char</span> *ptr, <span class="keyword">size_t</span> len, <span class="keyword">unsigned</span> <span class="keyword">int</span> prio)</span></span>;</div><div class="line">											<span class="comment">//返回： 成功返回0，出错返回-1</span></div><div class="line"><span class="keyword">ssize_t</span> mq_reccevie(<span class="keyword">mqd_t</span> mqdes, <span class="keyword">char</span> *ptr, <span class="keyword">size_t</span> len, <span class="keyword">unsigned</span> <span class="keyword">int</span> *priop);</div><div class="line">											<span class="comment">//返回： 成功返回消息中的字节数，出错返回-1</span></div></pre></td></tr></table></figure>
-<p>mq_receive 的 <em>len</em> 参数的值不能小于能加到所指定队列中的最大大小（该队列 mq_attr 结构的 mq_msgsize ）。要是 <em>len</em> 小于该值， mq_receive立即返回 EMSGSIZE 错误。</p>
-<p>mq_send 的 <em>prio</em> 参数是待发信息的优先级，其值必须小于 MQ_PRIO_MAX 。如果 mq_receive 的 <em>priop</em> 参数是一个非空指针，所返回消息的优先级就通过该指针存放。如果应用不必使用优先级不同的消息，那就给mq_send 指针值为0的优先级，给 mq_receive 指定一个空指针作为其最后一个参数。</p>
-<p>往某个队列中增加一个消息</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span></span></div><div class="line"><span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></div><div class="line">&#123;</div><div class="line">  <span class="keyword">mqd_t</span>		mqd;		<span class="comment">//描述符</span></div><div class="line">  <span class="keyword">void</span>		*ptr;		<span class="comment">//指向缓冲区的指针</span></div><div class="line">  <span class="keyword">size_t</span>	len;		<span class="comment">//长度</span></div><div class="line">  <span class="keyword">uint_t</span>	prio;		<span class="comment">//优先度</span></div><div class="line">  </div><div class="line">  <span class="keyword">if</span> (argc != <span class="number">4</span>)</div><div class="line">    err_quit(<span class="string">"usage: mqsend &lt;name&gt; &lt;#bytes&gt; &lt;priority&gt;"</span>);</div><div class="line">  len = atoi(argv[<span class="number">2</span>]);</div><div class="line">  prio = atoi(argv[<span class="number">3</span>]);</div><div class="line">  </div><div class="line">  mqd = Mq_open(argv[<span class="number">1</span>], O_WRONLY);	<span class="comment">// 创建一个消息队列</span></div><div class="line">  </div><div class="line">  ptr = Calloc(len, <span class="keyword">sizeof</span>(<span class="keyword">char</span>));<span class="comment">// 所用的缓冲区用colloc分配，该函数会把该缓冲区初始化为0</span></div><div class="line">  Mq_send(mqd, ptr, len, prio);</div><div class="line">  </div><div class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>待发消息的大小和优先级必须作为命令行参数指定。</p>
-<p>从某队列读出下一个信息</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"unpipc.h"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span></span></div><div class="line"><span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></div><div class="line">&#123;</div><div class="line">  <span class="keyword">int</span> 		c,flags;</div><div class="line">  <span class="keyword">mqd_t</span>		maq;</div><div class="line">  <span class="keyword">ssize_t</span>	n;</div><div class="line">  <span class="keyword">uint_t</span>	prio;</div><div class="line">  <span class="keyword">void</span>		*buff;</div><div class="line">  <span class="keyword">struct</span>	mq_attr	attr;</div><div class="line">  </div><div class="line">  flags = O_RDONLY;</div><div class="line">  <span class="keyword">while</span> ( (c = Getopt(argc, argv, <span class="string">"n"</span>)) != <span class="number">-1</span>) &#123;</div><div class="line">    <span class="keyword">switch</span> (c) &#123;</div><div class="line">      <span class="keyword">case</span> <span class="string">'n'</span>:</div><div class="line">        flags |= O_NONBLOCK;</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">if</span> (optind != argc - <span class="number">1</span>)</div><div class="line">    err_quit(<span class="string">"usage: mqreceive [-n] &lt;name&gt;"</span>);</div><div class="line">  </div><div class="line">  mqd =Mq_open(argv[optind], flags);</div><div class="line">  Mq_getattr(mqd, &amp;attr);</div><div class="line">  </div><div class="line">  buff = Malloc(attr.mq_msgsize);</div><div class="line">  </div><div class="line">  n = Mq_receive(mqd, buff, attr.mq_msgsize, &amp;prio);</div><div class="line">  <span class="built_in">printf</span>(<span class="string">"read %ld bytes, priority = %u\n"</span>, (<span class="keyword">long</span>) n, prio);</div><div class="line">  </div><div class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>命令行选项 -n 指定非阻塞属性，这样如果所指定的队列中没有消息， 则返回一个错误。</p>
-<p>调用 mq_getattr 打开队列并取得属性。需要确定最大消息大小，因为必须为调用的 mq_receive 分配一个这样大小的缓冲区。最后输出所读出消息的大小及其属性。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">solaris %mqcreate /test1							创建并获取属性</div><div class="line">solaris %mqgetattr /test1</div><div class="line">max #msg =128, max #bytes/msg = 1024, #currently on queue = 0</div><div class="line"></div><div class="line">solaris % mqsend /test1 100 9999					以无效的优先级发送</div><div class="line">mq_send error: Invalid argument</div><div class="line"></div><div class="line">solaris % mqsend /test1 100 6						100字节，优先级6 </div><div class="line">solaris % mqsend /test1 50 18 						50字节，优先级18</div><div class="line">solaris % mqsend /test1 33 18 						33字节，优先级18</div><div class="line"></div><div class="line">solaris % mqreceive /test1</div><div class="line">read 50 bytes, priority = 18						返回优先级最高的最早消息</div><div class="line">solaris % mqreceive /test1</div><div class="line">read 33 bytes, priority = 18</div><div class="line">solaris % mqreceive /test1</div><div class="line">read 100 bytes, priority = 6</div><div class="line">solaris % mqreceive /test1							指定非阻塞属性，队列为空</div><div class="line">mq_recevie error: Resource temporarily unavalibale</div></pre></td></tr></table></figure>
-<p>消息队列限制：</p>
-<ul>
-<li>mq_mqxmsg            队列的最大消息数</li>
-<li>mq_msgsize                  给定消息的最大字节数</li>
-<li>MQ_OPEN_MAX            一个进程能够同时拥有的打开着消息队列的组大数目（Posix要求至少为8）</li>
-<li>MQ_PRIO_MAX             任意消息的最大优先级值加1（Posix要求至少为32）</li>
-</ul>
-<p><strong>mq_notify 函数</strong></p>
-<p>Posix 消息队列允许异步事件通知（ <em>asynchronous event notifiction</em>），以告知何时有一个消息放置到了某个空消息队列中。</p>
-<h2 id="System-V-消息队列"><a href="#System-V-消息队列" class="headerlink" title="System V 消息队列"></a>System V 消息队列</h2><p>以下三种类型的IPC称为 System V IPC：</p>
-<ul>
-<li>System V 消息队列；</li>
-<li>System V 信号量；</li>
-<li>System V 共享内存区。</li>
-</ul>
-<p>这个称为作为这三个IPC机制的通称是因为它们源自 System V Unix 。这三种IPC最先出现在AT&amp;T System v UNIX上面，并遵循XSI标准，有时候也被称为XSI IPC。</p>
-<p>System V 消息队列使用<em>消息队列标识符（message queue identifier）</em> 标识。有足够权限的任何进程可往队列放置信息，有足够权限的任何进程可从队列读取信息。跟 Posix 一样，在某个进程往一个队列写入消息之前，不求另外某个进程正在等待该队列上一个消息的到达。</p>
-<p>对于系统的每个消息队列，内核维护一个定义在 <code>&lt;sys/msg.h&gt;</code>  头文件中的信息结构.</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> msqid_ds &#123;</div><div class="line">    <span class="keyword">struct</span> ipc_perm 	msg_perm   <span class="comment">//operation permission structure</span></div><div class="line">    <span class="keyword">struct</span> msg			*msg_frist <span class="comment">//ptr to frist message on queue</span></div><div class="line">    <span class="keyword">struct</span> msg			*msg_last  <span class="comment">//ptr to last message on queue</span></div><div class="line">    <span class="keyword">msglen_t</span>			msg_cbytes <span class="comment">//current #bytes on queue</span></div><div class="line">    <span class="keyword">msgqnum_t</span>       	msg_qnum   <span class="comment">//number of messages currently on queue</span></div><div class="line">    <span class="keyword">msglen_t</span>        	msg_qbytes <span class="comment">//maximum number of bytes allowed on queue</span></div><div class="line">    <span class="keyword">pid_t</span>           	msg_lspid  <span class="comment">//process ID of last msgsnd()</span></div><div class="line">    <span class="keyword">pid_t</span>           	msg_lrpid  <span class="comment">//process ID of last msgrcv()</span></div><div class="line">    <span class="keyword">time_t</span>          	msg_stime  <span class="comment">//time of last msgsnd()</span></div><div class="line">    <span class="keyword">time_t</span>          	msg_rtime  <span class="comment">//time of last msgrcv()</span></div><div class="line">    <span class="keyword">time_t</span>          	msg_ctime  <span class="comment">//time of last change</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><em>Unix 98 不要求有 msg_frist、msg_last 和 msg_cbytes 成员。然而普通的源自 <a href="http://pubs.opengroup.org/onlinepubs/7908799/xsh/sysmsg.h.html" target="_blank" rel="external">System V</a> 的实现中可以找到这三个成员。就算提供了这两个指针，那么它们指向的是内核内存空间，对于应用来说基本没有作用的。</em></p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/unix%20%E7%BD%91%E7%BB%9C%20%281%29.png" alt="unix 网络 (1)"></p>
-<p>我们可以将内核中某个特定的消息队列画为一个消息链表，如图。</p>
-<p><strong>msgget 函数</strong></p>
-<p>msgget 函数用于创建一个新的消息队列或访问一个已存在的消息队列。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgget</span> <span class="params">(<span class="keyword">key_t</span> key, <span class="keyword">int</span> oflag)</span>	</span></div><div class="line">  											<span class="comment">//返回： 成功返回非负标识符，出错返回-1</span></div></pre></td></tr></table></figure>
-<p>返回值是一个整数标识符，其他三个msg函数就用它来指代该队列。</p>
-<p>oflag是读写权限的组合。（稍微复杂。。。）</p>
-<p>当创建一个新的消息队列的时，msqid_ds 结构的如下成员被初始化。</p>
-<ul>
-<li><p>msg_perm 结构的 uid 和 cuid 成员被设置成当前进程的有效用户ID，gid 和 cgid 成员被设置成当前的进程的有效组ID。</p>
-</li>
-<li><p>oflag 中的读写权限位存放在msg_perm.mode 中。</p>
-</li>
-<li><p>msg_qnum、msg_lspid，msg_lrpid、msg_stime 和 msg_rtime 被设置为0.</p>
-</li>
-<li><p>msg_ctime 被设置为当前时间。</p>
-</li>
-<li><p>msg_qbytes 被设置成系统限制值。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> ipc_perm</div><div class="line">&#123;</div><div class="line"><span class="keyword">key_t</span>        		key;            <span class="comment">/*调用shmget()时给出的关键字*/</span></div><div class="line"><span class="keyword">uid_t</span>           	uid;            <span class="comment">/*共享内存所有者的有效用户ID */</span></div><div class="line"><span class="keyword">gid_t</span>          		gid;            <span class="comment">/* 共享内存所有者所属组的有效组ID*/</span> </div><div class="line"><span class="keyword">uid_t</span>          		cuid;           <span class="comment">/* 共享内存创建 者的有效用户ID*/</span></div><div class="line"><span class="keyword">gid_t</span>         		cgid;           <span class="comment">/* 共享内存创建者所属组的有效组ID*/</span></div><div class="line"><span class="keyword">mode_t</span>			   	mode;    		<span class="comment">/* Permissions + SHM_DEST和SHM_LOCKED标志*/</span></div><div class="line"><span class="keyword">ulong_t</span>		    	seq;          	<span class="comment">/* 序列号*/</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure>
-<p>​</p>
-</li>
-</ul>
-<p><strong>msgsnd 函数</strong></p>
-<p>使用 msgget 函数打开一个消息队列后，使用 msgsnd 函数往其上放置一个消息。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgsnd</span><span class="params">(<span class="keyword">int</span> msqid, <span class="keyword">const</span> <span class="keyword">void</span> *ptr,<span class="keyword">size_t</span> length, <span class="keyword">int</span> flag)</span></span>;</div></pre></td></tr></table></figure>
-<p>其中msqid 是由msgget 函数返回的标识符。ptr 是一个结构指针，该结构具有如下的模板：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> msgbuf &#123;</div><div class="line"> 	<span class="keyword">long</span> 	mtype;			<span class="comment">/*message type ,must be &gt; 0*/</span></div><div class="line"> 	<span class="keyword">char</span>	mtext[<span class="number">1</span>]		<span class="comment">/*message data*/</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure>
-<p><em>消息类型必须大于0，因为对于 msgrcv 函数来说，非正的消息类型用作特殊的指示器。</em></p>
-<p><em>mtext虽然起名是 text ，但是消息类型并不局限于文本。任何形式的数据都是允许的。内核根本不解释消                      息数据的内容。ptr 所指向的是一个含有消息类型的长整数，消息本身则紧跟着它之后。</em></p>
-<p>msgsnd 的 <em>length</em> 参数以字节为单位指定待发送消息的长度。是用户自定义的，可以是0.</p>
-<p><em>flag</em> 参数既可以是0，也可以是IPC_NOWAIT 。IPC_NOWAIT 标志使得 msgsnd 调用非阻塞：如果没有存放新消息的可用空间，该函数马上返回。这个条件可能发生的情况包括：</p>
-<ul>
-<li>在指定的队列中已有太多的字节（对应 该队列的msqid_ds 结构中的msg_qbytes 值）；</li>
-<li>在系统范围存在太多的消息。</li>
-</ul>
-<p>如果两个条件一个存在，而且IPC_NOWAIT标志已指定，msgsnd 就返回一个EAGAIN 错误。如果两个条件一个存在，标志未指定，那么调用线程就被投入睡眠，直到：</p>
-<ul>
-<li>具备存放新消息的空间；</li>
-<li>由 msqgid 标识的消息队列从系统中删除（这个情况下回返回一个EIDRM 错误）；</li>
-<li>调用线程被某个捕获的信息所中断。</li>
-</ul>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;h1 id=&quot;Unix-网络编程&quot;&gt;&lt;a href=&quot;#Unix-网络编程&quot; 
     
     </summary>
     
