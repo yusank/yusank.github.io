@@ -4,7 +4,7 @@
     <!-- Title -->
     
     <title>
-        Vim 快捷键 | Yusank&#39;s blog
+        archive_a | Yusank&#39;s blog
     </title>
     
     <!-- Favicons -->
@@ -40,7 +40,7 @@
     <!-- The Open Graph protocol -->
     <meta property="og:url" content="http://yusank.github.io">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="Vim 快捷键 | Yusank&#39;s blog">
+    <meta property="og:title" content="archive_a | Yusank&#39;s blog">
     <meta property="og:description" content="live with light`s die with darkness">
     
      <!--[if lte IE 9]>
@@ -189,341 +189,97 @@
                 </button>
 				
 				
-                <!-- Post TOC -->
-
+                <!-- Index Module -->
+<div class="material-index mdl-grid">
+	
+    <div class="locate-thumbnail-symbol"></div>
     
-	<!-- Back Button -->
-<!--
-	<div class="material-back" id="backhome-div" tabindex="0">
-		<a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="#" onclick="window.history.back();return false;" target="_self" role="button" data-upgraded=",MaterialButton,MaterialRipple">
-			<i class="material-icons" role="presentation">arrow_back</i>
-			<span class="mdl-button__ripple-container">
-				<span class="mdl-ripple"></span>
-			</span>
-		</a>
-	</div>			
--->
-	<!-- Left aligned menu below button -->
-	<button id="post-toc-trigger-btn"
-			class="mdl-button mdl-js-button mdl-button--icon">
-	  <i class="material-icons">format_list_numbered</i>
-	</button>
-
-	<ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
-		for="post-toc-trigger-btn">
-			
-			<ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Vim-快捷键"><span class="post-toc-number">1.</span> <span class="post-toc-text">Vim 快捷键</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#一-移动："><span class="post-toc-number">1.1.</span> <span class="post-toc-text">一. 移动：</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#二-跳转："><span class="post-toc-number">1.2.</span> <span class="post-toc-text">二. 跳转：</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#三-选择："><span class="post-toc-number">1.3.</span> <span class="post-toc-text">三. 选择：</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#四-编辑："><span class="post-toc-number">1.4.</span> <span class="post-toc-text">四. 编辑：</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#五-退出："><span class="post-toc-number">1.5.</span> <span class="post-toc-text">五.退出：</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#六-窗口操作："><span class="post-toc-number">1.6.</span> <span class="post-toc-text">六.窗口操作：</span></a></li></ol></li></ol>
+    
 		
-<!--			<li class="mdl-menu__item">Some Action</li>-->
-	</ul>
-
-
-
-<!-- Layouts -->
-
-    <!-- Post Module -->
-    <div class="material-post_container">
-		
-        <div class="material-post mdl-grid">
-            <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
-
-                <!-- Post Header(Thumbnail & Title) -->
-                
-	<!-- Paradox Post Header -->
+			<!-- Paradox Thumbnail -->
+        	<div class="post_entry-module mdl-card mdl-cell mdl-cell--12-col fade out">
+    
+    <!-- Post Thumbnail -->
 	
 		
 			<!-- Random Thumbnail -->
 			<div class="post_thumbnail-random mdl-card__media mdl-color-text--grey-50">
-				<script>
-    
-    var randomNum;
-    randomNum = Math.floor(Math.random() * 8 + 1);
-    
-    $(".post_thumbnail-random").css('background-image', 'url(' + '/img/random/' + randomNum + '.png' + ')');
-    
-</script>
-
 		
 	
-        <p class="article-headline-p">
-            Vim 快捷键
-        </p>
-    </div>
-
-	
-
 				
-				
-					<!-- Paradox Post Info -->
-					<div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
-    
-    <!-- Author Avatar -->
-    <div id="author-avatar">
-        <img src="/img/avatar.png" width="44px" height="44px" alt="Author Avatar"/>
-    </div>
-    <!-- Author Name & Date -->
-    <div>
-        <strong>Yusank</strong>
-        <span>4月 07, 2017</span>
-    </div>
-    
-    <div class="section-spacer"></div>
-	
-    <!-- Favorite -->
-<!--
-    <button id="article-functions-like-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon btn-like">
-        <i class="material-icons" role="presentation">favorite</i>
-        <span class="visuallyhidden">favorites</span>
-    </button>
--->
-    
-    <!-- Tags (bookmark) -->
-    <button id="article-functions-viewtags-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-        <i class="material-icons" role="presentation">bookmark</i>
-        <span class="visuallyhidden">bookmark</span>
-    </button>
-    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
-        <li class="mdl-menu__item">
-        
-    </ul>
-    
-    <!-- Share -->
-    <button id="article-fuctions-share-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-    <i class="material-icons" role="presentation">share</i>
-    <span class="visuallyhidden">share</span>
-</button>
-<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-fuctions-share-button">
-    
-    
-    
-    
-    <!-- Busuanzi Views -->
-    <a class="post_share-link" href="#">
-        <li class="mdl-menu__item">
-            <span id="busuanzi_container_page_pv">
-                <span id="busuanzi_value_page_pv"></span>&nbsp;浏览量
-            </span>
-        </li>
-    </a>
-    
-    
-    <!-- Share Twitter -->
-    <a class="post_share-link" href="https://twitter.com/intent/tweet?text=Vim 快捷键&url=http://yusank.github.io//Vimkyboard.html/index.html&via=Yusank" target="_blank">
-        <li class="mdl-menu__item">
-            分享到 Twitter
-        </li>
-    </a>
-    
-    <!-- Share Google+ -->
-    <a class="post_share-link" href="https://plus.google.com/share?url=http://yusank.github.io//Vimkyboard.html/index.html" target="_blank">
-        <li class="mdl-menu__item">
-            分享到 Google+
-        </li>
-    </a>
-    
-    <!-- Share Weibo -->
-    <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=Vim 快捷键&url=http://yusank.github.io//Vimkyboard.html/index.html&pic=&searchPic=false&style=simple" target="_blank">
-        <li class="mdl-menu__item">
-            分享到微博
-        </li>
-    </a>
-</ul>
-</div>
-				
-
-                <!-- Post Content -->
-                <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
-	
-		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Vim-快捷键"><a href="#Vim-快捷键" class="headerlink" title="Vim 快捷键"></a>Vim 快捷键</h1><h2 id="一-移动："><a href="#一-移动：" class="headerlink" title="一. 移动："></a>一. 移动：</h2><pre><code>h,j,k,l: 左，下，上，右。
-w: 下一个词的词首。
-e:下一个词的词尾。
-</code></pre><p>​    b:上一个词的词首。</p>
-<pre><code>&lt;&gt;: v 模式选中后进行缩进。
-</code></pre><a id="more"></a>
-<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;"></div>
-		<script>
-			new APlayer({
-				element: document.getElementById("aplayer1"),
-				narrow: false,
-				autoplay: true,
-				showlrc: 0,
-				music: {
-					title: "Wadilar Keni",
-					author: "from nobody",
-					url: "http://oid1xlj7h.bkt.clouddn.com/elyarr%20-%20wadilar%C2%A0keni%EF%BC%88%E5%90%AC%E4%BA%86%E5%B0%B1%E6%B2%A1%E9%94%99%EF%BC%89.mp3",
-					pic: "",
-				}
-			});
-		</script>
-<h2 id="二-跳转："><a href="#二-跳转：" class="headerlink" title="二. 跳转："></a>二. 跳转：</h2><pre><code>%: 可以匹配{},&quot;&quot;,(),[]之间跳转。
-H、M、L：直接跳转到当前屏幕的顶部、中部、底部。
-</code></pre><p>“#H”：跳转到当前屏的第#行。            <em>// 由于markdown语法原因，加上了双引号，实际用的时候没有双引号的</em>, 以下所有加引号的雷同。</p>
-<p>“#L”：跳转到当前屏的倒数第#行。</p>
-<pre><code>zt: 当前编辑行置为屏顶。
-zz: 当前编辑行置为屏中。
-zb: 当前编辑行置为屏底。
-G：直接跳转到文件的底部。
-gg: 跳转到文件首。
-():跳转到当前的行首、行尾。
-{}：向上、向下跳转到最近的空行。
-[{：跳转到目前区块开头。
-]}：跳转到目前区块结尾。
-0: 跳转到行首。
-$: 跳转到行尾。
-2$: 跳转到下一行的行尾。
-</code></pre><p>“#”：跳转到该行的第#个位置。</p>
-<p>“#G”: 15G,跳转到15行。</p>
-<pre><code>:#：跳转到#行。
-f&apos;n&apos;：跳转到下一个&quot;n&quot;字母后。
-ctrl+b: 向后翻一页。
-ctrl+f：向前翻一页。
-ctrl+u: 向后翻半页。
-ctrl+d: 向前翻半页。
-ctry+e: 下滚一行。
-</code></pre><h2 id="三-选择："><a href="#三-选择：" class="headerlink" title="三. 选择："></a>三. 选择：</h2><pre><code>1.V: 选择一行。
-2.^V: 矩形选择。
-3.v3w: 选择三个字符。  
-</code></pre><h2 id="四-编辑："><a href="#四-编辑：" class="headerlink" title="四. 编辑："></a>四. 编辑：</h2><ol>
-<li><p>新增：<br>i: 光标前插入。</p>
-<pre><code>I: 在当前行首插入。
-a: 光标后插入。
-A: 当前行尾插入。
-O: 在当前行之前插入新行。
-o: 在当前行之后插入新行。
-</code></pre></li>
-<li><p>修改 c(change) 为主：<br>   r: 替换光标所在处的字符。</p>
-<pre><code>R：替换光标所到之处的字符。
-cw: 更改光标所在处的字到字尾处。
-c#w: c3w 修改3个字符。
-C：修改到行尾。
-ci&apos;：修改配对标点符号中的文本内容。
-di&apos;：删除配对标点符号中的文本内容。
-yi&apos;：复制配对标点符号中的文本内容。
-vi&apos;：选中配对标点符号中的文本内容。
-s：替换当前一个光标所处字符。
-</code></pre><p>   ​    “#S”：删除 # 行，并以新文本代替。</p>
-</li>
-</ol>
-<ol>
-<li><p>删除 d(delete) 为主：<br>D：删除到行尾。</p>
-<pre><code>X: 每按一次，删除光标所在位置的前面一个字符。
-x: 每按一次，删除光标所在位置的后面一个字符。
-</code></pre><p>​    “#x”: 删除光标所在位置后面6个字符。</p>
-<pre><code>d^: 删至行首。
-d$: 删至行尾。
-dd:(剪切)删除光标所在行。        
-dw: 删除一个单词/光标之后的单词剩余部分。
-d4w: 删除4个word。
-</code></pre><p>​”#dd”: 从光标所在行开始删除#行。</p>
-<p>  daB: 删除{}及其内的内容。<br>  diB: 删除{}中的内容。<br>  n1,n2 d：将n1,n2行之间的内容删除。</p>
-</li>
-<li><p>查找：<br>/： 输入关键字，发现不是要找的，直接在按n，向后查找直到找到为止。</p>
-<pre><code>?： 输入关键字，发现不是要找的，直接在按n，向前查找直到找到为止。
-*: 在当前页向后查找同一字。
-</code></pre><p>​    “#”: 在当前页向前查找同一字。</p>
-</li>
-<li><p>复制 y(yank)为主：<br>   yw: 将光标所在之处到字尾的字符复制到缓冲区中。</p>
-<p>   “#yw”: 复制#个字到缓冲区。</p>
-<pre><code>Y：相当于yy, 复制整行。
-</code></pre></li>
-</ol>
-<p>​    “#yy”:表示复制从光标所在的该行往下数#行文字。</p>
-<pre><code>    p: 粘贴。所有与y相关的操作必用p来结合粘贴。
-    n1,n2 co n3：复制第n1行到第n2行之间的内容到第n3行后面。
-6. 大小写转换：
-      gUU: 将当前行的字母改为大写。
-              guu: 将当前行的字母改为小写。
-              gUw: 将当前光标下的单词改为大写。
-              guw: 将当前光标下的单词改为小写。
-              a. 整篇大写:
-              ggguG
-              gg: 光标到文件第一个字符。
-              gu: 把选择范围全部小写。
-              G: 到文件结束。
-              b. 整篇小写：gggUG
-7. 其它：
-      J：当前行和下一行合并成一行。
-8. 移动：
-      n1,n2 m n3：将n1行到n2行之间的内容移至n3行下。
-</code></pre><h2 id="五-退出："><a href="#五-退出：" class="headerlink" title="五.退出："></a>五.退出：</h2><pre><code>1. w filename: 保存正在编辑的文件filename
-2. wq filename: 保存后退出正在编辑的文件filename
-3. q：退出不保存。
-</code></pre><h2 id="六-窗口操作："><a href="#六-窗口操作：" class="headerlink" title="六.窗口操作："></a>六.窗口操作：</h2><pre><code>1. ctrl+w p: 在两个分割窗口之间来回切换。
-2. ctrl+w j: 跳到下面的分割窗
-3. ctrl+w h: 跳到左边的分割窗。
-4. ctrl+w k: 跳到上面的分割窗。
-5. ctrl+w l: 跳到右边的分割窗。
-</code></pre>
-	
-	
-	
-	
-</div>
-				
-				
-
-                <!-- Post Comments -->
-                
-                    
-
-
-    <!-- 使用 DISQUS -->
-	<div id="disqus-comment">
-		<div id="disqus_thread"></div>
-<script>
-	var disqus_config = function () {
-		this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-		this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-	};
-
-	(function() { // DON'T EDIT BELOW THIS LINE
-		var d = document, s = d.createElement('script');
-		s.src = '//yusank.disqus.com/embed.js';
-		s.setAttribute('data-timestamp', +new Date());
-		(d.head || d.body).appendChild(s);
-	})();
-</script>
+		<!-- Post Title -->
+		<p class="article-headline-p"><a href="/hello-world.html/">Hello World</a></p>
 	</div>
-	<style>
-		#disqus-comment{
-			background-color:#eee;
-			padding:2pc;
-		}
-	</style>
 
-                
+    <!-- Post Excerpt -->
+    <div class="mdl-color-text--grey-600 mdl-card__supporting-text post_entry-content">
+        
+            Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
+        
+        &nbsp;&nbsp;&nbsp;
+        <span>
+            <a href="/hello-world.html/" target="_self">继续阅读</a>
+        </span>
+    </div>
+    <!-- Post_entry Info-->
+    <div id="post_entry-info">
+        <div id="post_entry-left-info" class="mdl-card__supporting-text meta mdl-color-text--grey-600 ">
+            <!-- Author Avatar -->
+            <div id="author-avatar">
+                <img src="/img/avatar.png" width="44px" height="44px" alt="Yusank's avatar">
             </div>
-
-            <!-- Post Prev & Next Nav -->
-            <nav class="material-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
-    
-    <!-- Prev Nav -->
-    
-        <a href="/HexoMedia.html/" id="post_nav-newer" class="prev-content">
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
-                <i class="material-icons">arrow_back</i>
-            </button>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            新篇
-        </a>
-    
-
-    <!-- Section Spacer -->
-    <div class="section-spacer"></div>
-
-    <!-- Next Nav -->
-    
-        <a href="/Unix-Network.html/" id="post_nav-older" class="next-content">
-            旧篇
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
-                <i class="material-icons">arrow_forward</i>
-            </button>
-        </a>
-    
-</nav>
+            <div>
+                <strong>Yusank</strong>
+                <span>12月 16, 2016</span>
+            </div>
+        </div>
+        <div id="post_entry-right-info">
+            <!-- Category -->
+            <span class="post_entry-category">
+                
+            </span>
+            
+            
+            
+            <!-- Post Views -->
+            <span class="post_entry-views">
+                
+            </span>
         </div>
     </div>
+            
+</div>
+
+		
+		
+    
+		<!-- Index nav -->
+        <nav class="material-nav mdl-cell mdl-cell--12-col">
+            <a class="extend prev" rel="prev" href="/archives/page/2/"><button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"><i class="material-icons" role="presentation">arrow_back</i></button></a><a class="page-number" href="/archives/">1</a><a class="page-number" href="/archives/page/2/">2</a><span class="page-number current">3</span>
+        </nav>
+    
+    
+	
+		<script>
+    
+    var randomNum;
+    
+    var locatePost = $(".locate-thumbnail-symbol").next();
+    for(var i=0; i < 6; i++){
+        
+        randomNum = Math.floor(Math.random() * 8 + 1);
+        
+        locatePost.children(".post_thumbnail-random").attr('id', 'random_thumbnail-'+randomNum);
+        locatePost.children(".post_thumbnail-random").css('background-image', 'url(' + '/img/random/' + randomNum + '.png' + ')')
+        
+        locatePost = locatePost.next();
+    }
+    
+</script>
+
+	
+
+</div>
 
 				
 				
