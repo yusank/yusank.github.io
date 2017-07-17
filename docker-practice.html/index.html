@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <!-- Title -->
+    
+    <title>
+        Docker 的使用 | Yusank&#39;s blog
+    </title>
+    
+    <!-- Favicons -->
+    <link rel="icon shortcut" type="image/ico" href="/img/favicon.png">
+    <link rel="icon" sizes="192x192" href="/img/favicon.png">
+    <link rel="apple-touch-icon" href="/img/favicon.png">
+    
+    <!-- Meta & INfo -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0097A7">
+    <meta name="author" content="Yusank">
+    <meta name="description" content="live with light`s die with darkness">
+    <meta name="keywords" content="null">
+    
+    <!--iOS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-title" content="Title">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="480">
+    
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Yusank&#39;s blog">
+    
+    <!-- The Open Graph protocol -->
+    <meta property="og:url" content="http://yusank.github.io">
+    <meta property="og:type" content="blog">
+    <meta property="og:title" content="Docker 的使用 | Yusank&#39;s blog">
+    <meta property="og:description" content="live with light`s die with darkness">
+    
+     <!--[if lte IE 9]>
+        <link rel="stylesheet" href="/css/ie-blocker.css">
+        
+        
+            <script src="/js/ie-blocker.zhCN.js"></script>
+        
+    <![endif]-->
+    
+    <!-- Import CSS -->
+    <link rel="stylesheet" href="/css/material.min.css">
+    <link rel="stylesheet" href="/css/style.min.css">
+    <!-- Config CSS -->
+
+
+<!-- Other Styles -->
+<style>
+	body, html{
+		font-family: Roboto, "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+	}
+	
+    a{
+        color: #00838F
+    }
+    
+    .mdl-card__media,
+    #search-label,
+    #search-form-label:after,
+    #scheme-Paradox .hot_tags-count,
+    #scheme-Paradox .sidebar_archives-count,
+    #scheme-Paradox .sidebar-colored .sidebar-header,
+    #scheme-Paradox .sidebar-colored .sidebar-badge{
+        background-color: #42A5F5 !important
+    }
+    
+	/* Sidebar User Drop Down Menu Text Color */
+	#scheme-Paradox .sidebar-colored .sidebar-nav>.dropdown>.dropdown-menu>li>a:hover,
+    #scheme-Paradox .sidebar-colored .sidebar-nav>.dropdown>.dropdown-menu>li>a:focus{
+        color: #42A5F5 !important
+    }
+    
+    #post_entry-right-info,
+    .sidebar-colored .sidebar-nav li:hover > a,
+    .sidebar-colored .sidebar-nav li:hover > a i,
+    .sidebar-colored .sidebar-nav li > a:hover,
+    .sidebar-colored .sidebar-nav li > a:hover i,
+    .sidebar-colored .sidebar-nav li > a:focus i,
+    .sidebar-colored .sidebar-nav > .open > a,
+    .sidebar-colored .sidebar-nav > .open > a:hover,
+    .sidebar-colored .sidebar-nav > .open > a:focus,
+    #ds-reset #ds-ctx .ds-ctx-entry .ds-ctx-head a{
+        color: #42A5F5 !important
+    }
+    
+    .toTop{
+        background: #757575 !important
+    }
+		
+	.material-layout .material-post>.material-nav,
+	.material-layout .material-index>.material-nav,
+	.material-nav a{
+		color: #757575;
+	}
+		
+	#scheme-Paradox .MD-burger-layer {
+		background-color: #757575;
+	}
+
+	#scheme-Paradox #post-toc-trigger-btn{
+		color: #757575;
+	}
+	
+	.post-toc a:hover{
+		color: #00838F;
+		text-decoration: underline;
+	}
+</style>
+
+
+<!-- Theme Background Related-->
+
+    <style>
+        body{
+            background-image: url(/img/bg.png);
+        }
+    </style>
+
+
+
+
+<!-- Fade Effect -->
+
+    <style>
+        .fade {
+            transition: all 800ms linear;
+            -webkit-transform: translate3d(0,0,0);
+            -moz-transform: translate3d(0,0,0);
+            -ms-transform: translate3d(0,0,0);
+            -o-transform: translate3d(0,0,0);
+            transform: translate3d(0,0,0);
+            opacity: 1;
+        }
+
+        .fade.out{
+            opacity: 0;
+        }
+    </style>
+
+	<script src="/js/jquery.min.js"></script>
+	
+	<link rel="stylesheet" href="/css/highlight/atelier-cave-light.css">
+	
+	<!-- UC Browser Compatible-->
+	<script>
+		var agent = navigator.userAgent.toLowerCase();
+		if(agent.indexOf('ucbrowser')>0) {
+			document.write('<link rel="stylesheet" href="/css/uc.css">');
+		   alert('由于 UC 浏览器使用极旧的内核，而本网站使用了一些新的特性。\n为了您能更好的浏览，推荐使用 Chrome 或 Firefox 浏览器。');
+		}
+	</script>
+    
+    <!-- Custom Head -->
+    
+</head>
+	
+	
+
+    <body id="scheme-Paradox">
+
+		
+        <div class="material-layout  mdl-js-layout has-drawer is-upgraded">
+				
+			
+			
+            <!-- Main Container -->
+            <main class="material-layout__content" id="main">
+				
+                <!-- Top Anchor -->
+                <div id="top"></div>
+				
+				
+                <!-- Hamburger Button -->
+                <button class="MD-burger-icon sidebar-toggle">
+                    <span class="MD-burger-layer"></span>
+                </button>
+				
+				
+                <!-- Post TOC -->
+
+    
+	<!-- Back Button -->
+<!--
+	<div class="material-back" id="backhome-div" tabindex="0">
+		<a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="#" onclick="window.history.back();return false;" target="_self" role="button" data-upgraded=",MaterialButton,MaterialRipple">
+			<i class="material-icons" role="presentation">arrow_back</i>
+			<span class="mdl-button__ripple-container">
+				<span class="mdl-ripple"></span>
+			</span>
+		</a>
+	</div>			
+-->
+	<!-- Left aligned menu below button -->
+	<button id="post-toc-trigger-btn"
+			class="mdl-button mdl-js-button mdl-button--icon">
+	  <i class="material-icons">format_list_numbered</i>
+	</button>
+
+	<ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
+		for="post-toc-trigger-btn">
+			
+			<ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Docker-的使用"><span class="post-toc-number">1.</span> <span class="post-toc-text">Docker 的使用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基本操作"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">基本操作</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#启动容器"><span class="post-toc-number">1.1.1.</span> <span class="post-toc-text">启动容器</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#新建并启动"><span class="post-toc-number">1.1.1.1.</span> <span class="post-toc-text">新建并启动</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#启动已终止容器"><span class="post-toc-number">1.1.1.2.</span> <span class="post-toc-text">启动已终止容器</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#后台-background-运行"><span class="post-toc-number">1.1.2.</span> <span class="post-toc-text">后台( background )运行</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#终止容器"><span class="post-toc-number">1.1.3.</span> <span class="post-toc-text">终止容器</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#进入容器"><span class="post-toc-number">1.1.4.</span> <span class="post-toc-text">进入容器</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#attach-命令"><span class="post-toc-number">1.1.4.1.</span> <span class="post-toc-text">attach 命令</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#nsenter-命令"><span class="post-toc-number">1.1.4.2.</span> <span class="post-toc-text">nsenter 命令</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#exec-命令"><span class="post-toc-number">1.1.4.3.</span> <span class="post-toc-text">exec 命令</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#导出和导入容器"><span class="post-toc-number">1.1.5.</span> <span class="post-toc-text">导出和导入容器</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#导出容器"><span class="post-toc-number">1.1.5.1.</span> <span class="post-toc-text">导出容器</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#导入容器快照"><span class="post-toc-number">1.1.5.2.</span> <span class="post-toc-text">导入容器快照</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#删除容器"><span class="post-toc-number">1.1.6.</span> <span class="post-toc-text">删除容器</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#单独删除"><span class="post-toc-number">1.1.6.1.</span> <span class="post-toc-text">单独删除</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#清理所有处于终止状态的容器"><span class="post-toc-number">1.1.6.2.</span> <span class="post-toc-text">清理所有处于终止状态的容器</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#访问仓库"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">访问仓库</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Docker-Hub"><span class="post-toc-number">1.2.1.</span> <span class="post-toc-text">Docker Hub</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#登录"><span class="post-toc-number">1.2.1.1.</span> <span class="post-toc-text">登录</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#基本操作-1"><span class="post-toc-number">1.2.1.2.</span> <span class="post-toc-text">基本操作</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#自动创建"><span class="post-toc-number">1.2.1.3.</span> <span class="post-toc-text">自动创建</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#私有仓库"><span class="post-toc-number">1.2.2.</span> <span class="post-toc-text">私有仓库</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#安装运行-docker-regisrty"><span class="post-toc-number">1.2.2.1.</span> <span class="post-toc-text">安装运行 docker-regisrty</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#容器运行"><span class="post-toc-number">1.2.2.1.1.</span> <span class="post-toc-text">容器运行</span></a></li></ol></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#本地安装"><span class="post-toc-number">1.2.2.2.</span> <span class="post-toc-text">本地安装</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#在私有仓库上传、下载、搜索镜像"><span class="post-toc-number">1.2.2.3.</span> <span class="post-toc-text">在私有仓库上传、下载、搜索镜像</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#仓库配置文件"><span class="post-toc-number">1.2.3.</span> <span class="post-toc-text">仓库配置文件</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#模板"><span class="post-toc-number">1.2.3.1.</span> <span class="post-toc-text">模板</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#示例配置"><span class="post-toc-number">1.2.3.2.</span> <span class="post-toc-text">示例配置</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Docker-数据管理"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">Docker 数据管理</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#数据卷"><span class="post-toc-number">1.3.1.</span> <span class="post-toc-text">数据卷</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#创建一个数据卷"><span class="post-toc-number">1.3.1.1.</span> <span class="post-toc-text">创建一个数据卷</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#删除数据卷"><span class="post-toc-number">1.3.1.2.</span> <span class="post-toc-text">删除数据卷</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#挂载一个主句目录作为数据卷"><span class="post-toc-number">1.3.1.3.</span> <span class="post-toc-text">挂载一个主句目录作为数据卷</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#查看数据卷的具体信息"><span class="post-toc-number">1.3.1.4.</span> <span class="post-toc-text">查看数据卷的具体信息</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#挂载一个本地主机文件作为数据卷"><span class="post-toc-number">1.3.1.5.</span> <span class="post-toc-text">挂载一个本地主机文件作为数据卷</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#数据卷容器"><span class="post-toc-number">1.3.2.</span> <span class="post-toc-text">数据卷容器</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#利用数据卷容器来备份、恢复、迁移数据卷"><span class="post-toc-number">1.3.2.1.</span> <span class="post-toc-text">利用数据卷容器来备份、恢复、迁移数据卷</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#备份"><span class="post-toc-number">1.3.2.1.1.</span> <span class="post-toc-text">备份</span></a></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#恢复"><span class="post-toc-number">1.3.2.1.2.</span> <span class="post-toc-text">恢复</span></a></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#迁移数据卷"><span class="post-toc-number">1.3.2.1.3.</span> <span class="post-toc-text">迁移数据卷</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Docker-中的网络"><span class="post-toc-number">2.</span> <span class="post-toc-text">Docker 中的网络</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#外部访问容器"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">外部访问容器</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#映射所有接口地址"><span class="post-toc-number">2.1.1.</span> <span class="post-toc-text">映射所有接口地址</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#映射到指定地址的指定端口"><span class="post-toc-number">2.1.2.</span> <span class="post-toc-text">映射到指定地址的指定端口</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#查看映射端口配置"><span class="post-toc-number">2.1.3.</span> <span class="post-toc-text">查看映射端口配置</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#容器互联"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">容器互联</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#自定义容器命名"><span class="post-toc-number">2.2.1.</span> <span class="post-toc-text">自定义容器命名</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#容器互联-1"><span class="post-toc-number">2.2.2.</span> <span class="post-toc-text">容器互联</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#高级网络配置"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">高级网络配置</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#快速配置"><span class="post-toc-number">2.3.1.</span> <span class="post-toc-text">快速配置</span></a></li></ol></li></ol></li></ol>
+		
+<!--			<li class="mdl-menu__item">Some Action</li>-->
+	</ul>
+
+
+
+<!-- Layouts -->
+
+    <!-- Post Module -->
+    <div class="material-post_container">
+		
+        <div class="material-post mdl-grid">
+            <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+
+                <!-- Post Header(Thumbnail & Title) -->
+                
+	<!-- Paradox Post Header -->
+	
+		
+			<!-- Random Thumbnail -->
+			<div class="post_thumbnail-random mdl-card__media mdl-color-text--grey-50">
+				<script>
+    
+    var randomNum;
+    randomNum = Math.floor(Math.random() * 8 + 1);
+    
+    $(".post_thumbnail-random").css('background-image', 'url(' + '/img/random/' + randomNum + '.png' + ')');
+    
+</script>
+
+		
+	
+        <p class="article-headline-p">
+            Docker 的使用
+        </p>
+    </div>
+
+	
+
+				
+				
+					<!-- Paradox Post Info -->
+					<div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
+    
+    <!-- Author Avatar -->
+    <div id="author-avatar">
+        <img src="/img/avatar.png" width="44px" height="44px" alt="Author Avatar"/>
+    </div>
+    <!-- Author Name & Date -->
+    <div>
+        <strong>Yusank</strong>
+        <span>7月 17, 2017</span>
+    </div>
+    
+    <div class="section-spacer"></div>
+	
+    <!-- Favorite -->
+<!--
+    <button id="article-functions-like-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon btn-like">
+        <i class="material-icons" role="presentation">favorite</i>
+        <span class="visuallyhidden">favorites</span>
+    </button>
+-->
+    
+    <!-- Tags (bookmark) -->
+    <button id="article-functions-viewtags-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+        <i class="material-icons" role="presentation">bookmark</i>
+        <span class="visuallyhidden">bookmark</span>
+    </button>
+    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
+        <li class="mdl-menu__item">
+        
+    </ul>
+    
+    <!-- Share -->
+    <button id="article-fuctions-share-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+    <i class="material-icons" role="presentation">share</i>
+    <span class="visuallyhidden">share</span>
+</button>
+<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-fuctions-share-button">
+    
+    
+    
+    
+    <!-- Busuanzi Views -->
+    <a class="post_share-link" href="#">
+        <li class="mdl-menu__item">
+            <span id="busuanzi_container_page_pv">
+                <span id="busuanzi_value_page_pv"></span>&nbsp;浏览量
+            </span>
+        </li>
+    </a>
+    
+    
+    <!-- Share Twitter -->
+    <a class="post_share-link" href="https://twitter.com/intent/tweet?text=Docker 的使用&url=http://yusank.github.io//docker-practice.html/index.html&via=Yusank" target="_blank">
+        <li class="mdl-menu__item">
+            分享到 Twitter
+        </li>
+    </a>
+    
+    <!-- Share Google+ -->
+    <a class="post_share-link" href="https://plus.google.com/share?url=http://yusank.github.io//docker-practice.html/index.html" target="_blank">
+        <li class="mdl-menu__item">
+            分享到 Google+
+        </li>
+    </a>
+    
+    <!-- Share Weibo -->
+    <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=Docker 的使用&url=http://yusank.github.io//docker-practice.html/index.html&pic=&searchPic=false&style=simple" target="_blank">
+        <li class="mdl-menu__item">
+            分享到微博
+        </li>
+    </a>
+</ul>
+</div>
+				
+
+                <!-- Post Content -->
+                <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
+	
+		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Docker-的使用"><a href="#Docker-的使用" class="headerlink" title="Docker 的使用"></a>Docker 的使用</h1><h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><h3 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h3><h4 id="新建并启动"><a href="#新建并启动" class="headerlink" title="新建并启动"></a>新建并启动</h4><p>所需的命令是 <code>docker run</code></p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker run ubuntu:14.04 /bin/echo &apos;hello, worl&apos;</div></pre></td></tr></table></figure>
+<p>容器执行后面的命令直接就会终止。</p>
+<p>下面的命令会启动容器并起一个 bash 终端，允许用户进行交互</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker run -t -i ubuntu:14.04 /bin/bash</div></pre></td></tr></table></figure>
+<p>其中 <code>-t</code>  让 Docker 分配一个伪终端 (pseudo-tty) 并绑定到容器的标准输入上, <code>-i</code> 则让容器的标准输入保持打开 .</p>
+<p>利用 docker run 来创建容器是, Docker 在后台运行的标准操作包括:</p>
+<ul>
+<li>检查本地是否存在指定的镜像,不存在就从共有仓库下载</li>
+<li>利用镜像创建并启动一个容器</li>
+<li>分配一个文件系统并在只读的镜像层外面挂载一层可读写层</li>
+<li>在宿主主机配置的网桥接口中桥接一个虚拟接口到容器中去</li>
+<li>从地址池配置一个 ip 地址给容器</li>
+<li>执行用户指定的应用程序</li>
+<li>执行完毕后容器终止</li>
+</ul>
+<h4 id="启动已终止容器"><a href="#启动已终止容器" class="headerlink" title="启动已终止容器"></a>启动已终止容器</h4><p>可以利用 <code>docker start</code> 命令,直接将一个已经终止的容器启动运行 .</p>
+<p>可以通过 <code>docker ps -a</code> 查看所有的容器和其状态</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">CONTAINER ID        IMAGE                   COMMAND                  CREATED             STATUS                     PORTS                    NAMES</div><div class="line">aada74689bf7        cockroachdb/cockroach   &quot;/cockroach/cockro...&quot;   3 weeks ago         Exited (137) 3 weeks ago                            roach_master</div><div class="line">2e9eb6cf3f66        owncloud                &quot;/entrypoint.sh ap...&quot;   3 weeks ago         Up 3 weeks                 0.0.0.0:80-&gt;80/tcp       owncloud</div><div class="line">91290c737c73        postgres                &quot;docker-entrypoint...&quot;   3 weeks ago         Up 3 weeks                 5432/tcp                 owncloud-postgres</div><div class="line">8f546ec65e61        mysql                   &quot;docker-entrypoint...&quot;   3 weeks ago         Up 3 weeks                 0.0.0.0:3306-&gt;3306/tcp   mysql</div></pre></td></tr></table></figure>
+<p>不难发现 name 为 roch_master 的容器已经终止了,想重新启动它,可以执行下面的命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker start aada74689bf7</div></pre></td></tr></table></figure>
+<p>参数为容器的 id .</p>
+<h3 id="后台-background-运行"><a href="#后台-background-运行" class="headerlink" title="后台( background )运行"></a>后台( background )运行</h3><p>在很多时候,我们需要让 docker 在后台运行而并不是把执行结果直接输出出来.</p>
+<p>这个时候我们可以添加 <code>-d</code> 参数来实现</p>
+<p>如果使用 <code>-d</code> 参数运行容器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ docker run -d mysql:5.7.17</div><div class="line">77b2dc01fe0f3f1265df143181e7b9af5e05279a884f4776ee75350ea9d8017a</div></pre></td></tr></table></figure>
+<p>只会输出运行的容器 id, 而输出结果可以用 docker logs 查看 .</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker logs [container ID or NAMES]</div></pre></td></tr></table></figure>
+<h3 id="终止容器"><a href="#终止容器" class="headerlink" title="终止容器"></a>终止容器</h3><p>可以使用 <code>docker stop</code>  来终止正在运行的容器 .</p>
+<p>此外,当 Docker 容器中指定的应用终结时, 容器也自动终止 . 例如运行一个容器时,指定了一个终端后,当退出终端的时候,所创建的容器也会立刻终止 .</p>
+<p>终止状态的容器, 可以通过 <code>docker start</code> 来重新启动 .</p>
+<p>此外,<code>docker restart</code> 命令会将一个运行态的容器终止,然后重新启动它 .</p>
+<h3 id="进入容器"><a href="#进入容器" class="headerlink" title="进入容器"></a>进入容器</h3><p>在使用 <code>-d</code> 参数时, docker 容器会在后台运行. 有些时候需要进入容器,如运行数据库时,需要进入增删改查库里的内容. 进入容器有很多种办法.</p>
+<h4 id="attach-命令"><a href="#attach-命令" class="headerlink" title="attach 命令"></a>attach 命令</h4><p><code>docker attach</code>     是 Docker 自带的命令,用法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker attach [container ID or NAMES]</div></pre></td></tr></table></figure>
+<p>但是使用 <code>attach</code> 命令有个缺陷,即多个窗口同时用 attach 命令到同一个容器的时候,所有的窗口都是同步显示的,如果其中一个窗口阻塞的时候,其他窗口也无法使用 .</p>
+<h4 id="nsenter-命令"><a href="#nsenter-命令" class="headerlink" title="nsenter 命令"></a>nsenter 命令</h4><p>这个工具需要用如下命令安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker run --rm -v /usr/local/bin:/target jpetazzo/nsenter</div></pre></td></tr></table></figure>
+<p>使用方法也比较简单,首先是你要进入的容器的 ID</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ PID=$(docker inspect --format &#123;&#123;.State.Pid&#125;&#125; &lt;container ID or NAMES&gt;)</div></pre></td></tr></table></figure>
+<p>然后通过这个 PID 进入容器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ nsenter --target $PID --mount --uts --ipc --net --pid</div></pre></td></tr></table></figure>
+<p>如果无法通过上述的命令连接到容器,有可能是因为宿主的默认 shell 在容器中并不存在,比如 zsh, 可以使用如下命令显示地使用 bash .</p>
+<h4 id="exec-命令"><a href="#exec-命令" class="headerlink" title="exec 命令"></a>exec 命令</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$docker exec -it [container ID or NAMES]</div></pre></td></tr></table></figure>
+<p><code>-i</code> <code>-t</code> 前面说过为了标准输入输出保持打开 .</p>
+<h3 id="导出和导入容器"><a href="#导出和导入容器" class="headerlink" title="导出和导入容器"></a>导出和导入容器</h3><h4 id="导出容器"><a href="#导出容器" class="headerlink" title="导出容器"></a>导出容器</h4><p>如果要导出本地某个容器,可以使用 <code>docker export</code> 命令 .</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker export [container ID or NAMES] &gt; target.tar</div></pre></td></tr></table></figure>
+<p>这样将导出容器快照到本地文件 .</p>
+<h4 id="导入容器快照"><a href="#导入容器快照" class="headerlink" title="导入容器快照"></a>导入容器快照</h4><p>可以使用 <code>docker import</code> 从容器快照文件导入镜像,</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ cat target.tar | docker import - test/mysql:v1.0</div><div class="line">$sudo docker images</div><div class="line">REPOSITORY  TAG  IMAGE ID 		CREATED 			VIRTUAL SIZE</div><div class="line">test/ubuntu v1.0 9d37a6082e97 	About a minute ago 	171.3 MB</div></pre></td></tr></table></figure>
+<p>此外,还可以通过指定 URL 或者某个目录来导入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker import http://example.com/exampleimage.tgz example/imagerepo</div></pre></td></tr></table></figure>
+<p>*注：用户既可以使用 docker load 来导入镜像存储文件到本地镜像库，也可以使用 docker import 来导入一个容器快照到本地镜像库。这两者的区别在于容器快照文件将丢弃所有的历史记录和元数据信息（即仅保存容器当时的快照状态），而镜像存储文件将保存完整记录，体积也要大。此外，从容器快照文件导入时可以重新指定标签等元数据信息。</p>
+<h3 id="删除容器"><a href="#删除容器" class="headerlink" title="删除容器"></a>删除容器</h3><h4 id="单独删除"><a href="#单独删除" class="headerlink" title="单独删除"></a>单独删除</h4><p>可以使用 <code>docker rm</code> 来删除一个处于终止状态的容器 .</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker rm [container ID or NAMES]</div></pre></td></tr></table></figure>
+<p>如果要删除一个运行中的容器,可以添加 <code>-f</code> 参数 .Docker 会发送 <code>SIGKILL</code> 信号给容器 .</p>
+<h4 id="清理所有处于终止状态的容器"><a href="#清理所有处于终止状态的容器" class="headerlink" title="清理所有处于终止状态的容器"></a>清理所有处于终止状态的容器</h4><p>用  <code>docker ps -a</code>  命令可以查看所有已创建的包括终止状态的容器,如果想批量删除多个容器的话(当然是终止状态的容器) ,可以用这个命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker rm $(docker ps -a -q)</div></pre></td></tr></table></figure>
+<p>*注意：这个命令其实会试图删除所有的包括还在运行中的容器，不过就像上面提过的 docker rm 默认并不会删除运行中的容器。</p>
+<h2 id="访问仓库"><a href="#访问仓库" class="headerlink" title="访问仓库"></a>访问仓库</h2><p>仓库（Repository）是集中存放镜像的地方。</p>
+<p>一个容易混淆的概念是注册服务器（Registry）。实际上注册服务器是管理仓库的具体服务器，每个服务器上可以有多个仓库，而每个仓库下面有多个镜像。从这方面来说，仓库可以被认为是一个具体的项目或目录。例如对于仓库地址dl.dockerpool.com/ubuntu 来说， dl.dockerpool.com 是注册服务器地址， ubuntu 是仓库名。</p>
+<p>大部分时候，并不需要严格区分这两者的概念。</p>
+<h3 id="Docker-Hub"><a href="#Docker-Hub" class="headerlink" title="Docker Hub"></a>Docker Hub</h3><p>目前 Docker 官方维护了一个公共仓库 <a href="https://hub.docker.com/explore/" target="_blank" rel="external">Docker Hub</a>,   但是开始把阵地移到 <a href="https://store.docker.com/" target="_blank" rel="external">Docker Store</a> 这个平台上,其上能找到几乎所有的能想得到的容器, 不可小觑 .</p>
+<h4 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h4><p>可以通过执行 docker login 命令来输入用户名、密码和邮箱来完成注册和登录。 注册成功后，本地用户目录的.dockercfg 中将保存用户的认证信息。</p>
+<h4 id="基本操作-1"><a href="#基本操作-1" class="headerlink" title="基本操作"></a>基本操作</h4><p>用户无需登录即可通过 <code>docker search</code> 命令来查找官方仓库中的镜像, 并利用 <code>docker pull</code> 命令来将它下载到本地 .</p>
+<p>以搜索 mongo 为关键字搜索:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ docker search mongo</div><div class="line">NAME                           DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED</div><div class="line">mongo                          MongoDB document databases provide high av...   3427      [OK]</div><div class="line">mongo-express                  Web-based MongoDB admin interface, written...   168       [OK]</div><div class="line">mvertes/alpine-mongo           light MongoDB container                         51                   			[OK]</div><div class="line">mongoclient/mongoclient        Official docker image for Mongoclient, fea...   29                   			[OK]</div><div class="line">torusware/speedus-mongo        Always updated official MongoDB docker ima...   9                    			[OK]</div><div class="line">mongooseim/mongooseim-docker   MongooseIM server the latest stable version     9                    			[OK]</div></pre></td></tr></table></figure>
+<p>​    搜索结果可以看到很多包含关键字的镜像,其中包括镜像名字、描述、星数（表示该镜像的受欢迎程度）、是否官方创建、是否自动创建。 官方的镜像说明是官方项目组创建和维护的，automated 资源允许用户验证镜像的来源和内容。</p>
+<p>​    根据是否为官方提供, 镜像资源可分为两类 . 一类是累类似 mongo这样的基础镜像 . 这些镜像由 Docker 的用户创建、验证、支持、提供 。 这样的镜像往往是使用单个单词作为名字 。 </p>
+<p>另一种类型，比如<code>mvertes/alpine-mongo</code> 镜像，它是由 Docker 的用户创建并维护的，往往带有用户名称前缀 。 可以通过前缀 <code>user_name/</code> 来指定使用某个用户提供的镜像 。</p>
+<p>另外，在查找的时候通过 <code>-s N</code> 参数可以指定仅显示星数为 N 以上的镜像 （新版本的 Docker 推荐使用 <code>--flter=stars=N</code> 参数）。</p>
+<p>下载镜像到本地</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ sudo docker pull centos</div><div class="line">Pulling repository centos</div><div class="line">0b443ba03958: Download complete</div><div class="line">539c0211cd76: Download complete</div><div class="line">511136ea3c5a: Download complete</div><div class="line">7064731afe90: Download complete</div></pre></td></tr></table></figure>
+<p>用户也可以登录之后通过 <code>docker push</code> 命令来讲镜像推送到 Docker Hub 。</p>
+<h4 id="自动创建"><a href="#自动创建" class="headerlink" title="自动创建"></a>自动创建</h4><p>​    自动创建（automated builds）功能对于需要经常升级镜像内程序来说，十分方便。有时候，用户创建了镜像安装了某个软件，如果软件发布新版本则需要手动更新镜像。。而自动创建允许用户通过 Docker Hub 指定跟踪一个目标网站（目前支持 GitHub或 BitBucket）上的项目，一旦项目发生新的提交，则自动执行创建。</p>
+<p>要配置自动创建，包括如下的步骤：</p>
+<ul>
+<li>创建并登录 Docker Hub，以及目标网站；</li>
+<li>在目标网站中连接帐户到 Docker Hub；</li>
+<li>在 Docker Hub 中 配置一个自动创建；</li>
+<li>选取一个目标网站中的项目（需要含 Dockerfile）和分支；</li>
+<li>指定 Dockerfile 的位置，并提交创建。</li>
+</ul>
+<p>之后，可以 在Docker Hub 的 自动创建页面 中跟踪每次创建的状态。</p>
+<h3 id="私有仓库"><a href="#私有仓库" class="headerlink" title="私有仓库"></a>私有仓库</h3><p>有时候使用 Docker Hub 这样的公共仓库由于网络等原因可能不方便，用户可以创建一个本地仓库供私人使用。</p>
+<p>需要用到 <code>docker-registry</code> 工具。</p>
+<p><code>docker-registry</code> 是官方提供的工具，可以用于构建私有的镜像仓库 。</p>
+<h4 id="安装运行-docker-regisrty"><a href="#安装运行-docker-regisrty" class="headerlink" title="安装运行 docker-regisrty"></a>安装运行 docker-regisrty</h4><h5 id="容器运行"><a href="#容器运行" class="headerlink" title="容器运行"></a>容器运行</h5><p>在安装了 Docker 后，可以通过获取官方 registry 镜像来运行 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker run -d -p 5000:5000 registry</div></pre></td></tr></table></figure>
+<p>这将使用官方的 registry 镜像来启动本地的私有仓库。用户可以通过制定参数来配置私有仓库位置，例如配置镜像存储到 Amazon S3 服务 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ sudo docker run \</div><div class="line">-e SETTINGS_FLAVOR=s3 \</div><div class="line">-e AWS_BUCKET=acme-docker \</div><div class="line">-e STORAGE_PATH=/registry \</div><div class="line">-e AWS_KEY=AKIAHSHB43HS3J92MXZ \</div><div class="line">-e AWS_SECRET=xdDowwlK7TJajV1Y7EoOZrmuPEJlHYcNP2k4j49T</div><div class="line">\</div><div class="line">-e SEARCH_BACKEND=sqlalchemy \</div><div class="line">-p 5000:5000 \</div><div class="line">registry</div></pre></td></tr></table></figure>
+<p>此外，还可以指定本地路径（如<code>/home/user/registry-conf</code> ）下的配置文件 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo docker run -d -p 5000:5000 -v /home/user/registry-conf:/r</div><div class="line">egistry-conf -e DOCKER_REGISTRY_CONFIG=/registry-conf/config.yml</div><div class="line">registry</div></pre></td></tr></table></figure>
+<p> 默认情况下，仓库会被创建在容器的 <code>/var/lib/registry</code> 下。可以通过 <code>-v</code>  参数来将镜像文件存放在本地的指定路径 。 例如下面的例子将上传的镜像放到 <code>/opt/data/registy</code> 目录 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo docker run -d -p 5000:5000 -v /opt/data/registry:/var/lib</div><div class="line">/registry registry</div></pre></td></tr></table></figure>
+<h4 id="本地安装"><a href="#本地安装" class="headerlink" title="本地安装"></a>本地安装</h4><p>对于 Ubuntu 或 CentOS 等发行版，可以直接安装 。</p>
+<ul>
+<li>Ubuntu</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-get install -y build-essential python-dev libevent-dev python-pip liblzma-dev</div><div class="line">$ sudo pip install docker-registry</div></pre></td></tr></table></figure>
+<ul>
+<li>CentOS</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo yum install -y python-devel libevent-devel python-pip gcc xz-devel</div><div class="line">$ sudo python-pip install docker-registry</div></pre></td></tr></table></figure>
+<p>也可以从 docker-registry 项目下载源码进行安装 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-get install build-essential python-dev libevent-dev python-pip libssl-dev liblzma-dev libffi-dev</div><div class="line">$ git clone https://github.com/docker/docker-registry.git</div><div class="line">$ cd docker-registry</div><div class="line">$ sudo python setup.py install</div></pre></td></tr></table></figure>
+<p>然后修改配置文件，主要修改 dev 模板段的 <code>storage_path</code> 到本地的存储仓库的路径 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cp config/config_sample.yml config/config.yml</div></pre></td></tr></table></figure>
+<p>之后启动 web 服务 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo gunicorn -c contrib/gunicorn.py docker_registry.wsgi:application</div></pre></td></tr></table></figure>
+<p>或者 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo gunicorn --access-logfile - --error-logfile - -k gevent -b 0.0.0.0:5000 -w 4 --max-requests 100 docker_registry.wsgi:application</div></pre></td></tr></table></figure>
+<p>此时使用 crul 访问本地的 5000 端口，看到输出 docker-registry 的版本信息说明运行成功 。</p>
+<p>*注 ： <code>config/config_sample.yml</code> 文件时示例配置文件</p>
+<h4 id="在私有仓库上传、下载、搜索镜像"><a href="#在私有仓库上传、下载、搜索镜像" class="headerlink" title="在私有仓库上传、下载、搜索镜像"></a>在私有仓库上传、下载、搜索镜像</h4><p>创建好私有仓库之后，就可以使用 <code>docker tag</code> 来标记一个镜像，然后推送它到仓库，别的机器上就可以下载了。如 私有仓库地址为 <code>1192.168.7.26:5000</code></p>
+<p>先在本机上查看已有的镜像 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ docker images</div><div class="line">REPOSITORY              TAG                 IMAGE ID            CREATED             SIZE</div><div class="line">node                    latest              f93ba6280cbd        3 weeks ago         667MB</div><div class="line">cockroachdb/cockroach   latest              404f7ee26d38        4 weeks ago         163MB</div><div class="line">postgres                latest              ca3a55649cfc        7 weeks ago         269MB</div><div class="line">tomcat                  latest              0785a1d16826        7 weeks ago         367MB</div><div class="line">owncloud                latest              2327c8d59618        8 weeks ago         572MB</div><div class="line">mysql                   latest              e799c7f9ae9c        2 months ago        407MB</div></pre></td></tr></table></figure>
+<p>使用 <code>docker tag</code> 将 <code>tomcat</code>  这个镜像标记为 <code>192.168.7.26：5000/test</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[root@vultr ~]# docker tag tomcat 192.168.7.26:5000/test</div><div class="line">[root@vultr ~]# docker images</div><div class="line">REPOSITORY               TAG                 IMAGE ID            CREATED             SIZE</div><div class="line">node                     latest              f93ba6280cbd        3 weeks ago         667MB</div><div class="line">cockroachdb/cockroach    latest              404f7ee26d38        4 weeks ago         163MB</div><div class="line">postgres                 latest              ca3a55649cfc        7 weeks ago         269MB</div><div class="line">192.168.7.26:5000/test   latest              0785a1d16826        7 weeks ago         367MB</div><div class="line">tomcat                   latest              0785a1d16826        7 weeks ago         367MB</div><div class="line">owncloud                 latest              2327c8d59618        8 weeks ago         572MB</div><div class="line">mysql                    latest              e799c7f9ae9c        2 months ago        407MB</div></pre></td></tr></table></figure>
+<p>用 <code>docker push</code>  上传标记的镜像 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ docker push 192.168.7.26:5000/test</div><div class="line">The push refers to a repository [192.168.7.26:5000/test] (len: 1)</div><div class="line">Sending image list</div><div class="line">Pushing repository 192.168.7.26:5000/test (1 tags)</div><div class="line">Image 511136ea3c5a already pushed, skipping</div><div class="line">Image 9bad880da3d2 already pushed, skipping</div><div class="line">Image 25f11f5fb0cb already pushed, skipping</div><div class="line">Image ebc34468f71d already pushed, skipping</div><div class="line">Image 2318d26665ef already pushed, skipping</div><div class="line">Image ba5877dc9bec already pushed, skipping</div><div class="line">Pushing tag for rev [ba5877dc9bec] on &#123;http://192.168.7.26:5000/</div><div class="line">v1/repositories/test/tags/latest&#125;</div></pre></td></tr></table></figure>
+<p>用 <code>curl</code> 查看仓库中的镜像</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">curl http://192.168.7.26:5000/v1/search</div><div class="line">&#123;&quot;num_results&quot;: 7, &quot;query&quot;: &quot;&quot;, &quot;results&quot;: [&#123;&quot;description&quot;: &quot;&quot;,&quot;name&quot;: &quot;library/miaxis_j2ee&quot;&#125;, &#123;&quot;description&quot;: &quot;&quot;, &quot;name&quot;: &quot;library/tomcat&quot;&#125;, &#123;&quot;description&quot;: &quot;&quot;, &quot;name&quot;: &quot;library/ubuntu&quot;&#125;, &#123;&quot;description&quot;: &quot;&quot;, &quot;name&quot;: &quot;library/ubuntu_office&quot;&#125;, &#123;&quot;description&quot;: &quot;&quot;, &quot;name&quot;: &quot;library/desktop_ubu&quot;&#125;, &#123;&quot;description&quot;: &quot;&quot;, &quot;name&quot;: &quot;dockerfile/ubuntu&quot;&#125;, &#123;&quot;description&quot;: &quot;&quot;, &quot;name&quot;: &quot;library/test&quot;&#125;]&#125;</div></pre></td></tr></table></figure>
+<p>这里可以看到 <code>{&quot;description&quot;: &quot;&quot;, &quot;name&quot;: &quot;library/test&quot;}</code> ，表面镜像已经上传成功了 。</p>
+<p>下载可以用另一台机器去下载这个镜像 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ docker pull 192.168.7.26:5000/test</div><div class="line">Pulling repository 192.168.7.26:5000/test</div><div class="line">ba5877dc9bec: Download complete</div><div class="line">511136ea3c5a: Download complete</div><div class="line">9bad880da3d2: Download complete</div><div class="line">25f11f5fb0cb: Download complete</div><div class="line">ebc34468f71d: Download complete</div><div class="line">2318d26665ef: Download complete</div><div class="line">$ docker images</div><div class="line">REPOSITORY 		TAG 		IMAGE ID</div><div class="line">CREATED 		VIRTUAL SIZE</div><div class="line">192.168.7.26:5000/test latest ba5877dc9bec </div><div class="line">6 weeks ago 		192.7 MB</div></pre></td></tr></table></figure>
+<h3 id="仓库配置文件"><a href="#仓库配置文件" class="headerlink" title="仓库配置文件"></a>仓库配置文件</h3><p>Docker 的 registry 利用配置文件提供 了一些仓库的模板（flavor），用户可以直接使用它们来进行开发或身产环境 。</p>
+<h4 id="模板"><a href="#模板" class="headerlink" title="模板"></a>模板</h4><p>在 <code>config_sample.yml</code> 文件中，可以看到一些现成的模板段：</p>
+<ul>
+<li><code>common</code> ：基础配置</li>
+<li><code>local</code> ：存储数据到本地文件系统</li>
+<li><code>s3</code> ：存储数据到 AWS S3 中</li>
+<li><code>dev</code> ：使用 local 模板的基本配置</li>
+<li><code>test</code> ：单元测试使用</li>
+<li><code>prod</code> ：生产环境配置（基本上跟s3配置类似）</li>
+<li><code>gcs</code> ：存储数据到 Google 的云存储</li>
+<li><code>swift</code> ：存储数据到 OpenStack Swift 服务</li>
+<li><code>glance</code> ：存储数据到 OpenStack Glance 服务，本地文件系统为后备</li>
+<li><code>glance-swift</code>：存储数据到 OpenStack Glance 服务，Swift 为后备</li>
+<li><code>elliptics</code> ：存储数据到 Elliptics key/value 存储</li>
+</ul>
+<p>用户可以添加自定义的模板段 。</p>
+<p>默认情况下使用的模板是 <code>dev</code> ，要是使用某个模板作为默认值，可以添加 <code>SETTING-FLAVOR</code> 到环境变量中去，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">export SETTING_FLAVOR=dev</div></pre></td></tr></table></figure>
+<p>另外，配置文件中支持从环境变量中加载，语法格式为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">_env:VARIABLENAME[:DEFAULT]</div></pre></td></tr></table></figure>
+<h4 id="示例配置"><a href="#示例配置" class="headerlink" title="示例配置"></a>示例配置</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">common:</div><div class="line">loglevel: info</div><div class="line">search_backend: &quot;_env:SEARCH_BACKEND:&quot;</div><div class="line">sqlalchemy_index_database:</div><div class="line">&quot;_env:SQLALCHEMY_INDEX_DATABASE:sqlite:////tmp/docker-re</div><div class="line">gistry.db&quot;</div><div class="line">prod:</div><div class="line">loglevel: warn</div><div class="line">storage: s3</div><div class="line">s3_access_key: _env:AWS_S3_ACCESS_KEY</div><div class="line">s3_secret_key: _env:AWS_S3_SECRET_KEY</div><div class="line">s3_bucket: _env:AWS_S3_BUCKET</div><div class="line">boto_bucket: _env:AWS_S3_BUCKET</div><div class="line">storage_path: /srv/docker</div><div class="line">smtp_host: localhost</div><div class="line">from_addr: docker@myself.com</div><div class="line">to_addr: my@myself.com</div><div class="line">dev:</div><div class="line">loglevel: debug</div><div class="line">storage: local</div><div class="line">storage_path: /home/myself/docker</div><div class="line">test:</div><div class="line">storage: local</div><div class="line">storage_path: /tmp/tmpdockertmp</div></pre></td></tr></table></figure>
+<h2 id="Docker-数据管理"><a href="#Docker-数据管理" class="headerlink" title="Docker 数据管理"></a>Docker 数据管理</h2><p>在容器管理中数据主要有两种方式：</p>
+<ul>
+<li>数据卷 （Data volumes）</li>
+<li>数据卷容器 （Data volume containers）</li>
+</ul>
+<h3 id="数据卷"><a href="#数据卷" class="headerlink" title="数据卷"></a>数据卷</h3><p>数据卷是一个可提供一个或多个容器使用的特殊目录，它绕过 UFS， 可以提供很多有用的特征：</p>
+<ul>
+<li>数据卷可以再荣期间共享和重用</li>
+<li>对数据卷的修改立马生效</li>
+<li>对数据及的更新，不会影响镜像</li>
+<li>数据卷默认会一直存在，即使容器被删除</li>
+</ul>
+<p><em>注：数据卷的使用，类似于Linux 下对目录或文件进行 mount， 镜像中的被指定为挂载点的目录中的文件会隐藏掉，能显示看的是挂载的数据卷</em></p>
+<h4 id="创建一个数据卷"><a href="#创建一个数据卷" class="headerlink" title="创建一个数据卷"></a>创建一个数据卷</h4><p>​    在使用 <code>docker run</code> 命令的时候，使用 <code>-v</code> 参数来创建一个数据卷并挂载到容器里。在一次 run 中可以挂载多个数据卷 。</p>
+<p>下面创建一个名为 web 的容器，并加载一个数据卷到容器的 <code>/webapp</code> 目录 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker run -d -p --name web -v /webapp training/webapp python app.py</div></pre></td></tr></table></figure>
+<p><em>注：也可以在 Docker 中使用 <code>volume</code> 来添加一个或多个新的卷到有该镜像创建的任意容器 。</em></p>
+<h4 id="删除数据卷"><a href="#删除数据卷" class="headerlink" title="删除数据卷"></a>删除数据卷</h4><p>数据卷是被设计用来持久化数据的，它的生命周期独立于容器，Docker 不会在容器被删除后自动删除数据卷，并且也不存在垃圾回收这样的机制来处理没有任何容器引用的数据卷。日光需要在删除容器的同时移除数据卷，可以再删除容器的时候使用 <code>docker rm -v</code> 这个命令。</p>
+<h4 id="挂载一个主句目录作为数据卷"><a href="#挂载一个主句目录作为数据卷" class="headerlink" title="挂载一个主句目录作为数据卷"></a>挂载一个主句目录作为数据卷</h4><p>使用 <code>-v</code> 参数也可以指定挂载一个本地主机的目录到容器中去 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo docker run -d -P --name web -v /src/webapp:/opt/webapp training/webapp python app.py</div></pre></td></tr></table></figure>
+<p>​    上面的命令加载主机的 <code>/src/webapp</code> 目录到容器的 <code>/opt/webapp</code> 目录。这个功能在进行测试的时候十分方便，比如用户可以放置一些程序到本地目录中，来查看容器是否正常工作。本地目录的路径必须是绝对路径，如果目录不存在 Docker会自动为你创建它。</p>
+<p><em>注：Dockerfile 中不支持这种用法，因为 Dockerfile 是为了移植和分享用的 。 然而，不同的操作系统的路径格式不一样，所以目前还不支持</em> </p>
+<p>Docker 挂载数据卷的默认权限是读写， 用户也可以通过 <code>:ro</code> 指定为只读</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo docker run -d -P --name web -v /src/webapp:/opt/webapp:ro training/webapp python app.py</div></pre></td></tr></table></figure>
+<p>加了 <code>:ro</code> 之后，就挂载为只读了。</p>
+<h4 id="查看数据卷的具体信息"><a href="#查看数据卷的具体信息" class="headerlink" title="查看数据卷的具体信息"></a>查看数据卷的具体信息</h4><p>在主机里使用以下命令可以查看指定容器的信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ docker inspect web</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>在输出的内容中找到其中和数据卷相关的部分，可以看到所有的数据卷都是创建在主句的 <code>/var/lib/docker/volumes/</code> 下面的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&quot;Volumes&quot;: &#123;</div><div class="line">&quot;/webapp&quot;: &quot;/var/lib/docker/volumes/fac362...80535&quot;</div><div class="line">&#125;,</div><div class="line">&quot;VolumesRW&quot;: &#123;</div><div class="line">&quot;/webapp&quot;: true</div><div class="line">&#125;</div><div class="line">...</div></pre></td></tr></table></figure>
+<p><em>注：从 Docker 1.8.0 起，数据卷配置在 “Mounts” Key 下面， 可以看到所有的数据卷都是创建在主机的 <code>/mnt/sda1/var/lib/docker/volumes/...</code> 下面了 。</em></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">"Mounts": [</div><div class="line">&#123;</div><div class="line">"Name": "b53ebd40054dae599faf7c9666acfe205c3e922</div><div class="line">fc3e8bc3f2fd178ed788f1c29",</div><div class="line">"Source": "/mnt/sda1/var/lib/docker/volumes/b53e</div><div class="line">bd40054dae599faf7c9666acfe205c3e922fc3e8bc3f2fd178ed788f1c29/_data",</div><div class="line">"Destination": "/webapp",</div><div class="line">"Driver": "local",</div><div class="line">"Mode": "",</div><div class="line">"RW": true,</div><div class="line">"Propagation": ""</div><div class="line">&#125;</div><div class="line">]</div><div class="line">...</div></pre></td></tr></table></figure>
+<h4 id="挂载一个本地主机文件作为数据卷"><a href="#挂载一个本地主机文件作为数据卷" class="headerlink" title="挂载一个本地主机文件作为数据卷"></a>挂载一个本地主机文件作为数据卷</h4><p><code>-v</code> 参数也可以从主机挂载单个文件到文件到容器中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo docker run --rm -it -v ~/.bash_history:/.bash_history ubuntu /bin/bash</div></pre></td></tr></table></figure>
+<p>这样就可以记录在容器输入过得命令了 。</p>
+<h3 id="数据卷容器"><a href="#数据卷容器" class="headerlink" title="数据卷容器"></a>数据卷容器</h3><p>如果你有一些持续更新的数据需要在容器之间共享，最好创建数据卷容器 。</p>
+<p>数据卷容器，其实就是一个正常的容器，专门用来提供数据卷供其他容器挂载的 。</p>
+<p>首先，创建一个名为 dbdata 的数据卷容器：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo docker run -d -v /dbdata --name dbdata training/postgres echo Data-only container for postgres</div></pre></td></tr></table></figure>
+<p>然后，在其他容器中使用 <code>--volums-from</code> 来挂载 dbdata 容器中的数据卷 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo docker run -d --volumes-from dbdata --name db1 training/postgres</div><div class="line">$ sudo docker run -d --volumes-from dbdata --name db2 training/postgres</div></pre></td></tr></table></figure>
+<p>可以使用超过一个的<code>--volums-from</code> 参数来指定从多个容器挂载不同的数据卷 。 也可以从其他已经挂载了数据卷的容器来级联挂载数据卷 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker run -d --name db3 --volumes-from db1 training/postgres</div></pre></td></tr></table></figure>
+<p><em>注：使用 <code>--volumes-from</code>  参数所挂载数据卷的容器自己并不需要保持运行状态</em> </p>
+<p>如果删除了挂载的容器（包括 dbdata、db1 和 db2 ），数据卷并不会被自动删除。如果删除一个数据卷，必须在删除最后一个还挂着它的容器时使用 <code>docker rm -v</code> 命令来指定同时删除关联的容器。这可以让用户在容器之间升级和移到数据卷。</p>
+<h4 id="利用数据卷容器来备份、恢复、迁移数据卷"><a href="#利用数据卷容器来备份、恢复、迁移数据卷" class="headerlink" title="利用数据卷容器来备份、恢复、迁移数据卷"></a>利用数据卷容器来备份、恢复、迁移数据卷</h4><p>可以利用数据卷对其中的数据进行备份、恢复和迁移。</p>
+<h5 id="备份"><a href="#备份" class="headerlink" title="备份"></a>备份</h5><p>首先使用 <code>--volumes-from</code> 标记来创建一个加载 dbdata 数据卷的容器，并从主机挂载当前目录到容器的 /backup 目录。命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo docker run --volumes-from dbdata -v$(pwd):/backup ubuntu tar cvf /backup/backup.tar /dbdata</div></pre></td></tr></table></figure>
+<p>容器启动后，使用了 <code>tar</code> 命令来将 dbdata 卷备份为容器中 /backup/backup.tar 文件，也就是主机当前目录下的名为 backup.tar 的文件 。</p>
+<h5 id="恢复"><a href="#恢复" class="headerlink" title="恢复"></a>恢复</h5><p>如果要恢复数据到一个容器，首先创建一个带有空数据卷的容器 dbdata2 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker run -v /dbdata --name dbdata2 ubuntu /bin/bash</div></pre></td></tr></table></figure>
+<p>然后创建另一个容器，挂载 dbdata2 容器卷中的数据卷，并使用 <code>untar</code>  解压备份文件到挂载的容器卷中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo docker run --volumes-from dbdata2 -v $(pwd):/backup busybox tar xvf</div><div class="line">/backup/backup.tar</div></pre></td></tr></table></figure>
+<p>为了查看/验证恢复的数据，可以再启动一个容器挂载同样的容器卷来查看</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker run --volumes-from dbdata2 busybox /bin/ls dbdata</div></pre></td></tr></table></figure>
+<h5 id="迁移数据卷"><a href="#迁移数据卷" class="headerlink" title="迁移数据卷"></a>迁移数据卷</h5><p>代写。。。</p>
+<h1 id="Docker-中的网络"><a href="#Docker-中的网络" class="headerlink" title="Docker 中的网络"></a>Docker 中的网络</h1><p>Docker 允许通过外部访问容器或容器互联的方式来提供网络服务 。</p>
+<h2 id="外部访问容器"><a href="#外部访问容器" class="headerlink" title="外部访问容器"></a>外部访问容器</h2><p>容器中可以与运行一些网络应用，要让外部也可以访问这些应用，可以通过 <code>-P</code>  或 <code>-p</code> 参数来指定端口映射。</p>
+<p>当使用 <code>-P</code> 参数时，Docker 会随机映射一个 <code>49000~49900</code> 的端口到内部容器开放的网络端口。</p>
+<p>使用 <code>docker ps</code> 可以看到，本地主机的49155 被映射到了容器的5000 端口 。</p>
+<p>此时访问本机的49155 端口即可访问容器内 web 应用提供的界面。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ sudo docker run -d -P training/webapp python app.py</div><div class="line">$ sudo docker ps -l</div><div class="line">CONTAINER ID 		IMAGE 					COMMAND 		CREATED</div><div class="line">STATUS 			PORTS 					NAMES</div><div class="line">bc533791f3f5 		training/webapp:latest 	python app.py 	5 seconds ag</div><div class="line">o Up 2 seconds 	0.0.0.0:49155-&gt;5000/tcp nostalgic_morse</div></pre></td></tr></table></figure>
+<p><code>-P</code> （小写）则可以指定要映射的端口，并且在一个指定端口上只可以绑定一个容器。支持的格式有 </p>
+<ul>
+<li><code>ip:HostPort:containerPort</code></li>
+<li><code>ip::containerPort</code></li>
+<li><code>hostPort:containerPort</code></li>
+</ul>
+<h3 id="映射所有接口地址"><a href="#映射所有接口地址" class="headerlink" title="映射所有接口地址"></a>映射所有接口地址</h3><p>使用 <code>hostPort ：containerPort</code> 格式本地的5000端口映射到容器的5000端口，可以执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker run -d -p 5000:5000 training/webapp python app.py</div></pre></td></tr></table></figure>
+<p>此时默认会绑定本地所有接口上的所有接口。</p>
+<h3 id="映射到指定地址的指定端口"><a href="#映射到指定地址的指定端口" class="headerlink" title="映射到指定地址的指定端口"></a>映射到指定地址的指定端口</h3><p>可以使用 <code>ip:hostPort:containerPort</code> 格式指定映射使用一个特定地址，比如 localhost 地址 127.0.0.1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo docker run -d -p 127.0.0.1:5000:5000 training/webapp python app.py</div></pre></td></tr></table></figure>
+<h3 id="查看映射端口配置"><a href="#查看映射端口配置" class="headerlink" title="查看映射端口配置"></a>查看映射端口配置</h3><p>使用 <code>docker port</code> 来查看当前映射的端口配置，也可以查看到绑定的地址</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ docker port gogs</div><div class="line">22/tcp -&gt; 0.0.0.0:10022</div><div class="line">3000/tcp -&gt; 0.0.0.0:10080</div></pre></td></tr></table></figure>
+<p>可以看到 <code>gogs</code> 有两个容器内的端口 22， 3000 分别映射主机的10022，10080 端口 。</p>
+<p><em>注： -p 可以多次使用来绑定多个端口，也就是说一条命令可以有多个 -p ，如：上面👆的 gogs 容器就绑定了俩端口</em></p>
+<h2 id="容器互联"><a href="#容器互联" class="headerlink" title="容器互联"></a>容器互联</h2><p>容器的连接（linking）系统是除了端口映射外，另一种跟容器中应用交互的方式。该系统会在源和接受容器之间创建一个通道，接受容器可以看到源容器指定的信息。</p>
+<h3 id="自定义容器命名"><a href="#自定义容器命名" class="headerlink" title="自定义容器命名"></a>自定义容器命名</h3><p>连接系统依据容器的名称来执行。因此，首先需要自定义一个好记的容器命名。</p>
+<p>虽然创建容器的时候，系统默认会分配给一个名字。但是自定义命名容器的话，第一，好记，第二，可以作为有用的参考的。</p>
+<p>使用 <code>--name</code> 参数可以为容器自定义命名。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ docker run -d -p 8181:4040 --name own-cloud owncloud</div></pre></td></tr></table></figure>
+<p>使用 <code>docker ps</code> 来查看正运行的容器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                            NAMES</div><div class="line">2c2e766e86fd        owncloud            &quot;/entrypoint.sh ap...&quot;   23 hours ago        Up 23 hours         80/tcp, 0.0.0.0:8181-&gt;4040/tcp                   own-cloud</div></pre></td></tr></table></figure>
+<p>使用 <code>docker inspect</code> 命令来查看容器名字</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ docker inspect -f &quot;&#123;&#123;.Name&#125;&#125;&quot; 2c2e766e86fd</div><div class="line">/own-cloud</div></pre></td></tr></table></figure>
+<p><em>注：容器的名称是唯一的。如果已经命名了一个叫 own-cloud 的容器，当你再次使用这个名词的时候，需要先把之前的的同名容器删除</em></p>
+<p><em>tips：在执行  <code>docker run</code>  的时候可以添加  <code>—rm</code>  参数，这样容器在终止后立刻删除。注意，<code>—rm</code> 和  <code>-d</code> 参数不能同时使用 。</em></p>
+<h3 id="容器互联-1"><a href="#容器互联-1" class="headerlink" title="容器互联"></a>容器互联</h3><p>使用 <code>--link</code> 参数可以让容器之间安全的进行交互。</p>
+<p>下面是，运行 <code>Nginx</code> 容器的时候把 <code>gogs</code> 这个容器连接上</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run -d --name my_nginx --link gogs:app --link own-cloud:app2 -p 80:80 -v /root/nginx/config:/etc/nginx/conf.d nginx</div></pre></td></tr></table></figure>
+<p>此时，gogs 容器和 my_nginx 容器建立互联关系</p>
+<p><code>--link</code> 参数的格式为 <code>--link name:alias</code> ，其中 name 是要连接的容器名称， alias 是这个连接的别名 。</p>
+<p>可以通过 <code>docker inspect</code> 命令查看 my_nginx 容器信息，就会发现有这么一段信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&quot;Links&quot;: [</div><div class="line">                &quot;/gogs:/trusting_brown/app&quot;,</div><div class="line">                &quot;/own-cloud:/trusting_brown/app2&quot;</div><div class="line">            ],</div></pre></td></tr></table></figure>
+<p>表面此容器已经连上两个容器， gogs 和 own-cloud，trusting_brown 是系统分配给 Nginx 的名称，连接名称分别是 app 和 app2 。</p>
+<p>Docker 在两个互联的容器之间创建了一个安全的隧道，而且不用映射到它们的端口到主机上。在启动被连接的容器的时候不用添加 -p 或 -P 参数，从而避免暴露端口到外部网络上。</p>
+<p>连接之后，在 Nginx 容器里，就会发生两个变化 。</p>
+<p>一是环境变量。在 Nginx 容器中会出现6个新增的环境变量，这些环境变量的名称分贝时由被连接的服务别名、端口等拼接而成的。</p>
+<p><em>由于起得 gogs 容器有两个端口，所以其中 APP_PORT、APP_NAME、APP_ENV_GOGS_CUSTOM 是公用的，其它8个变量每四个的分别对应22， 3000 端口</em></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"># env | grep APP</div><div class="line">APP_PORT_3000_TCP=tcp://172.17.0.2:3000</div><div class="line">APP_PORT_22_TCP_PROTO=tcp</div><div class="line">APP_ENV_GOGS_CUSTOM=/data/gogs</div><div class="line">APP_PORT_3000_TCP_ADDR=172.17.0.2</div><div class="line">APP_PORT_3000_TCP_PROTO=tcp</div><div class="line">APP_PORT_22_TCP_PORT=22</div><div class="line">APP_PORT_3000_TCP_PORT=3000</div><div class="line">APP_PORT=tcp://172.17.0.2:22</div><div class="line">APP_NAME=/my_nginx/app</div><div class="line">APP_PORT_22_TCP=tcp://172.17.0.2:22</div><div class="line">APP_PORT_22_TCP_ADDR=172.17.0.2</div></pre></td></tr></table></figure>
+<p>二是 hosts 文件。在 Nginx 容器的 hosts 文件看到下面的记录。这就是说，一切访问 连接别名（app）、容器 ID（ac4c0cf35adf）和容器名（gogs）的请求都会被重新导向到实时实际的 app 的 ip 地址上。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># cat /etc/hosts | grep app</div><div class="line">172.17.0.2	app ac4c0cf35adf gogs</div></pre></td></tr></table></figure>
+<h2 id="高级网络配置"><a href="#高级网络配置" class="headerlink" title="高级网络配置"></a>高级网络配置</h2><p>当 Docker 启动时，会自动的主机上创建一个 <code>docker0</code> 虚拟网桥，实际上是 Linux 的一个 bridge，可以理解为一个软件交换机。它会挂载到它的网口之间进行转发。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ ip addr | grep docker0</div><div class="line">docker0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP</div><div class="line">    link/ether 02:42:23:c6:3f:1c brd ff:ff:ff:ff:ff:ff</div><div class="line">    inet 172.17.0.1/16 scope global docker0</div><div class="line">       valid_lft forever preferred_lft forever</div><div class="line">    inet6 fe80::42:23ff:fec6:3f1c/64 scope link</div><div class="line">       valid_lft forever preferred_lft forever</div></pre></td></tr></table></figure>
+<p>同时，Docker 随机分一个本地未占用的私有网段（在 <a href="https://tools.ietf.org/html/rfc1918" target="_blank" rel="external">RFC1919</a> 中定义）中的一个地址给 <code>docker0</code> 接口。比如我的主机上的 docker0 ip 为 <code>172.17.0.1</code> ，掩码为 <code>255.255.0.0</code> 。此后启动的容器内的网口也会自动分配有个一个同一网段（<code>172.17.0.0/16</code>）的地址。</p>
+<p>当创建一个 Docker 容器的时候，同时会创建一对 <code>vath pair</code> 接口（当数据包发送到一个接口，另一个接口也可以收到相同的数据包）。这对接口一段在容器内，即 <code>eth0</code> ；另一端在本地并挂载到 docker0 网桥，名称以 <code>veth</code> 开头 。通过这种方式，主机可以跟容器通信，容器之间也可以相互通信。 Docker 就创建了在主机和所有容器之间一个虚拟共享网络。</p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/network.png" alt="Docker 网络"></p>
+<p>​                                            图 i.i docker 网络</p>
+<p>接下来部分将介绍在一些场景中，Docker 所有的网络定制配置。以及通过 Linux 命令来调整、补充、甚至替换 Docker 默认的网络配置。</p>
+<h3 id="快速配置"><a href="#快速配置" class="headerlink" title="快速配置"></a>快速配置</h3><p>下面是一个跟 Docker 网络相关的命令列表。</p>
+<p>其中有些命令选项只有在 Docker 服务启动的时候才能配置，而且不能马上生效。</p>
+<ul>
+<li><code>-b BRIDGE or --bridge==BRIDGE</code> –指定容器挂载的网桥</li>
+<li><code>--bip=CIDR</code> — 定制 docker0 的掩码</li>
+<li><code>-H SOCKET... or --host=SOCKET…</code> —Docker 服务端接受命令的通道</li>
+<li><code>--icc=true|false</code> –是否支持容器之间进行通信</li>
+<li><code>--ip-forward=true|false</code> —容器是否能访问外网（详细解析请看下文的容器通信）</li>
+<li><code>--iptables=true|false</code> –是否允许 Docker 添加 iptables 规则</li>
+<li><code>--mtu=BYTES</code> —容器网络中的 MTU</li>
+</ul>
+<p>下面的两个命令既可以在服务启动时指定，也可以 Docker 容器启动（docker run ）时候指定。</p>
+<p>在 Docker 服务启动的时候指定则会成为默认值，后面执行<code>docker run</code>时可以覆盖设置的默认值。</p>
+<ul>
+<li><code>--dns=IP_ADDRESS…</code> —使用指定的 DNS 服务器</li>
+<li><code>--dns-search=DOMAIN...</code> 指定 DNS 搜索域</li>
+</ul>
+<p>最后这些选项只有在 docker run 执行时使用，因为它是针对容器的特性内容。</p>
+<ul>
+<li><code>-h HOSTNAME or --hostname=HOSTNAME</code> –配置容器主机名</li>
+<li><code>--link=CONRATAINER_NAME:ALIAS</code> —添加到另一个容器的连接</li>
+</ul>
+
+	
+	
+	
+	
+</div>
+				
+				
+
+                <!-- Post Comments -->
+                
+                    
+
+
+    <!-- 使用 DISQUS -->
+	<div id="disqus-comment">
+		<div id="disqus_thread"></div>
+<script>
+	var disqus_config = function () {
+		this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+		this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+	};
+
+	(function() { // DON'T EDIT BELOW THIS LINE
+		var d = document, s = d.createElement('script');
+		s.src = '//yusank.disqus.com/embed.js';
+		s.setAttribute('data-timestamp', +new Date());
+		(d.head || d.body).appendChild(s);
+	})();
+</script>
+	</div>
+	<style>
+		#disqus-comment{
+			background-color:#eee;
+			padding:2pc;
+		}
+	</style>
+
+                
+            </div>
+
+            <!-- Post Prev & Next Nav -->
+            <nav class="material-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
+    
+    <!-- Prev Nav -->
+    
+
+    <!-- Section Spacer -->
+    <div class="section-spacer"></div>
+
+    <!-- Next Nav -->
+    
+        <a href="/Unix-Network.html/" id="post_nav-older" class="next-content">
+            旧篇
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                <i class="material-icons">arrow_forward</i>
+            </button>
+        </a>
+    
+</nav>
+        </div>
+    </div>
+
+				
+				
+					<!-- Overlay For Active Sidebar -->
+<div class="sidebar-overlay "></div>
+
+<!-- Material sidebar -->
+<aside id="sidebar" class="sidebar sidebar-colored  sidebar-fixed-left" role="navigation">
+	<div id="sidebar-main">
+	    <!-- Sidebar Header -->
+		<div class="sidebar-header header-cover" style="background-image: url(/img/sidebar_header.png);">
+    <!-- Top bar -->
+    <div class="top-bar"></div>
+
+    <!-- Sidebar toggle button -->
+    <button type="button" class="sidebar-toggle mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" style="display: initial;" data-upgraded=",MaterialButton,MaterialRipple">
+    <i class="material-icons">clear_all</i>
+    <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
+
+    <!-- Sidebar Avatar -->
+    <div class="sidebar-image">
+        <img src="/img/avatar.png" alt="Yusank's avatar">
+    </div>
+
+    <!-- Sidebar Email -->
+    <a data-toggle="dropdown" class="sidebar-brand" href="#settings-dropdown">
+        yusankurban@gmail.com
+        <b class="caret"></b>
+    </a>
+</div>
+
+		<!-- Sidebar Navigation  -->
+		<ul class="nav sidebar-nav">
+    <!-- User dropdown  -->
+    <li class="dropdown">
+        <ul id="settings-dropdown" class="dropdown-menu">
+			
+                <li>
+                    <a href="https://gmail.google.com" target="_blank" title="Email Me">
+						<i class="material-icons sidebar-material-icons sidebar-indent-left1pc-element">email</i>
+                        Email Me
+                    </a>
+                </li>
+            
+        </ul>
+    </li>
+
+    <!-- Homepage -->
+    <li id="sidebar-first-li">
+        <a href="/" target="_self">
+            <i class="material-icons sidebar-material-icons">home</i>
+             主页
+        </a>
+    </li>
+
+    <!-- I'm Feeling Lucky -->
+<!--
+    <li class="dropdown">
+        <a href="" target="_self">
+            <i class="material-icons sidebar-material-icons">explore</i>
+             sidebar.imlucky
+        </a>
+    </li>
+-->
+
+	
+    <!-- Archives  -->
+    <li class="dropdown">
+        <a href="#" class="ripple-effect dropdown-toggle" data-toggle="dropdown">
+            <i class="material-icons sidebar-material-icons">inbox</i>
+             归档
+            <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+            <li>
+            <a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/12/">十二月 2016<span class="sidebar_archives-count">6</span></a>
+        </ul>
+    </li>
+
+    <!-- Divider -->
+    <li class="divider"></li>
+
+
+    <!-- Pages  -->
+	
+		<li>
+			<a href="/links/" title="友情链接">
+				友情链接
+			</a>
+		</li>
+	
+		<li>
+			<a href="/about" title="关于我">
+				关于我
+			</a>
+		</li>
+	
+		<li>
+			<a href="/gallery" title="图库">
+				图库
+			</a>
+		</li>
+	
+
+    <!-- Article Numebr  -->
+    <li>
+        <a href="/archives">
+             文章总数
+             <span class="sidebar-badge">14</span>
+        </a>
+    </li>
+</ul>
+
+		<!-- Sidebar Divider -->
+		<div class="sidebar-divider"></div>
+
+		<!-- Sidebar Footer -->
+		<!-- 
+I'm glad you use this theme, the development is no so easy, I hope you can keep the copyright, I will thank you so much.
+If you still want to delete the copyrights, could you still retain the first one? Which namely "Theme Material"
+It will not impact the appearance and can give developers a lot of support :)
+
+很高兴您使用并喜欢该主题，开发不易 十分谢谢与希望您可以保留一下版权声明。
+如果您仍然想删除的话 能否只保留第一项呢？即 "Theme Material"
+它不会影响美观并可以给开发者很大的支持。 :) 
+-->
+
+<!-- Theme Material -->
+<a href="https://github.com/viosey/hexo-theme-material"  class="sidebar-footer-text-a" target="_blank">
+	<div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
+		主题 - Material
+		<span class="sidebar-badge badge-circle">i</span>
+	</div>
+</a>
+
+<!-- Help & Support -->
+<!--
+<a href="mailto:hiviosey@gmail.com" class="sidebar-footer-text-a">
+    <div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
+		sidebar.help
+		<span class="mdl-button__ripple-container">
+			<span class="mdl-ripple"></span>
+		</span>
+	</div>
+</a>
+-->
+
+<!-- Feedback -->
+<!--
+<a href="https://github.com/viosey/hexo-theme-material/issues" target="_blank" class="sidebar-footer-text-a">
+    <div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
+         sidebar.feedback
+                    <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></div>
+</a>
+-->
+
+<!-- Abount Theme -->
+<!--
+<a href="https://blog.viosey.com/index.php/Material.html" target="_blank" class="sidebar-footer-text-a">
+    <div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
+         sidebar.about_theme
+        <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></div>
+</a>-->
+
+	</div>
+    
+    <!-- Sidebar Sponsor -->
+    
+
+
+</aside>
+
+				
+				
+				
+					<!-- Footer Top Button -->
+					<div class="toTop-wrap">
+    <a href="#top" class="toTop">
+        <i class="material-icons footer_top-i">expand_less</i>
+    </a>
+</div>
+				
+				
+				<!--Footer-->
+<footer class="mdl-mini-footer" id="bottom">
+	
+	
+		<!-- Paradox Footer Left Section -->
+		<div class="mdl-mini-footer--left-section sns-list">
+    <!-- Twitter -->
+    
+    <a href="https://twitter.com/twitter" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-twitter.png);">
+        <span class="visuallyhidden">Twitter</span>
+    </button></a>
+    
+    
+    <!-- Facebook -->
+    
+    <a href="https://www.facebook.com/facebook" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-facebook.png);">
+        <span class="visuallyhidden">Facebook</span>
+    </button></a>
+    
+    
+    <!-- Google + -->
+    
+    <a href="https://www.google.com/" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-gplus.png);">
+        <span class="visuallyhidden">Google Plus</span>
+    </button></a>
+    
+    
+    <!-- Weibo -->
+    
+    
+    
+    <!-- Instagram -->
+    
+    
+    
+    <!-- Tumblr -->
+    
+    
+    
+    <!-- Github -->
+    
+    <a href="https://github.com/yusank" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-github.png);">
+        <span class="visuallyhidden">Github</span>
+    </button></a>
+    
+</div>
+
+
+		<!--Copyright-->
+		<div id="copyright">Copyright&nbsp;©&nbsp;<script type="text/javascript">var fd = new Date();document.write(fd.getFullYear());</script>&nbsp;Yusank's blog</div>
+
+		<!-- Paradox Footer Right Section -->
+
+		<!-- 
+		I'm glad you use this theme, the development is no so easy, I hope you can keep the copyright.
+		It will not impact the appearance and can give developers a lot of support :)
+
+		很高兴您使用该主题，开发不易，希望您可以保留一下版权声明。
+		它不会影响美观并可以给开发者很大的支持。 :) 
+		-->
+
+		<div class="mdl-mini-footer--right-section">
+			<div>
+				<div class="footer-develop-div">Powered by <a href="https://hexo.io" target="_blank" class="footer-develop-a">Hexo</a></div>
+				<div class="footer-develop-div">Theme - <a href="https://github.com/viosey/hexo-theme-material" target="_blank" class="footer-develop-a">Material</a></div>
+			</div>
+		</div>
+	
+    
+</footer>
+                
+				<!-- Import File -->
+<script src="/js/highlight.min.js"></script>
+<script src="/js/js.min.js"></script>
+<script src="/js/nprogress.js"></script>
+
+<script type="text/javascript">
+    NProgress.configure({
+        showSpinner: true
+    });
+    NProgress.start();
+    
+    $('#nprogress .bar').css({
+        'background': '#FF4081'
+    });
+    $('#nprogress .peg').css({
+        'box-shadow': '0 0 10px #FF4081, 0 0 15px #FF4081'
+    });
+    $('#nprogress .spinner-icon').css({
+        'border-top-color': '#FF4081',
+        'border-left-color': '#FF4081'
+    });
+    
+    setTimeout(function() {
+        NProgress.done();
+        $('.fade').removeClass('out');
+    }, 800);
+</script>
+
+
+
+
+
+
+    <!-- Busuanzi -->
+    <script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+    <!-- 使用 DISQUS js 代码 -->
+	<script id="dsq-count-scr" src="//yusank.disqus.com/count.js" async></script>
+
+
+<!-- Swiftye -->
+
+
+<!-- Local Search-->
+
+	<script>
+	var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length <= 0) {
+                    return;
+                }
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        str += "<li><a href='"+ data_url +"' class='search-result-title' target='_blank'>"+ data_title;
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out characters
+                            var start = first_occur - 6;
+                            var end = first_occur + 6;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 10;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substr(start, end); 
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<em class=\"search-keyword\">"+keyword+"</em>");
+                            })
+                            str += "<p class=\"search-result\">" + match_content +"...</p>" +"</a>";
+                        }
+                    }
+                })
+                $resultContent.innerHTML = str;
+            })
+        }
+    })
+}
+</script>
+
+	<script>
+        var inputArea = document.querySelector("#search");
+        var getSearchFile = function(){
+            var path = "search.xml";
+            searchFunc(path, 'search', 'local-search-result');
+        }
+
+        inputArea.onfocus = function(){ getSearchFile() }
+	</script>
+
+
+<!-- Window Load-->
+<script>
+    $(window).load(function() {
+        // Post_Toc parent position fixed
+        $(".post-toc-wrap").parent(".mdl-menu__container").css("position", "fixed");
+    });
+</script>
+
+<!-- MathJax Load-->
+
+            </main>
+        </div>
+		
+    </body>
+		
+	
+</html>
