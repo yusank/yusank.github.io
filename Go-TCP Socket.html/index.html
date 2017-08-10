@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <!-- Title -->
+    
+    <title>
+        Go TCP Socket | Yusank&#39;s blog
+    </title>
+    
+    <!-- Favicons -->
+    <link rel="icon shortcut" type="image/ico" href="/img/favicon.png">
+    <link rel="icon" sizes="192x192" href="/img/favicon.png">
+    <link rel="apple-touch-icon" href="/img/favicon.png">
+    
+    <!-- Meta & INfo -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0097A7">
+    <meta name="author" content="Yusank">
+    <meta name="description" content="live with light`s die with darkness">
+    <meta name="keywords" content="null">
+    
+    <!--iOS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-title" content="Title">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="480">
+    
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Yusank&#39;s blog">
+    
+    <!-- The Open Graph protocol -->
+    <meta property="og:url" content="http://yusank.github.io">
+    <meta property="og:type" content="blog">
+    <meta property="og:title" content="Go TCP Socket | Yusank&#39;s blog">
+    <meta property="og:description" content="live with light`s die with darkness">
+    
+     <!--[if lte IE 9]>
+        <link rel="stylesheet" href="/css/ie-blocker.css">
+        
+        
+            <script src="/js/ie-blocker.zhCN.js"></script>
+        
+    <![endif]-->
+    
+    <!-- Import CSS -->
+    <link rel="stylesheet" href="/css/material.min.css">
+    <link rel="stylesheet" href="/css/style.min.css">
+    <!-- Config CSS -->
+
+
+<!-- Other Styles -->
+<style>
+	body, html{
+		font-family: Roboto, "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+	}
+	
+    a{
+        color: #00838F
+    }
+    
+    .mdl-card__media,
+    #search-label,
+    #search-form-label:after,
+    #scheme-Paradox .hot_tags-count,
+    #scheme-Paradox .sidebar_archives-count,
+    #scheme-Paradox .sidebar-colored .sidebar-header,
+    #scheme-Paradox .sidebar-colored .sidebar-badge{
+        background-color: #42A5F5 !important
+    }
+    
+	/* Sidebar User Drop Down Menu Text Color */
+	#scheme-Paradox .sidebar-colored .sidebar-nav>.dropdown>.dropdown-menu>li>a:hover,
+    #scheme-Paradox .sidebar-colored .sidebar-nav>.dropdown>.dropdown-menu>li>a:focus{
+        color: #42A5F5 !important
+    }
+    
+    #post_entry-right-info,
+    .sidebar-colored .sidebar-nav li:hover > a,
+    .sidebar-colored .sidebar-nav li:hover > a i,
+    .sidebar-colored .sidebar-nav li > a:hover,
+    .sidebar-colored .sidebar-nav li > a:hover i,
+    .sidebar-colored .sidebar-nav li > a:focus i,
+    .sidebar-colored .sidebar-nav > .open > a,
+    .sidebar-colored .sidebar-nav > .open > a:hover,
+    .sidebar-colored .sidebar-nav > .open > a:focus,
+    #ds-reset #ds-ctx .ds-ctx-entry .ds-ctx-head a{
+        color: #42A5F5 !important
+    }
+    
+    .toTop{
+        background: #757575 !important
+    }
+		
+	.material-layout .material-post>.material-nav,
+	.material-layout .material-index>.material-nav,
+	.material-nav a{
+		color: #757575;
+	}
+		
+	#scheme-Paradox .MD-burger-layer {
+		background-color: #757575;
+	}
+
+	#scheme-Paradox #post-toc-trigger-btn{
+		color: #757575;
+	}
+	
+	.post-toc a:hover{
+		color: #00838F;
+		text-decoration: underline;
+	}
+</style>
+
+
+<!-- Theme Background Related-->
+
+    <style>
+        body{
+            background-image: url(/img/bg.png);
+        }
+    </style>
+
+
+
+
+<!-- Fade Effect -->
+
+    <style>
+        .fade {
+            transition: all 800ms linear;
+            -webkit-transform: translate3d(0,0,0);
+            -moz-transform: translate3d(0,0,0);
+            -ms-transform: translate3d(0,0,0);
+            -o-transform: translate3d(0,0,0);
+            transform: translate3d(0,0,0);
+            opacity: 1;
+        }
+
+        .fade.out{
+            opacity: 0;
+        }
+    </style>
+
+	<script src="/js/jquery.min.js"></script>
+	
+	<link rel="stylesheet" href="/css/highlight/atelier-cave-light.css">
+	
+	<!-- UC Browser Compatible-->
+	<script>
+		var agent = navigator.userAgent.toLowerCase();
+		if(agent.indexOf('ucbrowser')>0) {
+			document.write('<link rel="stylesheet" href="/css/uc.css">');
+		   alert('由于 UC 浏览器使用极旧的内核，而本网站使用了一些新的特性。\n为了您能更好的浏览，推荐使用 Chrome 或 Firefox 浏览器。');
+		}
+	</script>
+    
+    <!-- Custom Head -->
+    
+</head>
+	
+	
+
+    <body id="scheme-Paradox">
+
+		
+        <div class="material-layout  mdl-js-layout has-drawer is-upgraded">
+				
+			
+			
+            <!-- Main Container -->
+            <main class="material-layout__content" id="main">
+				
+                <!-- Top Anchor -->
+                <div id="top"></div>
+				
+				
+                <!-- Hamburger Button -->
+                <button class="MD-burger-icon sidebar-toggle">
+                    <span class="MD-burger-layer"></span>
+                </button>
+				
+				
+                <!-- Post TOC -->
+
+    
+	<!-- Back Button -->
+<!--
+	<div class="material-back" id="backhome-div" tabindex="0">
+		<a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="#" onclick="window.history.back();return false;" target="_self" role="button" data-upgraded=",MaterialButton,MaterialRipple">
+			<i class="material-icons" role="presentation">arrow_back</i>
+			<span class="mdl-button__ripple-container">
+				<span class="mdl-ripple"></span>
+			</span>
+		</a>
+	</div>			
+-->
+	<!-- Left aligned menu below button -->
+	<button id="post-toc-trigger-btn"
+			class="mdl-button mdl-js-button mdl-button--icon">
+	  <i class="material-icons">format_list_numbered</i>
+	</button>
+
+	<ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
+		for="post-toc-trigger-btn">
+			
+			<ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Go语言TCP-Socket编程"><span class="post-toc-number">1.</span> <span class="post-toc-text">Go语言TCP Socket编程</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#一、模型"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">一、模型</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#二、TCP连接的建立"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">二、TCP连接的建立</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#1、网络不可达或对方服务未启动"><span class="post-toc-number">1.2.1.</span> <span class="post-toc-text">1、网络不可达或对方服务未启动</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#2、对方服务的listen-backlog满"><span class="post-toc-number">1.2.2.</span> <span class="post-toc-text">2、对方服务的listen backlog满</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#3、网络延迟较大，Dial阻塞并超时"><span class="post-toc-number">1.2.3.</span> <span class="post-toc-text">3、网络延迟较大，Dial阻塞并超时</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#三、Socket读写"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">三、Socket读写</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#1、Socket中无数据"><span class="post-toc-number">1.3.1.</span> <span class="post-toc-text">1、Socket中无数据</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#2、Socket中有部分数据"><span class="post-toc-number">1.3.2.</span> <span class="post-toc-text">2、Socket中有部分数据</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#3、Socket中有足够数据"><span class="post-toc-number">1.3.3.</span> <span class="post-toc-text">3、Socket中有足够数据</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#4、Socket关闭"><span class="post-toc-number">1.3.4.</span> <span class="post-toc-text">4、Socket关闭</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#5、读取操作超时"><span class="post-toc-number">1.3.5.</span> <span class="post-toc-text">5、读取操作超时</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#1、成功写"><span class="post-toc-number">1.3.6.</span> <span class="post-toc-text">1、成功写</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#2、写阻塞"><span class="post-toc-number">1.3.7.</span> <span class="post-toc-text">2、写阻塞</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#3、写入部分数据"><span class="post-toc-number">1.3.8.</span> <span class="post-toc-text">3、写入部分数据</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#4、写入超时"><span class="post-toc-number">1.3.9.</span> <span class="post-toc-text">4、写入超时</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Goroutine-safe"><span class="post-toc-number">1.3.10.</span> <span class="post-toc-text">Goroutine safe</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#四、Socket属性"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">四、Socket属性</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#五、关闭连接"><span class="post-toc-number">1.5.</span> <span class="post-toc-text">五、关闭连接</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#六、小结"><span class="post-toc-number">1.6.</span> <span class="post-toc-text">六、小结</span></a></li></ol></li></ol>
+		
+<!--			<li class="mdl-menu__item">Some Action</li>-->
+	</ul>
+
+
+
+<!-- Layouts -->
+
+    <!-- Post Module -->
+    <div class="material-post_container">
+		
+        <div class="material-post mdl-grid">
+            <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+
+                <!-- Post Header(Thumbnail & Title) -->
+                
+	<!-- Paradox Post Header -->
+	
+		<!-- Custom Thumbnail -->
+		<div class="post_thumbnail-custom mdl-card__media mdl-color-text--grey-50" style="background-image:url(http://codecondo.com/wp-content/uploads/2014/04/4-Minimal-Web-Frameworks-for-Go.png?478983)">
+	
+        <p class="article-headline-p">
+            Go TCP Socket
+        </p>
+    </div>
+
+	
+
+				
+				
+					<!-- Paradox Post Info -->
+					<div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
+    
+    <!-- Author Avatar -->
+    <div id="author-avatar">
+        <img src="/img/avatar.png" width="44px" height="44px" alt="Author Avatar"/>
+    </div>
+    <!-- Author Name & Date -->
+    <div>
+        <strong>Yusank</strong>
+        <span>8月 01, 2017</span>
+    </div>
+    
+    <div class="section-spacer"></div>
+	
+    <!-- Favorite -->
+<!--
+    <button id="article-functions-like-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon btn-like">
+        <i class="material-icons" role="presentation">favorite</i>
+        <span class="visuallyhidden">favorites</span>
+    </button>
+-->
+    
+    <!-- Tags (bookmark) -->
+    <button id="article-functions-viewtags-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+        <i class="material-icons" role="presentation">bookmark</i>
+        <span class="visuallyhidden">bookmark</span>
+    </button>
+    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
+        <li class="mdl-menu__item">
+        
+    </ul>
+    
+    <!-- Share -->
+    <button id="article-fuctions-share-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+    <i class="material-icons" role="presentation">share</i>
+    <span class="visuallyhidden">share</span>
+</button>
+<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-fuctions-share-button">
+    
+    
+    
+    
+    <!-- Busuanzi Views -->
+    <a class="post_share-link" href="#">
+        <li class="mdl-menu__item">
+            <span id="busuanzi_container_page_pv">
+                <span id="busuanzi_value_page_pv"></span>&nbsp;浏览量
+            </span>
+        </li>
+    </a>
+    
+    
+    <!-- Share Twitter -->
+    <a class="post_share-link" href="https://twitter.com/intent/tweet?text=Go TCP Socket&url=http://yusank.github.io//Go-TCP Socket.html/index.html&via=Yusank" target="_blank">
+        <li class="mdl-menu__item">
+            分享到 Twitter
+        </li>
+    </a>
+    
+    <!-- Share Google+ -->
+    <a class="post_share-link" href="https://plus.google.com/share?url=http://yusank.github.io//Go-TCP Socket.html/index.html" target="_blank">
+        <li class="mdl-menu__item">
+            分享到 Google+
+        </li>
+    </a>
+    
+    <!-- Share Weibo -->
+    <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=Go TCP Socket&url=http://yusank.github.io//Go-TCP Socket.html/index.html&pic=&searchPic=false&style=simple" target="_blank">
+        <li class="mdl-menu__item">
+            分享到微博
+        </li>
+    </a>
+</ul>
+</div>
+				
+
+                <!-- Post Content -->
+                <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
+	
+		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>转载文章</p>
+<h1 id="Go语言TCP-Socket编程"><a href="#Go语言TCP-Socket编程" class="headerlink" title="Go语言TCP Socket编程"></a>Go语言TCP Socket编程</h1><p><strong>文章原始地址:</strong> <a href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/" target="_blank" rel="external">http://tonybai.com/2015/11/17/tcp-programming-in-golang/</a></p>
+<p><a href="http://tonybai.com/tag/go" target="_blank" rel="external">Golang</a>的主要 设计目标之一就是面向大规模后端服务程序，网络通信这块是服务端 程序必不可少也是至关重要的一部分。在日常应用中，我们也可以看到Go中的net以及其subdirectories下的包均是“高频+刚需”，而TCP socket则是网络编程的主流，即便您没有直接使用到net中有关TCP Socket方面的接口，但net/http总是用到了吧，http底层依旧是用tcp socket实现的。</p>
+<p>网络编程方面，我们最常用的就是tcp socket编程了，在posix标准出来后，socket在各大主流OS平台上都得到了很好的支持。关于tcp programming，最好的资料莫过于<a href="http://en.wikipedia.org/wiki/W._Richard_Stevens" target="_blank" rel="external">W. Richard Stevens</a> 的网络编程圣经《<a href="http://book.douban.com/subject/4859464/" target="_blank" rel="external">UNIX网络 编程 卷1：套接字联网API</a>》 了，书中关于tcp socket接口的各种使用、行为模式、异常处理讲解的十分细致。Go是自带runtime的跨平台编程语言，Go中暴露给语言使用者的tcp socket api是建立OS原生tcp socket接口之上的。由于Go runtime调度的需要，golang tcp socket接口在行为特点与异常处理方面与OS原生接口有着一些差别。这篇博文的目标就是整理出关于Go tcp socket在各个场景下的使用方法、行为特点以及注意事项。</p>
+<h2 id="一、模型"><a href="#一、模型" class="headerlink" title="一、模型"></a>一、模型</h2><p>从tcp socket诞生后，网络编程架构模型也几经演化，大致是：“每进程一个连接” –&gt; “每线程一个连接” –&gt; “Non-Block + I/O多路复用(linux epoll/windows iocp/freebsd darwin kqueue/solaris Event Port)”。伴随着模型的演化，服务程序愈加强大，可以支持更多的连接，获得更好的处理性能。</p>
+<p>目前主流web server一般均采用的都是”Non-Block + I/O多路复用”（有的也结合了多线程、多进程）。不过I/O多路复用也给使用者带来了不小的复杂度，以至于后续出现了许多高性能的I/O多路复用框架， 比如<a href="http://libevent.org/" target="_blank" rel="external">libevent</a>、<a href="http://software.schmorp.de/pkg/libev.html" target="_blank" rel="external">libev</a>、<a href="https://github.com/joyent/libuv" target="_blank" rel="external">libuv</a>等，以帮助开发者简化开发复杂性，降低心智负担。不过Go的设计者似乎认为I/O多路复用的这种通过回调机制割裂控制流 的方式依旧复杂，且有悖于“一般逻辑”设计，为此Go语言将该“复杂性”隐藏在Runtime中了：Go开发者无需关注socket是否是 non-block的，也无需亲自注册文件描述符的回调，只需在每个连接对应的goroutine中以<strong>“block I/O”</strong>的方式对待socket处理即可，这可以说大大降低了开发人员的心智负担。一个典型的Go server端程序大致如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//go-tcpsock/server.go</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">handleConn</span><span class="params">(c net.Conn)</span></span> &#123;</div><div class="line">    <span class="keyword">defer</span> c.Close()</div><div class="line">    <span class="keyword">for</span> &#123;</div><div class="line">        <span class="comment">// read from the connection</span></div><div class="line">        <span class="comment">// ... ...</span></div><div class="line">        <span class="comment">// write to the connection</span></div><div class="line">        <span class="comment">//... ...</span></div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">    l, err := net.Listen(<span class="string">"tcp"</span>, <span class="string">":8888"</span>)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        fmt.Println(<span class="string">"listen error:"</span>, err)</div><div class="line">        <span class="keyword">return</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">for</span> &#123;</div><div class="line">        c, err := l.Accept()</div><div class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">            fmt.Println(<span class="string">"accept error:"</span>, err)</div><div class="line">            <span class="keyword">break</span></div><div class="line">        &#125;</div><div class="line">        <span class="comment">// start a new goroutine to handle</span></div><div class="line">        <span class="comment">// the new connection.</span></div><div class="line">        <span class="keyword">go</span> handleConn(c)</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>用户层眼中看到的goroutine中的“block socket”，实际上是通过Go runtime中的netpoller通过Non-block socket + I/O多路复用机制“模拟”出来的，真实的underlying socket实际上是non-block的，只是runtime拦截了底层socket系统调用的错误码，并通过netpoller和goroutine 调度让goroutine“阻塞”在用户层得到的Socket fd上。比如：当用户层针对某个socket fd发起read操作时，如果该socket fd中尚无数据，那么runtime会将该socket fd加入到netpoller中监听，同时对应的goroutine被挂起，直到runtime收到socket fd 数据ready的通知，runtime才会重新唤醒等待在该socket fd上准备read的那个Goroutine。而这个过程从Goroutine的视角来看，就像是read操作一直block在那个socket fd上似的。具体实现细节在后续场景中会有补充描述。</p>
+<h2 id="二、TCP连接的建立"><a href="#二、TCP连接的建立" class="headerlink" title="二、TCP连接的建立"></a>二、TCP连接的建立</h2><p>众所周知，TCP Socket的连接的建立需要经历客户端和服务端的三次握手的过程。连接建立过程中，服务端是一个标准的Listen + Accept的结构(可参考上面的代码)，而在客户端Go语言使用net.Dial或DialTimeout进行连接建立：</p>
+<p>阻塞Dial：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">conn, err := net.Dial(<span class="string">"tcp"</span>, <span class="string">"google.com:80"</span>)</div><div class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">    <span class="comment">//handle error</span></div><div class="line">&#125;</div><div class="line"><span class="comment">// read or write on conn</span></div></pre></td></tr></table></figure>
+<p>或是带上超时机制的Dial：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">conn, err := net.DialTimeout(<span class="string">"tcp"</span>, <span class="string">":8080"</span>, <span class="number">2</span> * time.Second)</div><div class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">    <span class="comment">//handle error</span></div><div class="line">&#125;</div><div class="line"><span class="comment">// read or write on conn</span></div></pre></td></tr></table></figure>
+<p>对于客户端而言，连接的建立会遇到如下几种情形：</p>
+<h3 id="1、网络不可达或对方服务未启动"><a href="#1、网络不可达或对方服务未启动" class="headerlink" title="1、网络不可达或对方服务未启动"></a>1、网络不可达或对方服务未启动</h3><p>如果传给Dial的Addr是可以立即判断出网络不可达，或者Addr中端口对应的服务没有启动，端口未被监听，Dial会几乎立即返回错误，比如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//go-tcpsock/conn_establish/client1.go</span></div><div class="line">... ...</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">    log.Println(<span class="string">"begin dial..."</span>)</div><div class="line">    conn, err := net.Dial(<span class="string">"tcp"</span>, <span class="string">":8888"</span>)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        log.Println(<span class="string">"dial error:"</span>, err)</div><div class="line">        <span class="keyword">return</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">defer</span> conn.Close()</div><div class="line">    log.Println(<span class="string">"dial ok"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果本机8888端口未有服务程序监听，那么执行上面程序，Dial会很快返回错误：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$go run client1.go</div><div class="line">2015/11/16 14:37:41 begin dial...</div><div class="line">2015/11/16 14:37:41 dial error: dial tcp :8888: getsockopt: connection refused</div></pre></td></tr></table></figure>
+<h3 id="2、对方服务的listen-backlog满"><a href="#2、对方服务的listen-backlog满" class="headerlink" title="2、对方服务的listen backlog满"></a>2、对方服务的listen backlog满</h3><p>还有一种场景就是对方服务器很忙，瞬间有大量client端连接尝试向server建立，server端的listen backlog队列满，server accept不及时((即便不accept，那么在backlog数量范畴里面，connect都会是成功的，因为new conn已经加入到server side的listen queue中了，accept只是从queue中取出一个conn而已)，这将导致client端Dial阻塞。我们还是通过例子感受Dial的行为特点：</p>
+<p>服务端代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//go-tcpsock/conn_establish/server2.go</span></div><div class="line">... ...</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">    l, err := net.Listen(<span class="string">"tcp"</span>, <span class="string">":8888"</span>)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        log.Println(<span class="string">"error listen:"</span>, err)</div><div class="line">        <span class="keyword">return</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">defer</span> l.Close()</div><div class="line">    log.Println(<span class="string">"listen ok"</span>)</div><div class="line"></div><div class="line">    <span class="keyword">var</span> i <span class="keyword">int</span></div><div class="line">    <span class="keyword">for</span> &#123;</div><div class="line">        time.Sleep(time.Second * <span class="number">10</span>)</div><div class="line">        <span class="keyword">if</span> _, err := l.Accept(); err != <span class="literal">nil</span> &#123;</div><div class="line">            log.Println(<span class="string">"accept error:"</span>, err)</div><div class="line">            <span class="keyword">break</span></div><div class="line">        &#125;</div><div class="line">        i++</div><div class="line">        log.Printf(<span class="string">"%d: accept a new connection\n"</span>, i)</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>客户端代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//go-tcpsock/conn_establish/client2.go</span></div><div class="line">... ...</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">establishConn</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="title">net</span>.<span class="title">Conn</span></span> &#123;</div><div class="line">    conn, err := net.Dial(<span class="string">"tcp"</span>, <span class="string">":8888"</span>)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        log.Printf(<span class="string">"%d: dial error: %s"</span>, i, err)</div><div class="line">        <span class="keyword">return</span> <span class="literal">nil</span></div><div class="line">    &#125;</div><div class="line">    log.Println(i, <span class="string">":connect to server ok"</span>)</div><div class="line">    <span class="keyword">return</span> conn</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">    <span class="keyword">var</span> sl []net.Conn</div><div class="line">    <span class="keyword">for</span> i := <span class="number">1</span>; i &lt; <span class="number">1000</span>; i++ &#123;</div><div class="line">        conn := establishConn(i)</div><div class="line">        <span class="keyword">if</span> conn != <span class="literal">nil</span> &#123;</div><div class="line">            sl = <span class="built_in">append</span>(sl, conn)</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    time.Sleep(time.Second * <span class="number">10000</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>从程序可以看出，服务端在listen成功后，每隔10s钟accept一次。客户端则是串行的尝试建立连接。这两个程序在Darwin下的执行 结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">$go run server2.go</div><div class="line">2015/11/16 21:55:41 listen ok</div><div class="line">2015/11/16 21:55:51 1: accept a new connection</div><div class="line">2015/11/16 21:56:01 2: accept a new connection</div><div class="line">... ...</div><div class="line"></div><div class="line">$go run client2.go</div><div class="line">2015/11/16 21:55:44 1 :connect to server ok</div><div class="line">2015/11/16 21:55:44 2 :connect to server ok</div><div class="line">2015/11/16 21:55:44 3 :connect to server ok</div><div class="line">... ...</div><div class="line"></div><div class="line">2015/11/16 21:55:44 126 :connect to server ok</div><div class="line">2015/11/16 21:55:44 127 :connect to server ok</div><div class="line">2015/11/16 21:55:44 128 :connect to server ok</div><div class="line"></div><div class="line">2015/11/16 21:55:52 129 :connect to server ok</div><div class="line">2015/11/16 21:56:03 130 :connect to server ok</div><div class="line">2015/11/16 21:56:14 131 :connect to server ok</div><div class="line">... ...</div></pre></td></tr></table></figure>
+<p>可以看出Client初始时成功地一次性建立了128个连接，然后后续每阻塞近10s才能成功建立一条连接。也就是说在server端 backlog满时(未及时accept)，客户端将阻塞在Dial上，直到server端进行一次accept。至于为什么是128，这与darwin 下的默认设置有关：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$sysctl -a|grep kern.ipc.somaxconn</div><div class="line">kern.ipc.somaxconn: 128</div></pre></td></tr></table></figure>
+<p>如果我在ubuntu 14.04上运行上述server程序，我们的client端初始可以成功建立499条连接。</p>
+<p>如果server一直不accept，client端会一直阻塞么？我们去掉accept后的结果是：在Darwin下，client端会阻塞大 约1分多钟才会返回timeout：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">2015/11/16 22:03:31 128 :connect to server ok</div><div class="line">2015/11/16 22:04:48 129: dial error: dial tcp :8888: getsockopt: operation timed out</div></pre></td></tr></table></figure>
+<p>而如果server运行在ubuntu 14.04上，client似乎一直阻塞，我等了10多分钟依旧没有返回。 阻塞与否看来与server端的网络实现和设置有关。</p>
+<h3 id="3、网络延迟较大，Dial阻塞并超时"><a href="#3、网络延迟较大，Dial阻塞并超时" class="headerlink" title="3、网络延迟较大，Dial阻塞并超时"></a>3、网络延迟较大，Dial阻塞并超时</h3><p>如果网络延迟较大，TCP握手过程将更加艰难坎坷（各种丢包），时间消耗的自然也会更长。Dial这时会阻塞，如果长时间依旧无法建立连接，则Dial也会返回“ getsockopt: operation timed out”错误。</p>
+<p>在连接建立阶段，多数情况下，Dial是可以满足需求的，即便阻塞一小会儿。但对于某些程序而言，需要有严格的连接时间限定，如果一定时间内没能成功建立连接，程序可能会需要执行一段“异常”处理逻辑，为此我们就需要DialTimeout了。下面的例子将Dial的最长阻塞时间限制在2s内，超出这个时长，Dial将返回timeout error：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//go-tcpsock/conn_establish/client3.go</span></div><div class="line">... ...</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">    log.Println(<span class="string">"begin dial..."</span>)</div><div class="line">    conn, err := net.DialTimeout(<span class="string">"tcp"</span>, <span class="string">"104.236.176.96:80"</span>, <span class="number">2</span>*time.Second)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        log.Println(<span class="string">"dial error:"</span>, err)</div><div class="line">        <span class="keyword">return</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">defer</span> conn.Close()</div><div class="line">    log.Println(<span class="string">"dial ok"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>执行结果如下（需要模拟一个延迟较大的网络环境）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$go run client3.go</div><div class="line">2015/11/17 09:28:34 begin dial...</div><div class="line">2015/11/17 09:28:36 dial error: dial tcp 104.236.176.96:80: i/o timeout</div></pre></td></tr></table></figure>
+<h2 id="三、Socket读写"><a href="#三、Socket读写" class="headerlink" title="三、Socket读写"></a>三、Socket读写</h2><p>连接建立起来后，我们就要在conn上进行读写，以完成业务逻辑。前面说过Go runtime隐藏了I/O多路复用的复杂性。语言使用者只需采用goroutine+Block I/O的模式即可满足大部分场景需求。Dial成功后，方法返回一个net.Conn接口类型变量值，这个接口变量的动态类型为一个*TCPConn：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//$GOROOT/src/net/tcpsock_posix.go</span></div><div class="line"><span class="keyword">type</span> TCPConn <span class="keyword">struct</span> &#123;</div><div class="line">    conn</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>TCPConn内嵌了一个unexported类型：conn，因此TCPConn”继承”了conn的Read和Write方法，后续通过Dial返回值调用的Write和Read方法均是net.conn的方法：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//$GOROOT/src/net/net.go</span></div><div class="line"><span class="keyword">type</span> conn <span class="keyword">struct</span> &#123;</div><div class="line">    fd *netFD</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *conn)</span> <span class="title">ok</span><span class="params">()</span> <span class="title">bool</span></span> &#123; <span class="keyword">return</span> c != <span class="literal">nil</span> &amp;&amp; c.fd != <span class="literal">nil</span> &#125;</div><div class="line"></div><div class="line"><span class="comment">// Implementation of the Conn interface.</span></div><div class="line"></div><div class="line"><span class="comment">// Read implements the Conn Read method.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *conn)</span> <span class="title">Read</span><span class="params">(b []<span class="keyword">byte</span>)</span> <span class="params">(<span class="keyword">int</span>, error)</span></span> &#123;</div><div class="line">    <span class="keyword">if</span> !c.ok() &#123;</div><div class="line">        <span class="keyword">return</span> <span class="number">0</span>, syscall.EINVAL</div><div class="line">    &#125;</div><div class="line">    n, err := c.fd.Read(b)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &amp;&amp; err != io.EOF &#123;</div><div class="line">        err = &amp;OpError&#123;Op: <span class="string">"read"</span>, Net: c.fd.net, Source: c.fd.laddr, Addr: c.fd.raddr, Err: err&#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> n, err</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// Write implements the Conn Write method.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *conn)</span> <span class="title">Write</span><span class="params">(b []<span class="keyword">byte</span>)</span> <span class="params">(<span class="keyword">int</span>, error)</span></span> &#123;</div><div class="line">    <span class="keyword">if</span> !c.ok() &#123;</div><div class="line">        <span class="keyword">return</span> <span class="number">0</span>, syscall.EINVAL</div><div class="line">    &#125;</div><div class="line">    n, err := c.fd.Write(b)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        err = &amp;OpError&#123;Op: <span class="string">"write"</span>, Net: c.fd.net, Source: c.fd.laddr, Addr: c.fd.raddr, Err: err&#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> n, err</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>下面我们先来通过几个场景来总结一下conn.Read的行为特点。</p>
+<h3 id="1、Socket中无数据"><a href="#1、Socket中无数据" class="headerlink" title="1、Socket中无数据"></a>1、Socket中无数据</h3><p>连接建立后，如果对方未发送数据到socket，接收方(Server)会阻塞在Read操作上，这和前面提到的“模型”原理是一致的。执行该Read操作的goroutine也会被挂起。runtime会监视该socket，直到其有数据才会重新<br>调度该socket对应的Goroutine完成read。由于篇幅原因，这里就不列代码了，例子对应的代码文件：go-tcpsock/read_write下的client1.go和server1.go。</p>
+<h3 id="2、Socket中有部分数据"><a href="#2、Socket中有部分数据" class="headerlink" title="2、Socket中有部分数据"></a>2、Socket中有部分数据</h3><p>如果socket中有部分数据，且长度小于一次Read操作所期望读出的数据长度，那么Read将会成功读出这部分数据并返回，而不是等待所有期望数据全部读取后再返回。</p>
+<p>Client端：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//go-tcpsock/read_write/client2.go</span></div><div class="line">... ...</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(os.Args) &lt;= <span class="number">1</span> &#123;</div><div class="line">        fmt.Println(<span class="string">"usage: go run client2.go YOUR_CONTENT"</span>)</div><div class="line">        <span class="keyword">return</span></div><div class="line">    &#125;</div><div class="line">    log.Println(<span class="string">"begin dial..."</span>)</div><div class="line">    conn, err := net.Dial(<span class="string">"tcp"</span>, <span class="string">":8888"</span>)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        log.Println(<span class="string">"dial error:"</span>, err)</div><div class="line">        <span class="keyword">return</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">defer</span> conn.Close()</div><div class="line">    log.Println(<span class="string">"dial ok"</span>)</div><div class="line"></div><div class="line">    time.Sleep(time.Second * <span class="number">2</span>)</div><div class="line">    data := os.Args[<span class="number">1</span>]</div><div class="line">    conn.Write([]<span class="keyword">byte</span>(data))</div><div class="line"></div><div class="line">    time.Sleep(time.Second * <span class="number">10000</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Server端：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//go-tcpsock/read_write/server2.go</span></div><div class="line">... ...</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">handleConn</span><span class="params">(c net.Conn)</span></span> &#123;</div><div class="line">    <span class="keyword">defer</span> c.Close()</div><div class="line">    <span class="keyword">for</span> &#123;</div><div class="line">        <span class="comment">// read from the connection</span></div><div class="line">        <span class="keyword">var</span> buf = <span class="built_in">make</span>([]<span class="keyword">byte</span>, <span class="number">10</span>)</div><div class="line">        log.Println(<span class="string">"start to read from conn"</span>)</div><div class="line">        n, err := c.Read(buf)</div><div class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">            log.Println(<span class="string">"conn read error:"</span>, err)</div><div class="line">            <span class="keyword">return</span></div><div class="line">        &#125;</div><div class="line">        log.Printf(<span class="string">"read %d bytes, content is %s\n"</span>, n, <span class="keyword">string</span>(buf[:n]))</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">... ...</div></pre></td></tr></table></figure>
+<p>我们通过<code>client2.go</code>发送”hi”到Server端：<br>运行结果:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$go run client2.go hi</div><div class="line">2015/11/17 13:30:53 begin dial...</div><div class="line">2015/11/17 13:30:53 dial ok</div><div class="line"></div><div class="line">$go run server2.go</div><div class="line">2015/11/17 13:33:45 accept a new connection</div><div class="line">2015/11/17 13:33:45 start to read from conn</div><div class="line">2015/11/17 13:33:47 read 2 bytes, content is hi</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>Client向socket中写入两个字节数据(“hi”)，Server端创建一个len = 10的slice，等待Read将读取的数据放入slice；Server随后读取到那两个字节：”hi”。Read成功返回，n =2 ，err = nil。</p>
+<h3 id="3、Socket中有足够数据"><a href="#3、Socket中有足够数据" class="headerlink" title="3、Socket中有足够数据"></a>3、Socket中有足够数据</h3><p>如果socket中有数据，且长度大于等于一次Read操作所期望读出的数据长度，那么Read将会成功读出这部分数据并返回。这个情景是最符合我们对Read的期待的了：Read将用Socket中的数据将我们传入的slice填满后返回：n = 10, err = nil。</p>
+<p>我们通过client2.go向Server2发送如下内容：abcdefghij12345，执行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$go run client2.go abcdefghij12345</div><div class="line">2015/11/17 13:38:00 begin dial...</div><div class="line">2015/11/17 13:38:00 dial ok</div><div class="line"></div><div class="line">$go run server2.go</div><div class="line">2015/11/17 13:38:00 accept a new connection</div><div class="line">2015/11/17 13:38:00 start to read from conn</div><div class="line">2015/11/17 13:38:02 read 10 bytes, content is abcdefghij</div><div class="line">2015/11/17 13:38:02 start to read from conn</div><div class="line">2015/11/17 13:38:02 read 5 bytes, content is 12345</div></pre></td></tr></table></figure>
+<p>client端发送的内容长度为15个字节，Server端Read buffer的长度为10，因此Server Read第一次返回时只会读取10个字节；Socket中还剩余5个字节数据，Server再次Read时会把剩余数据读出（如：情形2）。</p>
+<h3 id="4、Socket关闭"><a href="#4、Socket关闭" class="headerlink" title="4、Socket关闭"></a>4、Socket关闭</h3><p>如果client端主动关闭了socket，那么Server的Read将会读到什么呢？这里分为“有数据关闭”和“无数据关闭”。</p>
+<p>“有数据关闭”是指在client关闭时，socket中还有server端未读取的数据，我们在go-tcpsock/read_write/client3.go和server3.go中模拟这种情况：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$go run client3.go hello</div><div class="line">2015/11/17 13:50:57 begin dial...</div><div class="line">2015/11/17 13:50:57 dial ok</div><div class="line"></div><div class="line">$go run server3.go</div><div class="line">2015/11/17 13:50:57 accept a new connection</div><div class="line">2015/11/17 13:51:07 start to read from conn</div><div class="line">2015/11/17 13:51:07 read 5 bytes, content is hello</div><div class="line">2015/11/17 13:51:17 start to read from conn</div><div class="line">2015/11/17 13:51:17 conn read error: EOF</div></pre></td></tr></table></figure>
+<p>从输出结果来看，当client端close socket退出后，server3依旧没有开始Read，10s后第一次Read成功读出了5个字节的数据，当第二次Read时，由于client端 socket关闭，Read返回EOF error。</p>
+<p>通过上面这个例子，我们也可以猜测出“无数据关闭”情形下的结果，那就是Read直接返回EOF error。</p>
+<h3 id="5、读取操作超时"><a href="#5、读取操作超时" class="headerlink" title="5、读取操作超时"></a>5、读取操作超时</h3><p>有些场合对Read的阻塞时间有严格限制，在这种情况下，Read的行为到底是什么样的呢？在返回超时错误时，是否也同时Read了一部分数据了呢？这个实验比较难于模拟，下面的测试结果也未必能反映出所有可能结果。我们编写了<code>client4.go</code>和<code>server4.go</code>来模拟这一情形。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//go-tcpsock/read_write/client4.go</span></div><div class="line">... ...</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">    log.Println(<span class="string">"begin dial..."</span>)</div><div class="line">    conn, err := net.Dial(<span class="string">"tcp"</span>, <span class="string">":8888"</span>)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        log.Println(<span class="string">"dial error:"</span>, err)</div><div class="line">        <span class="keyword">return</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">defer</span> conn.Close()</div><div class="line">    log.Println(<span class="string">"dial ok"</span>)</div><div class="line"></div><div class="line">    data := <span class="built_in">make</span>([]<span class="keyword">byte</span>, <span class="number">65536</span>)</div><div class="line">    conn.Write(data)</div><div class="line"></div><div class="line">    time.Sleep(time.Second * <span class="number">10000</span>)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//go-tcpsock/read_write/server4.go</span></div><div class="line">... ...</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">handleConn</span><span class="params">(c net.Conn)</span></span> &#123;</div><div class="line">    <span class="keyword">defer</span> c.Close()</div><div class="line">    <span class="keyword">for</span> &#123;</div><div class="line">        <span class="comment">// read from the connection</span></div><div class="line">        time.Sleep(<span class="number">10</span> * time.Second)</div><div class="line">        <span class="keyword">var</span> buf = <span class="built_in">make</span>([]<span class="keyword">byte</span>, <span class="number">65536</span>)</div><div class="line">        log.Println(<span class="string">"start to read from conn"</span>)</div><div class="line">        c.SetReadDeadline(time.Now().Add(time.Microsecond * <span class="number">10</span>))</div><div class="line">        n, err := c.Read(buf)</div><div class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">            log.Printf(<span class="string">"conn read %d bytes,  error: %s"</span>, n, err)</div><div class="line">            <span class="keyword">if</span> nerr, ok := err.(net.Error); ok &amp;&amp; nerr.Timeout() &#123;</div><div class="line">                <span class="keyword">continue</span></div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span></div><div class="line">        &#125;</div><div class="line">        log.Printf(<span class="string">"read %d bytes, content is %s\n"</span>, n, <span class="keyword">string</span>(buf[:n]))</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在Server端我们通过Conn的SetReadDeadline方法设置了10微秒的读超时时间，Server的执行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$go run server4.go</div><div class="line"></div><div class="line">2015/11/17 14:21:17 accept a new connection</div><div class="line">2015/11/17 14:21:27 start to read from conn</div><div class="line">2015/11/17 14:21:27 conn read 0 bytes,  error: read tcp 127.0.0.1:8888-&gt;127.0.0.1:60970: i/o timeout</div><div class="line">2015/11/17 14:21:37 start to read from conn</div><div class="line">2015/11/17 14:21:37 read 65536 bytes, content is</div></pre></td></tr></table></figure>
+<p>虽然每次都是10微秒超时，但结果不同，第一次Read超时，读出数据长度为0；第二次读取所有数据成功，没有超时。反复执行了多次，没能出现“读出部分数据且返回超时错误”的情况。</p>
+<p>和读相比，Write遇到的情形一样不少，我们也逐一看一下。</p>
+<h3 id="1、成功写"><a href="#1、成功写" class="headerlink" title="1、成功写"></a>1、成功写</h3><p>前面例子着重于Read，client端在Write时并未判断Write的返回值。所谓“成功写”指的就是Write调用返回的n与预期要写入的数据长度相等，且error = nil。这是我们在调用Write时遇到的最常见的情形，这里不再举例了。</p>
+<h3 id="2、写阻塞"><a href="#2、写阻塞" class="headerlink" title="2、写阻塞"></a>2、写阻塞</h3><p>TCP连接通信两端的OS都会为该连接保留数据缓冲，一端调用Write后，实际上数据是写入到OS的协议栈的数据缓冲的。TCP是全双工通信，因此每个方向都有独立的数据缓冲。当发送方将对方的接收缓冲区以及自身的发送缓冲区写满后，Write就会阻塞。我们来看一个例子：client5.go和server.go。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//go-tcpsock/read_write/client5.go</span></div><div class="line">... ...</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">    log.Println(<span class="string">"begin dial..."</span>)</div><div class="line">    conn, err := net.Dial(<span class="string">"tcp"</span>, <span class="string">":8888"</span>)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        log.Println(<span class="string">"dial error:"</span>, err)</div><div class="line">        <span class="keyword">return</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">defer</span> conn.Close()</div><div class="line">    log.Println(<span class="string">"dial ok"</span>)</div><div class="line"></div><div class="line">    data := <span class="built_in">make</span>([]<span class="keyword">byte</span>, <span class="number">65536</span>)</div><div class="line">    <span class="keyword">var</span> total <span class="keyword">int</span></div><div class="line">    <span class="keyword">for</span> &#123;</div><div class="line">        n, err := conn.Write(data)</div><div class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">            total += n</div><div class="line">            log.Printf(<span class="string">"write %d bytes, error:%s\n"</span>, n, err)</div><div class="line">            <span class="keyword">break</span></div><div class="line">        &#125;</div><div class="line">        total += n</div><div class="line">        log.Printf(<span class="string">"write %d bytes this time, %d bytes in total\n"</span>, n, total)</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    log.Printf(<span class="string">"write %d bytes in total\n"</span>, total)</div><div class="line">    time.Sleep(time.Second * <span class="number">10000</span>)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//go-tcpsock/read_write/server5.go</span></div><div class="line">... ...</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">handleConn</span><span class="params">(c net.Conn)</span></span> &#123;</div><div class="line">    <span class="keyword">defer</span> c.Close()</div><div class="line">    time.Sleep(time.Second * <span class="number">10</span>)</div><div class="line">    <span class="keyword">for</span> &#123;</div><div class="line">        <span class="comment">// read from the connection</span></div><div class="line">        time.Sleep(<span class="number">5</span> * time.Second)</div><div class="line">        <span class="keyword">var</span> buf = <span class="built_in">make</span>([]<span class="keyword">byte</span>, <span class="number">60000</span>)</div><div class="line">        log.Println(<span class="string">"start to read from conn"</span>)</div><div class="line">        n, err := c.Read(buf)</div><div class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">            log.Printf(<span class="string">"conn read %d bytes,  error: %s"</span>, n, err)</div><div class="line">            <span class="keyword">if</span> nerr, ok := err.(net.Error); ok &amp;&amp; nerr.Timeout() &#123;</div><div class="line">                <span class="keyword">continue</span></div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        log.Printf(<span class="string">"read %d bytes, content is %s\n"</span>, n, <span class="keyword">string</span>(buf[:n]))</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">... ...</div></pre></td></tr></table></figure>
+<p>Server5在前10s中并不Read数据，因此当client5一直尝试写入时，写到一定量后就会发生阻塞：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$go run client5.go</div><div class="line"></div><div class="line">2015/11/17 14:57:33 begin dial...</div><div class="line">2015/11/17 14:57:33 dial ok</div><div class="line">2015/11/17 14:57:33 write 65536 bytes this time, 65536 bytes in total</div><div class="line">2015/11/17 14:57:33 write 65536 bytes this time, 131072 bytes in total</div><div class="line">2015/11/17 14:57:33 write 65536 bytes this time, 196608 bytes in total</div><div class="line">2015/11/17 14:57:33 write 65536 bytes this time, 262144 bytes in total</div><div class="line">2015/11/17 14:57:33 write 65536 bytes this time, 327680 bytes in total</div><div class="line">2015/11/17 14:57:33 write 65536 bytes this time, 393216 bytes in total</div><div class="line">2015/11/17 14:57:33 write 65536 bytes this time, 458752 bytes in total</div><div class="line">2015/11/17 14:57:33 write 65536 bytes this time, 524288 bytes in total</div><div class="line">2015/11/17 14:57:33 write 65536 bytes this time, 589824 bytes in total</div><div class="line">2015/11/17 14:57:33 write 65536 bytes this time, 655360 bytes in total</div></pre></td></tr></table></figure>
+<p>在Darwin上，这个size大约在679468bytes。后续当server5每隔5s进行Read时，OS socket缓冲区腾出了空间，client5就又可以写入了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$go run server5.go</div><div class="line">2015/11/17 15:07:01 accept a new connection</div><div class="line">2015/11/17 15:07:16 start to read from conn</div><div class="line">2015/11/17 15:07:16 read 60000 bytes, content is</div><div class="line">2015/11/17 15:07:21 start to read from conn</div><div class="line">2015/11/17 15:07:21 read 60000 bytes, content is</div><div class="line">2015/11/17 15:07:26 start to read from conn</div><div class="line">2015/11/17 15:07:26 read 60000 bytes, content is</div><div class="line">....</div><div class="line"></div><div class="line">client端：</div><div class="line"></div><div class="line">2015/11/17 15:07:01 write 65536 bytes this time, 720896 bytes in total</div><div class="line">2015/11/17 15:07:06 write 65536 bytes this time, 786432 bytes in total</div><div class="line">2015/11/17 15:07:16 write 65536 bytes this time, 851968 bytes in total</div><div class="line">2015/11/17 15:07:16 write 65536 bytes this time, 917504 bytes in total</div><div class="line">2015/11/17 15:07:27 write 65536 bytes this time, 983040 bytes in total</div><div class="line">2015/11/17 15:07:27 write 65536 bytes this time, 1048576 bytes in total</div><div class="line">.... ...</div></pre></td></tr></table></figure>
+<h3 id="3、写入部分数据"><a href="#3、写入部分数据" class="headerlink" title="3、写入部分数据"></a>3、写入部分数据</h3><p>Write操作存在写入部分数据的情况，比如上面例子中，当client端输出日志停留在“write 65536 bytes this time, 655360 bytes in total”时，我们杀掉server5，这时我们会看到client5输出以下日志：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">2015/11/17 15:19:14 write 65536 bytes this time, 655360 bytes in total</div><div class="line">2015/11/17 15:19:16 write 24108 bytes, error:write tcp 127.0.0.1:62245-&gt;127.0.0.1:8888: write: broken pipe</div><div class="line">2015/11/17 15:19:16 write 679468 bytes in total</div></pre></td></tr></table></figure>
+<p>显然Write并非在655360这个地方阻塞的，而是后续又写入24108后发生了阻塞，server端socket关闭后，我们看到Wrote返回er != nil且n = 24108，程序需要对这部分写入的24108字节做特定处理。</p>
+<h3 id="4、写入超时"><a href="#4、写入超时" class="headerlink" title="4、写入超时"></a>4、写入超时</h3><p>如果非要给Write增加一个期限，那我们可以调用SetWriteDeadline方法。我们copy一份client5.go，形成client6.go，在client6.go的Write之前增加一行timeout设置代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">conn.SetWriteDeadline(time.Now().Add(time.Microsecond * <span class="number">10</span>))</div></pre></td></tr></table></figure>
+<p>启动server6.go，启动client6.go，我们可以看到写入超时的情况下，Write的返回结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$go run client6.go</div><div class="line">2015/11/17 15:26:34 begin dial...</div><div class="line">2015/11/17 15:26:34 dial ok</div><div class="line">2015/11/17 15:26:34 write 65536 bytes this time, 65536 bytes in total</div><div class="line">... ...</div><div class="line">2015/11/17 15:26:34 write 65536 bytes this time, 655360 bytes in total</div><div class="line">2015/11/17 15:26:34 write 24108 bytes, error:write tcp 127.0.0.1:62325-&gt;127.0.0.1:8888: i/o timeout</div><div class="line">2015/11/17 15:26:34 write 679468 bytes in total</div></pre></td></tr></table></figure>
+<p>可以看到在写入超时时，依旧存在部分数据写入的情况。</p>
+<p>综上例子，虽然Go给我们提供了阻塞I/O的便利，但在调用Read和Write时依旧要综合需要方法返回的n和err的结果，以做出正确处理。net.conn实现了io.Reader和io.Writer接口，因此可以试用一些wrapper包进行socket读写，比如bufio包下面的Writer和Reader、io/ioutil下的函数等。</p>
+<h3 id="Goroutine-safe"><a href="#Goroutine-safe" class="headerlink" title="Goroutine safe"></a>Goroutine safe</h3><p>基于goroutine的网络架构模型，存在在不同goroutine间共享conn的情况，那么conn的读写是否是goroutine safe的呢？在深入这个问题之前，我们先从应用意义上来看read操作和write操作的goroutine-safe必要性。</p>
+<p>对于read操作而言，由于TCP是面向字节流，conn.Read无法正确区分数据的业务边界，因此多个goroutine对同一个conn进行read的意义不大，goroutine读到不完整的业务包反倒是增加了业务处理的难度。对与Write操作而言，倒是有多个goroutine并发写的情况。不过conn读写是否goroutine-safe的测试不是很好做，我们先深入一下runtime代码，先从理论上给这个问题定个性：</p>
+<p>net.conn只是*netFD的wrapper结构，最终Write和Read都会落在其中的fd上：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">type conn struct &#123;</div><div class="line">    fd *netFD</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>netFD在不同平台上有着不同的实现，我们以net/fd_unix.go中的netFD为例：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Network file descriptor.</span></div><div class="line"><span class="keyword">type</span> netFD <span class="keyword">struct</span> &#123;</div><div class="line">    <span class="comment">// locking/lifetime of sysfd + serialize access to Read and Write methods</span></div><div class="line">    fdmu fdMutex</div><div class="line"></div><div class="line">    <span class="comment">// immutable until Close</span></div><div class="line">    sysfd       <span class="keyword">int</span></div><div class="line">    family      <span class="keyword">int</span></div><div class="line">    sotype      <span class="keyword">int</span></div><div class="line">    isConnected <span class="keyword">bool</span></div><div class="line">    net         <span class="keyword">string</span></div><div class="line">    laddr       Addr</div><div class="line">    raddr       Addr</div><div class="line"></div><div class="line">    <span class="comment">// wait server</span></div><div class="line">    pd pollDesc</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们看到netFD中包含了一个runtime实现的fdMutex类型字段，从注释上来看，该fdMutex用来串行化对该netFD对应的sysfd的Write和Read操作。从这个注释上来看，所有对conn的Read和Write操作都是有fdMutex互斥的，从netFD的Read和Write方法的实现也证实了这一点：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(fd *netFD)</span> <span class="title">Read</span><span class="params">(p []<span class="keyword">byte</span>)</span> <span class="params">(n <span class="keyword">int</span>, err error)</span></span> &#123;</div><div class="line">    <span class="keyword">if</span> err := fd.readLock(); err != <span class="literal">nil</span> &#123;</div><div class="line">        <span class="keyword">return</span> <span class="number">0</span>, err</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">defer</span> fd.readUnlock()</div><div class="line">    <span class="keyword">if</span> err := fd.pd.PrepareRead(); err != <span class="literal">nil</span> &#123;</div><div class="line">        <span class="keyword">return</span> <span class="number">0</span>, err</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">for</span> &#123;</div><div class="line">        n, err = syscall.Read(fd.sysfd, p)</div><div class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">            n = <span class="number">0</span></div><div class="line">            <span class="keyword">if</span> err == syscall.EAGAIN &#123;</div><div class="line">                <span class="keyword">if</span> err = fd.pd.WaitRead(); err == <span class="literal">nil</span> &#123;</div><div class="line">                    <span class="keyword">continue</span></div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        err = fd.eofError(n, err)</div><div class="line">        <span class="keyword">break</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> _, ok := err.(syscall.Errno); ok &#123;</div><div class="line">        err = os.NewSyscallError(<span class="string">"read"</span>, err)</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(fd *netFD)</span> <span class="title">Write</span><span class="params">(p []<span class="keyword">byte</span>)</span> <span class="params">(nn <span class="keyword">int</span>, err error)</span></span> &#123;</div><div class="line">    <span class="keyword">if</span> err := fd.writeLock(); err != <span class="literal">nil</span> &#123;</div><div class="line">        <span class="keyword">return</span> <span class="number">0</span>, err</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">defer</span> fd.writeUnlock()</div><div class="line">    <span class="keyword">if</span> err := fd.pd.PrepareWrite(); err != <span class="literal">nil</span> &#123;</div><div class="line">        <span class="keyword">return</span> <span class="number">0</span>, err</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">for</span> &#123;</div><div class="line">        <span class="keyword">var</span> n <span class="keyword">int</span></div><div class="line">        n, err = syscall.Write(fd.sysfd, p[nn:])</div><div class="line">        <span class="keyword">if</span> n &gt; <span class="number">0</span> &#123;</div><div class="line">            nn += n</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> nn == <span class="built_in">len</span>(p) &#123;</div><div class="line">            <span class="keyword">break</span></div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> err == syscall.EAGAIN &#123;</div><div class="line">            <span class="keyword">if</span> err = fd.pd.WaitWrite(); err == <span class="literal">nil</span> &#123;</div><div class="line">                <span class="keyword">continue</span></div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">            <span class="keyword">break</span></div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> n == <span class="number">0</span> &#123;</div><div class="line">            err = io.ErrUnexpectedEOF</div><div class="line">            <span class="keyword">break</span></div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> _, ok := err.(syscall.Errno); ok &#123;</div><div class="line">        err = os.NewSyscallError(<span class="string">"write"</span>, err)</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> nn, err</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>每次Write操作都是受lock保护，直到此次数据全部write完。因此在应用层面，要想保证多个goroutine在一个conn上write操作的Safe，需要一次write完整写入一个“业务包”；一旦将业务包的写入拆分为多次write，那就无法保证某个Goroutine的某“业务包”数据在conn发送的连续性。</p>
+<p>同时也可以看出即便是Read操作，也是lock保护的。多个Goroutine对同一conn的并发读不会出现读出内容重叠的情况，但内容断点是依 runtime调度来随机确定的。存在一个业务包数据，1/3内容被goroutine-1读走，另外2/3被另外一个goroutine-2读 走的情况。比如一个完整包：world，当goroutine的read slice size &lt; 5时，存在可能：一个goroutine读到 “worl”,另外一个goroutine读出”d”。</p>
+<h2 id="四、Socket属性"><a href="#四、Socket属性" class="headerlink" title="四、Socket属性"></a>四、Socket属性</h2><p>原生Socket API提供了丰富的sockopt设置接口，但Golang有自己的网络架构模型，golang提供的socket options接口也是基于上述模型的必要的属性设置。包括</p>
+<ul>
+<li>SetKeepAlive</li>
+<li>SetKeepAlivePeriod</li>
+<li>SetLinger</li>
+<li>SetNoDelay （默认no delay）</li>
+<li>SetWriteBuffer</li>
+<li>SetReadBuffer</li>
+</ul>
+<p>不过上面的Method是TCPConn的，而不是Conn的，要使用上面的Method的，需要type assertion：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">tcpConn, ok := c.(*TCPConn)</div><div class="line"><span class="keyword">if</span> !ok &#123;</div><div class="line">    <span class="comment">//error handle</span></div><div class="line">&#125;</div><div class="line"></div><div class="line">tcpConn.SetNoDelay(<span class="literal">true</span>)</div></pre></td></tr></table></figure>
+<p>对于listener socket, golang默认采用了 SO_REUSEADDR，这样当你重启 listener程序时，不会因为address in use的错误而启动失败。而listen backlog的默认值是通过获取系统的设置值得到的。不同系统不同：mac 128, linux 512等。</p>
+<h2 id="五、关闭连接"><a href="#五、关闭连接" class="headerlink" title="五、关闭连接"></a>五、关闭连接</h2><p>和前面的方法相比，关闭连接算是最简单的操作了。由于socket是全双工的，client和server端在己方已关闭的socket和对方关闭的socket上操作的结果有不同。看下面例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//go-tcpsock/conn_close/client1.go</span></div><div class="line">... ...</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">    log.Println(<span class="string">"begin dial..."</span>)</div><div class="line">    conn, err := net.Dial(<span class="string">"tcp"</span>, <span class="string">":8888"</span>)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        log.Println(<span class="string">"dial error:"</span>, err)</div><div class="line">        <span class="keyword">return</span></div><div class="line">    &#125;</div><div class="line">    conn.Close()</div><div class="line">    log.Println(<span class="string">"close ok"</span>)</div><div class="line"></div><div class="line">    <span class="keyword">var</span> buf = <span class="built_in">make</span>([]<span class="keyword">byte</span>, <span class="number">32</span>)</div><div class="line">    n, err := conn.Read(buf)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        log.Println(<span class="string">"read error:"</span>, err)</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        log.Printf(<span class="string">"read % bytes, content is %s\n"</span>, n, <span class="keyword">string</span>(buf[:n]))</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    n, err = conn.Write(buf)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        log.Println(<span class="string">"write error:"</span>, err)</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        log.Printf(<span class="string">"write % bytes, content is %s\n"</span>, n, <span class="keyword">string</span>(buf[:n]))</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    time.Sleep(time.Second * <span class="number">1000</span>)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//go-tcpsock/conn_close/server1.go</span></div><div class="line">... ...</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">handleConn</span><span class="params">(c net.Conn)</span></span> &#123;</div><div class="line">    <span class="keyword">defer</span> c.Close()</div><div class="line"></div><div class="line">    <span class="comment">// read from the connection</span></div><div class="line">    <span class="keyword">var</span> buf = <span class="built_in">make</span>([]<span class="keyword">byte</span>, <span class="number">10</span>)</div><div class="line">    log.Println(<span class="string">"start to read from conn"</span>)</div><div class="line">    n, err := c.Read(buf)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        log.Println(<span class="string">"conn read error:"</span>, err)</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        log.Printf(<span class="string">"read %d bytes, content is %s\n"</span>, n, <span class="keyword">string</span>(buf[:n]))</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    n, err = c.Write(buf)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">        log.Println(<span class="string">"conn write error:"</span>, err)</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        log.Printf(<span class="string">"write %d bytes, content is %s\n"</span>, n, <span class="keyword">string</span>(buf[:n]))</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">... ...</div></pre></td></tr></table></figure>
+<p>上述例子的执行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$go run server1.go</div><div class="line">2015/11/17 17:00:51 accept a new connection</div><div class="line">2015/11/17 17:00:51 start to read from conn</div><div class="line">2015/11/17 17:00:51 conn read error: EOF</div><div class="line">2015/11/17 17:00:51 write 10 bytes, content is</div><div class="line"></div><div class="line">$go run client1.go</div><div class="line">2015/11/17 17:00:51 begin dial...</div><div class="line">2015/11/17 17:00:51 close ok</div><div class="line">2015/11/17 17:00:51 read error: read tcp 127.0.0.1:64195-&gt;127.0.0.1:8888: use of closed network connection</div><div class="line">2015/11/17 17:00:51 write error: write tcp 127.0.0.1:64195-&gt;127.0.0.1:8888: use of closed network connection</div></pre></td></tr></table></figure>
+<p>从client1的结果来看，在己方已经关闭的socket上再进行read和write操作，会得到”use of closed network connection” error；<br>从server1的执行结果来看，在对方关闭的socket上执行read操作会得到EOF error，但write操作会成功，因为数据会成功写入己方的内核socket缓冲区中，即便最终发不到对方socket缓冲区了，因为己方socket并未关闭。因此当发现对方socket关闭后，己方应该正确合理处理自己的socket，再继续write已经无任何意义了。</p>
+<h2 id="六、小结"><a href="#六、小结" class="headerlink" title="六、小结"></a>六、小结</h2><p>本文比较基础，但却很重要，毕竟golang是面向大规模服务后端的，对通信环节的细节的深入理解会大有裨益。另外Go的goroutine+阻塞通信的网络通信模型降低了开发者心智负担，简化了通信的复杂性，这点尤为重要。</p>
+<p>本文代码实验环境：go 1.5.1 on Darwin amd64以及部分在ubuntu 14.04 amd64。</p>
+<p>本文demo代码在<a href="https://github.com/bigwhite/experiments/tree/master/go-tcpsock" target="_blank" rel="external">这里</a>可以找到。</p>
+<p>© 2015, <a href="http://tonybai.com/" target="_blank" rel="external">bigwhite</a>. 版权所有.</p>
+
+	
+	
+	
+	
+</div>
+				
+				
+
+                <!-- Post Comments -->
+                
+                    
+
+
+    <!-- 使用 DISQUS -->
+	<div id="disqus-comment">
+		<div id="disqus_thread"></div>
+<script>
+	var disqus_config = function () {
+		this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+		this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+	};
+
+	(function() { // DON'T EDIT BELOW THIS LINE
+		var d = document, s = d.createElement('script');
+		s.src = '//yusank.disqus.com/embed.js';
+		s.setAttribute('data-timestamp', +new Date());
+		(d.head || d.body).appendChild(s);
+	})();
+</script>
+	</div>
+	<style>
+		#disqus-comment{
+			background-color:#eee;
+			padding:2pc;
+		}
+	</style>
+
+                
+            </div>
+
+            <!-- Post Prev & Next Nav -->
+            <nav class="material-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
+    
+    <!-- Prev Nav -->
+    
+
+    <!-- Section Spacer -->
+    <div class="section-spacer"></div>
+
+    <!-- Next Nav -->
+    
+        <a href="/docker-practice.html/" id="post_nav-older" class="next-content">
+            旧篇
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                <i class="material-icons">arrow_forward</i>
+            </button>
+        </a>
+    
+</nav>
+        </div>
+    </div>
+
+				
+				
+					<!-- Overlay For Active Sidebar -->
+<div class="sidebar-overlay "></div>
+
+<!-- Material sidebar -->
+<aside id="sidebar" class="sidebar sidebar-colored  sidebar-fixed-left" role="navigation">
+	<div id="sidebar-main">
+	    <!-- Sidebar Header -->
+		<div class="sidebar-header header-cover" style="background-image: url(/img/sidebar_header.png);">
+    <!-- Top bar -->
+    <div class="top-bar"></div>
+
+    <!-- Sidebar toggle button -->
+    <button type="button" class="sidebar-toggle mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" style="display: initial;" data-upgraded=",MaterialButton,MaterialRipple">
+    <i class="material-icons">clear_all</i>
+    <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
+
+    <!-- Sidebar Avatar -->
+    <div class="sidebar-image">
+        <img src="/img/avatar.png" alt="Yusank's avatar">
+    </div>
+
+    <!-- Sidebar Email -->
+    <a data-toggle="dropdown" class="sidebar-brand" href="#settings-dropdown">
+        yusankurban@gmail.com
+        <b class="caret"></b>
+    </a>
+</div>
+
+		<!-- Sidebar Navigation  -->
+		<ul class="nav sidebar-nav">
+    <!-- User dropdown  -->
+    <li class="dropdown">
+        <ul id="settings-dropdown" class="dropdown-menu">
+			
+                <li>
+                    <a href="https://gmail.google.com" target="_blank" title="Email Me">
+						<i class="material-icons sidebar-material-icons sidebar-indent-left1pc-element">email</i>
+                        Email Me
+                    </a>
+                </li>
+            
+        </ul>
+    </li>
+
+    <!-- Homepage -->
+    <li id="sidebar-first-li">
+        <a href="/" target="_self">
+            <i class="material-icons sidebar-material-icons">home</i>
+             主页
+        </a>
+    </li>
+
+    <!-- I'm Feeling Lucky -->
+<!--
+    <li class="dropdown">
+        <a href="" target="_self">
+            <i class="material-icons sidebar-material-icons">explore</i>
+             sidebar.imlucky
+        </a>
+    </li>
+-->
+
+	
+    <!-- Archives  -->
+    <li class="dropdown">
+        <a href="#" class="ripple-effect dropdown-toggle" data-toggle="dropdown">
+            <i class="material-icons sidebar-material-icons">inbox</i>
+             归档
+            <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+            <li>
+            <a class="sidebar_archives-link" href="/archives/2017/08/">八月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/12/">十二月 2016<span class="sidebar_archives-count">6</span></a>
+        </ul>
+    </li>
+
+    <!-- Divider -->
+    <li class="divider"></li>
+
+
+    <!-- Pages  -->
+	
+		<li>
+			<a href="/links/" title="友情链接">
+				友情链接
+			</a>
+		</li>
+	
+		<li>
+			<a href="/about" title="关于我">
+				关于我
+			</a>
+		</li>
+	
+		<li>
+			<a href="/gallery" title="图库">
+				图库
+			</a>
+		</li>
+	
+
+    <!-- Article Numebr  -->
+    <li>
+        <a href="/archives">
+             文章总数
+             <span class="sidebar-badge">16</span>
+        </a>
+    </li>
+</ul>
+
+		<!-- Sidebar Divider -->
+		<div class="sidebar-divider"></div>
+
+		<!-- Sidebar Footer -->
+		<!-- 
+I'm glad you use this theme, the development is no so easy, I hope you can keep the copyright, I will thank you so much.
+If you still want to delete the copyrights, could you still retain the first one? Which namely "Theme Material"
+It will not impact the appearance and can give developers a lot of support :)
+
+很高兴您使用并喜欢该主题，开发不易 十分谢谢与希望您可以保留一下版权声明。
+如果您仍然想删除的话 能否只保留第一项呢？即 "Theme Material"
+它不会影响美观并可以给开发者很大的支持。 :) 
+-->
+
+<!-- Theme Material -->
+<a href="https://github.com/viosey/hexo-theme-material"  class="sidebar-footer-text-a" target="_blank">
+	<div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
+		主题 - Material
+		<span class="sidebar-badge badge-circle">i</span>
+	</div>
+</a>
+
+<!-- Help & Support -->
+<!--
+<a href="mailto:hiviosey@gmail.com" class="sidebar-footer-text-a">
+    <div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
+		sidebar.help
+		<span class="mdl-button__ripple-container">
+			<span class="mdl-ripple"></span>
+		</span>
+	</div>
+</a>
+-->
+
+<!-- Feedback -->
+<!--
+<a href="https://github.com/viosey/hexo-theme-material/issues" target="_blank" class="sidebar-footer-text-a">
+    <div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
+         sidebar.feedback
+                    <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></div>
+</a>
+-->
+
+<!-- Abount Theme -->
+<!--
+<a href="https://blog.viosey.com/index.php/Material.html" target="_blank" class="sidebar-footer-text-a">
+    <div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
+         sidebar.about_theme
+        <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></div>
+</a>-->
+
+	</div>
+    
+    <!-- Sidebar Sponsor -->
+    
+
+
+</aside>
+
+				
+				
+				
+					<!-- Footer Top Button -->
+					<div class="toTop-wrap">
+    <a href="#top" class="toTop">
+        <i class="material-icons footer_top-i">expand_less</i>
+    </a>
+</div>
+				
+				
+				<!--Footer-->
+<footer class="mdl-mini-footer" id="bottom">
+	
+	
+		<!-- Paradox Footer Left Section -->
+		<div class="mdl-mini-footer--left-section sns-list">
+    <!-- Twitter -->
+    
+    <a href="https://twitter.com/twitter" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-twitter.png);">
+        <span class="visuallyhidden">Twitter</span>
+    </button></a>
+    
+    
+    <!-- Facebook -->
+    
+    <a href="https://www.facebook.com/facebook" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-facebook.png);">
+        <span class="visuallyhidden">Facebook</span>
+    </button></a>
+    
+    
+    <!-- Google + -->
+    
+    <a href="https://www.google.com/" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-gplus.png);">
+        <span class="visuallyhidden">Google Plus</span>
+    </button></a>
+    
+    
+    <!-- Weibo -->
+    
+    
+    
+    <!-- Instagram -->
+    
+    
+    
+    <!-- Tumblr -->
+    
+    
+    
+    <!-- Github -->
+    
+    <a href="https://github.com/yusank" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-github.png);">
+        <span class="visuallyhidden">Github</span>
+    </button></a>
+    
+</div>
+
+
+		<!--Copyright-->
+		<div id="copyright">Copyright&nbsp;©&nbsp;<script type="text/javascript">var fd = new Date();document.write(fd.getFullYear());</script>&nbsp;Yusank's blog</div>
+
+		<!-- Paradox Footer Right Section -->
+
+		<!-- 
+		I'm glad you use this theme, the development is no so easy, I hope you can keep the copyright.
+		It will not impact the appearance and can give developers a lot of support :)
+
+		很高兴您使用该主题，开发不易，希望您可以保留一下版权声明。
+		它不会影响美观并可以给开发者很大的支持。 :) 
+		-->
+
+		<div class="mdl-mini-footer--right-section">
+			<div>
+				<div class="footer-develop-div">Powered by <a href="https://hexo.io" target="_blank" class="footer-develop-a">Hexo</a></div>
+				<div class="footer-develop-div">Theme - <a href="https://github.com/viosey/hexo-theme-material" target="_blank" class="footer-develop-a">Material</a></div>
+			</div>
+		</div>
+	
+    
+</footer>
+                
+				<!-- Import File -->
+<script src="/js/highlight.min.js"></script>
+<script src="/js/js.min.js"></script>
+<script src="/js/nprogress.js"></script>
+
+<script type="text/javascript">
+    NProgress.configure({
+        showSpinner: true
+    });
+    NProgress.start();
+    
+    $('#nprogress .bar').css({
+        'background': '#FF4081'
+    });
+    $('#nprogress .peg').css({
+        'box-shadow': '0 0 10px #FF4081, 0 0 15px #FF4081'
+    });
+    $('#nprogress .spinner-icon').css({
+        'border-top-color': '#FF4081',
+        'border-left-color': '#FF4081'
+    });
+    
+    setTimeout(function() {
+        NProgress.done();
+        $('.fade').removeClass('out');
+    }, 800);
+</script>
+
+
+
+
+
+
+    <!-- Busuanzi -->
+    <script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+    <!-- 使用 DISQUS js 代码 -->
+	<script id="dsq-count-scr" src="//yusank.disqus.com/count.js" async></script>
+
+
+<!-- Swiftye -->
+
+
+<!-- Local Search-->
+
+	<script>
+	var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length <= 0) {
+                    return;
+                }
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        str += "<li><a href='"+ data_url +"' class='search-result-title' target='_blank'>"+ data_title;
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out characters
+                            var start = first_occur - 6;
+                            var end = first_occur + 6;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 10;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substr(start, end); 
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<em class=\"search-keyword\">"+keyword+"</em>");
+                            })
+                            str += "<p class=\"search-result\">" + match_content +"...</p>" +"</a>";
+                        }
+                    }
+                })
+                $resultContent.innerHTML = str;
+            })
+        }
+    })
+}
+</script>
+
+	<script>
+        var inputArea = document.querySelector("#search");
+        var getSearchFile = function(){
+            var path = "search.xml";
+            searchFunc(path, 'search', 'local-search-result');
+        }
+
+        inputArea.onfocus = function(){ getSearchFile() }
+	</script>
+
+
+<!-- Window Load-->
+<script>
+    $(window).load(function() {
+        // Post_Toc parent position fixed
+        $(".post-toc-wrap").parent(".mdl-menu__container").css("position", "fixed");
+    });
+</script>
+
+<!-- MathJax Load-->
+
+            </main>
+        </div>
+		
+    </body>
+		
+	
+</html>
