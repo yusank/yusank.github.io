@@ -170,7 +170,7 @@
     
     <!-- Custom Head -->
     
-<link rel="stylesheet" href="/css/prism-twilight.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
 <link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 	
 	
@@ -340,7 +340,7 @@
                 <!-- Post Content -->
                 <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
 	
-		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Unix-网络编程"><a href="#Unix-网络编程" class="headerlink" title="Unix 网络编程"></a>Unix 网络编程</h1><p>​                                                                        <strong>卷II - 进程间通信</strong></p>
+		<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Unix-网络编程"><a href="#Unix-网络编程" class="headerlink" title="Unix 网络编程"></a>Unix 网络编程</h1><p>​                                                                        <strong>卷II - 进程间通信</strong></p>
 <p>IPC是进程间通信（interprocess communication）的简称。传统上该术语描述的是运行在某个操作系统之上的不同进程间各种消息传递（<em>message passing</em>）的方式。</p>
 <p>进程间的通信一般是一下四种形式：</p>
 <ul>
@@ -539,39 +539,39 @@ ssize_t <span class="token function">mq_reccevie</span><span class="token punctu
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>待发消息的大小和优先级必须作为命令行参数指定。</p>
 <p>从某队列读出下一个信息</p>
-<pre class="line-numbers language-c++"><code class="language-c++">#include "unpipc.h"
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">"unpipc.h"</span></span>
 
-int
-main(int argc, char **argv)
-{
-  int         c,flags;
-  mqd_t        maq;
-  ssize_t    n;
-  uint_t    prio;
-  void        *buff;
-  struct    mq_attr    attr;
+<span class="token keyword">int</span>
+<span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span><span class="token operator">*</span>argv<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  <span class="token keyword">int</span>         c<span class="token punctuation">,</span>flags<span class="token punctuation">;</span>
+  mqd_t        maq<span class="token punctuation">;</span>
+  ssize_t    n<span class="token punctuation">;</span>
+  uint_t    prio<span class="token punctuation">;</span>
+  <span class="token keyword">void</span>        <span class="token operator">*</span>buff<span class="token punctuation">;</span>
+  <span class="token keyword">struct</span>    mq_attr    attr<span class="token punctuation">;</span>
 
-  flags = O_RDONLY;
-  while ( (c = Getopt(argc, argv, "n")) != -1) {
-    switch (c) {
-      case 'n':
-        flags |= O_NONBLOCK;
-        break;
-    }
-  }
-  if (optind != argc - 1)
-    err_quit("usage: mqreceive [-n] <name>");
+  flags <span class="token operator">=</span> O_RDONLY<span class="token punctuation">;</span>
+  <span class="token keyword">while</span> <span class="token punctuation">(</span> <span class="token punctuation">(</span>c <span class="token operator">=</span> <span class="token function">Getopt</span><span class="token punctuation">(</span>argc<span class="token punctuation">,</span> argv<span class="token punctuation">,</span> <span class="token string">"n"</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">switch</span> <span class="token punctuation">(</span>c<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">case</span> <span class="token string">'n'</span><span class="token punctuation">:</span>
+        flags <span class="token operator">|</span><span class="token operator">=</span> O_NONBLOCK<span class="token punctuation">;</span>
+        <span class="token keyword">break</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>optind <span class="token operator">!=</span> argc <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token function">err_quit</span><span class="token punctuation">(</span><span class="token string">"usage: mqreceive [-n] &lt;name>"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  mqd =Mq_open(argv[optind], flags);
-  Mq_getattr(mqd, &attr);
+  mqd <span class="token operator">=</span><span class="token function">Mq_open</span><span class="token punctuation">(</span>argv<span class="token punctuation">[</span>optind<span class="token punctuation">]</span><span class="token punctuation">,</span> flags<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">Mq_getattr</span><span class="token punctuation">(</span>mqd<span class="token punctuation">,</span> <span class="token operator">&amp;</span>attr<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  buff = Malloc(attr.mq_msgsize);
+  buff <span class="token operator">=</span> <span class="token function">Malloc</span><span class="token punctuation">(</span>attr<span class="token punctuation">.</span>mq_msgsize<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  n = Mq_receive(mqd, buff, attr.mq_msgsize, &prio);
-  printf("read %ld bytes, priority = %u\n", (long) n, prio);
+  n <span class="token operator">=</span> <span class="token function">Mq_receive</span><span class="token punctuation">(</span>mqd<span class="token punctuation">,</span> buff<span class="token punctuation">,</span> attr<span class="token punctuation">.</span>mq_msgsize<span class="token punctuation">,</span> <span class="token operator">&amp;</span>prio<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"read %ld bytes, priority = %u\n"</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span> n<span class="token punctuation">,</span> prio<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  exit(0);
-}
+  <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>命令行选项 -n 指定非阻塞属性，这样如果所指定的队列中没有消息， 则返回一个错误。</p>
 <p>调用 mq_getattr 打开队列并取得属性。需要确定最大消息大小，因为必须为调用的 mq_receive 分配一个这样大小的缓冲区。最后输出所读出消息的大小及其属性。</p>
@@ -769,7 +769,7 @@ ulong_t                seq<span class="token punctuation">;</span>              
 <aside id="sidebar" class="sidebar sidebar-colored  sidebar-fixed-left" role="navigation">
 	<div id="sidebar-main">
 	    <!-- Sidebar Header -->
-		<div class="sidebar-header header-cover" style="background-image: url(undefined);">
+		<div class="sidebar-header header-cover" style="background-image: url(/img/sidebar_header.png);">
     <!-- Top bar -->
     <div class="top-bar"></div>
 
