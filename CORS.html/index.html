@@ -157,7 +157,7 @@
 
 	<script src="/js/jquery.min.js"></script>
 	
-	<link rel="stylesheet" href="/css/highlight/atelier-cave-light.css">
+	<link rel="stylesheet" href="/css/highlight/undefined.css">
 	
 	<!-- UC Browser Compatible-->
 	<script>
@@ -170,7 +170,8 @@
     
     <!-- Custom Head -->
     
-</head>
+<link rel="stylesheet" href="/css/prism.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 	
 	
 
@@ -328,7 +329,7 @@
                 <!-- Post Content -->
                 <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
 	
-		<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="跨域资源共享-CORS-详解"><a href="#跨域资源共享-CORS-详解" class="headerlink" title="跨域资源共享 CORS 详解"></a>跨域资源共享 CORS 详解</h1><p>CORS是一个W3C标准，全称是”跨域资源共享”（Cross-origin resource sharing）。<br>它允许浏览器向跨源服务器，发出<code>XMLHttpRequest</code>请求，从而克服了AJAX只能<strong>同源</strong>使用的限制。<br>本文详细介绍CORS的内部机制。<br><a id="more"></a></p>
+		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="跨域资源共享-CORS-详解"><a href="#跨域资源共享-CORS-详解" class="headerlink" title="跨域资源共享 CORS 详解"></a>跨域资源共享 CORS 详解</h1><p>CORS是一个W3C标准，全称是”跨域资源共享”（Cross-origin resource sharing）。<br>它允许浏览器向跨源服务器，发出<code>XMLHttpRequest</code>请求，从而克服了AJAX只能<strong>同源</strong>使用的限制。<br>本文详细介绍CORS的内部机制。<br><a id="more"></a></p>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=5110131&auto=1&height=66"></iframe>
 
 <h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>CORS需要浏览器和服务器同时支持。目前，所有浏览器都支持该功能，IE浏览器不能低于IE10。</p>
@@ -356,11 +357,21 @@
 <p>浏览器对这两种请求的处理，是不一样的。</p>
 <h2 id="三、简单请求"><a href="#三、简单请求" class="headerlink" title="三、简单请求"></a>三、简单请求</h2><h3 id="3-1-基本流程"><a href="#3-1-基本流程" class="headerlink" title="3.1 基本流程"></a>3.1 基本流程</h3><p>对于简单请求，浏览器直接发出CORS请求。具体来说，就是在头信息之中，增加一个<code>Origin</code>字段。</p>
 <p>下面是一个例子，浏览器发现这次跨源AJAX请求是简单请求，就自动在头信息之中，添加一个<code>Origin</code>字段。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">GET</span> <span class="string">/cors</span> HTTP/1.1</div><div class="line"><span class="attribute">Origin</span>: http://api.bob.com</div><div class="line"><span class="attribute">Host</span>: api.alice.com</div><div class="line"><span class="attribute">Accept-Language</span>: en-US</div><div class="line"><span class="attribute">Connection</span>: keep-alive</div><div class="line"><span class="attribute">User-Agent</span>: Mozilla/5.0...</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-http"><code class="language-http">GET /cors HTTP/1.1
+<span class="token header-name keyword">Origin:</span> http://api.bob.com
+<span class="token header-name keyword">Host:</span> api.alice.com
+<span class="token header-name keyword">Accept-Language:</span> en-US
+<span class="token header-name keyword">Connection:</span> keep-alive
+<span class="token header-name keyword">User-Agent:</span> Mozilla/5.0...
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>上面的头信息中，<code>Origin</code>字段用来说明，本次请求来自哪个源（协议 + 域名 + 端口）。服务器根据这个值，决定是否同意这次请求。</p>
 <p>如果<code>Origin</code>指定的源，不在许可范围内，服务器会返回一个正常的HTTP回应。浏览器发现，这个回应的头信息没有包含<code>Access-Control-Allow-Origin</code>字段（详见下文），就知道出错了，从而抛出一个错误，被<code>XMLHttpRequest</code>的<code>onerror</code>回调函数捕获。注意，这种错误无法通过状态码识别，因为HTTP回应的状态码有可能是200。</p>
 <p>如果<code>Origin</code>指定的域名在许可范围内，服务器返回的响应，会多出几个头信息字段。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">Access-Control-Allow-Origin</span>: http://api.bob.com</div><div class="line"><span class="attribute">Access-Control-Allow-Credentials</span>: true</div><div class="line"><span class="attribute">Access-Control-Expose-Headers</span>: FooBar</div><div class="line"><span class="attribute">Content-Type</span>: text/html; charset=utf-8</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-http"><code class="language-http"><span class="token header-name keyword">Access-Control-Allow-Origin:</span> http://api.bob.com
+<span class="token header-name keyword">Access-Control-Allow-Credentials:</span> true
+<span class="token header-name keyword">Access-Control-Expose-Headers:</span> FooBar
+<span class="token header-name keyword">Content-Type:</span> text/html; charset=utf-8
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p>上面的头信息之中，有三个与CORS请求相关的字段，都以<code>Access-Control-</code>开头。</p>
 <p><strong>（1）Access-Control-Allow-Origin</strong></p>
 <p>该字段是必须的。它的值要么是请求时<code>Origin</code>字段的值，要么是一个<code>*</code>，表示接受任意域名的请求。</p>
@@ -369,21 +380,38 @@
 <p><strong>（3）Access-Control-Expose-Headers</strong></p>
 <p>该字段可选。CORS请求时，<code>XMLHttpRequest</code>对象的<code>getResponseHeader()</code>方法只能拿到6个基本字段：<code>Cache-Control</code>、<code>Content-Language</code>、<code>Content-Type</code>、<code>Expires</code>、<code>Last-Modified</code>、<code>Pragma</code>。如果想拿到其他字段，就必须在<code>Access-Control-Expose-Headers</code>里面指定。上面的例子指定，<code>getResponseHeader(&#39;FooBar&#39;)</code>可以返回<code>FooBar</code>字段的值。</p>
 <h3 id="3-2-withCredentials-属性"><a href="#3-2-withCredentials-属性" class="headerlink" title="3.2 withCredentials 属性"></a>3.2 withCredentials 属性</h3><p>上面说到，CORS请求默认不发送Cookie和HTTP认证信息。如果要把Cookie发到服务器，一方面要服务器同意，指定<code>Access-Control-Allow-Credentials</code>字段。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">Access-Control-Allow-Credentials</span>: true</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-http"><code class="language-http"><span class="token header-name keyword">Access-Control-Allow-Credentials:</span> true
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>另一方面，开发者必须在AJAX请求中打开<code>withCredentials</code>属性。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</div><div class="line">xhr.withCredentials = <span class="literal">true</span>;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-javascript"><code class="language-javascript"><span class="token keyword">var</span> xhr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">XMLHttpRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+xhr<span class="token punctuation">.</span>withCredentials <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p>否则，即使服务器同意发送Cookie，浏览器也不会发送。或者，服务器要求设置Cookie，浏览器也不会处理。</p>
 <p>但是，如果省略<code>withCredentials</code>设置，有的浏览器还是会一起发送Cookie。这时，可以显式关闭<code>withCredentials</code>。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">xhr.withCredentials = <span class="literal">false</span>;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-javascript"><code class="language-javascript">xhr<span class="token punctuation">.</span>withCredentials <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>需要注意的是，如果要发送Cookie，<code>Access-Control-Allow-Origin</code>就不能设为星号，必须指定明确的、与请求网页一致的域名。同时，Cookie依然遵循同源政策，只有用服务器域名设置的Cookie才会上传，其他域名的Cookie并不会上传，且（跨源）原网页代码中的<code>document.cookie</code>也无法读取服务器域名下的Cookie。</p>
 <h2 id="四、非简单请求"><a href="#四、非简单请求" class="headerlink" title="四、非简单请求"></a>四、非简单请求</h2><h3 id="4-1-预检请求"><a href="#4-1-预检请求" class="headerlink" title="4.1 预检请求"></a>4.1 预检请求</h3><p>非简单请求是那种对服务器有特殊要求的请求，比如请求方法是<code>PUT</code>或<code>DELETE</code>，或者<code>Content-Type</code>字段的类型是<code>application/json</code>。</p>
 <p>非简单请求的CORS请求，会在正式通信之前，增加一次HTTP查询请求，称为”预检”请求（preflight）。</p>
 <p>浏览器先询问服务器，当前网页所在的域名是否在服务器的许可名单之中，以及可以使用哪些HTTP动词和头信息字段。只有得到肯定答复，浏览器才会发出正式的<code>XMLHttpRequest</code>请求，否则就报错。</p>
 <p>下面是一段浏览器的JavaScript脚本。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> url = <span class="string">'http://api.alice.com/cors'</span>;</div><div class="line"><span class="keyword">var</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</div><div class="line">xhr.open(<span class="string">'PUT'</span>, url, <span class="literal">true</span>);</div><div class="line">xhr.setRequestHeader(<span class="string">'X-Custom-Header'</span>, <span class="string">'value'</span>);</div><div class="line">xhr.send();</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-javascript"><code class="language-javascript"><span class="token keyword">var</span> url <span class="token operator">=</span> <span class="token string">'http://api.alice.com/cors'</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> xhr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">XMLHttpRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+xhr<span class="token punctuation">.</span><span class="token function">open</span><span class="token punctuation">(</span><span class="token string">'PUT'</span><span class="token punctuation">,</span> url<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+xhr<span class="token punctuation">.</span><span class="token function">setRequestHeader</span><span class="token punctuation">(</span><span class="token string">'X-Custom-Header'</span><span class="token punctuation">,</span> <span class="token string">'value'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+xhr<span class="token punctuation">.</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>上面代码中，HTTP请求的方法是<code>PUT</code>，并且发送一个自定义头信息<code>X-Custom-Header</code>。</p>
 <p>浏览器发现，这是一个非简单请求，就自动发出一个”预检”请求，要求服务器确认可以这样请求。下面是这个”预检”请求的HTTP头信息。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">OPTIONS</span> <span class="string">/cors</span> HTTP/1.1</div><div class="line"><span class="attribute">Origin</span>: http://api.bob.com</div><div class="line"><span class="attribute">Access-Control-Request-Method</span>: PUT</div><div class="line"><span class="attribute">Access-Control-Request-Headers</span>: X-Custom-Header</div><div class="line"><span class="attribute">Host</span>: api.alice.com</div><div class="line"><span class="attribute">Accept-Language</span>: en-US</div><div class="line"><span class="attribute">Connection</span>: keep-alive</div><div class="line"><span class="attribute">User-Agent</span>: Mozilla/5.0...</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-http"><code class="language-http">OPTIONS /cors HTTP/1.1
+<span class="token header-name keyword">Origin:</span> http://api.bob.com
+<span class="token header-name keyword">Access-Control-Request-Method:</span> PUT
+<span class="token header-name keyword">Access-Control-Request-Headers:</span> X-Custom-Header
+<span class="token header-name keyword">Host:</span> api.alice.com
+<span class="token header-name keyword">Accept-Language:</span> en-US
+<span class="token header-name keyword">Connection:</span> keep-alive
+<span class="token header-name keyword">User-Agent:</span> Mozilla/5.0...
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>“预检”请求用的请求方法是<code>OPTIONS</code>，表示这个请求是用来询问的。头信息里面，关键字段是<code>Origin</code>，表示请求来自哪个源。</p>
 <p>除了<code>Origin</code>字段，”预检”请求的头信息包括两个特殊字段。</p>
 <p><strong>（1）Access-Control-Request-Method</strong></p>
@@ -391,13 +419,32 @@
 <p><strong>（2）Access-Control-Request-Headers</strong></p>
 <p>该字段是一个逗号分隔的字符串，指定浏览器CORS请求会额外发送的头信息字段，上例是<code>X-Custom-Header</code>。</p>
 <h3 id="4-2-预检请求的回应"><a href="#4-2-预检请求的回应" class="headerlink" title="4.2 预检请求的回应"></a>4.2 预检请求的回应</h3><p>服务器收到”预检”请求以后，检查了<code>Origin</code>、<code>Access-Control-Request-Method</code>和<code>Access-Control-Request-Headers</code>字段以后，确认允许跨源请求，就可以做出回应。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 <span class="number">200</span> OK</div><div class="line"><span class="attribute">Date</span>: Mon, 01 Dec 2008 01:15:39 GMT</div><div class="line"><span class="attribute">Server</span>: Apache/2.0.61 (Unix)</div><div class="line"><span class="attribute">Access-Control-Allow-Origin</span>: http://api.bob.com</div><div class="line"><span class="attribute">Access-Control-Allow-Methods</span>: GET, POST, PUT</div><div class="line"><span class="attribute">Access-Control-Allow-Headers</span>: X-Custom-Header</div><div class="line"><span class="attribute">Content-Type</span>: text/html; charset=utf-8</div><div class="line"><span class="attribute">Content-Encoding</span>: gzip</div><div class="line"><span class="attribute">Content-Length</span>: 0</div><div class="line"><span class="attribute">Keep-Alive</span>: timeout=2, max=100</div><div class="line"><span class="attribute">Connection</span>: Keep-Alive</div><div class="line"><span class="attribute">Content-Type</span>: text/plain</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-http"><code class="language-http"><span class="token response-status">HTTP/1.1 <span class="token property">200 OK</span></span>
+<span class="token header-name keyword">Date:</span> Mon, 01 Dec 2008 01:15:39 GMT
+<span class="token header-name keyword">Server:</span> Apache/2.0.61 (Unix)
+<span class="token header-name keyword">Access-Control-Allow-Origin:</span> http://api.bob.com
+<span class="token header-name keyword">Access-Control-Allow-Methods:</span> GET, POST, PUT
+<span class="token header-name keyword">Access-Control-Allow-Headers:</span> X-Custom-Header
+<span class="token header-name keyword">Content-Type:</span> text/html; charset=utf-8
+<span class="token header-name keyword">Content-Encoding:</span> gzip
+<span class="token header-name keyword">Content-Length:</span> 0
+<span class="token header-name keyword">Keep-Alive:</span> timeout=2, max=100
+<span class="token header-name keyword">Connection:</span> Keep-Alive
+<span class="token header-name keyword">Content-Type:</span> text/plain
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>上面的HTTP回应中，关键的是<code>Access-Control-Allow-Origin</code>字段，表示<code>http://api.bob.com</code>可以请求数据。该字段也可以设为星号，表示同意任意跨源请求。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">Access-Control-Allow-Origin</span>: *</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-http"><code class="language-http"><span class="token header-name keyword">Access-Control-Allow-Origin:</span> *
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>如果浏览器否定了”预检”请求，会返回一个正常的HTTP回应，但是没有任何CORS相关的头信息字段。这时，浏览器就会认定，服务器不同意预检请求，因此触发一个错误，被<code>XMLHttpRequest</code>对象的<code>onerror</code>回调函数捕获。控制台会打印出如下的报错信息。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">XMLHttpRequest cannot load http://api.alice.com.</div><div class="line">Origin http://api.bob.com is not allowed by Access-Control-Allow-Origin.</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-http"><code class="language-http">XMLHttpRequest cannot load http://api.alice.com.
+Origin http://api.bob.com is not allowed by Access-Control-Allow-Origin.
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p>服务器回应的其他CORS相关字段如下。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">Access-Control-Allow-Methods</span>: GET, POST, PUT</div><div class="line"><span class="attribute">Access-Control-Allow-Headers</span>: X-Custom-Header</div><div class="line"><span class="attribute">Access-Control-Allow-Credentials</span>: true</div><div class="line"><span class="attribute">Access-Control-Max-Age</span>: 1728000</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-http"><code class="language-http"><span class="token header-name keyword">Access-Control-Allow-Methods:</span> GET, POST, PUT
+<span class="token header-name keyword">Access-Control-Allow-Headers:</span> X-Custom-Header
+<span class="token header-name keyword">Access-Control-Allow-Credentials:</span> true
+<span class="token header-name keyword">Access-Control-Max-Age:</span> 1728000
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p><strong>（1）Access-Control-Allow-Methods</strong></p>
 <p>该字段必需，它的值是逗号分隔的一个字符串，表明服务器支持的所有跨域请求的方法。注意，返回的是所有支持的方法，而不单是浏览器请求的那个方法。这是为了避免多次”预检”请求。</p>
 <p><strong>（2）Access-Control-Allow-Headers</strong></p>
@@ -408,10 +455,19 @@
 <p>该字段可选，用来指定本次预检请求的有效期，单位为秒。上面结果中，有效期是20天（1728000秒），即允许缓存该条回应1728000秒（即20天），在此期间，不用发出另一条预检请求。</p>
 <h3 id="4-3-浏览器的正常请求和回应"><a href="#4-3-浏览器的正常请求和回应" class="headerlink" title="4.3 浏览器的正常请求和回应"></a>4.3 浏览器的正常请求和回应</h3><p>一旦服务器通过了”预检”请求，以后每次浏览器正常的CORS请求，就都跟简单请求一样，会有一个<code>Origin</code>头信息字段。服务器的回应，也都会有一个<code>Access-Control-Allow-Origin</code>头信息字段。</p>
 <p>下面是”预检”请求之后，浏览器的正常CORS请求。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">PUT</span> <span class="string">/cors</span> HTTP/1.1</div><div class="line"><span class="attribute">Origin</span>: http://api.bob.com</div><div class="line"><span class="attribute">Host</span>: api.alice.com</div><div class="line"><span class="attribute">X-Custom-Header</span>: value</div><div class="line"><span class="attribute">Accept-Language</span>: en-US</div><div class="line"><span class="attribute">Connection</span>: keep-alive</div><div class="line"><span class="attribute">User-Agent</span>: Mozilla/5.0...</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-http"><code class="language-http">PUT /cors HTTP/1.1
+<span class="token header-name keyword">Origin:</span> http://api.bob.com
+<span class="token header-name keyword">Host:</span> api.alice.com
+<span class="token header-name keyword">X-Custom-Header:</span> value
+<span class="token header-name keyword">Accept-Language:</span> en-US
+<span class="token header-name keyword">Connection:</span> keep-alive
+<span class="token header-name keyword">User-Agent:</span> Mozilla/5.0...
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>上面头信息的<code>Origin</code>字段是浏览器自动添加的。</p>
 <p>下面是服务器正常的回应。</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">Access-Control-Allow-Origin</span>: http://api.bob.com</div><div class="line"><span class="attribute">Content-Type</span>: text/html; charset=utf-8</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-http"><code class="language-http"><span class="token header-name keyword">Access-Control-Allow-Origin:</span> http://api.bob.com
+<span class="token header-name keyword">Content-Type:</span> text/html; charset=utf-8
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p>上面头信息中，<code>Access-Control-Allow-Origin</code>字段是每次回应都必定包含的。</p>
 <h2 id="五、与JSONP的比较"><a href="#五、与JSONP的比较" class="headerlink" title="五、与JSONP的比较"></a>五、与JSONP的比较</h2><p>CORS与JSONP的使用目的相同，但是比JSONP更强大。</p>
 <p>JSONP只支持<code>GET</code>请求，CORS支持所有类型的HTTP请求。JSONP的优势在于支持老式浏览器，以及可以向不支持CORS的网站请求数据。</p>
@@ -497,7 +553,7 @@
 <aside id="sidebar" class="sidebar sidebar-colored  sidebar-fixed-left" role="navigation">
 	<div id="sidebar-main">
 	    <!-- Sidebar Header -->
-		<div class="sidebar-header header-cover" style="background-image: url(/img/sidebar_header.png);">
+		<div class="sidebar-header header-cover" style="background-image: url(undefined);">
     <!-- Top bar -->
     <div class="top-bar"></div>
 

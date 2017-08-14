@@ -157,7 +157,7 @@
 
 	<script src="/js/jquery.min.js"></script>
 	
-	<link rel="stylesheet" href="/css/highlight/atelier-cave-light.css">
+	<link rel="stylesheet" href="/css/highlight/undefined.css">
 	
 	<!-- UC Browser Compatible-->
 	<script>
@@ -170,7 +170,8 @@
     
     <!-- Custom Head -->
     
-</head>
+<link rel="stylesheet" href="/css/prism.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 	
 	
 
@@ -328,29 +329,42 @@
                 <!-- Post Content -->
                 <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
 	
-		<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>找到一个炒鸡流弊的东西。。。</p>
+		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>找到一个炒鸡流弊的东西。。。</p>
 <a id="more"></a>
 <h1 id="Hexo-博客中插入视频-音乐"><a href="#Hexo-博客中插入视频-音乐" class="headerlink" title="Hexo 博客中插入视频/音乐"></a>Hexo 博客中插入视频/音乐</h1><p>博客中插入音乐/视频，可以让博客的逼格瞬间提高。作为优秀的静态博客，Hexo 当然也少不了这些高大上的功能。</p>
 <h2 id="Markdown-通用音乐-视频插入方法"><a href="#Markdown-通用音乐-视频插入方法" class="headerlink" title="Markdown 通用音乐/视频插入方法"></a>Markdown 通用音乐/视频插入方法</h2><p>Markdown 作为轻量级的标记语言，兼容 html 语法，所以可以直接在 Markdown 文档中使用 html 语法。</p>
 <p><code>vedio</code> 标签</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">video</span> <span class="attr">width</span>=<span class="string">"480"</span> <span class="attr">height</span>=<span class="string">"320"</span> <span class="attr">controls</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">source</span> <span class="attr">src</span>=<span class="string">"movie.mp4"</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">video</span>&gt;</span></div></pre></td></tr></table></figure>
+<pre class="line-numbers language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>video</span> <span class="token attr-name">width</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>480<span class="token punctuation">"</span></span> <span class="token attr-name">height</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>320<span class="token punctuation">"</span></span> <span class="token attr-name">controls</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>source</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>movie.mp4<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>video</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p>其中在 <code>src</code> 后面需要替换自己的音乐/视频链接</p>
 <p>效果:</p>
 <p>​    <video width="480" height="320" controls><br>​    <source src="http://oid1xlj7h.bkt.clouddn.com/WeChatSight72.mp4"><br>​    </video></p>
-<h3 id="embed标签"><a href="#embed标签" class="headerlink" title="embed标签"></a><code>embed</code>标签</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">embed</span> <span class="attr">src</span>=<span class="string">"http://player.youku.com/player.php/Type/Folder/Fid/27690810/Ob/1/sid/XMTY1MTI3NjMyNA==/v.swf"</span> <span class="attr">quality</span>=<span class="string">"high"</span> <span class="attr">width</span>=<span class="string">"480"</span> <span class="attr">height</span>=<span class="string">"400"</span> <span class="attr">align</span>=<span class="string">"middle"</span> <span class="attr">allowScriptAccess</span>=<span class="string">"always"</span> <span class="attr">allowFullScreen</span>=<span class="string">"true"</span> <span class="attr">mode</span>=<span class="string">"transparent"</span> <span class="attr">type</span>=<span class="string">"application/x-shockwave-flash"</span>&gt;</span><span class="tag">&lt;/<span class="name">embed</span>&gt;</span></div></pre></td></tr></table></figure>
-<h3 id="ifreame标签"><a href="#ifreame标签" class="headerlink" title="ifreame标签"></a><code>ifreame</code>标签</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">iframe</span> <span class="attr">height</span>=<span class="string">498</span> <span class="attr">width</span>=<span class="string">510</span> <span class="attr">src</span>=<span class="string">"http://player.youku.com/embed/XMTY1MTI3NjMyNA=="</span> <span class="attr">frameborder</span>=<span class="string">0</span> <span class="attr">allowfullscreen</span>&gt;</span><span class="tag">&lt;/<span class="name">iframe</span>&gt;</span></div></pre></td></tr></table></figure>
+<h3 id="embed标签"><a href="#embed标签" class="headerlink" title="embed标签"></a><code>embed</code>标签</h3><pre class="line-numbers language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>embed</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://player.youku.com/player.php/Type/Folder/Fid/27690810/Ob/1/sid/XMTY1MTI3NjMyNA<span class="token punctuation">=</span><span class="token punctuation">=</span>/v.swf<span class="token punctuation">"</span></span> <span class="token attr-name">quality</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>high<span class="token punctuation">"</span></span> <span class="token attr-name">width</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>480<span class="token punctuation">"</span></span> <span class="token attr-name">height</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>400<span class="token punctuation">"</span></span> <span class="token attr-name">align</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>middle<span class="token punctuation">"</span></span> <span class="token attr-name">allowScriptAccess</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>always<span class="token punctuation">"</span></span> <span class="token attr-name">allowFullScreen</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>true<span class="token punctuation">"</span></span> <span class="token attr-name">mode</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>transparent<span class="token punctuation">"</span></span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>application/x-shockwave-flash<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>embed</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h3 id="ifreame标签"><a href="#ifreame标签" class="headerlink" title="ifreame标签"></a><code>ifreame</code>标签</h3><pre class="line-numbers language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>iframe</span> <span class="token attr-name">height</span><span class="token attr-value"><span class="token punctuation">=</span>498</span> <span class="token attr-name">width</span><span class="token attr-value"><span class="token punctuation">=</span>510</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://player.youku.com/embed/XMTY1MTI3NjMyNA<span class="token punctuation">=</span><span class="token punctuation">=</span><span class="token punctuation">"</span></span> <span class="token attr-name">frameborder</span><span class="token attr-value"><span class="token punctuation">=</span>0</span> <span class="token attr-name">allowfullscreen</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>iframe</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>网易云音乐网页版提供生成 iframe 标签。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"http://www.xiami.com/widget/player-single?uid=32329501&amp;sid=1776238762&amp;mode=js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div></pre></td></tr></table></figure>
+<pre class="line-numbers language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>text/javascript<span class="token punctuation">"</span></span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://www.xiami.com/widget/player-single?uid<span class="token punctuation">=</span>32329501&amp;sid<span class="token punctuation">=</span>1776238762&amp;mode<span class="token punctuation">=</span>js<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>除了 <code>vedio</code> 标签外，大部分音乐/视频网站都可以直接生成播放代码，直接粘贴在 Markdown 文档即可。</p>
 <p>不过有些标签不支持 HTTPS。</p>
 <h2 id="通过-Hexo-插件插入音频-视频"><a href="#通过-Hexo-插件插入音频-视频" class="headerlink" title="通过 Hexo 插件插入音频/视频"></a>通过 Hexo 插件插入音频/视频</h2><p>这里需要两个播放器插件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">hexo-tag-aplayer:https://github.com/grzhan/hexo-tag-aplayer#upstream-issue</div><div class="line"></div><div class="line">hexo-tag-dplayer:https://github.com/NextMoe/hexo-tag-dplayer</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">hexo-tag-aplayer:https://github.com/grzhan/hexo-tag-aplayer#upstream-issue
+
+hexo-tag-dplayer:https://github.com/NextMoe/hexo-tag-dplayer
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p>这两款插件基于 DIYgod 编写的 html5 播放器 APlayer 和 DPlayer 开发。</p>
 <p>首先安装两款插件</p>
 <p>打开 shell，切换到 Hexo 目录下，运行两条目录</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">npm install hexo-tag-dplayer --save</div><div class="line">npm install hexo-tag-aplayer --save</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">npm install hexo-tag-dplayer --save
+npm install hexo-tag-aplayer --save
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p>安装成功后，在 Markdown 文档中添加 APlayer 和 DPlayer 标签即可。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123;% aplayer "Caffeine" "Jeff Williams" "http://7xq131.com1.z0.glb.clouddn.com/Preparation.mp3" "autoplay" %&#125;</div><div class="line">&#123;% dplayer "url=http://devtest.qiniudn.com/若能绽放光芒.mp4" "api=http://dplayer.daoapp.io" "pic=http://devtest.qiniudn.com/若能绽放光芒.png" "id=9E2E3368B56CDBB4" "loop=yes" "theme=#FADFA3" "autoplay=false" "token=tokendemo" %&#125;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-html"><code class="language-html">{% aplayer "Caffeine" "Jeff Williams" "http://7xq131.com1.z0.glb.clouddn.com/Preparation.mp3" "autoplay" %}
+{% dplayer "url=http://devtest.qiniudn.com/若能绽放光芒.mp4" "api=http://dplayer.daoapp.io" "pic=http://devtest.qiniudn.com/若能绽放光芒.png" "id=9E2E3368B56CDBB4" "loop=yes" "theme=#FADFA3" "autoplay=false" "token=tokendemo" %}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p>APlayer 和 DPlayer 具体参数设置可以到 GitHub 项目主页，不过默认参数足够了。</p>
 <div id="aplayer0" class="aplayer" style="margin-bottom: 20px;">
 				<pre class="aplayer-lrc-content">'[00:00.00]Zoobi Doobi
@@ -499,7 +513,7 @@
 <aside id="sidebar" class="sidebar sidebar-colored  sidebar-fixed-left" role="navigation">
 	<div id="sidebar-main">
 	    <!-- Sidebar Header -->
-		<div class="sidebar-header header-cover" style="background-image: url(/img/sidebar_header.png);">
+		<div class="sidebar-header header-cover" style="background-image: url(undefined);">
     <!-- Top bar -->
     <div class="top-bar"></div>
 

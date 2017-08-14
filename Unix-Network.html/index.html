@@ -157,7 +157,7 @@
 
 	<script src="/js/jquery.min.js"></script>
 	
-	<link rel="stylesheet" href="/css/highlight/atelier-cave-light.css">
+	<link rel="stylesheet" href="/css/highlight/undefined.css">
 	
 	<!-- UC Browser Compatible-->
 	<script>
@@ -170,7 +170,8 @@
     
     <!-- Custom Head -->
     
-</head>
+<link rel="stylesheet" href="/css/prism.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 	
 	
 
@@ -339,7 +340,7 @@
                 <!-- Post Content -->
                 <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
 	
-		<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Unix-网络编程"><a href="#Unix-网络编程" class="headerlink" title="Unix 网络编程"></a>Unix 网络编程</h1><p>​                                                                        <strong>卷II - 进程间通信</strong></p>
+		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Unix-网络编程"><a href="#Unix-网络编程" class="headerlink" title="Unix 网络编程"></a>Unix 网络编程</h1><p>​                                                                        <strong>卷II - 进程间通信</strong></p>
 <p>IPC是进程间通信（interprocess communication）的简称。传统上该术语描述的是运行在某个操作系统之上的不同进程间各种消息传递（<em>message passing</em>）的方式。</p>
 <p>进程间的通信一般是一下四种形式：</p>
 <ul>
@@ -361,26 +362,76 @@
 <h2 id="管道和FIFO"><a href="#管道和FIFO" class="headerlink" title="管道和FIFO"></a>管道和FIFO</h2><p>管道是最初的Unix IPC 形式。由于管道没有名字，所以它只能用于有亲缘关系的进程间的通信。</p>
 <p><strong>实现机制：</strong></p>
 <p>管道是由内核管理的一个缓冲区，相当于我们放入内存中的一个纸条。管道的一端连接一个进程的输出。这个进程会向管道中放入信息。管道的另一端连接一个进程的输入，这个进程取出被放入管道的信息。一个缓冲区不需要很大，它<strong>被设计成为环形的数据结构</strong>，以便管道可以被循环利用。当管道中没有信息的话，从管道中读取的进程会等待，直到另一端的进程放入信息。当管道被放满信息的时候，尝试放入信息的进程会等待，直到另一端的进程取出信息。当两个进程都终结的时候，管道也自动消失。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">pipe</span> <span class="params">(<span class="keyword">int</span> fd[<span class="number">2</span>])</span>             <span class="comment">//返回：若成功返回0，若出错返回-1</span></span></div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+
+<span class="token keyword">int</span> <span class="token function">pipe</span> <span class="token punctuation">(</span><span class="token keyword">int</span> fd<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span>             <span class="token comment" spellcheck="true">//返回：若成功返回0，若出错返回-1</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p>该函数返回两个文件描述符：fd[0] 和 fd[1]。前者打开来读，后者打开来写。</p>
 <p>管道尽管是单个进程创建，但是管道的典型用途是为两个不同的进程（一个父进程，一个子进程）提供进程间的通信手段。</p>
 <p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-02-22%20at%2011.49.01%20AM.png" alt="Screen Shot 2017-02-22 at 11.49.01 AM"></p>
 <p>​                                             数据流 &gt;&gt;&gt;&gt;&gt;&gt;</p>
 <p>首先是，由一个进程（它将成为父进程）创建一个 pipe 后调用 fork 派生一个自身的副本，接着关闭着个 pipe 的读成端，子进程关闭同一个 pipe 的写入端。这就是进程间提供了一个单向数据流，如下图。</p>
 <p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-02-22%20at%2011.56.11%20AM.png" alt="Screen Shot 2017-02-22 at 11.56.11 AM"></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> n;</div><div class="line">    <span class="keyword">int</span> fd[<span class="number">2</span>];</div><div class="line">    <span class="keyword">pid_t</span> pid;</div><div class="line">    <span class="keyword">char</span> line[MAXLINE];</div><div class="line">   </div><div class="line">    <span class="keyword">if</span>(pipe(fd) === <span class="number">0</span>)&#123;                 <span class="comment">// 先建立管道得到一对文件描述符</span></div><div class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span>((pid = fork()) == <span class="number">0</span>)            <span class="comment">// 父进程把文件描述符复制给子进程</span></div><div class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(pid &gt; <span class="number">0</span>)&#123;                <span class="comment">// 父进程写 </span></div><div class="line">        close(fd[<span class="number">0</span>]);                <span class="comment">// 关闭读描述符</span></div><div class="line">        write(fd[<span class="number">1</span>], <span class="string">"\nhello world\n"</span>, <span class="number">14</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span>&#123;                            <span class="comment">// 子进程读</span></div><div class="line">        close(fd[<span class="number">1</span>]);                <span class="comment">// 关闭写端</span></div><div class="line">        n = read(fd[<span class="number">0</span>], line, MAXLINE);</div><div class="line">        write(STDOUT_FILENO, line, n);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">int</span> n<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> fd<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    pid_t pid<span class="token punctuation">;</span>
+    <span class="token keyword">char</span> line<span class="token punctuation">[</span>MAXLINE<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">pipe</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span> <span class="token operator">==</span><span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>                 <span class="token comment" spellcheck="true">// 先建立管道得到一对文件描述符</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span>pid <span class="token operator">=</span> <span class="token function">fork</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>            <span class="token comment" spellcheck="true">// 父进程把文件描述符复制给子进程</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">else</span> <span class="token keyword">if</span><span class="token punctuation">(</span>pid <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>                <span class="token comment" spellcheck="true">// 父进程写 </span>
+        <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>                <span class="token comment" spellcheck="true">// 关闭读描述符</span>
+        <span class="token function">write</span><span class="token punctuation">(</span>fd<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">"\nhello world\n"</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">else</span><span class="token punctuation">{</span>                            <span class="token comment" spellcheck="true">// 子进程读</span>
+        <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>                <span class="token comment" spellcheck="true">// 关闭写端</span>
+        n <span class="token operator">=</span> <span class="token function">read</span><span class="token punctuation">(</span>fd<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> line<span class="token punctuation">,</span> MAXLINE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">write</span><span class="token punctuation">(</span>STDOUT_FILENO<span class="token punctuation">,</span> line<span class="token punctuation">,</span> n<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><em>technically，自从可以在进程间传递描述符后，管道也能用于无亲缘关系的进程间，而现实中管道通常用于具有共同祖先的进程间。</em></p>
 <p><strong>FIFO：命名管道(named PIPE)</strong></p>
 <p>管道尽管对很多操作来说是很有用的，但是它的根本局限性在于没有名字，从而只能由亲缘关系的进程（父子进程）使用。为了解决这一问题，Linux提供了FIFO方式连接进程。有了FIFO之后这一缺点得以改正。FIFO有时也称之为有名管道（named pipe）。FIFO除了有管道的功能外，它还允许无亲缘关系的进程的通信。pipe 和 FIFO 都是使用通常的 read 和 write 函数访问的。</p>
 <p>FIFO (First in, First out)为一种特殊的文件类型，它在文件系统中有对应的路径。当一个进程以读(r)的方式打开该文件，而另一个进程以写(w)的方式打开该文件，那么内核就会在这两个进程之间建立管道，所以FIFO实际上也由内核管理，不与硬盘打交道。之所以叫FIFO，是因为管道本质上是一个先进先出的队列数据结构，最早放入的数据被最先读出来，从而保证信息交流的顺序。FIFO只是借用了文件系统(file system,命名管道是一种特殊类型的文件，因为Linux中所有事物都是文件，它在文件系统中以文件名的形式存在。)来为管道命名。写模式的进程向FIFO文件中写入，而读模式的进程从FIFO文件中读出。当删除FIFO文件时，管道连接也随之消失。<strong>FIFO的好处在于我们可以通过文件的路径来识别管道，从而让没有亲缘关系的进程之间建立连接</strong></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mkfifo</span> <span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *pathname, <span class="keyword">mode_t</span> mode)</span></span>;    <span class="comment">// 返回： 成功返回0，出错返回 -1</span></div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/types.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/stat.h></span></span>
+
+<span class="token keyword">int</span> <span class="token function">mkfifo</span> <span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>pathname<span class="token punctuation">,</span> mode_t mode<span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment" spellcheck="true">// 返回： 成功返回0，出错返回 -1</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p>其中 <em>pathname</em> 是一个普通的 Unix 路径名，它是该 FIFO 的名字。</p>
 <p>mkfifo 函数中参数 <em>mode</em> 指定 FIFO 的读写权限。</p>
 <p>mkfifo 函数是要么创建一个新的 FIFO ，要么返回一个 EEXIST 错误（如果该 FIFO 已存在），如果不希望创建一个新的 FIFO 那就用 open 函数就可以。</p>
 <p>FIFO 不能打开既写又读。</p>
 <p>如果一个 FIFO 只读不写，只写不读都会形成阻塞。</p>
 <p>下边是一个简单地例子：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span>  </span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span>  </span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span>  </span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span>  </span></div><div class="line">      </div><div class="line"><span class="meta"># <span class="meta-keyword">define</span> FIFO1  <span class="meta-string">"/tmp/my_fifo"</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>  </span></div><div class="line">&#123;  </div><div class="line">    <span class="keyword">int</span> res = mkfifo(<span class="string">"/tmp/my_fifo"</span>, <span class="number">0777</span>);  </div><div class="line">    <span class="keyword">if</span> (res == <span class="number">0</span>)  </div><div class="line">    &#123;  </div><div class="line">        <span class="built_in">printf</span>(<span class="string">"FIFO created/n"</span>);  </div><div class="line">    &#125;  </div><div class="line">  <span class="comment">// 打开FIFO</span></div><div class="line">  <span class="comment">//writefd = Open(FIFO1, O_WRONLY | O_NONBLOCK, 0)	</span></div><div class="line">  <span class="comment">//readfd = Open(FIFO1, O_RDONLY, 0)</span></div><div class="line">     <span class="built_in">exit</span>(EXIT_SUCCESS);  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span>  </span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span>  </span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/types.h></span>  </span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/stat.h></span>  </span>
+
+<span class="token macro property"># <span class="token directive keyword">define</span> FIFO1  "/tmp/my_fifo"</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>  
+<span class="token punctuation">{</span>  
+    <span class="token keyword">int</span> res <span class="token operator">=</span> <span class="token function">mkfifo</span><span class="token punctuation">(</span><span class="token string">"/tmp/my_fifo"</span><span class="token punctuation">,</span> <span class="token number">0777</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>res <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>  
+    <span class="token punctuation">{</span>  
+        <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"FIFO created/n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+    <span class="token punctuation">}</span>  
+  <span class="token comment" spellcheck="true">// 打开FIFO</span>
+  <span class="token comment" spellcheck="true">//writefd = Open(FIFO1, O_WRONLY | O_NONBLOCK, 0)    </span>
+  <span class="token comment" spellcheck="true">//readfd = Open(FIFO1, O_RDONLY, 0)</span>
+     <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_SUCCESS<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><em>open</em> 第二个参数中的选项O_NONBLOCK，选项O_NONBLOCK表示非阻塞，加上这个选项后，表示open调用是非阻塞的，如果没有这个选项，则表示open调用是阻塞的。</p>
 <ul>
 <li>对于以只读方式（O_RDONLY）打开的FIFO文件，如果open调用是阻塞的（即第二个参数为O_RDONLY），除非有一个进程以写方式打开同一个FIFO，否则它不会返回；如果open调用是非阻塞的的（即第二个参数为O_RDONLY|O_NONBLOCK），则即使没有其他进程以写方式打开同一个FIFO文件，open调用将成功并立即返回。</li>
@@ -420,34 +471,130 @@
 <p>我们所设想的是一个链表，该链表的有中含有当前队列的两个属性：队列中允许的最大开销数以及每一个消息的最大大小。</p>
 <p><strong>mq_open ,mq_close 和 mq_unlink 函数 </strong>：</p>
 <p>mq_open 函数创建一个新的消息队列或打开一个已存在的消息队列。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"><span class="keyword">mqd_t</span> mq_open (<span class="keyword">const</span> <span class="keyword">char</span> *name, <span class="keyword">int</span> oflag, ...</div><div class="line">              <span class="comment">/* mode_t mode, struct mq_attr *attr  */</span>);</div><div class="line">							<span class="comment">//返回： 成功返回消息对列描述符，出错返回-1</span></div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property"># <span class="token directive keyword">include</span> <span class="token string">&lt;mqueue.h></span></span>
+mqd_t <span class="token function">mq_open</span> <span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>name<span class="token punctuation">,</span> <span class="token keyword">int</span> oflag<span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+              <span class="token comment" spellcheck="true">/* mode_t mode, struct mq_attr *attr  */</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            <span class="token comment" spellcheck="true">//返回： 成功返回消息对列描述符，出错返回-1</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p>其中 <em>name</em> 有自己的一套命名规则，因为 Posix IPC 使用“Posix IPC 名字”进行标识。为方便于移植起见，Posix IPC 名字必须以斜杠符开头并且不能再包含任何斜杠符。</p>
 <p><em>oflag</em> 是O_RDONLY、O_WRONLY 或     O_RDWR 之一， 可能按位或上O_CREATE(若不存在则创建)、O_EXCL(与O_CREATE一起，若已存在返回EEXIST 错误)或 O_NONBLOCK（非阻塞标识符）。</p>
 <p>当实际操作创建一个新的消息队列时（指定O_CREATE标志，且请求的队列不存在），<em>mode</em> 和 <em>attr</em> 参数是需要的。mode上面介绍过。attr参数用于给新队列指定某些属性。</p>
 <p>mq_open 返回值称为<strong>消息队列描述符（message queue descriptor）</strong>，这个值用作其他消息队列函数的第一参数。</p>
 <p>已打开的消息队列是由 mq_close 关闭的。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_close</span><span class="params">(<span class="keyword">mqd_t</span> mqdes)</span>                       <span class="comment">//返回： 成功返回0，出错返回-1</span></span></div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;mqueue.h></span></span>
+
+<span class="token keyword">int</span> <span class="token function">mq_close</span><span class="token punctuation">(</span>mqd_t mqdes<span class="token punctuation">)</span>                       <span class="token comment" spellcheck="true">//返回： 成功返回0，出错返回-1</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p>关闭之后调用进程不再使用该描述符，但其消息队列并不从系统中删除。一个进程终止时，它打开着的消息队列都关闭，就像调用mq_close 一样。</p>
 <p>要从系统中删除消息队列则用mq_unlink 函数，其第一参数为 mq_open 的第一参数 <em>name</em>。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_unlink</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *name)</span>                    <span class="comment">//返回： 成功返回0，出错返回-1</span></span></div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property"># <span class="token directive keyword">include</span> <span class="token string">&lt;mqueue.h></span></span>
+
+<span class="token keyword">int</span> <span class="token function">mq_unlink</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>name<span class="token punctuation">)</span>                    <span class="token comment" spellcheck="true">//返回： 成功返回0，出错返回-1</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p><strong>mq_getattr 和 mq_setattr 函数</strong></p>
 <p>消息队列有四个属性，这两个函数是获取和修改这些属性。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mq_flags		<span class="comment">//队列阻塞标志位</span></div><div class="line">mq_maxmsg		<span class="comment">//队列最大允许消息数</span></div><div class="line">mq_msgsize		<span class="comment">//队列消息最大字节数</span></div><div class="line">mq_curmsgs		<span class="comment">//队列当前消息条数</span></div></pre></td></tr></table></figure>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_getattr</span><span class="params">(<span class="keyword">mqd_t</span> mqdes,<span class="keyword">struct</span> mq_attr *attr)</span></span>;</div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_setattr</span><span class="params">(<span class="keyword">mqd_t</span> mqdes,<span class="keyword">const</span> <span class="keyword">struct</span> mq_attr *attr, <span class="keyword">struct</span> mq_attr *oattr)</span></span>;  <span class="comment">//返回：均成功返回0，出错返回-1</span></div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c">mq_flags        <span class="token comment" spellcheck="true">//队列阻塞标志位</span>
+mq_maxmsg        <span class="token comment" spellcheck="true">//队列最大允许消息数</span>
+mq_msgsize        <span class="token comment" spellcheck="true">//队列消息最大字节数</span>
+mq_curmsgs        <span class="token comment" spellcheck="true">//队列当前消息条数</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;mqueue.h></span></span>
+
+<span class="token keyword">int</span> <span class="token function">mq_getattr</span><span class="token punctuation">(</span>mqd_t mqdes<span class="token punctuation">,</span><span class="token keyword">struct</span> mq_attr <span class="token operator">*</span>attr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> <span class="token function">mq_setattr</span><span class="token punctuation">(</span>mqd_t mqdes<span class="token punctuation">,</span><span class="token keyword">const</span> <span class="token keyword">struct</span> mq_attr <span class="token operator">*</span>attr<span class="token punctuation">,</span> <span class="token keyword">struct</span> mq_attr <span class="token operator">*</span>oattr<span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment" spellcheck="true">//返回：均成功返回0，出错返回-1</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p><strong>mq_send 和 mq_receive 函数</strong></p>
 <p>​    这两个函数分别往一个队列放置一个信息和从一个队列取走一个消息。每一个消息都有优先级，它是一个小于MQ_PRIO_MAX 的无符号整数。Posix要求这个上限至少为32.</p>
 <p>​    mq_receive 总是返回所指定队列中优先级最高的的最早消息，而且该优先级能随该消息的内容及其长度一同返回。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">mq_send</span><span class="params">(<span class="keyword">mqd_t</span> mqdes, <span class="keyword">const</span> <span class="keyword">char</span> *ptr, <span class="keyword">size_t</span> len, <span class="keyword">unsigned</span> <span class="keyword">int</span> prio)</span></span>;      <span class="comment">//返回： 成功返回0，出错返回-1</span></div><div class="line"><span class="keyword">ssize_t</span> mq_reccevie(<span class="keyword">mqd_t</span> mqdes, <span class="keyword">char</span> *ptr, <span class="keyword">size_t</span> len, <span class="keyword">unsigned</span> <span class="keyword">int</span> *priop);     <span class="comment">//返回： 成功返回消息中的字节数，出错返回-1</span></div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;mqueue.h></span></span>
+
+<span class="token keyword">int</span> <span class="token function">mq_send</span><span class="token punctuation">(</span>mqd_t mqdes<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>ptr<span class="token punctuation">,</span> size_t len<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> prio<span class="token punctuation">)</span><span class="token punctuation">;</span>      <span class="token comment" spellcheck="true">//返回： 成功返回0，出错返回-1</span>
+ssize_t <span class="token function">mq_reccevie</span><span class="token punctuation">(</span>mqd_t mqdes<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>ptr<span class="token punctuation">,</span> size_t len<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> <span class="token operator">*</span>priop<span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token comment" spellcheck="true">//返回： 成功返回消息中的字节数，出错返回-1</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p>mq_receive 的 <em>len</em> 参数的值不能小于能加到所指定队列中的最大大小（该队列 mq_attr 结构的 mq_msgsize ）。要是 <em>len</em> 小于该值， mq_receive立即返回 EMSGSIZE 错误。</p>
 <p>mq_send 的 <em>prio</em> 参数是待发信息的优先级，其值必须小于 MQ_PRIO_MAX 。如果 mq_receive 的 <em>priop</em> 参数是一个非空指针，所返回消息的优先级就通过该指针存放。如果应用不必使用优先级不同的消息，那就给mq_send 指针值为0的优先级，给 mq_receive 指定一个空指针作为其最后一个参数。</p>
 <p>往某个队列中增加一个消息</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span></span></div><div class="line"><span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></div><div class="line">&#123;</div><div class="line">  <span class="keyword">mqd_t</span>		mqd;		<span class="comment">//描述符</span></div><div class="line">  <span class="keyword">void</span>		*ptr;		<span class="comment">//指向缓冲区的指针</span></div><div class="line">  <span class="keyword">size_t</span>	len;		<span class="comment">//长度</span></div><div class="line">  <span class="keyword">uint_t</span>	prio;		<span class="comment">//优先度</span></div><div class="line">  </div><div class="line">  <span class="keyword">if</span> (argc != <span class="number">4</span>)</div><div class="line">    err_quit(<span class="string">"usage: mqsend &lt;name&gt; &lt;#bytes&gt; &lt;priority&gt;"</span>);</div><div class="line">  len = atoi(argv[<span class="number">2</span>]);</div><div class="line">  prio = atoi(argv[<span class="number">3</span>]);</div><div class="line">  </div><div class="line">  mqd = Mq_open(argv[<span class="number">1</span>], O_WRONLY);	<span class="comment">// 创建一个消息队列</span></div><div class="line">  </div><div class="line">  ptr = Calloc(len, <span class="keyword">sizeof</span>(<span class="keyword">char</span>));<span class="comment">// 所用的缓冲区用colloc分配，该函数会把该缓冲区初始化为0</span></div><div class="line">  Mq_send(mqd, ptr, len, prio);</div><div class="line">  </div><div class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;mqueue.h></span></span>
+
+<span class="token keyword">int</span>
+<span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span><span class="token operator">*</span>argv<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  mqd_t        mqd<span class="token punctuation">;</span>        <span class="token comment" spellcheck="true">//描述符</span>
+  <span class="token keyword">void</span>        <span class="token operator">*</span>ptr<span class="token punctuation">;</span>        <span class="token comment" spellcheck="true">//指向缓冲区的指针</span>
+  size_t    len<span class="token punctuation">;</span>        <span class="token comment" spellcheck="true">//长度</span>
+  uint_t    prio<span class="token punctuation">;</span>        <span class="token comment" spellcheck="true">//优先度</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>argc <span class="token operator">!=</span> <span class="token number">4</span><span class="token punctuation">)</span>
+    <span class="token function">err_quit</span><span class="token punctuation">(</span><span class="token string">"usage: mqsend &lt;name> &lt;#bytes> &lt;priority>"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  len <span class="token operator">=</span> <span class="token function">atoi</span><span class="token punctuation">(</span>argv<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  prio <span class="token operator">=</span> <span class="token function">atoi</span><span class="token punctuation">(</span>argv<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  mqd <span class="token operator">=</span> <span class="token function">Mq_open</span><span class="token punctuation">(</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> O_WRONLY<span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment" spellcheck="true">// 创建一个消息队列</span>
+
+  ptr <span class="token operator">=</span> <span class="token function">Calloc</span><span class="token punctuation">(</span>len<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">// 所用的缓冲区用colloc分配，该函数会把该缓冲区初始化为0</span>
+  <span class="token function">Mq_send</span><span class="token punctuation">(</span>mqd<span class="token punctuation">,</span> ptr<span class="token punctuation">,</span> len<span class="token punctuation">,</span> prio<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>待发消息的大小和优先级必须作为命令行参数指定。</p>
 <p>从某队列读出下一个信息</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"unpipc.h"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span></span></div><div class="line"><span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></div><div class="line">&#123;</div><div class="line">  <span class="keyword">int</span> 		c,flags;</div><div class="line">  <span class="keyword">mqd_t</span>		maq;</div><div class="line">  <span class="keyword">ssize_t</span>	n;</div><div class="line">  <span class="keyword">uint_t</span>	prio;</div><div class="line">  <span class="keyword">void</span>		*buff;</div><div class="line">  <span class="keyword">struct</span>	mq_attr	attr;</div><div class="line">  </div><div class="line">  flags = O_RDONLY;</div><div class="line">  <span class="keyword">while</span> ( (c = Getopt(argc, argv, <span class="string">"n"</span>)) != <span class="number">-1</span>) &#123;</div><div class="line">    <span class="keyword">switch</span> (c) &#123;</div><div class="line">      <span class="keyword">case</span> <span class="string">'n'</span>:</div><div class="line">        flags |= O_NONBLOCK;</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">if</span> (optind != argc - <span class="number">1</span>)</div><div class="line">    err_quit(<span class="string">"usage: mqreceive [-n] &lt;name&gt;"</span>);</div><div class="line">  </div><div class="line">  mqd =Mq_open(argv[optind], flags);</div><div class="line">  Mq_getattr(mqd, &amp;attr);</div><div class="line">  </div><div class="line">  buff = Malloc(attr.mq_msgsize);</div><div class="line">  </div><div class="line">  n = Mq_receive(mqd, buff, attr.mq_msgsize, &amp;prio);</div><div class="line">  <span class="built_in">printf</span>(<span class="string">"read %ld bytes, priority = %u\n"</span>, (<span class="keyword">long</span>) n, prio);</div><div class="line">  </div><div class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c++"><code class="language-c++">#include "unpipc.h"
+
+int
+main(int argc, char **argv)
+{
+  int         c,flags;
+  mqd_t        maq;
+  ssize_t    n;
+  uint_t    prio;
+  void        *buff;
+  struct    mq_attr    attr;
+
+  flags = O_RDONLY;
+  while ( (c = Getopt(argc, argv, "n")) != -1) {
+    switch (c) {
+      case 'n':
+        flags |= O_NONBLOCK;
+        break;
+    }
+  }
+  if (optind != argc - 1)
+    err_quit("usage: mqreceive [-n] <name>");
+
+  mqd =Mq_open(argv[optind], flags);
+  Mq_getattr(mqd, &attr);
+
+  buff = Malloc(attr.mq_msgsize);
+
+  n = Mq_receive(mqd, buff, attr.mq_msgsize, &prio);
+  printf("read %ld bytes, priority = %u\n", (long) n, prio);
+
+  exit(0);
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>命令行选项 -n 指定非阻塞属性，这样如果所指定的队列中没有消息， 则返回一个错误。</p>
 <p>调用 mq_getattr 打开队列并取得属性。需要确定最大消息大小，因为必须为调用的 mq_receive 分配一个这样大小的缓冲区。最后输出所读出消息的大小及其属性。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">solaris %mqcreate /test1							创建并获取属性</div><div class="line">solaris %mqgetattr /test1</div><div class="line">max</div><div class="line"></div><div class="line">solaris % mqsend /test1 100 9999					以无效的优先级发送</div><div class="line">mq_send error: Invalid argument</div><div class="line"></div><div class="line">solaris % mqsend /test1 100 6						100字节，优先级6 </div><div class="line">solaris % mqsend /test1 50 18 						50字节，优先级18</div><div class="line">solaris % mqsend /test1 33 18 						33字节，优先级18</div><div class="line"></div><div class="line">solaris % mqreceive /test1</div><div class="line">read 50 bytes, priority = 18						返回优先级最高的最早消息</div><div class="line">solaris % mqreceive /test1</div><div class="line">read 33 bytes, priority = 18</div><div class="line">solaris % mqreceive /test1</div><div class="line">read 100 bytes, priority = 6</div><div class="line">solaris % mqreceive /test1							指定非阻塞属性，队列为空</div><div class="line">mq_recevie error: Resource temporarily unavalibale</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">solaris %mqcreate /test1                            创建并获取属性
+solaris %mqgetattr /test1
+max
+
+solaris % mqsend /test1 100 9999                    以无效的优先级发送
+mq_send error: Invalid argument
+
+solaris % mqsend /test1 100 6                        100字节，优先级6 
+solaris % mqsend /test1 50 18                         50字节，优先级18
+solaris % mqsend /test1 33 18                         33字节，优先级18
+
+solaris % mqreceive /test1
+read 50 bytes, priority = 18                        返回优先级最高的最早消息
+solaris % mqreceive /test1
+read 33 bytes, priority = 18
+solaris % mqreceive /test1
+read 100 bytes, priority = 6
+solaris % mqreceive /test1                            指定非阻塞属性，队列为空
+mq_recevie error: Resource temporarily unavalibale
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>消息队列限制：</p>
 <ul>
 <li>mq_mqxmsg            队列的最大消息数</li>
@@ -466,13 +613,29 @@
 <p>这个称为作为这三个IPC机制的通称是因为它们源自 System V Unix 。这三种IPC最先出现在AT&amp;T System v UNIX上面，并遵循XSI标准，有时候也被称为XSI IPC。</p>
 <p>System V 消息队列使用<em>消息队列标识符（message queue identifier）</em> 标识。有足够权限的任何进程可往队列放置信息，有足够权限的任何进程可从队列读取信息。跟 Posix 一样，在某个进程往一个队列写入消息之前，不求另外某个进程正在等待该队列上一个消息的到达。</p>
 <p>对于系统的每个消息队列，内核维护一个定义在 <code>&lt;sys/msg.h&gt;</code>  头文件中的信息结构.</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> msqid_ds &#123;</div><div class="line">    <span class="keyword">struct</span> ipc_perm 	msg_perm   <span class="comment">//operation permission structure</span></div><div class="line">    <span class="keyword">struct</span> msg			*msg_frist <span class="comment">//ptr to frist message on queue</span></div><div class="line">    <span class="keyword">struct</span> msg			*msg_last  <span class="comment">//ptr to last message on queue</span></div><div class="line">    <span class="keyword">msglen_t</span>			msg_cbytes <span class="comment">//current #bytes on queue</span></div><div class="line">    <span class="keyword">msgqnum_t</span>       	msg_qnum   <span class="comment">//number of messages currently on queue</span></div><div class="line">    <span class="keyword">msglen_t</span>        	msg_qbytes <span class="comment">//maximum number of bytes allowed on queue</span></div><div class="line">    <span class="keyword">pid_t</span>           	msg_lspid  <span class="comment">//process ID of last msgsnd()</span></div><div class="line">    <span class="keyword">pid_t</span>           	msg_lrpid  <span class="comment">//process ID of last msgrcv()</span></div><div class="line">    <span class="keyword">time_t</span>          	msg_stime  <span class="comment">//time of last msgsnd()</span></div><div class="line">    <span class="keyword">time_t</span>          	msg_rtime  <span class="comment">//time of last msgrcv()</span></div><div class="line">    <span class="keyword">time_t</span>          	msg_ctime  <span class="comment">//time of last change</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token keyword">struct</span> msqid_ds <span class="token punctuation">{</span>
+    <span class="token keyword">struct</span> ipc_perm     msg_perm   <span class="token comment" spellcheck="true">//operation permission structure</span>
+    <span class="token keyword">struct</span> msg            <span class="token operator">*</span>msg_frist <span class="token comment" spellcheck="true">//ptr to frist message on queue</span>
+    <span class="token keyword">struct</span> msg            <span class="token operator">*</span>msg_last  <span class="token comment" spellcheck="true">//ptr to last message on queue</span>
+    msglen_t            msg_cbytes <span class="token comment" spellcheck="true">//current #bytes on queue</span>
+    msgqnum_t           msg_qnum   <span class="token comment" spellcheck="true">//number of messages currently on queue</span>
+    msglen_t            msg_qbytes <span class="token comment" spellcheck="true">//maximum number of bytes allowed on queue</span>
+    pid_t               msg_lspid  <span class="token comment" spellcheck="true">//process ID of last msgsnd()</span>
+    pid_t               msg_lrpid  <span class="token comment" spellcheck="true">//process ID of last msgrcv()</span>
+    time_t              msg_stime  <span class="token comment" spellcheck="true">//time of last msgsnd()</span>
+    time_t              msg_rtime  <span class="token comment" spellcheck="true">//time of last msgrcv()</span>
+    time_t              msg_ctime  <span class="token comment" spellcheck="true">//time of last change</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><em>Unix 98 不要求有 msg_frist、msg_last 和 msg_cbytes 成员。然而普通的源自 <a href="http://pubs.opengroup.org/onlinepubs/7908799/xsh/sysmsg.h.html" target="_blank" rel="external">System V</a> 的实现中可以找到这三个成员。就算提供了这两个指针，那么它们指向的是内核内存空间，对于应用来说基本没有作用的。</em></p>
 <p><img src="http://oid1xlj7h.bkt.clouddn.com/unix%20%E7%BD%91%E7%BB%9C%20%281%29.png" alt="unix 网络 (1)"></p>
 <p>我们可以将内核中某个特定的消息队列画为一个消息链表，如图。</p>
 <p><strong>msgget 函数</strong></p>
 <p>msgget 函数用于创建一个新的消息队列或访问一个已存在的消息队列。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgget</span> <span class="params">(<span class="keyword">key_t</span> key, <span class="keyword">int</span> oflag)</span>	</span></div><div class="line">  											<span class="comment">//返回： 成功返回非负标识符，出错返回-1</span></div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/msg.h></span></span>
+<span class="token keyword">int</span> <span class="token function">msgget</span> <span class="token punctuation">(</span>key_t key<span class="token punctuation">,</span> <span class="token keyword">int</span> oflag<span class="token punctuation">)</span>    
+                                              <span class="token comment" spellcheck="true">//返回： 成功返回非负标识符，出错返回-1</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p>返回值是一个整数标识符，其他三个msg函数就用它来指代该队列。</p>
 <p>oflag是读写权限的组合。（稍微复杂。。。）</p>
 <p>当创建一个新的消息队列的时，msqid_ds 结构的如下成员被初始化。</p>
@@ -486,15 +649,31 @@
 <li><p>msg_ctime 被设置为当前时间。</p>
 </li>
 <li><p>msg_qbytes 被设置成系统限制值。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> ipc_perm</div><div class="line">&#123;</div><div class="line"><span class="keyword">key_t</span>        		key;            <span class="comment">/*调用shmget()时给出的关键字*/</span></div><div class="line"><span class="keyword">uid_t</span>           	uid;            <span class="comment">/*共享内存所有者的有效用户ID */</span></div><div class="line"><span class="keyword">gid_t</span>          		gid;            <span class="comment">/* 共享内存所有者所属组的有效组ID*/</span> </div><div class="line"><span class="keyword">uid_t</span>          		cuid;           <span class="comment">/* 共享内存创建 者的有效用户ID*/</span></div><div class="line"><span class="keyword">gid_t</span>         		cgid;           <span class="comment">/* 共享内存创建者所属组的有效组ID*/</span></div><div class="line"><span class="keyword">mode_t</span>			   	mode;    		<span class="comment">/* Permissions + SHM_DEST和SHM_LOCKED标志*/</span></div><div class="line"><span class="keyword">ulong_t</span>		    	seq;          	<span class="comment">/* 序列号*/</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token keyword">struct</span> ipc_perm
+<span class="token punctuation">{</span>
+key_t                key<span class="token punctuation">;</span>            <span class="token comment" spellcheck="true">/*调用shmget()时给出的关键字*/</span>
+uid_t               uid<span class="token punctuation">;</span>            <span class="token comment" spellcheck="true">/*共享内存所有者的有效用户ID */</span>
+gid_t                  gid<span class="token punctuation">;</span>            <span class="token comment" spellcheck="true">/* 共享内存所有者所属组的有效组ID*/</span> 
+uid_t                  cuid<span class="token punctuation">;</span>           <span class="token comment" spellcheck="true">/* 共享内存创建 者的有效用户ID*/</span>
+gid_t                 cgid<span class="token punctuation">;</span>           <span class="token comment" spellcheck="true">/* 共享内存创建者所属组的有效组ID*/</span>
+mode_t                   mode<span class="token punctuation">;</span>            <span class="token comment" spellcheck="true">/* Permissions + SHM_DEST和SHM_LOCKED标志*/</span>
+ulong_t                seq<span class="token punctuation">;</span>              <span class="token comment" spellcheck="true">/* 序列号*/</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>​</p>
 </li>
 </ul>
 <p><strong>msgsnd 函数</strong></p>
 <p>使用 msgget 函数打开一个消息队列后，使用 msgsnd 函数往其上放置一个消息。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgsnd</span><span class="params">(<span class="keyword">int</span> msqid, <span class="keyword">const</span> <span class="keyword">void</span> *ptr,<span class="keyword">size_t</span> length, <span class="keyword">int</span> flag)</span></span>;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property"># <span class="token directive keyword">include</span> <span class="token string">&lt;sys/msg.h></span></span>
+<span class="token keyword">int</span> <span class="token function">msgsnd</span><span class="token punctuation">(</span><span class="token keyword">int</span> msqid<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">void</span> <span class="token operator">*</span>ptr<span class="token punctuation">,</span>size_t length<span class="token punctuation">,</span> <span class="token keyword">int</span> flag<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p>其中msqid 是由msgget 函数返回的标识符。ptr 是一个结构指针，该结构具有如下的模板：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> msgbuf &#123;</div><div class="line"> 	<span class="keyword">long</span> 	mtype;			<span class="comment">// message type ,must be &gt; 0</span></div><div class="line"> 	<span class="keyword">char</span>	mtext[<span class="number">1</span>]		<span class="comment">// message data</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token keyword">struct</span> msgbuf <span class="token punctuation">{</span>
+     <span class="token keyword">long</span>     mtype<span class="token punctuation">;</span>            <span class="token comment" spellcheck="true">// message type ,must be > 0</span>
+     <span class="token keyword">char</span>    mtext<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span>        <span class="token comment" spellcheck="true">// message data</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p><em>消息类型必须大于0，因为对于 msgrcv 函数来说，非正的消息类型用作特殊的指示器。</em></p>
 <p><em>mtext虽然起名是 text ，但是消息类型并不局限于文本。任何形式的数据都是允许的。内核根本不解释消                      息数据的内容。ptr 所指向的是一个含有消息类型的长整数，消息本身则紧跟着它之后。</em></p>
 <p>msgsnd 的 <em>length</em> 参数以字节为单位指定待发送消息的长度。是用户自定义的，可以是0.</p>
@@ -590,7 +769,7 @@
 <aside id="sidebar" class="sidebar sidebar-colored  sidebar-fixed-left" role="navigation">
 	<div id="sidebar-main">
 	    <!-- Sidebar Header -->
-		<div class="sidebar-header header-cover" style="background-image: url(/img/sidebar_header.png);">
+		<div class="sidebar-header header-cover" style="background-image: url(undefined);">
     <!-- Top bar -->
     <div class="top-bar"></div>
 

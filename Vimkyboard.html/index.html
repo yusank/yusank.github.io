@@ -157,7 +157,7 @@
 
 	<script src="/js/jquery.min.js"></script>
 	
-	<link rel="stylesheet" href="/css/highlight/atelier-cave-light.css">
+	<link rel="stylesheet" href="/css/highlight/undefined.css">
 	
 	<!-- UC Browser Compatible-->
 	<script>
@@ -170,7 +170,8 @@
     
     <!-- Custom Head -->
     
-</head>
+<link rel="stylesheet" href="/css/prism.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 	
 	
 
@@ -339,7 +340,7 @@
                 <!-- Post Content -->
                 <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
 	
-		<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Vim-快捷键"><a href="#Vim-快捷键" class="headerlink" title="Vim 快捷键"></a>Vim 快捷键</h1><h2 id="一-移动："><a href="#一-移动：" class="headerlink" title="一. 移动："></a>一. 移动：</h2><pre><code>h,j,k,l: 左，下，上，右。
+		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Vim-快捷键"><a href="#Vim-快捷键" class="headerlink" title="Vim 快捷键"></a>Vim 快捷键</h1><h2 id="一-移动："><a href="#一-移动：" class="headerlink" title="一. 移动："></a>一. 移动：</h2><pre><code>h,j,k,l: 左，下，上，右。
 w: 下一个词的词首。
 e:下一个词的词尾。
 </code></pre><p>​    b:上一个词的词首。</p>
@@ -379,7 +380,7 @@ $: 跳转到行尾。
 </code></pre><p>“#”：跳转到该行的第#个位置。</p>
 <p>“#G”: 15G,跳转到15行。</p>
 <pre><code>:#：跳转到#行。
-f&apos;n&apos;：跳转到下一个&quot;n&quot;字母后。
+f&#39;n&#39;：跳转到下一个&quot;n&quot;字母后。
 ctrl+b: 向后翻一页。
 ctrl+f：向前翻一页。
 ctrl+u: 向后翻半页。
@@ -390,46 +391,46 @@ ctry+e: 下滚一行。
 3.v3w: 选择三个字符。  
 </code></pre><h2 id="四-编辑："><a href="#四-编辑：" class="headerlink" title="四. 编辑："></a>四. 编辑：</h2><ol>
 <li><p>新增：<br>i: 光标前插入。</p>
-<pre><code>I: 在当前行首插入。
-a: 光标后插入。
-A: 当前行尾插入。
-O: 在当前行之前插入新行。
-o: 在当前行之后插入新行。
+<pre><code>    I: 在当前行首插入。
+    a: 光标后插入。
+    A: 当前行尾插入。
+    O: 在当前行之前插入新行。
+    o: 在当前行之后插入新行。
 </code></pre></li>
 <li><p>修改 c(change) 为主：<br>   r: 替换光标所在处的字符。</p>
-<pre><code>R：替换光标所到之处的字符。
-cw: 更改光标所在处的字到字尾处。
-c#w: c3w 修改3个字符。
-C：修改到行尾。
-ci&apos;：修改配对标点符号中的文本内容。
-di&apos;：删除配对标点符号中的文本内容。
-yi&apos;：复制配对标点符号中的文本内容。
-vi&apos;：选中配对标点符号中的文本内容。
-s：替换当前一个光标所处字符。
+<pre><code>       R：替换光标所到之处的字符。
+       cw: 更改光标所在处的字到字尾处。
+       c#w: c3w 修改3个字符。
+       C：修改到行尾。
+       ci&#39;：修改配对标点符号中的文本内容。
+       di&#39;：删除配对标点符号中的文本内容。
+       yi&#39;：复制配对标点符号中的文本内容。
+       vi&#39;：选中配对标点符号中的文本内容。
+       s：替换当前一个光标所处字符。
 </code></pre><p>   ​    “#S”：删除 # 行，并以新文本代替。</p>
 </li>
 </ol>
 <ol>
 <li><p>删除 d(delete) 为主：<br>D：删除到行尾。</p>
-<pre><code>X: 每按一次，删除光标所在位置的前面一个字符。
-x: 每按一次，删除光标所在位置的后面一个字符。
+<pre><code>    X: 每按一次，删除光标所在位置的前面一个字符。
+    x: 每按一次，删除光标所在位置的后面一个字符。
 </code></pre><p>​    “#x”: 删除光标所在位置后面6个字符。</p>
-<pre><code>d^: 删至行首。
-d$: 删至行尾。
-dd:(剪切)删除光标所在行。        
-dw: 删除一个单词/光标之后的单词剩余部分。
-d4w: 删除4个word。
+<pre><code>    d^: 删至行首。
+    d$: 删至行尾。
+    dd:(剪切)删除光标所在行。        
+    dw: 删除一个单词/光标之后的单词剩余部分。
+    d4w: 删除4个word。
 </code></pre><p>​”#dd”: 从光标所在行开始删除#行。</p>
 <p>  daB: 删除{}及其内的内容。<br>  diB: 删除{}中的内容。<br>  n1,n2 d：将n1,n2行之间的内容删除。</p>
 </li>
 <li><p>查找：<br>/： 输入关键字，发现不是要找的，直接在按n，向后查找直到找到为止。</p>
-<pre><code>?： 输入关键字，发现不是要找的，直接在按n，向前查找直到找到为止。
-*: 在当前页向后查找同一字。
+<pre><code>    ?： 输入关键字，发现不是要找的，直接在按n，向前查找直到找到为止。
+    *: 在当前页向后查找同一字。
 </code></pre><p>​    “#”: 在当前页向前查找同一字。</p>
 </li>
 <li><p>复制 y(yank)为主：<br>   yw: 将光标所在之处到字尾的字符复制到缓冲区中。</p>
 <p>   “#yw”: 复制#个字到缓冲区。</p>
-<pre><code>Y：相当于yy, 复制整行。
+<pre><code> Y：相当于yy, 复制整行。
 </code></pre></li>
 </ol>
 <p>​    “#yy”:表示复制从光标所在的该行往下数#行文字。</p>
@@ -450,14 +451,14 @@ d4w: 删除4个word。
       J：当前行和下一行合并成一行。
 8. 移动：
       n1,n2 m n3：将n1行到n2行之间的内容移至n3行下。
-</code></pre><h2 id="五-退出："><a href="#五-退出：" class="headerlink" title="五.退出："></a>五.退出：</h2><pre><code>1. w filename: 保存正在编辑的文件filename
-2. wq filename: 保存后退出正在编辑的文件filename
-3. q：退出不保存。
-</code></pre><h2 id="六-窗口操作："><a href="#六-窗口操作：" class="headerlink" title="六.窗口操作："></a>六.窗口操作：</h2><pre><code>1. ctrl+w p: 在两个分割窗口之间来回切换。
-2. ctrl+w j: 跳到下面的分割窗
-3. ctrl+w h: 跳到左边的分割窗。
-4. ctrl+w k: 跳到上面的分割窗。
-5. ctrl+w l: 跳到右边的分割窗。
+</code></pre><h2 id="五-退出："><a href="#五-退出：" class="headerlink" title="五.退出："></a>五.退出：</h2><pre><code> 1. w filename: 保存正在编辑的文件filename
+ 2. wq filename: 保存后退出正在编辑的文件filename
+ 3. q：退出不保存。
+</code></pre><h2 id="六-窗口操作："><a href="#六-窗口操作：" class="headerlink" title="六.窗口操作："></a>六.窗口操作：</h2><pre><code> 1. ctrl+w p: 在两个分割窗口之间来回切换。
+ 2. ctrl+w j: 跳到下面的分割窗
+ 3. ctrl+w h: 跳到左边的分割窗。
+ 4. ctrl+w k: 跳到上面的分割窗。
+ 5. ctrl+w l: 跳到右边的分割窗。
 </code></pre>
 	
 	
@@ -539,7 +540,7 @@ d4w: 删除4个word。
 <aside id="sidebar" class="sidebar sidebar-colored  sidebar-fixed-left" role="navigation">
 	<div id="sidebar-main">
 	    <!-- Sidebar Header -->
-		<div class="sidebar-header header-cover" style="background-image: url(/img/sidebar_header.png);">
+		<div class="sidebar-header header-cover" style="background-image: url(undefined);">
     <!-- Top bar -->
     <div class="top-bar"></div>
 

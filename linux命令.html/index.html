@@ -157,7 +157,7 @@
 
 	<script src="/js/jquery.min.js"></script>
 	
-	<link rel="stylesheet" href="/css/highlight/atelier-cave-light.css">
+	<link rel="stylesheet" href="/css/highlight/undefined.css">
 	
 	<!-- UC Browser Compatible-->
 	<script>
@@ -170,7 +170,8 @@
     
     <!-- Custom Head -->
     
-</head>
+<link rel="stylesheet" href="/css/prism.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 	
 	
 
@@ -328,30 +329,49 @@
                 <!-- Post Content -->
                 <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
 	
-		<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>welcome to learn terminal command!!!<br><a id="more"></a></p>
-<h1 id="linux命令"><a href="#linux命令" class="headerlink" title="linux命令"></a>linux命令</h1><h3 id="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"><a href="#永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！" class="headerlink" title="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"></a>永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！</h3><h2 id="实用性"><a href="#实用性" class="headerlink" title="实用性"></a>实用性</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls -l | sed &apos;1d&apos; | sort -n -k5 | awk &apos;&#123;printf &quot;%15s %10s\n&quot;, $9,$5&#125;&apos;</div></pre></td></tr></table></figure>
+		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>welcome to learn terminal command!!!<br><a id="more"></a></p>
+<h1 id="linux命令"><a href="#linux命令" class="headerlink" title="linux命令"></a>linux命令</h1><h3 id="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"><a href="#永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！" class="headerlink" title="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"></a>永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！</h3><h2 id="实用性"><a href="#实用性" class="headerlink" title="实用性"></a>实用性</h2><pre class="line-numbers language-shell"><code class="language-shell">$ ls -l | sed '1d' | sort -n -k5 | awk '{printf "%15s %10s\n", $9,$5}'
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>按文件大小增序打印出当前目录下的文件名及其文件大小(单位字节）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ history | awk &apos;&#123;print $2&#125;&apos; | sort | uniq -c | sort -rn | head -10</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ history | awk '{print $2}' | sort | uniq -c | sort -rn | head -10
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>输出你最常用的十条命令</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ http POST http://localhost:4000/ &lt; /&lt;json文件路径&gt;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ http POST http://localhost:4000/ < /<json文件路径>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>做测试的时候很有用的一个命令，需要下载http</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ brew install http</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ lsof -n -P -i TCP -s TCP:LISTEN</div><div class="line"></div><div class="line">COMMAND  PID       USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME</div><div class="line">QQ       290 smartestee   33u  IPv4 0x2f3beaa58a62d73b      0t0  TCP 127.0.0.1:4300 (LISTEN)</div><div class="line">QQ       290 smartestee   34u  IPv4 0x2f3beaa58c69673b      0t0  TCP 127.0.0.1:4301 (LISTEN)</div><div class="line">idea    3257 smartestee  164u  IPv4 0x2f3beaa588d11e43      0t0  TCP 127.0.0.1:6942 (LISTEN)</div><div class="line">idea    3257 smartestee  385u  IPv4 0x2f3beaa58c69316b      0t0  TCP 127.0.0.1:63342 (LISTEN)</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ brew install http
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<pre class="line-numbers language-shell"><code class="language-shell">$ lsof -n -P -i TCP -s TCP:LISTEN
+
+COMMAND  PID       USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+QQ       290 smartestee   33u  IPv4 0x2f3beaa58a62d73b      0t0  TCP 127.0.0.1:4300 (LISTEN)
+QQ       290 smartestee   34u  IPv4 0x2f3beaa58c69673b      0t0  TCP 127.0.0.1:4301 (LISTEN)
+idea    3257 smartestee  164u  IPv4 0x2f3beaa588d11e43      0t0  TCP 127.0.0.1:6942 (LISTEN)
+idea    3257 smartestee  385u  IPv4 0x2f3beaa58c69316b      0t0  TCP 127.0.0.1:63342 (LISTEN)
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>查看端口的使用情况</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ps -ef</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ ps -ef
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>查看进程</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kill  xxxx</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ kill  xxxx
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>端口冲突时，用此命令，关闭某个端口。用PID替换xxxx</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ history</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ history
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>查看历史命令记录</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ pwd</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ pwd
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>当前位置</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ which xx</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ which xx
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>path位置，搭建环境的时候肯定会用得到</p>
 <h3 id="Linux-文件系统命令"><a href="#Linux-文件系统命令" class="headerlink" title="Linux 文件系统命令"></a>Linux 文件系统命令</h3><p>修改问价拥有者</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ chgrp -R 组名 文件 / 目录</div><div class="line">$ chown -R 账户名 文件 / 目录</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ chgrp -R 组名 文件 / 目录
+$ chown -R 账户名 文件 / 目录
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p>修改文件权限</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ chmod</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ chmod
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li>使用数字<ul>
 <li>r：4, w：2, x：1</li>
@@ -359,48 +379,77 @@
 </ul>
 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ chmod 777 test</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ chmod 777 test
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li><p>使用符号修改</p>
 <ul>
 <li><p>u: user, g: group, o: others, a: all</p>
 </li>
 <li><p>添加权限用+， 除去用-， 设置用=</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ chmod u=rwx, g=rw, o=r test</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ chmod a-x test</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ chmod go+r test</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ chmod u=rwx, g=rw, o=r test
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<pre class="line-numbers language-shell"><code class="language-shell">$ chmod a-x test
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<pre class="line-numbers language-shell"><code class="language-shell">$ chmod go+r test
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>​</p>
 </li>
 </ul>
 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo !!</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo !!
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>以root权限执行上一条命令（注意上一条命令的内容，以免发生意外）</p>
 <p>例如：在Ubuntu 安装软件或插件的时候需要用到这个命令</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-get install nginx</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo apt-get install nginx
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>查看和修改：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ cat</div><div class="line">$ more</div><div class="line">$ less</div><div class="line">$ head</div><div class="line">$ tail</div><div class="line"></div><div class="line">$ vi</div><div class="line">$ vim</div><div class="line"></div><div class="line">$ mkdir</div><div class="line">$ touch</div></pre></td></tr></table></figure>
-<h3 id="git"><a href="#git" class="headerlink" title="git"></a>git</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ cat
+$ more
+$ less
+$ head
+$ tail
+
+$ vi
+$ vim
+
+$ mkdir
+$ touch
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="git"><a href="#git" class="headerlink" title="git"></a>git</h3><pre class="line-numbers language-shell"><code class="language-shell">$ git
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>先给出比较常用的</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git add &lt;一个或多个文件名(文件名之间是用空格，也可以是一个点，表示添加全部)&gt;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git commit -m &quot;注释&quot;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ git add <一个或多个文件名(文件名之间是用空格，也可以是一个点，表示添加全部)>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<pre class="line-numbers language-shell"><code class="language-shell">$ git commit -m "注释"
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>本地提交</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git checkout &lt;分支名或master&gt;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-powershell"><code class="language-powershell">$ git checkout &lt;分支名或master>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>切换分支与master</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git branch &lt;分支名&gt;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ git branch <分支名>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>新开一个分支</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git merge &lt;分支名&gt;</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ git merge <分支名>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>主分支与分支的合并</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git push origin master</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ git push origin master
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>提交到github上</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ fuck</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ fuck
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>纠正命令行输入的错误，比手动改快，实用。</p>
 <p>安装：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ brew install thefuck</div></pre></td></tr></table></figure>
-<h2 id="娱乐"><a href="#娱乐" class="headerlink" title="娱乐"></a>娱乐</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cmatrix</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ telnet towel.blinkenlights.nl</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ brew install thefuck
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h2 id="娱乐"><a href="#娱乐" class="headerlink" title="娱乐"></a>娱乐</h2><pre class="line-numbers language-shell"><code class="language-shell">$ cmatrix
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<pre class="line-numbers language-shell"><code class="language-shell">$ telnet towel.blinkenlights.nl
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>telnet是基于Telnet协议的远程登录客户端程序,经常用来远程登录服务器.除此还可以用它来观看星球大战</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ fortune</div></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell"><code class="language-shell">$ fortune
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>随机输出名言或者笑话，</p>
 <p>还有很多，有兴趣的可以通过这个链接去看：<a href="https://www.zhihu.com/question/20273259" target="_blank" rel="external">知乎</a></p>
 <p>个人博客 <a href="http://aa.yusank.space/2016/12/28/linux%E5%91%BD%E4%BB%A4/" target="_blank" rel="external">yusank</a></p>
@@ -487,7 +536,7 @@
 <aside id="sidebar" class="sidebar sidebar-colored  sidebar-fixed-left" role="navigation">
 	<div id="sidebar-main">
 	    <!-- Sidebar Header -->
-		<div class="sidebar-header header-cover" style="background-image: url(/img/sidebar_header.png);">
+		<div class="sidebar-header header-cover" style="background-image: url(undefined);">
     <!-- Top bar -->
     <div class="top-bar"></div>
 

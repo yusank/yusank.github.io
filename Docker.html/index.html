@@ -157,7 +157,7 @@
 
 	<script src="/js/jquery.min.js"></script>
 	
-	<link rel="stylesheet" href="/css/highlight/atelier-cave-light.css">
+	<link rel="stylesheet" href="/css/highlight/undefined.css">
 	
 	<!-- UC Browser Compatible-->
 	<script>
@@ -170,7 +170,8 @@
     
     <!-- Custom Head -->
     
-</head>
+<link rel="stylesheet" href="/css/prism.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 	
 	
 
@@ -328,7 +329,7 @@
                 <!-- Post Content -->
                 <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
 	
-		<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>学习 Docker 技术，每看完一章或够写一篇文章的时候就上传一次. 这一篇讲容器技术。以下正文。。。<br><a id="more"></a></p>
+		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>学习 Docker 技术，每看完一章或够写一篇文章的时候就上传一次. 这一篇讲容器技术。以下正文。。。<br><a id="more"></a></p>
 <h2 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h2><h3 id="容器技术"><a href="#容器技术" class="headerlink" title="容器技术"></a>容器技术</h3><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=437292675&auto=1&height=66"></iframe>
 
 <p>对于容器，目前并没有一个严格的定义，但是普遍被认可的说法是，它首先必须是一个相对独立的环境，在这一点上有点类似虚拟机，但是没有虚拟机那么彻底。另外，在一个容器环境中，应该最小化其对外界的影响，比如不能在容器中吧host上的资源耗尽，这就是资源的控制。</p>
@@ -345,15 +346,40 @@
 <li>rootfs： 系统文件隔离。</li>
 <li>容器引擎： 生命周期控制。</li>
 </ul>
-<h2 id="容器的创建原理"><a href="#容器的创建原理" class="headerlink" title="容器的创建原理"></a>容器的创建原理</h2><p>代码一<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">pid = clone(fun, <span class="built_in">stack</span>, flags, clone_arg);</div><div class="line"></div><div class="line">(flags: CLONE_NEWPID | CLONE_NEWNS |</div><div class="line">     CLONE_NEWUSER | CLONE_NEWNET |</div><div class="line">     CLONE_NEWIPC | CLONE_NEWUTS |</div><div class="line">        ...)</div></pre></td></tr></table></figure></p>
+<h2 id="容器的创建原理"><a href="#容器的创建原理" class="headerlink" title="容器的创建原理"></a>容器的创建原理</h2><p>代码一</p>
+<pre class="line-numbers language-c"><code class="language-c">pid <span class="token operator">=</span> <span class="token function">clone</span><span class="token punctuation">(</span>fun<span class="token punctuation">,</span> stack<span class="token punctuation">,</span> flags<span class="token punctuation">,</span> clone_arg<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">(</span>flags<span class="token punctuation">:</span> CLONE_NEWPID <span class="token operator">|</span> CLONE_NEWNS <span class="token operator">|</span>
+     CLONE_NEWUSER <span class="token operator">|</span> CLONE_NEWNET <span class="token operator">|</span>
+     CLONE_NEWIPC <span class="token operator">|</span> CLONE_NEWUTS <span class="token operator">|</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <ul>
 <li>对于以上代码，通过clone系统调用，并传入各个Namespace对应的clone flag，创建了一个新的子进程，该进程拥有自己的Namespace。从上面的代码可以看出，该进程拥有自己的pid,mount,user,net,ipc,uts namespace 。</li>
 </ul>
-<p>代码二：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> <span class="variable">$pid</span> &gt; /sys/fs/cgroup/cpu/tasks</div><div class="line"><span class="built_in">echo</span> <span class="variable">$pid</span> &gt; /sys/fs/cgroup/cpuset/tasks</div><div class="line"><span class="built_in">echo</span> <span class="variable">$pid</span> &gt; /sys/fs/cgroup/blkio/tasks</div><div class="line"><span class="built_in">echo</span> <span class="variable">$pid</span> &gt; /sys/fs/cgroup/memory/tasks</div><div class="line"><span class="built_in">echo</span> <span class="variable">$pid</span> &gt; /sys/fs/cgroup/devices/tasks</div><div class="line"><span class="built_in">echo</span> <span class="variable">$pid</span> &gt; /sys/fs/cgroup/freezer/tasks</div></pre></td></tr></table></figure></p>
+<p>代码二：</p>
+<pre class="line-numbers language-sh"><code class="language-sh">echo $pid > /sys/fs/cgroup/cpu/tasks
+echo $pid > /sys/fs/cgroup/cpuset/tasks
+echo $pid > /sys/fs/cgroup/blkio/tasks
+echo $pid > /sys/fs/cgroup/memory/tasks
+echo $pid > /sys/fs/cgroup/devices/tasks
+echo $pid > /sys/fs/cgroup/freezer/tasks
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <ul>
 <li>对于代码二，将代码一中的pid写入各个Cgroup子系统中，这样该进程就可以受到相应Cgroup子系统的控制。</li>
 </ul>
-<p>代码三：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">fun</span></span> ()</div><div class="line">&#123;</div><div class="line">    ...</div><div class="line">    </div><div class="line">    pivot_root(<span class="string">"path_of_rootfs/"</span>, path);</div><div class="line">    ...</div><div class="line">    </div><div class="line">    <span class="built_in">exec</span>(<span class="string">"/bin/bash"</span>);</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>代码三：</p>
+<pre class="line-numbers language-sh"><code class="language-sh">fun ()
+{
+    ...
+
+    pivot_root("path_of_rootfs/", path);
+    ...
+
+    exec("/bin/bash");
+    ...
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <ul>
 <li>对于代码三，该fun函数由上面生成的新进程执行，在fun函数中，通过<code>pivot_root</code>系统调用，使进程进入新的<code>rootfs</code>，之后通过<code>exec</code>系统调用，在新的<code>Namespace</code>,<code>Cgroup</code>,<code>rootfs</code>中执行<code>&quot;/bin/bash&quot;</code>程序。</li>
 </ul>
@@ -466,7 +492,7 @@
 <aside id="sidebar" class="sidebar sidebar-colored  sidebar-fixed-left" role="navigation">
 	<div id="sidebar-main">
 	    <!-- Sidebar Header -->
-		<div class="sidebar-header header-cover" style="background-image: url(/img/sidebar_header.png);">
+		<div class="sidebar-header header-cover" style="background-image: url(undefined);">
     <!-- Top bar -->
     <div class="top-bar"></div>
 
