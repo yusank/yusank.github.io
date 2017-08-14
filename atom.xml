@@ -689,7 +689,9 @@ $go run client1.go
     <published>2017-07-17T07:52:00.000Z</published>
     <updated>2017-07-17T07:52:01.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Docker-的使用"><a href="#Docker-的使用" class="headerlink" title="Docker 的使用"></a>Docker 的使用</h1><h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><h3 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h3><h4 id="新建并启动"><a href="#新建并启动" class="headerlink" title="新建并启动"></a>新建并启动</h4><p>所需的命令是 <code>docker run</code></p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Docker-的使用"><a href="#Docker-的使用" class="headerlink" title="Docker 的使用"></a>Docker 的使用</h1><h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><hr>
+<h3 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h3><hr>
+<h4 id="新建并启动"><a href="#新建并启动" class="headerlink" title="新建并启动"></a>新建并启动</h4><p>所需的命令是 <code>docker run</code></p>
 <p>例如：</p>
 <pre class="line-numbers language-shell"><code class="language-shell">$ docker run ubuntu:14.04 /bin/echo 'hello, worl'
 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
@@ -2401,7 +2403,7 @@ Origin http://api.bob.com is not allowed by Access-Control-Allow-Origin.
     <link href="http://yusank.github.io/Go%20Channel.html/"/>
     <id>http://yusank.github.io/Go Channel.html/</id>
     <published>2017-01-07T04:20:00.000Z</published>
-    <updated>2017-08-14T05:42:37.000Z</updated>
+    <updated>2017-08-14T06:06:53.000Z</updated>
     
     <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>讲解 Golang 的 channel（通道），学 go 语言的有必要看一下。以下正文。。。</p>
 <hr>
