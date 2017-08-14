@@ -385,7 +385,7 @@ aada74689bf7        cockroachdb/cockroach   "/cockroach/cockro..."   3 weeks ago
 <p>终止状态的容器, 可以通过 <code>docker start</code> 来重新启动 .</p>
 <p>此外,<code>docker restart</code> 命令会将一个运行态的容器终止,然后重新启动它 .</p>
 <h3 id="进入容器"><a href="#进入容器" class="headerlink" title="进入容器"></a>进入容器</h3><p>在使用 <code>-d</code> 参数时, docker 容器会在后台运行. 有些时候需要进入容器,如运行数据库时,需要进入增删改查库里的内容. 进入容器有很多种办法.</p>
-<h4 id="attach-命令"><a href="#attach-命令" class="headerlink" title="attach 命令"></a>attach 命令</h4><figcaption>attach</code>     是 Docker 自带的命令,用法</p></figcaption><pre class="line-numbers language-docker"><pre><code class="shell"><code class="language-docker"><pre><code class="shell">$ docker attach [container ID or NAMES]
+<h4 id="attach-命令"><a href="#attach-命令" class="headerlink" title="attach 命令"></a>attach 命令</h4><figcaption>attach</code> 是 Docker 自带的命令,用法</p></figcaption><pre class="line-numbers language-docker"><pre><code class="shell"><code class="language-docker"><pre><code class="shell">$ docker attach [container ID or NAMES]
 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>但是使用 <code>attach</code> 命令有个缺陷,即多个窗口同时用 attach 命令到同一个容器的时候,所有的窗口都是同步显示的,如果其中一个窗口阻塞的时候,其他窗口也无法使用 .</p>
 <h4 id="nsenter-命令"><a href="#nsenter-命令" class="headerlink" title="nsenter 命令"></a>nsenter 命令</h4><p>这个工具需要用如下命令安装</p>
@@ -407,7 +407,7 @@ aada74689bf7        cockroachdb/cockroach   "/cockroach/cockro..."   3 weeks ago
 <p>这样将导出容器快照到本地文件 .</p>
 <h4 id="导入容器快照"><a href="#导入容器快照" class="headerlink" title="导入容器快照"></a>导入容器快照</h4><p>可以使用 <code>docker import</code> 从容器快照文件导入镜像,</p>
 <pre class="line-numbers language-shell"><code class="language-shell">$ cat target.tar | docker import - test/mysql:v1.0
-$sudo docker images
+$ sudo docker images
 REPOSITORY  TAG  IMAGE ID         CREATED             VIRTUAL SIZE
 test/ubuntu v1.0 9d37a6082e97     About a minute ago     171.3 MB
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
@@ -439,8 +439,8 @@ mongoclient/mongoclient        Official docker image for Mongoclient, fea...   2
 torusware/speedus-mongo        Always updated official MongoDB docker ima...   9                                [OK]
 mongooseim/mongooseim-docker   MongooseIM server the latest stable version     9                                [OK]
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>​    搜索结果可以看到很多包含关键字的镜像,其中包括镜像名字、描述、星数（表示该镜像的受欢迎程度）、是否官方创建、是否自动创建 . 官方的镜像说明是官方项目组创建和维护的,automated 资源允许用户验证镜像的来源和内容 .</p>
-<p>​    根据是否为官方提供, 镜像资源可分为两类 . 一类是累类似 mongo这样的基础镜像 . 这些镜像由 Docker 的用户创建、验证、支持、提供  . 这样的镜像往往是使用单个单词作为名字  . </p>
+<p>​搜索结果可以看到很多包含关键字的镜像,其中包括镜像名字、描述、星数（表示该镜像的受欢迎程度）、是否官方创建、是否自动创建 . 官方的镜像说明是官方项目组创建和维护的,automated 资源允许用户验证镜像的来源和内容 .</p>
+<p>​根据是否为官方提供, 镜像资源可分为两类 . 一类是累类似 mongo这样的基础镜像 . 这些镜像由 Docker 的用户创建、验证、支持、提供  . 这样的镜像往往是使用单个单词作为名字  . </p>
 <p>另一种类型,比如<code>mvertes/alpine-mongo</code> 镜像,它是由 Docker 的用户创建并维护的,往往带有用户名称前缀  . 可以通过前缀 <code>user_name/</code> 来指定使用某个用户提供的镜像  .</p>
 <p>另外,在查找的时候通过 <code>-s N</code> 参数可以指定仅显示星数为 N 以上的镜像 （新版本的 Docker 推荐使用 <code>--flter=stars=N</code> 参数） .</p>
 <p>下载镜像到本地</p>
@@ -452,7 +452,7 @@ Pulling repository centos
 7064731afe90: Download complete
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>用户也可以登录之后通过 <code>docker push</code> 命令来讲镜像推送到 Docker Hub  .</p>
-<h4 id="自动创建"><a href="#自动创建" class="headerlink" title="自动创建"></a>自动创建</h4><p>​    自动创建（automated builds）功能对于需要经常升级镜像内程序来说,十分方便 .有时候,用户创建了镜像安装了某个软件,如果软件发布新版本则需要手动更新镜像 . .而自动创建允许用户通过 Docker Hub 指定跟踪一个目标网站（目前支持 GitHub或 BitBucket）上的项目,一旦项目发生新的提交,则自动执行创建 .</p>
+<h4 id="自动创建"><a href="#自动创建" class="headerlink" title="自动创建"></a>自动创建</h4><p>​自动创建（automated builds）功能对于需要经常升级镜像内程序来说,十分方便 .有时候,用户创建了镜像安装了某个软件,如果软件发布新版本则需要手动更新镜像 . .而自动创建允许用户通过 Docker Hub 指定跟踪一个目标网站（目前支持 GitHub或 BitBucket）上的项目,一旦项目发生新的提交,则自动执行创建 .</p>
 <p>要配置自动创建,包括如下的步骤：</p>
 <ul>
 <li>创建并登录 Docker Hub,以及目标网站；</li>
@@ -636,7 +636,7 @@ storage_path: /tmp/tmpdockertmp
 <li>数据卷默认会一直存在,即使容器被删除</li>
 </ul>
 <p><em>注：数据卷的使用,类似于Linux 下对目录或文件进行 mount, 镜像中的被指定为挂载点的目录中的文件会隐藏掉,能显示看的是挂载的数据卷</em></p>
-<h4 id="创建一个数据卷"><a href="#创建一个数据卷" class="headerlink" title="创建一个数据卷"></a>创建一个数据卷</h4><p>​    在使用 <code>docker run</code> 命令的时候,使用 <code>-v</code> 参数来创建一个数据卷并挂载到容器里 .在一次 run 中可以挂载多个数据卷  .</p>
+<h4 id="创建一个数据卷"><a href="#创建一个数据卷" class="headerlink" title="创建一个数据卷"></a>创建一个数据卷</h4><p>​在使用 <code>docker run</code> 命令的时候,使用 <code>-v</code> 参数来创建一个数据卷并挂载到容器里 .在一次 run 中可以挂载多个数据卷  .</p>
 <p>下面创建一个名为 web 的容器,并加载一个数据卷到容器的 <code>/webapp</code> 目录  .</p>
 <pre class="line-numbers language-shell"><code class="language-shell">$ docker run -d -p --name web -v /webapp training/webapp python app.py
 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
@@ -726,7 +726,7 @@ STATUS             PORTS                     NAMES
 bc533791f3f5         training/webapp:latest     python app.py     5 seconds ag
 o Up 2 seconds     0.0.0.0:49155->5000/tcp nostalgic_morse
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><code>-P</code> （小写）则可以指定要映射的端口,并且在一个指定端口上只可以绑定一个容器 .支持的格式有 </p>
+<p><code>-P</code> （小写）则可以指定要映射的端口,并且在一个指定端口上只可以绑定一个容器 .支持的格式有</p>
 <ul>
 <li><code>ip:HostPort:containerPort</code></li>
 <li><code>ip::containerPort</code></li>
