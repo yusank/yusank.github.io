@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yusank.github.io/categories/index.html</loc>
+    
+    <lastmod>2017-08-14T08:33:04.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://yusank.github.io/Go%20Channel.html/</loc>
     
     <lastmod>2017-08-14T06:06:53.000Z</lastmod>
@@ -159,13 +166,6 @@
     <loc>http://yusank.github.io/%E5%A4%9A%E8%AF%B4.css</loc>
     
     <lastmod>2016-12-16T10:15:30.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yusank.github.io/categories/index.html</loc>
-    
-    <lastmod>2016-12-16T08:11:50.000Z</lastmod>
     
   </url>
   

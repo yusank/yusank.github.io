@@ -737,12 +737,10 @@ aada74689bf7        cockroachdb/cockroach   "/cockroach/cockro..."   3 weeks ago
 <p>终止状态的容器, 可以通过 <code>docker start</code> 来重新启动 .</p>
 <p>此外,<code>docker restart</code> 命令会将一个运行态的容器终止,然后重新启动它 .</p>
 <h3 id="进入容器"><a href="#进入容器" class="headerlink" title="进入容器"></a>进入容器</h3><p>在使用 <code>-d</code> 参数时, docker 容器会在后台运行. 有些时候需要进入容器,如运行数据库时,需要进入增删改查库里的内容. 进入容器有很多种办法.</p>
-<h4 id="attach-命令"><a href="#attach-命令" class="headerlink" title="attach 命令"></a>attach 命令</h4><figcaption>attach</code> 是 Docker 自带的命令,用法</p></figcaption><pre class="line-numbers language-docker"><pre><code class="shell"><code class="language-docker"><pre><code class="shell">docker attach [container ID or NAMES]
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>但是使用 <code>attach</code> 命令有个缺陷,即多个窗口同时用 attach 命令到同一个容器的时候,所有的窗口都是同步显示的,如果其中一个窗口阻塞的时候,其他窗口也无法使用 .</p>
-<h4 id="nsenter-命令"><a href="#nsenter-命令" class="headerlink" title="nsenter 命令"></a>nsenter 命令</h4><p>这个工具需要用如下命令安装</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker run --rm -v /usr/local/bin:/target jpetazzo/nsenter
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h4 id="attach-命令"><a href="#attach-命令" class="headerlink" title="attach 命令"></a>attach 命令</h4><figcaption>attach</code> 是 Docker 自带的命令,用法</p></figcaption><pre class="line-numbers language-docker"><code class="language-docker">&lt;p<span class="token punctuation">></span>但是使用 &lt;code<span class="token punctuation">></span>attach&lt;/code<span class="token punctuation">></span> 命令有个缺陷<span class="token punctuation">,</span>即多个窗口同时用 attach 命令到同一个容器的时候<span class="token punctuation">,</span>所有的窗口都是同步显示的<span class="token punctuation">,</span>如果其中一个窗口阻塞的时候<span class="token punctuation">,</span>其他窗口也无法使用 .&lt;/p<span class="token punctuation">></span>
+&lt;h4 id=<span class="token string">"nsenter-命令"</span><span class="token punctuation">></span>&lt;a href=<span class="token string">"#nsenter-命令"</span> class=<span class="token string">"headerlink"</span> title=<span class="token string">"nsenter 命令"</span><span class="token punctuation">></span>&lt;/a<span class="token punctuation">></span>nsenter 命令&lt;/h4<span class="token punctuation">></span>&lt;p<span class="token punctuation">></span>这个工具需要用如下命令安装&lt;/p<span class="token punctuation">></span>
+&lt;pre<span class="token punctuation">></span>&lt;code class=<span class="token string">"shell"</span><span class="token punctuation">></span>$ docker run <span class="token punctuation">-</span><span class="token punctuation">-</span>rm <span class="token punctuation">-</span>v /usr/local/bin<span class="token punctuation">:</span>/target jpetazzo/nsenter
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p>使用方法也比较简单,首先是你要进入的容器的 ID</p>
 <pre class="line-numbers language-shell"><code class="language-shell">$ PID=$(docker inspect --format {{.State.Pid}} <container ID or NAMES>)
 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
@@ -1959,10 +1957,10 @@ ulong_t                seq<span class="token punctuation">;</span>              
     
     <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>测试添加歌单。。。。<br><a id="more"></a></p>
 <h1 id="测试歌单"><a href="#测试歌单" class="headerlink" title="测试歌单"></a>测试歌单</h1>
-			<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;"></div>
+			<div id="aplayer2" class="aplayer" style="margin-bottom: 20px;"></div>
 			<script>
 				var options = {"narrow":false,"autoplay":false,"showlrc":1,"mode":"random","mutex":true,"theme":"#e6d0b2","preload":"metadata","listmaxheight":"513px","music":[{"title":"匆匆那年","author":"王菲","url":"http://oid1xlj7h.bkt.clouddn.com/%E7%8E%8B%E8%8F%B2%20-%20%E5%8C%86%E5%8C%86%E9%82%A3%E5%B9%B4.mp3","lrc":"http://oid1xlj7h.bkt.clouddn.com/ccnn.txt"},{"title":"Toca Toca","author":"Fly project","url":"http://oid1xlj7h.bkt.clouddn.com/Fly%20Project%20-%20Toca%20Toca.mp3"},{"title":"Danzo Kuduro","author":"Don Omar","url":"http://oid1xlj7h.bkt.clouddn.com/Don%20Omar,Lucenzo%20-%20Danza%20Kuduro%20-%20Album%20Version.mp3"},{"title":"难忘的一天","author":"许巍","url":"http://oid1xlj7h.bkt.clouddn.com/%E8%AE%B8%E5%B7%8D%20-%20%E9%9A%BE%E5%BF%98%E7%9A%84%E4%B8%80%E5%A4%A9.mp3","lrc":"http://oid1xlj7h.bkt.clouddn.com/nwdyt.txt"},{"title":"Counting Stars","author":"OneRepublic","url":"http://oid1xlj7h.bkt.clouddn.com/OneRepublic%20-%20Counting%20Stars.mp3"},{"title":"Zoobi Doobi","author":"Sonu Nigam,Shreya Ghoshal","url":"http://oid1xlj7h.bkt.clouddn.com/Sonu%20Nigam,Shreya%20Ghoshal%20-%20Zoobi%20Doobi.mp3","lrc":"http://oid1xlj7h.bkt.clouddn.com/tidoit.txt"}]};
-				options.element = document.getElementById("aplayer1");
+				options.element = document.getElementById("aplayer2");
 				new APlayer(options);
 			</script>
 
@@ -2111,10 +2109,10 @@ e:下一个词的词尾。
 </code></pre><p>​    b:上一个词的词首。</p>
 <pre><code>&lt;&gt;: v 模式选中后进行缩进。
 </code></pre><a id="more"></a>
-<div id="aplayer2" class="aplayer" style="margin-bottom: 20px;"></div>
+<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;"></div>
 		<script>
 			new APlayer({
-				element: document.getElementById("aplayer2"),
+				element: document.getElementById("aplayer1"),
 				narrow: false,
 				autoplay: true,
 				showlrc: 0,
