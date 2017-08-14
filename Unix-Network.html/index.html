@@ -170,7 +170,7 @@
     
     <!-- Custom Head -->
     
-<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-twilight.css" type="text/css">
 <link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 	
 	
@@ -340,7 +340,7 @@
                 <!-- Post Content -->
                 <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
 	
-		<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Unix-网络编程"><a href="#Unix-网络编程" class="headerlink" title="Unix 网络编程"></a>Unix 网络编程</h1><p>​                                                                        <strong>卷II - 进程间通信</strong></p>
+		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Unix-网络编程"><a href="#Unix-网络编程" class="headerlink" title="Unix 网络编程"></a>Unix 网络编程</h1><p>​                                                                        <strong>卷II - 进程间通信</strong></p>
 <p>IPC是进程间通信（interprocess communication）的简称。传统上该术语描述的是运行在某个操作系统之上的不同进程间各种消息传递（<em>message passing</em>）的方式。</p>
 <p>进程间的通信一般是一下四种形式：</p>
 <ul>
@@ -351,13 +351,9 @@
 </ul>
 <h1 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h1><p><strong>消息传递：</strong></p>
 <ul>
-<li><p>管道和FIFO；</p>
-</li>
-<li><p>Posix 消息队列；</p>
-</li>
-<li><p>System V消息队列。</p>
-<p>​</p>
-</li>
+<li>管道和FIFO；</li>
+<li>Posix 消息队列；</li>
+<li>System V消息队列。</li>
 </ul>
 <h2 id="管道和FIFO"><a href="#管道和FIFO" class="headerlink" title="管道和FIFO"></a>管道和FIFO</h2><p>管道是最初的Unix IPC 形式。由于管道没有名字，所以它只能用于有亲缘关系的进程间的通信。</p>
 <p><strong>实现机制：</strong></p>
