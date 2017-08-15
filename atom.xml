@@ -1196,6 +1196,70 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
   </entry>
   
   <entry>
+    <title>docker-portainer</title>
+    <link href="http://yusank.github.io/portainer.html/"/>
+    <id>http://yusank.github.io/portainer.html/</id>
+    <published>2017-07-08T04:18:00.000Z</published>
+    <updated>2017-07-08T05:27:01.000Z</updated>
+    
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>安利一款很好用的工具</p>
+<a id="more"></a>
+<h1 id="管理-docker"><a href="#管理-docker" class="headerlink" title="管理 docker"></a>管理 docker</h1><h2 id="为什么管理"><a href="#为什么管理" class="headerlink" title="为什么管理"></a>为什么管理</h2><p>随着用的 docker 镜像种类增多，在一台机器上起得 docker 容器数量有时候会非常的多，管理起来也比较困难，而且有时候一些 docker 命令一时半会想不起来，更不用说命令行的枯燥性，所以有没有一直简单一点办法去管理 docker 镜像和容器呢？</p>
+<p>今天主角该登场了！</p>
+<p><code>Portainer</code></p>
+<p>这也是一个 docker 镜像，是可视化管理 docker 镜像和容器的镜像。</p>
+<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p>说的比较绕，不说废话，先上图：</p>
+<p><strong>Dashboard:</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.33.19%20PM.png" alt="首页"></p>
+<p>其前端是网页，容器启动以后，在浏览器输入主机名:端口号后，第一打开此页面需要设置管理员密码，设置完毕之后，登录进入后，会看到上面的页面。</p>
+<p>左边是选择菜单，右半部是显示你主机的基本信息和 docker 的基本信息，有多少个镜像，运行着几个容器等。</p>
+<p>下面，从上到下一个个点击左边的菜单。</p>
+<p><strong>App Templates</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.33.51%20PM.png" alt="镜像店"></p>
+<p>可以搜索查看并能一键下载（pull）镜像</p>
+<p><strong>Containers</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.09%20PM.png" alt="容器"></p>
+<p>显示所有的容器，并支持多个容器同时启动、停止、重启、删除，容器添加等操作。是所有的容器都可以点开查看更详细的信息。</p>
+<p><strong>Images</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.31%20PM.png" alt="镜像"></p>
+<p>可以查看本机所有的镜像。支持批量删除镜像，根据名字下载镜像，选择镜像仓库。点击任意镜像，可以查看进行详细信息。</p>
+<p><strong>Networks</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.39%20PM.png" alt="网络"></p>
+<p>查看 docker 内部网络情况。支持添加和删除网络连接。</p>
+<p><strong>Volums</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.43%20PM.png" alt="数据"></p>
+<p>数据卷。支持查看所有的数据卷，批量删除，添加新数据卷，查看详细信息。</p>
+<p><strong>Events</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.58%20PM.png" alt="事件"></p>
+<p>事件。这是类似于日志系统，记录容器和镜像的启动、停止删除等操作。</p>
+<p><strong>Docker</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.35.03%20PM.png" alt="docker"></p>
+<p>查看 docker 有关的详细信息，类似于命令行上的 <code>docker info</code>命令的结果。</p>
+<p><strong>EndPoint</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.35.11%20PM.png" alt="节点"></p>
+<p>查看管理的节点。可以添加多个节点，从而可以同时管理多个机器上的 docker。通过左上角的下拉框，选择要管理的 docker 节点即可。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>首先通过 docker 命令 pull 此镜像：</p>
+<pre class="line-numbers language-sh"><code class="language-sh">docker pull portainer/portainer
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>下载完成之后，通过以下名可以启动容器了：</p>
+<pre class="line-numbers language-shell"><code class="language-shell">docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><em>注：-v 选项只对 Linux 环境有效</em></p>
+<p>现在你可以在浏览器输入 <code>localhost:9000</code> 就能访问 portainer 去管理你的 docker了。</p>
+<p>关于如何远程管理 docker，请看官方文档，在这儿不做详述。</p>
+<p>portaner github：<a href="https://github.com/portainer/portainer" target="_blank" rel="external">https://github.com/portainer/portainer</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;安利一款很好用的工具&lt;/p&gt;
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>GO interface</title>
     <link href="http://yusank.github.io/Go_interface.html/"/>
     <id>http://yusank.github.io/Go_interface.html/</id>
