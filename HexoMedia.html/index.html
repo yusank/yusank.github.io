@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <!-- Title -->
+    
+    <title>
+        Hexo 博客添加视频和音乐 | Yusank&#39;s blog
+    </title>
+    
+    <!-- Favicons -->
+    <link rel="icon shortcut" type="image/ico" href="/img/favicon.png">
+    <link rel="icon" sizes="192x192" href="/img/favicon.png">
+    <link rel="apple-touch-icon" href="/img/favicon.png">
+    
+    <!-- Meta & INfo -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0097A7">
+    <meta name="author" content="Yusank">
+    <meta name="description" content="Always have a dream.">
+    <meta name="keywords" content="yusank">
+    
+    <!--iOS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-title" content="Title">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="480">
+    
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Yusank&#39;s blog">
+    
+    <!-- The Open Graph protocol -->
+    <meta property="og:url" content="http://yusank.github.io">
+    <meta property="og:type" content="blog">
+    <meta property="og:title" content="Hexo 博客添加视频和音乐 | Yusank&#39;s blog">
+    <meta property="og:description" content="Always have a dream.">
+    
+     <!--[if lte IE 9]>
+        <link rel="stylesheet" href="/css/ie-blocker.css">
+        
+        
+            <script src="/js/ie-blocker.zhCN.js"></script>
+        
+    <![endif]-->
+    
+    <!-- Import CSS -->
+    <link rel="stylesheet" href="/css/material.min.css">
+    <link rel="stylesheet" href="/css/style.min.css">
+    <!-- Config CSS -->
+
+
+<!-- Other Styles -->
+<style>
+	body, html{
+		font-family: Roboto, "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+	}
+	
+    a{
+        color: #00838F
+    }
+    
+    .mdl-card__media,
+    #search-label,
+    #search-form-label:after,
+    #scheme-Paradox .hot_tags-count,
+    #scheme-Paradox .sidebar_archives-count,
+    #scheme-Paradox .sidebar-colored .sidebar-header,
+    #scheme-Paradox .sidebar-colored .sidebar-badge{
+        background-color: #42A5F5 !important
+    }
+    
+	/* Sidebar User Drop Down Menu Text Color */
+	#scheme-Paradox .sidebar-colored .sidebar-nav>.dropdown>.dropdown-menu>li>a:hover,
+    #scheme-Paradox .sidebar-colored .sidebar-nav>.dropdown>.dropdown-menu>li>a:focus{
+        color: #42A5F5 !important
+    }
+    
+    #post_entry-right-info,
+    .sidebar-colored .sidebar-nav li:hover > a,
+    .sidebar-colored .sidebar-nav li:hover > a i,
+    .sidebar-colored .sidebar-nav li > a:hover,
+    .sidebar-colored .sidebar-nav li > a:hover i,
+    .sidebar-colored .sidebar-nav li > a:focus i,
+    .sidebar-colored .sidebar-nav > .open > a,
+    .sidebar-colored .sidebar-nav > .open > a:hover,
+    .sidebar-colored .sidebar-nav > .open > a:focus,
+    #ds-reset #ds-ctx .ds-ctx-entry .ds-ctx-head a{
+        color: #42A5F5 !important
+    }
+    
+    .toTop{
+        background: #757575 !important
+    }
+		
+	.material-layout .material-post>.material-nav,
+	.material-layout .material-index>.material-nav,
+	.material-nav a{
+		color: #757575;
+	}
+		
+	#scheme-Paradox .MD-burger-layer {
+		background-color: #757575;
+	}
+
+	#scheme-Paradox #post-toc-trigger-btn{
+		color: #757575;
+	}
+	
+	.post-toc a:hover{
+		color: #00838F;
+		text-decoration: underline;
+	}
+</style>
+
+
+<!-- Theme Background Related-->
+
+    <style>
+        body{
+            background-color: #EBEFF2
+        }
+		
+		/* blog_info bottom background */
+        #scheme-Paradox .material-layout .something-else .mdl-card__supporting-text{
+            background-color: #fff;
+        }
+    </style>
+
+
+
+
+<!-- Fade Effect -->
+
+    <style>
+        .fade {
+            transition: all 800ms linear;
+            -webkit-transform: translate3d(0,0,0);
+            -moz-transform: translate3d(0,0,0);
+            -ms-transform: translate3d(0,0,0);
+            -o-transform: translate3d(0,0,0);
+            transform: translate3d(0,0,0);
+            opacity: 1;
+        }
+
+        .fade.out{
+            opacity: 0;
+        }
+    </style>
+
+	<script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+	
+	<link rel="stylesheet" href="/css/highlight/undefined.css">
+	
+	<!-- UC Browser Compatible-->
+	<script>
+		var agent = navigator.userAgent.toLowerCase();
+		if(agent.indexOf('ucbrowser')>0) {
+			document.write('<link rel="stylesheet" href="/css/uc.css">');
+		   alert('由于 UC 浏览器使用极旧的内核，而本网站使用了一些新的特性。\n为了您能更好的浏览，推荐使用 Chrome 或 Firefox 浏览器。');
+		}
+	</script>
+    
+    <!-- Custom Head -->
+    
+<link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+	
+	
+
+    <body id="scheme-Paradox">
+
+		
+        <div class="material-layout  mdl-js-layout has-drawer is-upgraded">
+				
+			
+			
+            <!-- Main Container -->
+            <main class="material-layout__content" id="main">
+				
+                <!-- Top Anchor -->
+                <div id="top"></div>
+				
+				
+                <!-- Hamburger Button -->
+                <button class="MD-burger-icon sidebar-toggle">
+                    <span class="MD-burger-layer"></span>
+                </button>
+				
+				
+                <!-- Post TOC -->
+
+    
+	<!-- Back Button -->
+<!--
+	<div class="material-back" id="backhome-div" tabindex="0">
+		<a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="#" onclick="window.history.back();return false;" target="_self" role="button" data-upgraded=",MaterialButton,MaterialRipple">
+			<i class="material-icons" role="presentation">arrow_back</i>
+			<span class="mdl-button__ripple-container">
+				<span class="mdl-ripple"></span>
+			</span>
+		</a>
+	</div>			
+-->
+	<!-- Left aligned menu below button -->
+	<button id="post-toc-trigger-btn"
+			class="mdl-button mdl-js-button mdl-button--icon">
+	  <i class="material-icons">format_list_numbered</i>
+	</button>
+
+	<ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
+		for="post-toc-trigger-btn">
+			
+			<ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Hexo-博客中插入视频-音乐"><span class="post-toc-number">1.</span> <span class="post-toc-text">Hexo 博客中插入视频/音乐</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Markdown-通用音乐-视频插入方法"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">Markdown 通用音乐/视频插入方法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#embed标签"><span class="post-toc-number">1.1.1.</span> <span class="post-toc-text">embed标签</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#ifreame标签"><span class="post-toc-number">1.1.2.</span> <span class="post-toc-text">ifreame标签</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#通过-Hexo-插件插入音频-视频"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">通过 Hexo 插件插入音频/视频</span></a></li></ol></li></ol>
+		
+<!--			<li class="mdl-menu__item">Some Action</li>-->
+	</ul>
+
+
+
+<!-- Layouts -->
+
+    <!-- Post Module -->
+    <div class="material-post_container">
+		
+        <div class="material-post mdl-grid">
+            <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+
+                <!-- Post Header(Thumbnail & Title) -->
+                
+	<!-- Paradox Post Header -->
+	
+		<!-- Custom Thumbnail -->
+		<div class="post_thumbnail-custom mdl-card__media mdl-color-text--grey-50" style="background-image:url(http://oid1xlj7h.bkt.clouddn.com/579d693052109.png)">
+	
+        <p class="article-headline-p">
+            Hexo 博客添加视频和音乐
+        </p>
+    </div>
+
+	
+
+				
+				
+					<!-- Paradox Post Info -->
+					<div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
+    
+    <!-- Author Avatar -->
+    <div id="author-avatar">
+        <img src="/img/avatar.png" width="44px" height="44px" alt="Author Avatar"/>
+    </div>
+    <!-- Author Name & Date -->
+    <div>
+        <strong>Yusank</strong>
+        <span>4月 09, 2017</span>
+    </div>
+    
+    <div class="section-spacer"></div>
+	
+    <!-- Favorite -->
+<!--
+    <button id="article-functions-like-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon btn-like">
+        <i class="material-icons" role="presentation">favorite</i>
+        <span class="visuallyhidden">favorites</span>
+    </button>
+-->
+    
+    <!-- Tags (bookmark) -->
+    <button id="article-functions-viewtags-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+        <i class="material-icons" role="presentation">bookmark</i>
+        <span class="visuallyhidden">bookmark</span>
+    </button>
+    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
+        <li class="mdl-menu__item">
+        
+    </ul>
+    
+    <!-- Share -->
+    <button id="article-fuctions-share-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+    <i class="material-icons" role="presentation">share</i>
+    <span class="visuallyhidden">share</span>
+</button>
+<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-fuctions-share-button">
+    
+    
+    
+    
+    <!-- Busuanzi Views -->
+    <a class="post_share-link" href="#">
+        <li class="mdl-menu__item">
+            <span id="busuanzi_container_page_pv">
+                <span id="busuanzi_value_page_pv"></span>&nbsp;浏览量
+            </span>
+        </li>
+    </a>
+    
+    
+    <!-- Share Twitter -->
+    <a class="post_share-link" href="https://twitter.com/intent/tweet?text=Hexo 博客添加视频和音乐&url=http://yusank.github.io//HexoMedia.html/index.html&via=Yusank" target="_blank">
+        <li class="mdl-menu__item">
+            分享到 Twitter
+        </li>
+    </a>
+    
+    <!-- Share Google+ -->
+    <a class="post_share-link" href="https://plus.google.com/share?url=http://yusank.github.io//HexoMedia.html/index.html" target="_blank">
+        <li class="mdl-menu__item">
+            分享到 Google+
+        </li>
+    </a>
+    
+    <!-- Share Weibo -->
+    <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=Hexo 博客添加视频和音乐&url=http://yusank.github.io//HexoMedia.html/index.html&pic=&searchPic=false&style=simple" target="_blank">
+        <li class="mdl-menu__item">
+            分享到微博
+        </li>
+    </a>
+</ul>
+</div>
+				
+
+                <!-- Post Content -->
+                <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
+	
+		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>找到一个炒鸡流弊的东西。。。</p>
+<a id="more"></a>
+<h1 id="Hexo-博客中插入视频-音乐"><a href="#Hexo-博客中插入视频-音乐" class="headerlink" title="Hexo 博客中插入视频/音乐"></a>Hexo 博客中插入视频/音乐</h1><p>博客中插入音乐/视频，可以让博客的逼格瞬间提高。作为优秀的静态博客，Hexo 当然也少不了这些高大上的功能。</p>
+<h2 id="Markdown-通用音乐-视频插入方法"><a href="#Markdown-通用音乐-视频插入方法" class="headerlink" title="Markdown 通用音乐/视频插入方法"></a>Markdown 通用音乐/视频插入方法</h2><p>Markdown 作为轻量级的标记语言，兼容 html 语法，所以可以直接在 Markdown 文档中使用 html 语法。</p>
+<p><code>vedio</code> 标签</p>
+<pre class="line-numbers language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>video</span> <span class="token attr-name">width</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>480<span class="token punctuation">"</span></span> <span class="token attr-name">height</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>320<span class="token punctuation">"</span></span> <span class="token attr-name">controls</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>source</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>movie.mp4<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>video</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>其中在 <code>src</code> 后面需要替换自己的音乐/视频链接</p>
+<p>效果:</p>
+<p>​    <video width="480" height="320" controls><br>​    <source src="http://oid1xlj7h.bkt.clouddn.com/WeChatSight72.mp4"><br>​    </video></p>
+<h3 id="embed标签"><a href="#embed标签" class="headerlink" title="embed标签"></a><code>embed</code>标签</h3><pre class="line-numbers language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>embed</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://player.youku.com/player.php/Type/Folder/Fid/27690810/Ob/1/sid/XMTY1MTI3NjMyNA<span class="token punctuation">=</span><span class="token punctuation">=</span>/v.swf<span class="token punctuation">"</span></span> <span class="token attr-name">quality</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>high<span class="token punctuation">"</span></span> <span class="token attr-name">width</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>480<span class="token punctuation">"</span></span> <span class="token attr-name">height</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>400<span class="token punctuation">"</span></span> <span class="token attr-name">align</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>middle<span class="token punctuation">"</span></span> <span class="token attr-name">allowScriptAccess</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>always<span class="token punctuation">"</span></span> <span class="token attr-name">allowFullScreen</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>true<span class="token punctuation">"</span></span> <span class="token attr-name">mode</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>transparent<span class="token punctuation">"</span></span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>application/x-shockwave-flash<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>embed</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h3 id="ifreame标签"><a href="#ifreame标签" class="headerlink" title="ifreame标签"></a><code>ifreame</code>标签</h3><pre class="line-numbers language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>iframe</span> <span class="token attr-name">height</span><span class="token attr-value"><span class="token punctuation">=</span>498</span> <span class="token attr-name">width</span><span class="token attr-value"><span class="token punctuation">=</span>510</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://player.youku.com/embed/XMTY1MTI3NjMyNA<span class="token punctuation">=</span><span class="token punctuation">=</span><span class="token punctuation">"</span></span> <span class="token attr-name">frameborder</span><span class="token attr-value"><span class="token punctuation">=</span>0</span> <span class="token attr-name">allowfullscreen</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>iframe</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>网易云音乐网页版提供生成 iframe 标签。</p>
+<pre class="line-numbers language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>text/javascript<span class="token punctuation">"</span></span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://www.xiami.com/widget/player-single?uid<span class="token punctuation">=</span>32329501&amp;sid<span class="token punctuation">=</span>1776238762&amp;mode<span class="token punctuation">=</span>js<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>除了 <code>vedio</code> 标签外，大部分音乐/视频网站都可以直接生成播放代码，直接粘贴在 Markdown 文档即可。</p>
+<p>不过有些标签不支持 HTTPS。</p>
+<h2 id="通过-Hexo-插件插入音频-视频"><a href="#通过-Hexo-插件插入音频-视频" class="headerlink" title="通过 Hexo 插件插入音频/视频"></a>通过 Hexo 插件插入音频/视频</h2><p>这里需要两个播放器插件</p>
+<pre class="line-numbers language-shell"><code class="language-shell">hexo-tag-aplayer:https://github.com/grzhan/hexo-tag-aplayer#upstream-issue
+
+hexo-tag-dplayer:https://github.com/NextMoe/hexo-tag-dplayer
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>这两款插件基于 DIYgod 编写的 html5 播放器 APlayer 和 DPlayer 开发。</p>
+<p>首先安装两款插件</p>
+<p>打开 shell，切换到 Hexo 目录下，运行两条目录</p>
+<pre class="line-numbers language-shell"><code class="language-shell">npm install hexo-tag-dplayer --save
+npm install hexo-tag-aplayer --save
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>安装成功后，在 Markdown 文档中添加 APlayer 和 DPlayer 标签即可。</p>
+<pre class="line-numbers language-html"><code class="language-html">{% aplayer "Caffeine" "Jeff Williams" "http://7xq131.com1.z0.glb.clouddn.com/Preparation.mp3" "autoplay" %}
+{% dplayer "url=http://devtest.qiniudn.com/若能绽放光芒.mp4" "api=http://dplayer.daoapp.io" "pic=http://devtest.qiniudn.com/若能绽放光芒.png" "id=9E2E3368B56CDBB4" "loop=yes" "theme=#FADFA3" "autoplay=false" "token=tokendemo" %}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>APlayer 和 DPlayer 具体参数设置可以到 GitHub 项目主页，不过默认参数足够了。</p>
+<div id="aplayer0" class="aplayer" style="margin-bottom: 20px;">
+				<pre class="aplayer-lrc-content">'[00:00.00]Zoobi Doobi
+[00:00.38]Sonu Nigam & Shreya Ghoshal
+[00:00.53]LRC：Meselson (QQ 445942376)
+[00:01.18]
+[00:03.50]Gungunati hain yeh hawayein 
+[00:12.73]Gungunata hai gagan
+[00:19.91]Gaa raha hai yeh saara aalam
+[00:26.90]Zoobi do… param pum… 
+[00:37.35]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[00:42.67]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann 
+[00:47.99]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[00:53.30]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann 
+[00:58.34]Shaakhon pe pattey gaa rahe hain Phoolon pe bhanvre gaa rahe
+[01:03.69]Deewani kirine gaa rahi hain Yeh panchhi gaa rahe
+[01:08.38]Ohhh Bagiya mein do phoolon ki Ho rahi hai guft-gu 
+[01:14.02]Jaisa filmon mein hota hai Ho raha hai hu-bahoo
+[01:19.18]I iiii iii.. 
+[01:20.11]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[01:25.21]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[01:30.52]
+[01:30.81]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[01:35.98]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[01:40.68]
+[02:02.67]Rimjhim rimjhim rimjhim San san san san hawaa
+[02:07.63]Tip tip tip tip boondein Gurrati bijliyaan
+[02:13.00]Bheegi bheegi saree mein Yun thumke lagati tu
+[02:18.24]Ho raha hai hu bahoo
+[02:23.58]I iiii iii.. 
+[02:24.23]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[02:29.16]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[02:32.50]
+[02:34.30]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[02:39.58]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[02:45.70]
+[03:06.55]Amber ka chand zameen par Itra ke gaa raha
+[03:12.02]Ek tim tim toota tara Ithla ka gaa raha
+[03:17.29]Hai raat akeli tanha Mujhe choo le aake tu
+[03:22.47]Jaisa filmon mein hota hai Ho raha hai hubahoo
+[03:27.24]I iiii iii.. 
+[03:27.78]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[03:33.28]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[03:38.57]Zoobi doobi zoobi doobi pum paara Zoobi doobi param pum
+[03:43.79]Zoobi doobi zoobi doobi naache kyun Paagal stupid mann
+[03:48.58]LRC：Meselson (QQ 445942376)
+[03:50.47]THE END
+</pre>
+			</div>
+			<script>
+				new APlayer({
+					element: document.getElementById("aplayer0"),
+					narrow: false,
+					autoplay: 1,
+					showlrc: 2,
+					music: {
+						title: "Zoobi Doobi",
+						author: "Three ediot",
+						url: "http://oid1xlj7h.bkt.clouddn.com/Sonu%20Nigam,Shreya%20Ghoshal%20-%20Zoobi%20Doobi.mp3",
+						pic: "http://oid1xlj7h.bkt.clouddn.com/3_idiots_wallpaper.jpg",
+					}
+				});
+			</script>    
+<div id="dplayer0" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer0 = new DPlayer({"element":document.getElementById("dplayer0"),"autoplay":false,"theme":"#FADFA3","loop":true,"video":{"url":"http://oid1xlj7h.bkt.clouddn.com/WeChatSight72.mp4"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo"}});</script>
+<p>APlayer 和 DPlayer 均支持 HTTPS。</p>
+<p>上述两种方法都有优缺点，选择一种适合自己的方法，打造自己专属的博客吧。</p>
+<p>转载：【login926】login926.github.io</p>
+
+	
+	
+	
+	
+</div>
+				
+				
+
+                <!-- Post Comments -->
+                
+                    
+
+
+    <!-- 使用 DISQUS -->
+	<div id="disqus-comment">
+		<div id="disqus_thread"></div>
+<script>
+	var disqus_config = function () {
+		this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+		this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+	};
+
+	(function() { // DON'T EDIT BELOW THIS LINE
+		var d = document, s = d.createElement('script');
+		s.src = '//yusank.disqus.com/embed.js';
+		s.setAttribute('data-timestamp', +new Date());
+		(d.head || d.body).appendChild(s);
+	})();
+</script>
+	</div>
+	<style>
+		#disqus-comment{
+			background-color:#eee;
+			padding:2pc;
+		}
+	</style>
+
+                
+            </div>
+
+            <!-- Post Prev & Next Nav -->
+            <nav class="material-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
+    
+    <!-- Prev Nav -->
+    
+        <a href="/testlist.html/" id="post_nav-newer" class="prev-content">
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            新篇
+        </a>
+    
+
+    <!-- Section Spacer -->
+    <div class="section-spacer"></div>
+
+    <!-- Next Nav -->
+    
+        <a href="/Vimkyboard.html/" id="post_nav-older" class="next-content">
+            旧篇
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                <i class="material-icons">arrow_forward</i>
+            </button>
+        </a>
+    
+</nav>
+        </div>
+    </div>
+
+				
+				
+					<!-- Overlay For Active Sidebar -->
+<div class="sidebar-overlay "></div>
+
+<!-- Material sidebar -->
+<aside id="sidebar" class="sidebar sidebar-colored  sidebar-fixed-left" role="navigation">
+	<div id="sidebar-main">
+	    <!-- Sidebar Header -->
+		<div class="sidebar-header header-cover" style="background-image: url(/img/sidebar_header.png);">
+    <!-- Top bar -->
+    <div class="top-bar"></div>
+
+    <!-- Sidebar toggle button -->
+    <button type="button" class="sidebar-toggle mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" style="display: initial;" data-upgraded=",MaterialButton,MaterialRipple">
+    <i class="material-icons">clear_all</i>
+    <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
+
+    <!-- Sidebar Avatar -->
+    <div class="sidebar-image">
+        <img src="/img/avatar.png" alt="Yusank's avatar">
+    </div>
+
+    <!-- Sidebar Email -->
+    <a data-toggle="dropdown" class="sidebar-brand" href="#settings-dropdown">
+        yusankurban@gmail.com
+        <b class="caret"></b>
+    </a>
+</div>
+
+		<!-- Sidebar Navigation  -->
+		<ul class="nav sidebar-nav">
+    <!-- User dropdown  -->
+    <li class="dropdown">
+        <ul id="settings-dropdown" class="dropdown-menu">
+			
+                <li>
+                    <a href="https://gmail.google.com" target="_blank" title="Email Me">
+						<i class="material-icons sidebar-material-icons sidebar-indent-left1pc-element">email</i>
+                        Email Me
+                    </a>
+                </li>
+            
+        </ul>
+    </li>
+
+    <!-- Homepage -->
+    <li id="sidebar-first-li">
+        <a href="/" target="_self">
+            <i class="material-icons sidebar-material-icons">home</i>
+             主页
+        </a>
+    </li>
+
+    <!-- I'm Feeling Lucky -->
+<!--
+    <li class="dropdown">
+        <a href="" target="_self">
+            <i class="material-icons sidebar-material-icons">explore</i>
+             sidebar.imlucky
+        </a>
+    </li>
+-->
+
+	
+    <!-- Archives  -->
+    <li class="dropdown">
+        <a href="#" class="ripple-effect dropdown-toggle" data-toggle="dropdown">
+            <i class="material-icons sidebar-material-icons">inbox</i>
+             归档
+            <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+            <li>
+            <a class="sidebar_archives-link" href="/archives/2017/08/">八月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/12/">十二月 2016<span class="sidebar_archives-count">6</span></a>
+        </ul>
+    </li>
+
+    <!-- Divider -->
+    <li class="divider"></li>
+
+
+    <!-- Pages  -->
+	
+		<li>
+			<a href="/links/" title="友情链接">
+				友情链接
+			</a>
+		</li>
+	
+		<li>
+			<a href="/about" title="关于我">
+				关于我
+			</a>
+		</li>
+	
+		<li>
+			<a href="/gallery" title="图库">
+				图库
+			</a>
+		</li>
+	
+		<li>
+			<a href="/categories" title="分类">
+				分类
+			</a>
+		</li>
+	
+
+    <!-- Article Numebr  -->
+    <li>
+        <a href="/archives">
+             文章总数
+             <span class="sidebar-badge">18</span>
+        </a>
+    </li>
+</ul>
+
+		<!-- Sidebar Divider -->
+		<div class="sidebar-divider"></div>
+
+		<!-- Sidebar Footer -->
+		<!-- 
+I'm glad you use this theme, the development is no so easy, I hope you can keep the copyright, I will thank you so much.
+If you still want to delete the copyrights, could you still retain the first one? Which namely "Theme Material"
+It will not impact the appearance and can give developers a lot of support :)
+
+很高兴您使用并喜欢该主题，开发不易 十分谢谢与希望您可以保留一下版权声明。
+如果您仍然想删除的话 能否只保留第一项呢？即 "Theme Material"
+它不会影响美观并可以给开发者很大的支持。 :) 
+-->
+
+<!-- Theme Material -->
+<a href="https://github.com/viosey/hexo-theme-material"  class="sidebar-footer-text-a" target="_blank">
+	<div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
+		主题 - Material
+		<span class="sidebar-badge badge-circle">i</span>
+	</div>
+</a>
+
+<!-- Help & Support -->
+<!--
+<a href="mailto:hiviosey@gmail.com" class="sidebar-footer-text-a">
+    <div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
+		sidebar.help
+		<span class="mdl-button__ripple-container">
+			<span class="mdl-ripple"></span>
+		</span>
+	</div>
+</a>
+-->
+
+<!-- Feedback -->
+<!--
+<a href="https://github.com/viosey/hexo-theme-material/issues" target="_blank" class="sidebar-footer-text-a">
+    <div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
+         sidebar.feedback
+                    <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></div>
+</a>
+-->
+
+<!-- Abount Theme -->
+<!--
+<a href="https://blog.viosey.com/index.php/Material.html" target="_blank" class="sidebar-footer-text-a">
+    <div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
+         sidebar.about_theme
+        <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></div>
+</a>-->
+
+	</div>
+    
+    <!-- Sidebar Sponsor -->
+    
+
+
+</aside>
+
+				
+				
+				
+					<!-- Footer Top Button -->
+					<div class="toTop-wrap">
+    <a href="#top" class="toTop">
+        <i class="material-icons footer_top-i">expand_less</i>
+    </a>
+</div>
+				
+				
+				<!--Footer-->
+<footer class="mdl-mini-footer" id="bottom">
+	
+	
+		<!-- Paradox Footer Left Section -->
+		<div class="mdl-mini-footer--left-section sns-list">
+    <!-- Twitter -->
+    
+    <a href="https://twitter.com/twitter" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-twitter.png);">
+        <span class="visuallyhidden">Twitter</span>
+    </button></a>
+    
+    
+    <!-- Facebook -->
+    
+    <a href="https://www.facebook.com/facebook" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-facebook.png);">
+        <span class="visuallyhidden">Facebook</span>
+    </button></a>
+    
+    
+    <!-- Google + -->
+    
+    <a href="https://www.google.com/" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-gplus.png);">
+        <span class="visuallyhidden">Google Plus</span>
+    </button></a>
+    
+    
+    <!-- Weibo -->
+    
+    
+    
+    <!-- Instagram -->
+    
+    
+    
+    <!-- Tumblr -->
+    
+    
+    
+    <!-- Github -->
+    
+    <a href="https://github.com/yusank" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-github.png);">
+        <span class="visuallyhidden">Github</span>
+    </button></a>
+    
+</div>
+
+
+		<!--Copyright-->
+		<div id="copyright">Copyright&nbsp;©&nbsp;<script type="text/javascript">var fd = new Date();document.write(fd.getFullYear());</script>&nbsp;Yusank's blog</div>
+
+		<!-- Paradox Footer Right Section -->
+
+		<!-- 
+		I'm glad you use this theme, the development is no so easy, I hope you can keep the copyright.
+		It will not impact the appearance and can give developers a lot of support :)
+
+		很高兴您使用该主题，开发不易，希望您可以保留一下版权声明。
+		它不会影响美观并可以给开发者很大的支持。 :) 
+		-->
+
+		<div class="mdl-mini-footer--right-section">
+			<div>
+				<div class="footer-develop-div">Powered by <a href="https://hexo.io" target="_blank" class="footer-develop-a">Hexo</a></div>
+				<div class="footer-develop-div">Theme - <a href="https://github.com/viosey/hexo-theme-material" target="_blank" class="footer-develop-a">Material</a></div>
+			</div>
+		</div>
+	
+    
+</footer>
+                
+				<!-- Import File -->
+<script src="/js/highlight.min.js"></script>
+<script src="/js/js.min.js"></script>
+<script src="/js/nprogress.js"></script>
+
+<script type="text/javascript">
+    NProgress.configure({
+        showSpinner: true
+    });
+    NProgress.start();
+    
+    $('#nprogress .bar').css({
+        'background': '#FF4081'
+    });
+    $('#nprogress .peg').css({
+        'box-shadow': '0 0 10px #FF4081, 0 0 15px #FF4081'
+    });
+    $('#nprogress .spinner-icon').css({
+        'border-top-color': '#FF4081',
+        'border-left-color': '#FF4081'
+    });
+    
+    setTimeout(function() {
+        NProgress.done();
+        $('.fade').removeClass('out');
+    }, 800);
+</script>
+
+
+
+
+
+
+
+
+
+
+    <!-- 使用 DISQUS js 代码 -->
+	<script id="dsq-count-scr" src="//yusank.disqus.com/count.js" async></script>
+
+
+<!-- Swiftye -->
+
+
+<!-- Local Search-->
+
+	<script>
+	var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length <= 0) {
+                    return;
+                }
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        str += "<li><a href='"+ data_url +"' class='search-result-title' target='_blank'>"+ data_title;
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out characters
+                            var start = first_occur - 6;
+                            var end = first_occur + 6;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 10;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substr(start, end); 
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<em class=\"search-keyword\">"+keyword+"</em>");
+                            })
+                            str += "<p class=\"search-result\">" + match_content +"...</p>" +"</a>";
+                        }
+                    }
+                })
+                $resultContent.innerHTML = str;
+            })
+        }
+    })
+}
+</script>
+
+	<script>
+        var inputArea = document.querySelector("#search");
+        var getSearchFile = function(){
+            var path = "search.xml";
+            searchFunc(path, 'search', 'local-search-result');
+        }
+
+        inputArea.onfocus = function(){ getSearchFile() }
+	</script>
+
+
+<!-- Window Load-->
+<script>
+    $(window).load(function() {
+        // Post_Toc parent position fixed
+        $(".post-toc-wrap").parent(".mdl-menu__container").css("position", "fixed");
+    });
+</script>
+
+<!-- MathJax Load-->
+
+            </main>
+        </div>
+		
+    </body>
+		
+	
+</html>
