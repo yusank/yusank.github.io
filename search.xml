@@ -1454,46 +1454,55 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
 <h2 id="如何编写测试用例"><a href="#如何编写测试用例" class="headerlink" title="如何编写测试用例"></a>如何编写测试用例</h2><p>由于<code>go test</code>命令只能在一个相应的目录下执行所有文件，所以我们接下来新建一个项目目录<code>gotest</code>,这样我们所有的代码和测试代码都在这个目录下。</p>
 <p>接下来我们在该目录下面创建两个文件：gotest.go和gotest_test.go</p>
 <ol>
-<li><p>gotest.go:这个文件里面我们是创建了一个包，里面有一个函数实现了除法运算:</p>
-<p>```Go<br>package gotest</p>
-</li>
+<li>gotest.go:这个文件里面我们是创建了一个包，里面有一个函数实现了除法运算:</li>
 </ol>
-<p>import (<br>    “errors”<br>)</p>
-<p>func Division(a, b float64) (float64, error) {<br>    if b == 0 {<br>        return 0, errors.New(“除数不能为0”)<br>    }</p>
-<pre><code>return a / b, nil
-</code></pre><p>}</p>
-<pre><code>
-2. gotest_test.go:这是我们的单元测试文件，但是记住下面的这些原则：
-
-- 文件名必须是`_test.go`结尾的，这样在执行`go test`的时候才会执行到相应的代码
-- 你必须import `testing`这个包
-- 所有的测试用例函数必须是`Test`开头
-- 测试用例会按照源代码中写的顺序依次执行
-- 测试函数`TestXxx()`的参数是`testing.T`，我们可以使用该类型来记录错误或者是测试状态
-- 测试格式：`func TestXxx (t *testing.T)`,`Xxx`部分可以为任意的字母数字的组合，但是首字母不能是小写字母[a-z]，例如`Testintdiv`是错误的函数名。
-- 函数中通过调用`testing.T`的`Error`, `Errorf`, `FailNow`, `Fatal`, `FatalIf`方法，说明测试不通过，调用`Log`方法用来记录测试的信息。
-
- 下面是我们的测试用例的代码：
-
- ```Go
-package gotest
+<pre class="line-numbers language-Go"><code class="language-Go">package gotest
 
 import (
-    &quot;testing&quot;
+    "errors"
+)
+
+func Division(a, b float64) (float64, error) {
+    if b == 0 {
+        return 0, errors.New("除数不能为0")
+    }
+
+    return a / b, nil
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<ol>
+<li>gotest_test.go:这是我们的单元测试文件，但是记住下面的这些原则：</li>
+</ol>
+<ul>
+<li>文件名必须是<code>_test.go</code>结尾的，这样在执行<code>go test</code>的时候才会执行到相应的代码</li>
+<li>你必须import <code>testing</code>这个包</li>
+<li>所有的测试用例函数必须是<code>Test</code>开头</li>
+<li>测试用例会按照源代码中写的顺序依次执行</li>
+<li>测试函数<code>TestXxx()</code>的参数是<code>testing.T</code>，我们可以使用该类型来记录错误或者是测试状态</li>
+<li>测试格式：<code>func TestXxx (t *testing.T)</code>,<code>Xxx</code>部分可以为任意的字母数字的组合，但是首字母不能是小写字母[a-z]，例如<code>Testintdiv</code>是错误的函数名。</li>
+<li><p>函数中通过调用<code>testing.T</code>的<code>Error</code>, <code>Errorf</code>, <code>FailNow</code>, <code>Fatal</code>, <code>FatalIf</code>方法，说明测试不通过，调用<code>Log</code>方法用来记录测试的信息。</p>
+<p>下面是我们的测试用例的代码：</p>
+</li>
+</ul>
+<pre class="line-numbers language-Go"><code class="language-Go">package gotest
+
+import (
+    "testing"
 )
 
 func Test_Division_1(t *testing.T) {
     if i, e := Division(6, 2); i != 3 || e != nil { //try a unit test on function
-        t.Error(&quot;除法函数测试没通过&quot;) // 如果不是如预期的那么就报错
+        t.Error("除法函数测试没通过") // 如果不是如预期的那么就报错
     } else {
-        t.Log(&quot;第一个测试通过了&quot;) //记录一些你期望记录的信息
+        t.Log("第一个测试通过了") //记录一些你期望记录的信息
     }
 }
 
 func Test_Division_2(t *testing.T) {
-    t.Error(&quot;就是不通过&quot;)
+    t.Error("就是不通过")
 }
-</code></pre><p>我们在项目目录下面执行<code>go test</code>,就会显示如下信息：</p>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>我们在项目目录下面执行<code>go test</code>,就会显示如下信息：</p>
 <pre class="line-numbers language-shell"><code class="language-shell">--- FAIL: Test_Division_2 (0.00 seconds)
     gotest_test.go:16: 就是不通过
     FAIL
@@ -1531,12 +1540,12 @@ PASS
 ok  gotest    0.013s
 </code></pre><h2 id="如何编写压力测试"><a href="#如何编写压力测试" class="headerlink" title="如何编写压力测试"></a>如何编写压力测试</h2><p>压力测试用来检测函数(方法）的性能，和编写单元功能测试的方法类似,此处不再赘述，但需要注意以下几点：</p>
 <ul>
-<li><p>压力测试用例必须遵循如下格式，其中XXX可以是任意字母数字的组合，但是首字母不能是小写字母</p>
+<li>压力测试用例必须遵循如下格式，其中XXX可以是任意字母数字的组合，但是首字母不能是小写字母</li>
+</ul>
 <pre class="line-numbers language-Go"><code class="language-Go">func BenchmarkXXX(b *testing.B) { ... }
 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-</li>
-<li><p><code>go test</code>不会默认执行压力测试的函数，如果要执行压力测试需要带上参数<code>-test.bench</code>，语法:<code>-test.bench=&quot;test_name_regex&quot;</code>,例如<code>go test -test.bench=&quot;.*&quot;</code>表示测试全部的压力测试函数</p>
-</li>
+<ul>
+<li><code>go test</code>不会默认执行压力测试的函数，如果要执行压力测试需要带上参数<code>-test.bench</code>，语法:<code>-test.bench=&quot;test_name_regex&quot;</code>,例如<code>go test -test.bench=&quot;.*&quot;</code>表示测试全部的压力测试函数</li>
 <li>在压力测试用例中,请记得在循环体内使用<code>testing.B.N</code>,以使测试可以正常的运行</li>
 <li>文件名也必须以<code>_test.go</code>结尾</li>
 </ul>
@@ -1980,7 +1989,7 @@ npm install hexo-tag-aplayer --save
 {% dplayer "url=http://devtest.qiniudn.com/若能绽放光芒.mp4" "api=http://dplayer.daoapp.io" "pic=http://devtest.qiniudn.com/若能绽放光芒.png" "id=9E2E3368B56CDBB4" "loop=yes" "theme=#FADFA3" "autoplay=false" "token=tokendemo" %}
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p>APlayer 和 DPlayer 具体参数设置可以到 GitHub 项目主页，不过默认参数足够了。</p>
-<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;">
+<div id="aplayer0" class="aplayer" style="margin-bottom: 20px;">
 				<pre class="aplayer-lrc-content">'[00:00.00]Zoobi Doobi
 [00:00.38]Sonu Nigam & Shreya Ghoshal
 [00:00.53]LRC：Meselson (QQ 445942376)
@@ -2030,7 +2039,7 @@ npm install hexo-tag-aplayer --save
 			</div>
 			<script>
 				new APlayer({
-					element: document.getElementById("aplayer1"),
+					element: document.getElementById("aplayer0"),
 					narrow: false,
 					autoplay: 1,
 					showlrc: 2,
@@ -2058,10 +2067,10 @@ e:下一个词的词尾。
 </code></pre><p>​    b:上一个词的词首。</p>
 <pre><code>&lt;&gt;: v 模式选中后进行缩进。
 </code></pre><a id="more"></a>
-<div id="aplayer0" class="aplayer" style="margin-bottom: 20px;"></div>
+<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;"></div>
 		<script>
 			new APlayer({
-				element: document.getElementById("aplayer0"),
+				element: document.getElementById("aplayer1"),
 				narrow: false,
 				autoplay: true,
 				showlrc: 0,
