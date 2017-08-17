@@ -533,7 +533,7 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
     <link href="http://yusank.github.io/GO-UDP.html/"/>
     <id>http://yusank.github.io/GO-UDP.html/</id>
     <published>2017-07-12T11:00:01.000Z</published>
-    <updated>2017-08-17T07:10:26.000Z</updated>
+    <updated>2017-08-17T14:31:25.000Z</updated>
     
     <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ……<br><a id="more"></a></p>
 <h1 id="用-go-实现简单的-udp"><a href="#用-go-实现简单的-udp" class="headerlink" title="用 go 实现简单的 udp"></a>用 go 实现简单的 udp</h1><p>用户数据包协议（英语：User Datagram Protocol，缩写为UDP），又称用户数据报文协议，是一个简单的面向数据报的传输层协议，正式规范为RFC 768。<br>在TCP/IP模型中，UDP为网络层以上和应用层以下提供了一个简单的接口。UDP只提供数据的不可靠传递，它一旦把应用程序发给网络层的数据发送出去，就不保留数据备份（所以UDP有时候也被认为是不可靠的数据报协议）。UDP在IP数据报的头部仅仅加入了复用和数据校验（字段）。</p>
