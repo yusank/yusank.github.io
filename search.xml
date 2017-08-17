@@ -1456,19 +1456,19 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
 <ol>
 <li>gotest.go:这个文件里面我们是创建了一个包，里面有一个函数实现了除法运算:</li>
 </ol>
-<pre class="line-numbers language-Go"><code class="language-Go">package gotest
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> gotest
 
-import (
-    "errors"
-)
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">"errors"</span>
+<span class="token punctuation">)</span>
 
-func Division(a, b float64) (float64, error) {
-    if b == 0 {
-        return 0, errors.New("除数不能为0")
-    }
+<span class="token keyword">func</span> <span class="token function">Division</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> b <span class="token builtin">float64</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token builtin">float64</span><span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> b <span class="token operator">==</span> <span class="token number">0</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">,</span> errors<span class="token punctuation">.</span><span class="token function">New</span><span class="token punctuation">(</span><span class="token string">"除数不能为0"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
 
-    return a / b, nil
-}
+    <span class="token keyword">return</span> a <span class="token operator">/</span> b<span class="token punctuation">,</span> <span class="token boolean">nil</span>
+<span class="token punctuation">}</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <ol>
 <li>gotest_test.go:这是我们的单元测试文件，但是记住下面的这些原则：</li>
@@ -1484,23 +1484,23 @@ func Division(a, b float64) (float64, error) {
 <p>下面是我们的测试用例的代码：</p>
 </li>
 </ul>
-<pre class="line-numbers language-Go"><code class="language-Go">package gotest
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> gotest
 
-import (
-    "testing"
-)
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">"testing"</span>
+<span class="token punctuation">)</span>
 
-func Test_Division_1(t *testing.T) {
-    if i, e := Division(6, 2); i != 3 || e != nil { //try a unit test on function
-        t.Error("除法函数测试没通过") // 如果不是如预期的那么就报错
-    } else {
-        t.Log("第一个测试通过了") //记录一些你期望记录的信息
-    }
-}
+<span class="token keyword">func</span> <span class="token function">Test_Division_1</span><span class="token punctuation">(</span>t <span class="token operator">*</span>testing<span class="token punctuation">.</span>T<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> i<span class="token punctuation">,</span> e <span class="token operator">:=</span> <span class="token function">Division</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span> i <span class="token operator">!=</span> <span class="token number">3</span> <span class="token operator">||</span> e <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span> <span class="token comment" spellcheck="true">//try a unit test on function</span>
+        t<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token string">"除法函数测试没通过"</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// 如果不是如预期的那么就报错</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        t<span class="token punctuation">.</span><span class="token function">Log</span><span class="token punctuation">(</span><span class="token string">"第一个测试通过了"</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">//记录一些你期望记录的信息</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
 
-func Test_Division_2(t *testing.T) {
-    t.Error("就是不通过")
-}
+<span class="token keyword">func</span> <span class="token function">Test_Division_2</span><span class="token punctuation">(</span>t <span class="token operator">*</span>testing<span class="token punctuation">.</span>T<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    t<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token string">"就是不通过"</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>我们在项目目录下面执行<code>go test</code>,就会显示如下信息：</p>
 <pre class="line-numbers language-shell"><code class="language-shell">--- FAIL: Test_Division_2 (0.00 seconds)
@@ -1521,13 +1521,13 @@ exit status 1
 FAIL    gotest    0.012s
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>上面的输出详细的展示了这个测试的过程，我们看到测试函数1<code>Test_Division_1</code>测试通过，而测试函数2<code>Test_Division_2</code>测试失败了，最后得出结论测试不通过。接下来我们把测试函数2修改成如下代码：</p>
-<pre class="line-numbers language-Go"><code class="language-Go">func Test_Division_2(t *testing.T) {
-    if _, e := Division(6, 0); e == nil { //try a unit test on function
-        t.Error("Division did not work as expected.") // 如果不是如预期的那么就报错
-    } else {
-        t.Log("one test passed.", e) //记录一些你期望记录的信息
-    }
-}
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">func</span> <span class="token function">Test_Division_2</span><span class="token punctuation">(</span>t <span class="token operator">*</span>testing<span class="token punctuation">.</span>T<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token boolean">_</span><span class="token punctuation">,</span> e <span class="token operator">:=</span> <span class="token function">Division</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> e <span class="token operator">==</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span> <span class="token comment" spellcheck="true">//try a unit test on function</span>
+        t<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token string">"Division did not work as expected."</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// 如果不是如预期的那么就报错</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        t<span class="token punctuation">.</span><span class="token function">Log</span><span class="token punctuation">(</span><span class="token string">"one test passed."</span><span class="token punctuation">,</span> e<span class="token punctuation">)</span> <span class="token comment" spellcheck="true">//记录一些你期望记录的信息</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>然后我们执行<code>go test -v</code>，就显示如下信息，测试通过了：</p>
 <pre><code>=== RUN Test_Division_1
@@ -1542,7 +1542,7 @@ ok  gotest    0.013s
 <ul>
 <li>压力测试用例必须遵循如下格式，其中XXX可以是任意字母数字的组合，但是首字母不能是小写字母</li>
 </ul>
-<pre class="line-numbers language-Go"><code class="language-Go">func BenchmarkXXX(b *testing.B) { ... }
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">func</span> <span class="token function">BenchmarkXXX</span><span class="token punctuation">(</span>b <span class="token operator">*</span>testing<span class="token punctuation">.</span>B<span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token operator">...</span> <span class="token punctuation">}</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li><code>go test</code>不会默认执行压力测试的函数，如果要执行压力测试需要带上参数<code>-test.bench</code>，语法:<code>-test.bench=&quot;test_name_regex&quot;</code>,例如<code>go test -test.bench=&quot;.*&quot;</code>表示测试全部的压力测试函数</li>
@@ -1550,29 +1550,29 @@ ok  gotest    0.013s
 <li>文件名也必须以<code>_test.go</code>结尾</li>
 </ul>
 <p>下面我们新建一个压力测试文件webbench_test.go，代码如下所示：</p>
-<pre class="line-numbers language-Go"><code class="language-Go">package gotest
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> gotest
 
-import (
-    "testing"
-)
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">"testing"</span>
+<span class="token punctuation">)</span>
 
-func Benchmark_Division(b *testing.B) {
-    for i := 0; i < b.N; i++ { //use b.N for looping 
-        Division(4, 5)
-    }
-}
+<span class="token keyword">func</span> <span class="token function">Benchmark_Division</span><span class="token punctuation">(</span>b <span class="token operator">*</span>testing<span class="token punctuation">.</span>B<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">for</span> i <span class="token operator">:=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> b<span class="token punctuation">.</span>N<span class="token punctuation">;</span> i<span class="token operator">++</span> <span class="token punctuation">{</span> <span class="token comment" spellcheck="true">//use b.N for looping </span>
+        <span class="token function">Division</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
 
-func Benchmark_TimeConsumingFunction(b *testing.B) {
-    b.StopTimer() //调用该函数停止压力测试的时间计数
+<span class="token keyword">func</span> <span class="token function">Benchmark_TimeConsumingFunction</span><span class="token punctuation">(</span>b <span class="token operator">*</span>testing<span class="token punctuation">.</span>B<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    b<span class="token punctuation">.</span><span class="token function">StopTimer</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">//调用该函数停止压力测试的时间计数</span>
 
-    //做一些初始化的工作,例如读取文件数据,数据库连接之类的,
-    //这样这些时间不影响我们测试函数本身的性能
+    <span class="token comment" spellcheck="true">//做一些初始化的工作,例如读取文件数据,数据库连接之类的,</span>
+    <span class="token comment" spellcheck="true">//这样这些时间不影响我们测试函数本身的性能</span>
 
-    b.StartTimer() //重新开始时间
-    for i := 0; i < b.N; i++ {
-        Division(4, 5)
-    }
-}
+    b<span class="token punctuation">.</span><span class="token function">StartTimer</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">//重新开始时间</span>
+    <span class="token keyword">for</span> i <span class="token operator">:=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> b<span class="token punctuation">.</span>N<span class="token punctuation">;</span> i<span class="token operator">++</span> <span class="token punctuation">{</span>
+        <span class="token function">Division</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>我们执行命令<code>go test -file webbench_test.go -test.bench=&quot;.*&quot;</code>，可以看到如下结果：</p>
 <pre><code>PASS
