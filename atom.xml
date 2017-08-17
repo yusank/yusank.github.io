@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yusank.github.io/"/>
-  <updated>2017-08-14T05:51:02.000Z</updated>
+  <updated>2017-07-17T07:52:01.000Z</updated>
   <id>http://yusank.github.io/</id>
   
   <author>
@@ -16,11 +16,738 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Docker 的使用</title>
+    <link href="http://yusank.github.io/docker-practice.html/"/>
+    <id>http://yusank.github.io/docker-practice.html/</id>
+    <published>2017-07-17T07:52:00.000Z</published>
+    <updated>2017-07-17T07:52:01.000Z</updated>
+    
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p> docker 的基本操作和使用。。。<br> <a id="more"></a></p>
+<h1 id="Docker-的使用"><a href="#Docker-的使用" class="headerlink" title="Docker 的使用"></a>Docker 的使用</h1><h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><hr>
+<h3 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h3><hr>
+<h4 id="新建并启动"><a href="#新建并启动" class="headerlink" title="新建并启动"></a>新建并启动</h4><p>所需的命令是 <code>docker run</code></p>
+<p>例如：</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker run ubuntu:14.04 /bin/echo 'hello, worl'
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>容器执行后面的命令直接就会终止 .</p>
+<p>下面的命令会启动容器并起一个 bash 终端,允许用户进行交互</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -t -i ubuntu:14.04 /bin/bash
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>其中 <code>-t</code>  让 Docker 分配一个伪终端 (pseudo-tty) 并绑定到容器的标准输入上, <code>-i</code> 则让容器的标准输入保持打开 .</p>
+<p>利用 docker run 来创建容器是, Docker 在后台运行的标准操作包括:</p>
+<ul>
+<li>检查本地是否存在指定的镜像,不存在就从共有仓库下载</li>
+<li>利用镜像创建并启动一个容器</li>
+<li>分配一个文件系统并在只读的镜像层外面挂载一层可读写层</li>
+<li>在宿主主机配置的网桥接口中桥接一个虚拟接口到容器中去</li>
+<li>从地址池配置一个 ip 地址给容器</li>
+<li>执行用户指定的应用程序</li>
+<li>执行完毕后容器终止</li>
+</ul>
+<h4 id="启动已终止容器"><a href="#启动已终止容器" class="headerlink" title="启动已终止容器"></a>启动已终止容器</h4><p>可以利用 <code>docker start</code> 命令,直接将一个已经终止的容器启动运行 .</p>
+<p>可以通过 <code>docker ps -a</code> 查看所有的容器和其状态</p>
+<pre class="line-numbers language-shell"><code class="language-shell">CONTAINER ID        IMAGE                   COMMAND                  CREATED             STATUS                     PORTS                    NAMES
+aada74689bf7        cockroachdb/cockroach   "/cockroach/cockro..."   3 weeks ago         Exited (137) 3 weeks ago                            roach_master
+2e9eb6cf3f66        owncloud                "/entrypoint.sh ap..."   3 weeks ago         Up 3 weeks                 0.0.0.0:80->80/tcp       owncloud
+91290c737c73        postgres                "docker-entrypoint..."   3 weeks ago         Up 3 weeks                 5432/tcp                 owncloud-postgres
+8f546ec65e61        mysql                   "docker-entrypoint..."   3 weeks ago         Up 3 weeks                 0.0.0.0:3306->3306/tcp   mysql
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>不难发现 name 为 roch_master 的容器已经终止了,想重新启动它,可以执行下面的命令</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker start aada74689bf7
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>参数为容器的 id .</p>
+<h3 id="后台-background-运行"><a href="#后台-background-运行" class="headerlink" title="后台( background )运行"></a>后台( background )运行</h3><p>在很多时候,我们需要让 docker 在后台运行而并不是把执行结果直接输出出来.</p>
+<p>这个时候我们可以添加 <code>-d</code> 参数来实现</p>
+<p>如果使用 <code>-d</code> 参数运行容器</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -d mysql:5.7.17
+77b2dc01fe0f3f1265df143181e7b9af5e05279a884f4776ee75350ea9d8017a
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>只会输出运行的容器 id, 而输出结果可以用 docker logs 查看 .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker logs [container ID or NAMES]
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h3 id="终止容器"><a href="#终止容器" class="headerlink" title="终止容器"></a>终止容器</h3><p>可以使用 <code>docker stop</code>  来终止正在运行的容器 .</p>
+<p>此外,当 Docker 容器中指定的应用终结时, 容器也自动终止 . 例如运行一个容器时,指定了一个终端后,当退出终端的时候,所创建的容器也会立刻终止 .</p>
+<p>终止状态的容器, 可以通过 <code>docker start</code> 来重新启动 .</p>
+<p>此外,<code>docker restart</code> 命令会将一个运行态的容器终止,然后重新启动它 .</p>
+<h3 id="进入容器"><a href="#进入容器" class="headerlink" title="进入容器"></a>进入容器</h3><p>在使用 <code>-d</code> 参数时, docker 容器会在后台运行. 有些时候需要进入容器,如运行数据库时,需要进入增删改查库里的内容. 进入容器有很多种办法.</p>
+<h4 id="attach-命令"><a href="#attach-命令" class="headerlink" title="attach 命令"></a>attach 命令</h4><figcaption>attach</code> 是 Docker 自带的命令,用法</p></figcaption><pre class="line-numbers language-docker"><code class="language-docker">&lt;p<span class="token punctuation">></span>但是使用 &lt;code<span class="token punctuation">></span>attach&lt;/code<span class="token punctuation">></span> 命令有个缺陷<span class="token punctuation">,</span>即多个窗口同时用 attach 命令到同一个容器的时候<span class="token punctuation">,</span>所有的窗口都是同步显示的<span class="token punctuation">,</span>如果其中一个窗口阻塞的时候<span class="token punctuation">,</span>其他窗口也无法使用 .&lt;/p<span class="token punctuation">></span>
+&lt;h4 id=<span class="token string">"nsenter-命令"</span><span class="token punctuation">></span>&lt;a href=<span class="token string">"#nsenter-命令"</span> class=<span class="token string">"headerlink"</span> title=<span class="token string">"nsenter 命令"</span><span class="token punctuation">></span>&lt;/a<span class="token punctuation">></span>nsenter 命令&lt;/h4<span class="token punctuation">></span>&lt;p<span class="token punctuation">></span>这个工具需要用如下命令安装&lt;/p<span class="token punctuation">></span>
+&lt;pre<span class="token punctuation">></span>&lt;code class=<span class="token string">"shell"</span><span class="token punctuation">></span>$ docker run <span class="token punctuation">-</span><span class="token punctuation">-</span>rm <span class="token punctuation">-</span>v /usr/local/bin<span class="token punctuation">:</span>/target jpetazzo/nsenter
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>使用方法也比较简单,首先是你要进入的容器的 ID</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ PID=$(docker inspect --format {{.State.Pid}} <container ID or NAMES>)
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>然后通过这个 PID 进入容器</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ nsenter --target $PID --mount --uts --ipc --net --pid
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>如果无法通过上述的命令连接到容器,有可能是因为宿主的默认 shell 在容器中并不存在,比如 zsh, 可以使用如下命令显示地使用 bash .</p>
+<h4 id="exec-命令"><a href="#exec-命令" class="headerlink" title="exec 命令"></a>exec 命令</h4><pre class="line-numbers language-shell"><code class="language-shell">$docker exec -it [container ID or NAMES]
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><code>-i</code> <code>-t</code> 前面说过为了标准输入输出保持打开 .</p>
+<h3 id="导出和导入容器"><a href="#导出和导入容器" class="headerlink" title="导出和导入容器"></a>导出和导入容器</h3><h4 id="导出容器"><a href="#导出容器" class="headerlink" title="导出容器"></a>导出容器</h4><p>如果要导出本地某个容器,可以使用 <code>docker export</code> 命令 .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker export [container ID or NAMES] > target.tar
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>这样将导出容器快照到本地文件 .</p>
+<h4 id="导入容器快照"><a href="#导入容器快照" class="headerlink" title="导入容器快照"></a>导入容器快照</h4><p>可以使用 <code>docker import</code> 从容器快照文件导入镜像,</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ cat target.tar | docker import - test/mysql:v1.0
+$ sudo docker images
+REPOSITORY  TAG  IMAGE ID         CREATED             VIRTUAL SIZE
+test/ubuntu v1.0 9d37a6082e97     About a minute ago     171.3 MB
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>此外,还可以通过指定 URL 或者某个目录来导入</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker import http://example.com/exampleimage.tgz example/imagerepo
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>*注：用户既可以使用 docker load 来导入镜像存储文件到本地镜像库,也可以使用 docker import 来导入一个容器快照到本地镜像库 .这两者的区别在于容器快照文件将丢弃所有的历史记录和元数据信息（即仅保存容器当时的快照状态）,而镜像存储文件将保存完整记录,体积也要大 .此外,从容器快照文件导入时可以重新指定标签等元数据信息 .</p>
+<h3 id="删除容器"><a href="#删除容器" class="headerlink" title="删除容器"></a>删除容器</h3><h4 id="单独删除"><a href="#单独删除" class="headerlink" title="单独删除"></a>单独删除</h4><p>可以使用 <code>docker rm</code> 来删除一个处于终止状态的容器 .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker rm [container ID or NAMES]
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>如果要删除一个运行中的容器,可以添加 <code>-f</code> 参数 .Docker 会发送 <code>SIGKILL</code> 信号给容器 .</p>
+<h4 id="清理所有处于终止状态的容器"><a href="#清理所有处于终止状态的容器" class="headerlink" title="清理所有处于终止状态的容器"></a>清理所有处于终止状态的容器</h4><p>用  <code>docker ps -a</code>  命令可以查看所有已创建的包括终止状态的容器,如果想批量删除多个容器的话(当然是终止状态的容器) ,可以用这个命令</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker rm $(docker ps -a -q)
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>*注意：这个命令其实会试图删除所有的包括还在运行中的容器,不过就像上面提过的 docker rm 默认并不会删除运行中的容器 .</p>
+<h2 id="访问仓库"><a href="#访问仓库" class="headerlink" title="访问仓库"></a>访问仓库</h2><p>仓库（Repository）是集中存放镜像的地方 .</p>
+<p>一个容易混淆的概念是注册服务器（Registry） .实际上注册服务器是管理仓库的具体服务器,每个服务器上可以有多个仓库,而每个仓库下面有多个镜像 .从这方面来说,仓库可以被认为是一个具体的项目或目录 .例如对于仓库地址dl.dockerpool.com/ubuntu 来说, dl.dockerpool.com 是注册服务器地址, ubuntu 是仓库名 .</p>
+<p>大部分时候,并不需要严格区分这两者的概念 .</p>
+<h3 id="Docker-Hub"><a href="#Docker-Hub" class="headerlink" title="Docker Hub"></a>Docker Hub</h3><p>目前 Docker 官方维护了一个公共仓库 <a href="https://hub.docker.com/explore/" target="_blank" rel="external">Docker Hub</a>,   但是开始把阵地移到 <a href="https://store.docker.com/" target="_blank" rel="external">Docker Store</a> 这个平台上,其上能找到几乎所有的能想得到的容器, 不可小觑 .</p>
+<h4 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h4><p>可以通过执行 docker login 命令来输入用户名、密码和邮箱来完成注册和登录 . 注册成功后,本地用户目录的.dockercfg 中将保存用户的认证信息 .</p>
+<h4 id="基本操作-1"><a href="#基本操作-1" class="headerlink" title="基本操作"></a>基本操作</h4><p>用户无需登录即可通过 <code>docker search</code> 命令来查找官方仓库中的镜像, 并利用 <code>docker pull</code> 命令来将它下载到本地 .</p>
+<p>以搜索 mongo 为关键字搜索:</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker search mongo
+NAME                           DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+mongo                          MongoDB document databases provide high av...   3427      [OK]
+mongo-express                  Web-based MongoDB admin interface, written...   168       [OK]
+mvertes/alpine-mongo           light MongoDB container                         51                               [OK]
+mongoclient/mongoclient        Official docker image for Mongoclient, fea...   29                               [OK]
+torusware/speedus-mongo        Always updated official MongoDB docker ima...   9                                [OK]
+mongooseim/mongooseim-docker   MongooseIM server the latest stable version     9                                [OK]
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>​搜索结果可以看到很多包含关键字的镜像,其中包括镜像名字、描述、星数（表示该镜像的受欢迎程度）、是否官方创建、是否自动创建 . 官方的镜像说明是官方项目组创建和维护的,automated 资源允许用户验证镜像的来源和内容 .</p>
+<p>​根据是否为官方提供, 镜像资源可分为两类 . 一类是累类似 mongo这样的基础镜像 . 这些镜像由 Docker 的用户创建、验证、支持、提供  . 这样的镜像往往是使用单个单词作为名字  . </p>
+<p>另一种类型,比如<code>mvertes/alpine-mongo</code> 镜像,它是由 Docker 的用户创建并维护的,往往带有用户名称前缀  . 可以通过前缀 <code>user_name/</code> 来指定使用某个用户提供的镜像  .</p>
+<p>另外,在查找的时候通过 <code>-s N</code> 参数可以指定仅显示星数为 N 以上的镜像 （新版本的 Docker 推荐使用 <code>--flter=stars=N</code> 参数） .</p>
+<p>下载镜像到本地</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker pull centos
+Pulling repository centos
+0b443ba03958: Download complete
+539c0211cd76: Download complete
+511136ea3c5a: Download complete
+7064731afe90: Download complete
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>用户也可以登录之后通过 <code>docker push</code> 命令来讲镜像推送到 Docker Hub  .</p>
+<h4 id="自动创建"><a href="#自动创建" class="headerlink" title="自动创建"></a>自动创建</h4><p>​自动创建（automated builds）功能对于需要经常升级镜像内程序来说,十分方便 .有时候,用户创建了镜像安装了某个软件,如果软件发布新版本则需要手动更新镜像 . .而自动创建允许用户通过 Docker Hub 指定跟踪一个目标网站（目前支持 GitHub或 BitBucket）上的项目,一旦项目发生新的提交,则自动执行创建 .</p>
+<p>要配置自动创建,包括如下的步骤：</p>
+<ul>
+<li>创建并登录 Docker Hub,以及目标网站；</li>
+<li>在目标网站中连接帐户到 Docker Hub；</li>
+<li>在 Docker Hub 中 配置一个自动创建；</li>
+<li>选取一个目标网站中的项目（需要含 Dockerfile）和分支；</li>
+<li>指定 Dockerfile 的位置,并提交创建 .</li>
+</ul>
+<p>之后,可以 在Docker Hub 的 自动创建页面 中跟踪每次创建的状态 .</p>
+<h3 id="私有仓库"><a href="#私有仓库" class="headerlink" title="私有仓库"></a>私有仓库</h3><p>有时候使用 Docker Hub 这样的公共仓库由于网络等原因可能不方便,用户可以创建一个本地仓库供私人使用 .</p>
+<p>需要用到 <code>docker-registry</code> 工具 .</p>
+<p><code>docker-registry</code> 是官方提供的工具,可以用于构建私有的镜像仓库  .</p>
+<h4 id="安装运行-docker-registry"><a href="#安装运行-docker-registry" class="headerlink" title="安装运行 docker-registry"></a>安装运行 docker-registry</h4><h5 id="容器运行"><a href="#容器运行" class="headerlink" title="容器运行"></a>容器运行</h5><p>在安装了 Docker 后,可以通过获取官方 registry 镜像来运行  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -d -p 5000:5000 registry
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>这将使用官方的 registry 镜像来启动本地的私有仓库 .用户可以通过制定参数来配置私有仓库位置,例如配置镜像存储到 Amazon S3 服务  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run \
+-e SETTINGS_FLAVOR=s3 \
+-e AWS_BUCKET=acme-docker \
+-e STORAGE_PATH=/registry \
+-e AWS_KEY=AKIAHSHB43HS3J92MXZ \
+-e AWS_SECRET=xdDowwlK7TJajV1Y7EoOZrmuPEJlHYcNP2k4j49T
+\
+-e SEARCH_BACKEND=sqlalchemy \
+-p 5000:5000 \
+registry
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>此外,还可以指定本地路径（如<code>/home/user/registry-conf</code> ）下的配置文件  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -p 5000:5000 -v /home/user/registry-conf:/r
+egistry-conf -e DOCKER_REGISTRY_CONFIG=/registry-conf/config.yml
+registry
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p> 默认情况下,仓库会被创建在容器的 <code>/var/lib/registry</code> 下 .可以通过 <code>-v</code>  参数来将镜像文件存放在本地的指定路径  . 例如下面的例子将上传的镜像放到 <code>/opt/data/registy</code> 目录  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -p 5000:5000 -v /opt/data/registry:/var/lib
+/registry registry
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h4 id="本地安装"><a href="#本地安装" class="headerlink" title="本地安装"></a>本地安装</h4><p>对于 Ubuntu 或 CentOS 等发行版,可以直接安装  .</p>
+<ul>
+<li>Ubuntu</li>
+</ul>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo apt-get install -y build-essential python-dev libevent-dev python-pip liblzma-dev
+$ sudo pip install docker-registry
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<ul>
+<li>CentOS</li>
+</ul>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo yum install -y python-devel libevent-devel python-pip gcc xz-devel
+$ sudo python-pip install docker-registry
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>也可以从 docker-registry 项目下载源码进行安装  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo apt-get install build-essential python-dev libevent-dev python-pip libssl-dev liblzma-dev libffi-dev
+$ git clone https://github.com/docker/docker-registry.git
+$ cd docker-registry
+$ sudo python setup.py install
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>然后修改配置文件,主要修改 dev 模板段的 <code>storage_path</code> 到本地的存储仓库的路径  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ cp config/config_sample.yml config/config.yml
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>之后启动 web 服务  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo gunicorn -c contrib/gunicorn.py docker_registry.wsgi:application
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>或者 </p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo gunicorn --access-logfile - --error-logfile - -k gevent -b 0.0.0.0:5000 -w 4 --max-requests 100 docker_registry.wsgi:application
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>此时使用 crul 访问本地的 5000 端口,看到输出 docker-registry 的版本信息说明运行成功  .</p>
+<p>*注 ： <code>config/config_sample.yml</code> 文件时示例配置文件</p>
+<h4 id="在私有仓库上传、下载、搜索镜像"><a href="#在私有仓库上传、下载、搜索镜像" class="headerlink" title="在私有仓库上传、下载、搜索镜像"></a>在私有仓库上传、下载、搜索镜像</h4><p>创建好私有仓库之后,就可以使用 <code>docker tag</code> 来标记一个镜像,然后推送它到仓库,别的机器上就可以下载了 .如 私有仓库地址为 <code>1192.168.7.26:5000</code></p>
+<p>先在本机上查看已有的镜像  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker images
+REPOSITORY              TAG                 IMAGE ID            CREATED             SIZE
+node                    latest              f93ba6280cbd        3 weeks ago         667MB
+cockroachdb/cockroach   latest              404f7ee26d38        4 weeks ago         163MB
+postgres                latest              ca3a55649cfc        7 weeks ago         269MB
+tomcat                  latest              0785a1d16826        7 weeks ago         367MB
+owncloud                latest              2327c8d59618        8 weeks ago         572MB
+mysql                   latest              e799c7f9ae9c        2 months ago        407MB
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>使用 <code>docker tag</code> 将 <code>tomcat</code>  这个镜像标记为 <code>192.168.7.26：5000/test</code></pre>
+<pre class="line-numbers language-shell"><code class="language-shell">[root@vultr ~]# docker tag tomcat 192.168.7.26:5000/test
+[root@vultr ~]# docker images
+REPOSITORY               TAG                 IMAGE ID            CREATED             SIZE
+node                     latest              f93ba6280cbd        3 weeks ago         667MB
+cockroachdb/cockroach    latest              404f7ee26d38        4 weeks ago         163MB
+postgres                 latest              ca3a55649cfc        7 weeks ago         269MB
+192.168.7.26:5000/test   latest              0785a1d16826        7 weeks ago         367MB
+tomcat                   latest              0785a1d16826        7 weeks ago         367MB
+owncloud                 latest              2327c8d59618        8 weeks ago         572MB
+mysql                    latest              e799c7f9ae9c        2 months ago        407MB
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>用 <code>docker push</code>  上传标记的镜像  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker push 192.168.7.26:5000/test
+The push refers to a repository [192.168.7.26:5000/test] (len: 1)
+Sending image list
+Pushing repository 192.168.7.26:5000/test (1 tags)
+Image 511136ea3c5a already pushed, skipping
+Image 9bad880da3d2 already pushed, skipping
+Image 25f11f5fb0cb already pushed, skipping
+Image ebc34468f71d already pushed, skipping
+Image 2318d26665ef already pushed, skipping
+Image ba5877dc9bec already pushed, skipping
+Pushing tag for rev [ba5877dc9bec] on {http://192.168.7.26:5000/
+v1/repositories/test/tags/latest}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>用 <code>curl</code> 查看仓库中的镜像</p>
+<pre class="line-numbers language-shell"><code class="language-shell">curl http://192.168.7.26:5000/v1/search
+{"num_results": 7, "query": "", "results": [{"description": "","name": "library/miaxis_j2ee"}, {"description": "", "name": "library/tomcat"}, {"description": "", "name": "library/ubuntu"}, {"description": "", "name": "library/ubuntu_office"}, {"description": "", "name": "library/desktop_ubu"}, {"description": "", "name": "dockerfile/ubuntu"}, {"description": "", "name": "library/test"}]}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>这里可以看到 <code>{&quot;description&quot;: &quot;&quot;, &quot;name&quot;: &quot;library/test&quot;}</code> ,表面镜像已经上传成功了  .</p>
+<p>下载可以用另一台机器去下载这个镜像  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker pull 192.168.7.26:5000/test
+Pulling repository 192.168.7.26:5000/test
+ba5877dc9bec: Download complete
+511136ea3c5a: Download complete
+9bad880da3d2: Download complete
+25f11f5fb0cb: Download complete
+ebc34468f71d: Download complete
+2318d26665ef: Download complete
+$ docker images
+REPOSITORY         TAG         IMAGE ID
+CREATED         VIRTUAL SIZE
+192.168.7.26:5000/test latest ba5877dc9bec 
+6 weeks ago         192.7 MB
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="仓库配置文件"><a href="#仓库配置文件" class="headerlink" title="仓库配置文件"></a>仓库配置文件</h3><p>Docker 的 registry 利用配置文件提供 了一些仓库的模板（flavor）,用户可以直接使用它们来进行开发或身产环境  .</p>
+<h4 id="模板"><a href="#模板" class="headerlink" title="模板"></a>模板</h4><p>在 <code>config_sample.yml</code> 文件中,可以看到一些现成的模板段：</p>
+<ul>
+<li><code>common</code> ：基础配置</li>
+<li><code>local</code> ：存储数据到本地文件系统</li>
+<li><code>s3</code> ：存储数据到 AWS S3 中</li>
+<li><code>dev</code> ：使用 local 模板的基本配置</li>
+<li><code>test</code> ：单元测试使用</li>
+<li><code>prod</code> ：生产环境配置（基本上跟s3配置类似）</li>
+<li><code>gcs</code> ：存储数据到 Google 的云存储</li>
+<li><code>swift</code> ：存储数据到 OpenStack Swift 服务</li>
+<li><code>glance</code> ：存储数据到 OpenStack Glance 服务,本地文件系统为后备</li>
+<li><code>glance-swift</code>：存储数据到 OpenStack Glance 服务,Swift 为后备</li>
+<li><code>elliptics</code> ：存储数据到 Elliptics key/value 存储</li>
+</ul>
+<p>用户可以添加自定义的模板段  .</p>
+<p>默认情况下使用的模板是 <code>dev</code> ,要是使用某个模板作为默认值,可以添加 <code>SETTING-FLAVOR</code> 到环境变量中去,</p>
+<pre class="line-numbers language-shell"><code class="language-shell">export SETTING_FLAVOR=dev
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>另外,配置文件中支持从环境变量中加载,语法格式为</p>
+<pre class="line-numbers language-shell"><code class="language-shell">_env:VARIABLENAME[:DEFAULT]
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h4 id="示例配置"><a href="#示例配置" class="headerlink" title="示例配置"></a>示例配置</h4><pre class="line-numbers language-shell"><code class="language-shell">common:
+loglevel: info
+search_backend: "_env:SEARCH_BACKEND:"
+sqlalchemy_index_database:
+"_env:SQLALCHEMY_INDEX_DATABASE:sqlite:////tmp/docker-re
+gistry.db"
+prod:
+loglevel: warn
+storage: s3
+s3_access_key: _env:AWS_S3_ACCESS_KEY
+s3_secret_key: _env:AWS_S3_SECRET_KEY
+s3_bucket: _env:AWS_S3_BUCKET
+boto_bucket: _env:AWS_S3_BUCKET
+storage_path: /srv/docker
+smtp_host: localhost
+from_addr: docker@myself.com
+to_addr: my@myself.com
+dev:
+loglevel: debug
+storage: local
+storage_path: /home/myself/docker
+test:
+storage: local
+storage_path: /tmp/tmpdockertmp
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="Docker-数据管理"><a href="#Docker-数据管理" class="headerlink" title="Docker 数据管理"></a>Docker 数据管理</h2><p>在容器管理中数据主要有两种方式：</p>
+<ul>
+<li>数据卷 （Data volumes）</li>
+<li>数据卷容器 （Data volume containers）</li>
+</ul>
+<h3 id="数据卷"><a href="#数据卷" class="headerlink" title="数据卷"></a>数据卷</h3><p>数据卷是一个可提供一个或多个容器使用的特殊目录,它绕过 UFS, 可以提供很多有用的特征：</p>
+<ul>
+<li>数据卷可以再荣期间共享和重用</li>
+<li>对数据卷的修改立马生效</li>
+<li>对数据及的更新,不会影响镜像</li>
+<li>数据卷默认会一直存在,即使容器被删除</li>
+</ul>
+<p><em>注：数据卷的使用,类似于Linux 下对目录或文件进行 mount, 镜像中的被指定为挂载点的目录中的文件会隐藏掉,能显示看的是挂载的数据卷</em></p>
+<h4 id="创建一个数据卷"><a href="#创建一个数据卷" class="headerlink" title="创建一个数据卷"></a>创建一个数据卷</h4><p>​在使用 <code>docker run</code> 命令的时候,使用 <code>-v</code> 参数来创建一个数据卷并挂载到容器里 .在一次 run 中可以挂载多个数据卷  .</p>
+<p>下面创建一个名为 web 的容器,并加载一个数据卷到容器的 <code>/webapp</code> 目录  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -d -p --name web -v /webapp training/webapp python app.py
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><em>注：也可以在 Docker 中使用 <code>volume</code> 来添加一个或多个新的卷到有该镜像创建的任意容器  .</em></p>
+<h4 id="删除数据卷"><a href="#删除数据卷" class="headerlink" title="删除数据卷"></a>删除数据卷</h4><p>数据卷是被设计用来持久化数据的,它的生命周期独立于容器,Docker 不会在容器被删除后自动删除数据卷,并且也不存在垃圾回收这样的机制来处理没有任何容器引用的数据卷 .日光需要在删除容器的同时移除数据卷,可以再删除容器的时候使用 <code>docker rm -v</code> 这个命令 .</p>
+<h4 id="挂载一个主句目录作为数据卷"><a href="#挂载一个主句目录作为数据卷" class="headerlink" title="挂载一个主句目录作为数据卷"></a>挂载一个主句目录作为数据卷</h4><p>使用 <code>-v</code> 参数也可以指定挂载一个本地主机的目录到容器中去  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -P --name web -v /src/webapp:/opt/webapp training/webapp python app.py
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>​    上面的命令加载主机的 <code>/src/webapp</code> 目录到容器的 <code>/opt/webapp</code> 目录 .这个功能在进行测试的时候十分方便,比如用户可以放置一些程序到本地目录中,来查看容器是否正常工作 .本地目录的路径必须是绝对路径,如果目录不存在 Docker会自动为你创建它 .</p>
+<p><em>注：Dockerfile 中不支持这种用法,因为 Dockerfile 是为了移植和分享用的  . 然而,不同的操作系统的路径格式不一样,所以目前还不支持</em> </p>
+<p>Docker 挂载数据卷的默认权限是读写, 用户也可以通过 <code>:ro</code> 指定为只读</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -P --name web -v /src/webapp:/opt/webapp:ro training/webapp python app.py
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>加了 <code>:ro</code> 之后,就挂载为只读了 .</p>
+<h4 id="查看数据卷的具体信息"><a href="#查看数据卷的具体信息" class="headerlink" title="查看数据卷的具体信息"></a>查看数据卷的具体信息</h4><p>在主机里使用以下命令可以查看指定容器的信息</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker inspect web
+...
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>在输出的内容中找到其中和数据卷相关的部分,可以看到所有的数据卷都是创建在主句的 <code>/var/lib/docker/volumes/</code> 下面的</p>
+<pre class="line-numbers language-shell"><code class="language-shell">"Volumes": {
+"/webapp": "/var/lib/docker/volumes/fac362...80535"
+},
+"VolumesRW": {
+"/webapp": true
+}
+...
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><em>注：从 Docker 1.8.0 起,数据卷配置在 “Mounts” Key 下面, 可以看到所有的数据卷都是创建在主机的 <code>/mnt/sda1/var/lib/docker/volumes/...</code> 下面了  .</em></p>
+<pre class="line-numbers language-json"><code class="language-json"><span class="token property">"Mounts"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+<span class="token punctuation">{</span>
+<span class="token property">"Name"</span><span class="token operator">:</span> <span class="token string">"b53ebd40054dae599faf7c9666acfe205c3e922
+fc3e8bc3f2fd178ed788f1c29"</span><span class="token punctuation">,</span>
+<span class="token property">"Source"</span><span class="token operator">:</span> <span class="token string">"/mnt/sda1/var/lib/docker/volumes/b53e
+bd40054dae599faf7c9666acfe205c3e922fc3e8bc3f2fd178ed788f1c29/_data"</span><span class="token punctuation">,</span>
+<span class="token property">"Destination"</span><span class="token operator">:</span> <span class="token string">"/webapp"</span><span class="token punctuation">,</span>
+<span class="token property">"Driver"</span><span class="token operator">:</span> <span class="token string">"local"</span><span class="token punctuation">,</span>
+<span class="token property">"Mode"</span><span class="token operator">:</span> <span class="token string">""</span><span class="token punctuation">,</span>
+<span class="token property">"RW"</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+<span class="token property">"Propagation"</span><span class="token operator">:</span> <span class="token string">""</span>
+<span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+...
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="挂载一个本地主机文件作为数据卷"><a href="#挂载一个本地主机文件作为数据卷" class="headerlink" title="挂载一个本地主机文件作为数据卷"></a>挂载一个本地主机文件作为数据卷</h4><p><code>-v</code> 参数也可以从主机挂载单个文件到文件到容器中</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run --rm -it -v ~/.bash_history:/.bash_history ubuntu /bin/bash
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>这样就可以记录在容器输入过得命令了  .</p>
+<h3 id="数据卷容器"><a href="#数据卷容器" class="headerlink" title="数据卷容器"></a>数据卷容器</h3><p>如果你有一些持续更新的数据需要在容器之间共享,最好创建数据卷容器  .</p>
+<p>数据卷容器,其实就是一个正常的容器,专门用来提供数据卷供其他容器挂载的  .</p>
+<p>首先,创建一个名为 dbdata 的数据卷容器：</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -v /dbdata --name dbdata training/postgres echo Data-only container for postgres
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>然后,在其他容器中使用 <code>--volumes-from</code> 来挂载 dbdata 容器中的数据卷  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d --volumes-form dbdata --name db1 training/postgres
+$ sudo docker run -d --volumes-form dbdata --name db2 training/postgres
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>可以使用超过一个的<code>--volumes-from</code> 参数来指定从多个容器挂载不同的数据卷  . 也可以从其他已经挂载了数据卷的容器来级联挂载数据卷  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -d --name db3 --volumes-from db1 training/postgres
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><em>注：使用 <code>--volumes-from</code>  参数所挂载数据卷的容器自己并不需要保持运行状态</em> </p>
+<p>如果删除了挂载的容器（包括 dbdata、db1 和 db2 ）,数据卷并不会被自动删除 .如果删除一个数据卷,必须在删除最后一个还挂着它的容器时使用 <code>docker rm -v</code> 命令来指定同时删除关联的容器 .这可以让用户在容器之间升级和移到数据卷 .</p>
+<h4 id="利用数据卷容器来备份、恢复、迁移数据卷"><a href="#利用数据卷容器来备份、恢复、迁移数据卷" class="headerlink" title="利用数据卷容器来备份、恢复、迁移数据卷"></a>利用数据卷容器来备份、恢复、迁移数据卷</h4><p>可以利用数据卷对其中的数据进行备份、恢复和迁移 .</p>
+<h5 id="备份"><a href="#备份" class="headerlink" title="备份"></a>备份</h5><p>首先使用 <code>--volumes-from</code> 标记来创建一个加载 dbdata 数据卷的容器,并从主机挂载当前目录到容器的 /backup 目录 .命令如下：</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run --volumes-from dbdata -v$(pwd):/backup ubuntu tar cvf /backup/backup.tar /dbdata
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>容器启动后,使用了 <code>tar</code> 命令来将 dbdata 卷备份为容器中 /backup/backup.tar 文件,也就是主机当前目录下的名为 backup.tar 的文件  .</p>
+<h5 id="恢复"><a href="#恢复" class="headerlink" title="恢复"></a>恢复</h5><p>如果要恢复数据到一个容器,首先创建一个带有空数据卷的容器 dbdata2  .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -v /dbdata --name dbdata2 ubuntu /bin/bash
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>然后创建另一个容器,挂载 dbdata2 容器卷中的数据卷,并使用 <code>untar</code>  解压备份文件到挂载的容器卷中 .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run --volumes-form dbdata2 -v $(pwd):/backup busybox tar xvf
+/backup/backup.tar
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>为了查看/验证恢复的数据,可以再启动一个容器挂载同样的容器卷来查看</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker run --volumes-from dbdata2 busybox /bin/ls dbdata
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h5 id="迁移数据卷"><a href="#迁移数据卷" class="headerlink" title="迁移数据卷"></a>迁移数据卷</h5><p>代写 . . .</p>
+<h1 id="Docker-中的网络"><a href="#Docker-中的网络" class="headerlink" title="Docker 中的网络"></a>Docker 中的网络</h1><p>Docker 允许通过外部访问容器或容器互联的方式来提供网络服务  .</p>
+<h2 id="外部访问容器"><a href="#外部访问容器" class="headerlink" title="外部访问容器"></a>外部访问容器</h2><p>容器中可以与运行一些网络应用,要让外部也可以访问这些应用,可以通过 <code>-P</code>  或 <code>-p</code> 参数来指定端口映射 .</p>
+<p>当使用 <code>-P</code> 参数时,Docker 会随机映射一个 <code>49000~49900</code> 的端口到内部容器开放的网络端口 .</p>
+<p>使用 <code>docker ps</code> 可以看到,本地主机的49155 被映射到了容器的5000 端口  .</p>
+<p>此时访问本机的49155 端口即可访问容器内 web 应用提供的界面 .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -P training/webapp python app.py
+$ sudo docker ps -l
+CONTAINER ID         IMAGE                     COMMAND         CREATED
+STATUS             PORTS                     NAMES
+bc533791f3f5         training/webapp:latest     python app.py     5 seconds ag
+o Up 2 seconds     0.0.0.0:49155->5000/tcp nostalgic_morse
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>-P</code> （小写）则可以指定要映射的端口,并且在一个指定端口上只可以绑定一个容器 .支持的格式有</p>
+<ul>
+<li><code>ip:HostPort:containerPort</code></li>
+<li><code>ip::containerPort</code></li>
+<li><code>hostPort:containerPort</code></li>
+</ul>
+<h3 id="映射所有接口地址"><a href="#映射所有接口地址" class="headerlink" title="映射所有接口地址"></a>映射所有接口地址</h3><p>使用 <code>hostPort ：containerPort</code> 格式本地的5000端口映射到容器的5000端口,可以执行</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -d -p 5000:5000 training/webapp python app.py
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>此时默认会绑定本地所有接口上的所有接口 .</p>
+<h3 id="映射到指定地址的指定端口"><a href="#映射到指定地址的指定端口" class="headerlink" title="映射到指定地址的指定端口"></a>映射到指定地址的指定端口</h3><p>可以使用 <code>ip:hostPort:containerPort</code> 格式指定映射使用一个特定地址,比如 localhost 地址 127.0.0.1</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -p 127.0.0.1:5000:5000 training/webapp python app.py
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h3 id="查看映射端口配置"><a href="#查看映射端口配置" class="headerlink" title="查看映射端口配置"></a>查看映射端口配置</h3><p>使用 <code>docker port</code> 来查看当前映射的端口配置,也可以查看到绑定的地址</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker port gogs
+22/tcp -> 0.0.0.0:10022
+3000/tcp -> 0.0.0.0:10080
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>可以看到 <code>gogs</code> 有两个容器内的端口 22, 3000 分别映射主机的10022,10080 端口  .</p>
+<p><em>注： -p 可以多次使用来绑定多个端口,也就是说一条命令可以有多个 -p ,如：上面👆的 gogs 容器就绑定了俩端口</em></p>
+<h2 id="容器互联"><a href="#容器互联" class="headerlink" title="容器互联"></a>容器互联</h2><p>容器的连接（linking）系统是除了端口映射外,另一种跟容器中应用交互的方式 .该系统会在源和接受容器之间创建一个通道,接受容器可以看到源容器指定的信息 .</p>
+<h3 id="自定义容器命名"><a href="#自定义容器命名" class="headerlink" title="自定义容器命名"></a>自定义容器命名</h3><p>连接系统依据容器的名称来执行 .因此,首先需要自定义一个好记的容器命名 .</p>
+<p>虽然创建容器的时候,系统默认会分配给一个名字 .但是自定义命名容器的话,第一,好记,第二,可以作为有用的参考的 .</p>
+<p>使用 <code>--name</code> 参数可以为容器自定义命名 .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -d -p 8181:4040 --name own-cloud owncloud
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>使用 <code>docker ps</code> 来查看正运行的容器</p>
+<pre class="line-numbers language-shell"><code class="language-shell">CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                            NAMES
+2c2e766e86fd        owncloud            "/entrypoint.sh ap..."   23 hours ago        Up 23 hours         80/tcp, 0.0.0.0:8181->4040/tcp                   own-cloud
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>使用 <code>docker inspect</code> 命令来查看容器名字</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ docker inspect -f "{{.Name}}" 2c2e766e86fd
+/own-cloud
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p><em>注：容器的名称是唯一的 .如果已经命名了一个叫 own-cloud 的容器,当你再次使用这个名词的时候,需要先把之前的的同名容器删除</em></p>
+<p><em>tips：在执行  <code>docker run</code>  的时候可以添加  <code>—rm</code>  参数,这样容器在终止后立刻删除 .注意,<code>—rm</code> 和  <code>-d</code> 参数不能同时使用  .</em></p>
+<h3 id="容器互联-1"><a href="#容器互联-1" class="headerlink" title="容器互联"></a>容器互联</h3><p>使用 <code>--link</code> 参数可以让容器之间安全的进行交互 .</p>
+<p>下面是,运行 <code>Nginx</code> 容器的时候把 <code>gogs</code> 这个容器连接上</p>
+<pre class="line-numbers language-shell"><code class="language-shell">docker run -d --name my_nginx --link gogs:app --link own-cloud:app2 -p 80:80 -v /root/nginx/config:/etc/nginx/conf.d nginx
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>此时,gogs 容器和 my_nginx 容器建立互联关系</p>
+<p><code>--link</code> 参数的格式为 <code>--link name:alias</code> ,其中 name 是要连接的容器名称, alias 是这个连接的别名  .</p>
+<p>可以通过 <code>docker inspect</code> 命令查看 my_nginx 容器信息,就会发现有这么一段信息</p>
+<pre class="line-numbers language-shell"><code class="language-shell">"Links": [
+                "/gogs:/trusting_brown/app",
+                "/own-cloud:/trusting_brown/app2"
+            ],
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>表面此容器已经连上两个容器, gogs 和 own-cloud,trusting_brown 是系统分配给 Nginx 的名称,连接名称分别是 app 和 app2  .</p>
+<p>Docker 在两个互联的容器之间创建了一个安全的隧道,而且不用映射到它们的端口到主机上 .在启动被连接的容器的时候不用添加 -p 或 -P 参数,从而避免暴露端口到外部网络上 .</p>
+<p>连接之后,在 Nginx 容器里,就会发生两个变化  .</p>
+<p>一是环境变量 .在 Nginx 容器中会出现6个新增的环境变量,这些环境变量的名称分贝时由被连接的服务别名、端口等拼接而成的 .</p>
+<p><em>由于起得 gogs 容器有两个端口,所以其中 APP_PORT、APP_NAME、APP_ENV_GOGS_CUSTOM 是公用的,其它8个变量每四个的分别对应22, 3000 端口</em></p>
+<pre class="line-numbers language-shell"><code class="language-shell"># env | grep APP
+APP_PORT_3000_TCP=tcp://172.17.0.2:3000
+APP_PORT_22_TCP_PROTO=tcp
+APP_ENV_GOGS_CUSTOM=/data/gogs
+APP_PORT_3000_TCP_ADDR=172.17.0.2
+APP_PORT_3000_TCP_PROTO=tcp
+APP_PORT_22_TCP_PORT=22
+APP_PORT_3000_TCP_PORT=3000
+APP_PORT=tcp://172.17.0.2:22
+APP_NAME=/my_nginx/app
+APP_PORT_22_TCP=tcp://172.17.0.2:22
+APP_PORT_22_TCP_ADDR=172.17.0.2
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>二是 hosts 文件 .在 Nginx 容器的 hosts 文件看到下面的记录 .这就是说,一切访问 连接别名（app）、容器 ID（ac4c0cf35adf）和容器名（gogs）的请求都会被重新导向到实时实际的 app 的 ip 地址上 .</p>
+<pre class="line-numbers language-shell"><code class="language-shell"># cat /etc/hosts | grep app
+172.17.0.2    app ac4c0cf35adf gogs
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h2 id="高级网络配置"><a href="#高级网络配置" class="headerlink" title="高级网络配置"></a>高级网络配置</h2><p>当 Docker 启动时,会自动的主机上创建一个 <code>docker0</code> 虚拟网桥,实际上是 Linux 的一个 bridge,可以理解为一个软件交换机 .它会挂载到它的网口之间进行转发 .</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ ip addr | grep docker0
+docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
+    link/ether 02:42:23:c6:3f:1c brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.1/16 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:23ff:fec6:3f1c/64 scope link
+       valid_lft forever preferred_lft forever
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>同时,Docker 随机分一个本地未占用的私有网段（在 <a href="https://tools.ietf.org/html/rfc1918" target="_blank" rel="external">RFC1919</a> 中定义）中的一个地址给 <code>docker0</code> 接口 .比如我的主机上的 docker0 ip 为 <code>172.17.0.1</code> ,掩码为 <code>255.255.0.0</code>  .此后启动的容器内的网口也会自动分配有个一个同一网段（<code>172.17.0.0/16</code>）的地址 .</p>
+<p>当创建一个 Docker 容器的时候,同时会创建一对 <code>vath pair</code> 接口（当数据包发送到一个接口,另一个接口也可以收到相同的数据包） .这对接口一段在容器内,即 <code>eth0</code> ；另一端在本地并挂载到 docker0 网桥,名称以 <code>veth</code> 开头  .通过这种方式,主机可以跟容器通信,容器之间也可以相互通信 . Docker 就创建了在主机和所有容器之间一个虚拟共享网络 .</p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/network.png" alt="Docker 网络"></p>
+<p>​                                            图 i.i docker 网络</p>
+<p>接下来部分将介绍在一些场景中,Docker 所有的网络定制配置 .以及通过 Linux 命令来调整、补充、甚至替换 Docker 默认的网络配置 .</p>
+<h3 id="快速配置"><a href="#快速配置" class="headerlink" title="快速配置"></a>快速配置</h3><p>下面是一个跟 Docker 网络相关的命令列表 .</p>
+<p>其中有些命令选项只有在 Docker 服务启动的时候才能配置,而且不能马上生效 .</p>
+<ul>
+<li><code>-b BRIDGE or --bridge==BRIDGE</code> –指定容器挂载的网桥</li>
+<li><code>--bip=CIDR</code> — 定制 docker0 的掩码</li>
+<li><code>-H SOCKET... or --host=SOCKET…</code> —Docker 服务端接受命令的通道</li>
+<li><code>--icc=true|false</code> –是否支持容器之间进行通信</li>
+<li><code>--ip-forward=true|false</code> —容器是否能访问外网（详细解析请看下文的容器通信）</li>
+<li><code>--iptables=true|false</code> –是否允许 Docker 添加 iptables 规则</li>
+<li><code>--mtu=BYTES</code> —容器网络中的 MTU</li>
+</ul>
+<p>下面的两个命令既可以在服务启动时指定,也可以 Docker 容器启动（docker run ）时候指定 .</p>
+<p>在 Docker 服务启动的时候指定则会成为默认值,后面执行<code>docker run</code>时可以覆盖设置的默认值 .</p>
+<ul>
+<li><code>--dns=IP_ADDRESS…</code> —使用指定的 DNS 服务器</li>
+<li><code>--dns-search=DOMAIN...</code> 指定 DNS 搜索域</li>
+</ul>
+<p>最后这些选项只有在 docker run 执行时使用,因为它是针对容器的特性内容 .</p>
+<ul>
+<li><code>-h HOSTNAME or --hostname=HOSTNAME</code> –配置容器主机名</li>
+<li><code>--link=CONRATAINER_NAME:ALIAS</code> —添加到另一个容器的连接</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt; docker 的基本操作和使用。。。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="技术" scheme="http://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Go UDP Socket</title>
+    <link href="http://yusank.github.io/GO-UDP.html/"/>
+    <id>http://yusank.github.io/GO-UDP.html/</id>
+    <published>2017-07-12T11:00:01.000Z</published>
+    <updated>2017-08-17T07:10:26.000Z</updated>
+    
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ……<br><a id="more"></a></p>
+<h1 id="用-go-实现简单的-udp"><a href="#用-go-实现简单的-udp" class="headerlink" title="用 go 实现简单的 udp"></a>用 go 实现简单的 udp</h1><p>用户数据包协议（英语：User Datagram Protocol，缩写为UDP），又称用户数据报文协议，是一个简单的面向数据报的传输层协议，正式规范为RFC 768。<br>在TCP/IP模型中，UDP为网络层以上和应用层以下提供了一个简单的接口。UDP只提供数据的不可靠传递，它一旦把应用程序发给网络层的数据发送出去，就不保留数据备份（所以UDP有时候也被认为是不可靠的数据报协议）。UDP在IP数据报的头部仅仅加入了复用和数据校验（字段）。</p>
+<h2 id="UDP-与-TCP-的比较"><a href="#UDP-与-TCP-的比较" class="headerlink" title="UDP 与 TCP 的比较"></a>UDP 与 TCP 的比较</h2><ul>
+<li><p>UDP – 用户数据协议包，是一个简单的面向数据报的运输层协议。UDP 不提供可靠性，它只是把应用程序给 IP 层的数据报发送出去，但是并不能保证他们能达到目的地。由于 UDP 在传输数据报之前不用在客户端和服务端之间建立连接，且没有超时机制，故而传输速度很快。</p>
+</li>
+<li><p>TCP – 传输控制协议，提供的是面向连接，可靠的字节流服务。当客户端和服务端彼此交换数据前，必须先在双方之间建立 TCP 连接，之后才能传输数据。TCP 提供超时重发，丢弃重复数据，检验数据，流量控制等功能，保证数据能从一段传到另一端。</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>-</th>
+<th>TCP</th>
+<th>UDP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是否连接</td>
+<td>面向连接</td>
+<td>面向非连接</td>
+</tr>
+<tr>
+<td>传输可靠性</td>
+<td>可靠</td>
+<td>会丢包，不可靠</td>
+</tr>
+<tr>
+<td>应用场景</td>
+<td>传输数据量大</td>
+<td>传输数据量小</td>
+</tr>
+<tr>
+<td>速度</td>
+<td>慢</td>
+<td>快</td>
+</tr>
+</tbody>
+</table>
+<h2 id="TCP-与-UDP-的选择"><a href="#TCP-与-UDP-的选择" class="headerlink" title="TCP 与 UDP 的选择"></a>TCP 与 UDP 的选择</h2><p>当数据传输的性能必须让位于数据传输的完整性、可控制性和可靠性时，TCP协议是当然的选择。当强调传输性能而不是传输的完整性时，如：音频和多媒体应用，UDP是最好的选择。在数据传输时间很短，以至于此前的连接过程成为整个流量主体的情况下，UDP也是一个好的选择，如：DNS交换。把SNMP建立在UDP上的部分原因是设计者认为当发生网络阻塞时，UDP较低的开销使其有更好的机会去传送管理数据。TCP丰富的功能有时会导致不可预料的性能低下，但是我们相信在不远的将来，TCP可靠的点对点连接将会用于绝大多数的网络应用。</p>
+<h2 id="UDP-使用场景"><a href="#UDP-使用场景" class="headerlink" title="UDP 使用场景"></a>UDP 使用场景</h2><p>在选择使用协议的时候，选择UDP必须要谨慎。在网络质量令人十分不满意的环境下，UDP协议数据包丢失会比较严重。但是由于UDP的特性：它不属于连接型协议，因而具有资源消耗小，处理速度快的优点，所以通常音频、视频和普通数据在传送时使用UDP较多，因为它们即使偶尔丢失一两个数据包，也不会对接收结果产生太大影响。而且如果在内网的情况下，丢包率也很低，所以内网的数据传输也可以用 UDP 协议。我们常用的 QQ，一部分数据传输功能也是用 UDP协议来实现的。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><figcaption><pre class="line-numbers language-go">package main</figcaption><pre><code class="server.go</code></p>"><code class="language-go">package main</figcaption><pre><code class="server.go</code></p>">
+import (
+    "fmt"
+    "net"
+)
+
+func main() {
+    // 解析地址
+    addr, err := net.ResolveUDPAddr("udp", ":3017")
+    if err != nil {
+        fmt.Println("Can't resolve addr:", err.Error())
+        panic(err)
+    }
+
+    // 监听端口
+    conn, err := net.ListenUDP("udp", addr)
+    if err != nil {
+        fmt.Println("listen error:", err.Error())
+        panic(err)
+    }
+    defer conn.Close()
+    for {
+        handlerClient(conn)
+    }
+}
+
+func handlerClient(conn *net.UDPConn) {
+    data := make([]byte, 1024)
+    // 从 UDP 中读取内容并写到 data
+    _, remoteAddr, err := conn.ReadFromUDP(data)
+    if err != nil {
+        fmt.Println("read udp msg failed with:", err.Error())
+        return
+    }
+    // 给收到消息的 client 写回信息
+    conn.WriteToUDP([]byte("a"), remoteAddr)
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>client.go</code></pre>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> client
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">"fmt"</span>
+    <span class="token string">"net"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">var</span> <span class="token punctuation">(</span>
+    <span class="token comment" spellcheck="true">// Connection *net.UDPConn</span>
+    Connection <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">*</span>net<span class="token punctuation">.</span>UDPConn
+<span class="token punctuation">)</span>
+
+<span class="token comment" spellcheck="true">// Client 创建一个 UDP 连接</span>
+<span class="token keyword">func</span> <span class="token function">Client</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    addr<span class="token punctuation">,</span> err <span class="token operator">:=</span> net<span class="token punctuation">.</span><span class="token function">ResolveUDPAddr</span><span class="token punctuation">(</span><span class="token string">"udp"</span><span class="token punctuation">,</span> <span class="token string">"127.0.0.1:3017"</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"Can't resolve address: "</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span>
+
+        <span class="token function">panic</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    conn<span class="token punctuation">,</span> err <span class="token operator">:=</span> net<span class="token punctuation">.</span><span class="token function">DialUDP</span><span class="token punctuation">(</span><span class="token string">"udp"</span><span class="token punctuation">,</span> <span class="token boolean">nil</span><span class="token punctuation">,</span> addr<span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"Can't dial: "</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span>
+
+        <span class="token function">panic</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    Connection <span class="token operator">=</span> <span class="token function">append</span><span class="token punctuation">(</span>Connection<span class="token punctuation">,</span> conn<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// WriteTo 像传入参数 conn 写数据</span>
+<span class="token keyword">func</span> <span class="token function">WriteTo</span><span class="token punctuation">(</span>conn <span class="token operator">*</span>net<span class="token punctuation">.</span>UDPConn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token boolean">_</span><span class="token punctuation">,</span> err <span class="token operator">:=</span> conn<span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span><span class="token string">"hello from the other site"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"failed:"</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    data <span class="token operator">:=</span> <span class="token function">make</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token builtin">byte</span><span class="token punctuation">,</span> <span class="token number">1024</span><span class="token punctuation">)</span>
+    <span class="token boolean">_</span><span class="token punctuation">,</span> err <span class="token operator">=</span> conn<span class="token punctuation">.</span><span class="token function">Read</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"failed to read UDP msg because of "</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上是一个最简单的 UDP 客户端服务器的代码，只有启动服务和收发消息的功能，但实际应用 UDP 协议到具体需求的时候，需要考虑的问题很多，比如包的设计，包头的设计，错误处理，丢包处理，包顺序调换处理等。所以需要用到传输数据协议的时候，请考虑好需求和可能遇到的问题，以及对问题的处理方案。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ……&lt;br&gt;
+    
+    </summary>
+    
+      <category term="GO" scheme="http://yusank.github.io/categories/GO/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>docker-portainer</title>
+    <link href="http://yusank.github.io/portainer.html/"/>
+    <id>http://yusank.github.io/portainer.html/</id>
+    <published>2017-07-08T04:18:00.000Z</published>
+    <updated>2017-07-08T05:27:01.000Z</updated>
+    
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>安利一款很好用的工具</p>
+<a id="more"></a>
+<h1 id="管理-docker"><a href="#管理-docker" class="headerlink" title="管理 docker"></a>管理 docker</h1><h2 id="为什么管理"><a href="#为什么管理" class="headerlink" title="为什么管理"></a>为什么管理</h2><p>随着用的 docker 镜像种类增多，在一台机器上起得 docker 容器数量有时候会非常的多，管理起来也比较困难，而且有时候一些 docker 命令一时半会想不起来，更不用说命令行的枯燥性，所以有没有一直简单一点办法去管理 docker 镜像和容器呢？</p>
+<p>今天主角该登场了！</p>
+<p><code>Portainer</code></p>
+<p>这也是一个 docker 镜像，是可视化管理 docker 镜像和容器的镜像。</p>
+<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p>说的比较绕，不说废话，先上图：</p>
+<p><strong>Dashboard:</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.33.19%20PM.png" alt="首页"></p>
+<p>其前端是网页，容器启动以后，在浏览器输入主机名:端口号后，第一打开此页面需要设置管理员密码，设置完毕之后，登录进入后，会看到上面的页面。</p>
+<p>左边是选择菜单，右半部是显示你主机的基本信息和 docker 的基本信息，有多少个镜像，运行着几个容器等。</p>
+<p>下面，从上到下一个个点击左边的菜单。</p>
+<p><strong>App Templates</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.33.51%20PM.png" alt="镜像店"></p>
+<p>可以搜索查看并能一键下载（pull）镜像</p>
+<p><strong>Containers</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.09%20PM.png" alt="容器"></p>
+<p>显示所有的容器，并支持多个容器同时启动、停止、重启、删除，容器添加等操作。是所有的容器都可以点开查看更详细的信息。</p>
+<p><strong>Images</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.31%20PM.png" alt="镜像"></p>
+<p>可以查看本机所有的镜像。支持批量删除镜像，根据名字下载镜像，选择镜像仓库。点击任意镜像，可以查看进行详细信息。</p>
+<p><strong>Networks</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.39%20PM.png" alt="网络"></p>
+<p>查看 docker 内部网络情况。支持添加和删除网络连接。</p>
+<p><strong>Volums</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.43%20PM.png" alt="数据"></p>
+<p>数据卷。支持查看所有的数据卷，批量删除，添加新数据卷，查看详细信息。</p>
+<p><strong>Events</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.58%20PM.png" alt="事件"></p>
+<p>事件。这是类似于日志系统，记录容器和镜像的启动、停止删除等操作。</p>
+<p><strong>Docker</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.35.03%20PM.png" alt="docker"></p>
+<p>查看 docker 有关的详细信息，类似于命令行上的 <code>docker info</code>命令的结果。</p>
+<p><strong>EndPoint</strong></p>
+<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.35.11%20PM.png" alt="节点"></p>
+<p>查看管理的节点。可以添加多个节点，从而可以同时管理多个机器上的 docker。通过左上角的下拉框，选择要管理的 docker 节点即可。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>首先通过 docker 命令 pull 此镜像：</p>
+<pre class="line-numbers language-sh"><code class="language-sh">docker pull portainer/portainer
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>下载完成之后，通过以下名可以启动容器了：</p>
+<pre class="line-numbers language-shell"><code class="language-shell">docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><em>注：-v 选项只对 Linux 环境有效</em></p>
+<p>现在你可以在浏览器输入 <code>localhost:9000</code> 就能访问 portainer 去管理你的 docker了。</p>
+<p>关于如何远程管理 docker，请看官方文档，在这儿不做详述。</p>
+<p>portaner github：<a href="https://github.com/portainer/portainer" target="_blank" rel="external">https://github.com/portainer/portainer</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;安利一款很好用的工具&lt;/p&gt;
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>Go TCP Socket</title>
     <link href="http://yusank.github.io/Go-TCP%20Socket.html/"/>
     <id>http://yusank.github.io/Go-TCP Socket.html/</id>
-    <published>2017-08-01T02:00:01.000Z</published>
-    <updated>2017-08-14T05:51:02.000Z</updated>
+    <published>2017-07-01T02:00:01.000Z</published>
+    <updated>2017-08-17T07:10:14.000Z</updated>
     
     <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>转载文章</p>
 <h1 id="Go语言TCP-Socket编程"><a href="#Go语言TCP-Socket编程" class="headerlink" title="Go语言TCP Socket编程"></a>Go语言TCP Socket编程</h1><p><strong>文章原始地址:</strong> <a href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/" target="_blank" rel="external">http://tonybai.com/2015/11/17/tcp-programming-in-golang/</a></p>
@@ -679,582 +1406,7 @@ $go run client1.go
     
     </summary>
     
-    
-  </entry>
-  
-  <entry>
-    <title>Docker 的使用</title>
-    <link href="http://yusank.github.io/docker-practice.html/"/>
-    <id>http://yusank.github.io/docker-practice.html/</id>
-    <published>2017-07-17T07:52:00.000Z</published>
-    <updated>2017-07-17T07:52:01.000Z</updated>
-    
-    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p> docker 的基本操作和使用。。。<br> <a id="more"></a></p>
-<h1 id="Docker-的使用"><a href="#Docker-的使用" class="headerlink" title="Docker 的使用"></a>Docker 的使用</h1><h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><hr>
-<h3 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h3><hr>
-<h4 id="新建并启动"><a href="#新建并启动" class="headerlink" title="新建并启动"></a>新建并启动</h4><p>所需的命令是 <code>docker run</code></p>
-<p>例如：</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker run ubuntu:14.04 /bin/echo 'hello, worl'
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>容器执行后面的命令直接就会终止 .</p>
-<p>下面的命令会启动容器并起一个 bash 终端,允许用户进行交互</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -t -i ubuntu:14.04 /bin/bash
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>其中 <code>-t</code>  让 Docker 分配一个伪终端 (pseudo-tty) 并绑定到容器的标准输入上, <code>-i</code> 则让容器的标准输入保持打开 .</p>
-<p>利用 docker run 来创建容器是, Docker 在后台运行的标准操作包括:</p>
-<ul>
-<li>检查本地是否存在指定的镜像,不存在就从共有仓库下载</li>
-<li>利用镜像创建并启动一个容器</li>
-<li>分配一个文件系统并在只读的镜像层外面挂载一层可读写层</li>
-<li>在宿主主机配置的网桥接口中桥接一个虚拟接口到容器中去</li>
-<li>从地址池配置一个 ip 地址给容器</li>
-<li>执行用户指定的应用程序</li>
-<li>执行完毕后容器终止</li>
-</ul>
-<h4 id="启动已终止容器"><a href="#启动已终止容器" class="headerlink" title="启动已终止容器"></a>启动已终止容器</h4><p>可以利用 <code>docker start</code> 命令,直接将一个已经终止的容器启动运行 .</p>
-<p>可以通过 <code>docker ps -a</code> 查看所有的容器和其状态</p>
-<pre class="line-numbers language-shell"><code class="language-shell">CONTAINER ID        IMAGE                   COMMAND                  CREATED             STATUS                     PORTS                    NAMES
-aada74689bf7        cockroachdb/cockroach   "/cockroach/cockro..."   3 weeks ago         Exited (137) 3 weeks ago                            roach_master
-2e9eb6cf3f66        owncloud                "/entrypoint.sh ap..."   3 weeks ago         Up 3 weeks                 0.0.0.0:80->80/tcp       owncloud
-91290c737c73        postgres                "docker-entrypoint..."   3 weeks ago         Up 3 weeks                 5432/tcp                 owncloud-postgres
-8f546ec65e61        mysql                   "docker-entrypoint..."   3 weeks ago         Up 3 weeks                 0.0.0.0:3306->3306/tcp   mysql
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>不难发现 name 为 roch_master 的容器已经终止了,想重新启动它,可以执行下面的命令</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker start aada74689bf7
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>参数为容器的 id .</p>
-<h3 id="后台-background-运行"><a href="#后台-background-运行" class="headerlink" title="后台( background )运行"></a>后台( background )运行</h3><p>在很多时候,我们需要让 docker 在后台运行而并不是把执行结果直接输出出来.</p>
-<p>这个时候我们可以添加 <code>-d</code> 参数来实现</p>
-<p>如果使用 <code>-d</code> 参数运行容器</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -d mysql:5.7.17
-77b2dc01fe0f3f1265df143181e7b9af5e05279a884f4776ee75350ea9d8017a
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>只会输出运行的容器 id, 而输出结果可以用 docker logs 查看 .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker logs [container ID or NAMES]
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<h3 id="终止容器"><a href="#终止容器" class="headerlink" title="终止容器"></a>终止容器</h3><p>可以使用 <code>docker stop</code>  来终止正在运行的容器 .</p>
-<p>此外,当 Docker 容器中指定的应用终结时, 容器也自动终止 . 例如运行一个容器时,指定了一个终端后,当退出终端的时候,所创建的容器也会立刻终止 .</p>
-<p>终止状态的容器, 可以通过 <code>docker start</code> 来重新启动 .</p>
-<p>此外,<code>docker restart</code> 命令会将一个运行态的容器终止,然后重新启动它 .</p>
-<h3 id="进入容器"><a href="#进入容器" class="headerlink" title="进入容器"></a>进入容器</h3><p>在使用 <code>-d</code> 参数时, docker 容器会在后台运行. 有些时候需要进入容器,如运行数据库时,需要进入增删改查库里的内容. 进入容器有很多种办法.</p>
-<h4 id="attach-命令"><a href="#attach-命令" class="headerlink" title="attach 命令"></a>attach 命令</h4><figcaption>attach</code> 是 Docker 自带的命令,用法</p></figcaption><pre class="line-numbers language-docker"><code class="language-docker">&lt;p<span class="token punctuation">></span>但是使用 &lt;code<span class="token punctuation">></span>attach&lt;/code<span class="token punctuation">></span> 命令有个缺陷<span class="token punctuation">,</span>即多个窗口同时用 attach 命令到同一个容器的时候<span class="token punctuation">,</span>所有的窗口都是同步显示的<span class="token punctuation">,</span>如果其中一个窗口阻塞的时候<span class="token punctuation">,</span>其他窗口也无法使用 .&lt;/p<span class="token punctuation">></span>
-&lt;h4 id=<span class="token string">"nsenter-命令"</span><span class="token punctuation">></span>&lt;a href=<span class="token string">"#nsenter-命令"</span> class=<span class="token string">"headerlink"</span> title=<span class="token string">"nsenter 命令"</span><span class="token punctuation">></span>&lt;/a<span class="token punctuation">></span>nsenter 命令&lt;/h4<span class="token punctuation">></span>&lt;p<span class="token punctuation">></span>这个工具需要用如下命令安装&lt;/p<span class="token punctuation">></span>
-&lt;pre<span class="token punctuation">></span>&lt;code class=<span class="token string">"shell"</span><span class="token punctuation">></span>$ docker run <span class="token punctuation">-</span><span class="token punctuation">-</span>rm <span class="token punctuation">-</span>v /usr/local/bin<span class="token punctuation">:</span>/target jpetazzo/nsenter
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-<p>使用方法也比较简单,首先是你要进入的容器的 ID</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ PID=$(docker inspect --format {{.State.Pid}} <container ID or NAMES>)
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>然后通过这个 PID 进入容器</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ nsenter --target $PID --mount --uts --ipc --net --pid
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>如果无法通过上述的命令连接到容器,有可能是因为宿主的默认 shell 在容器中并不存在,比如 zsh, 可以使用如下命令显示地使用 bash .</p>
-<h4 id="exec-命令"><a href="#exec-命令" class="headerlink" title="exec 命令"></a>exec 命令</h4><pre class="line-numbers language-shell"><code class="language-shell">$docker exec -it [container ID or NAMES]
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p><code>-i</code> <code>-t</code> 前面说过为了标准输入输出保持打开 .</p>
-<h3 id="导出和导入容器"><a href="#导出和导入容器" class="headerlink" title="导出和导入容器"></a>导出和导入容器</h3><h4 id="导出容器"><a href="#导出容器" class="headerlink" title="导出容器"></a>导出容器</h4><p>如果要导出本地某个容器,可以使用 <code>docker export</code> 命令 .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker export [container ID or NAMES] > target.tar
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>这样将导出容器快照到本地文件 .</p>
-<h4 id="导入容器快照"><a href="#导入容器快照" class="headerlink" title="导入容器快照"></a>导入容器快照</h4><p>可以使用 <code>docker import</code> 从容器快照文件导入镜像,</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ cat target.tar | docker import - test/mysql:v1.0
-$ sudo docker images
-REPOSITORY  TAG  IMAGE ID         CREATED             VIRTUAL SIZE
-test/ubuntu v1.0 9d37a6082e97     About a minute ago     171.3 MB
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<p>此外,还可以通过指定 URL 或者某个目录来导入</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker import http://example.com/exampleimage.tgz example/imagerepo
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>*注：用户既可以使用 docker load 来导入镜像存储文件到本地镜像库,也可以使用 docker import 来导入一个容器快照到本地镜像库 .这两者的区别在于容器快照文件将丢弃所有的历史记录和元数据信息（即仅保存容器当时的快照状态）,而镜像存储文件将保存完整记录,体积也要大 .此外,从容器快照文件导入时可以重新指定标签等元数据信息 .</p>
-<h3 id="删除容器"><a href="#删除容器" class="headerlink" title="删除容器"></a>删除容器</h3><h4 id="单独删除"><a href="#单独删除" class="headerlink" title="单独删除"></a>单独删除</h4><p>可以使用 <code>docker rm</code> 来删除一个处于终止状态的容器 .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker rm [container ID or NAMES]
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>如果要删除一个运行中的容器,可以添加 <code>-f</code> 参数 .Docker 会发送 <code>SIGKILL</code> 信号给容器 .</p>
-<h4 id="清理所有处于终止状态的容器"><a href="#清理所有处于终止状态的容器" class="headerlink" title="清理所有处于终止状态的容器"></a>清理所有处于终止状态的容器</h4><p>用  <code>docker ps -a</code>  命令可以查看所有已创建的包括终止状态的容器,如果想批量删除多个容器的话(当然是终止状态的容器) ,可以用这个命令</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker rm $(docker ps -a -q)
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>*注意：这个命令其实会试图删除所有的包括还在运行中的容器,不过就像上面提过的 docker rm 默认并不会删除运行中的容器 .</p>
-<h2 id="访问仓库"><a href="#访问仓库" class="headerlink" title="访问仓库"></a>访问仓库</h2><p>仓库（Repository）是集中存放镜像的地方 .</p>
-<p>一个容易混淆的概念是注册服务器（Registry） .实际上注册服务器是管理仓库的具体服务器,每个服务器上可以有多个仓库,而每个仓库下面有多个镜像 .从这方面来说,仓库可以被认为是一个具体的项目或目录 .例如对于仓库地址dl.dockerpool.com/ubuntu 来说, dl.dockerpool.com 是注册服务器地址, ubuntu 是仓库名 .</p>
-<p>大部分时候,并不需要严格区分这两者的概念 .</p>
-<h3 id="Docker-Hub"><a href="#Docker-Hub" class="headerlink" title="Docker Hub"></a>Docker Hub</h3><p>目前 Docker 官方维护了一个公共仓库 <a href="https://hub.docker.com/explore/" target="_blank" rel="external">Docker Hub</a>,   但是开始把阵地移到 <a href="https://store.docker.com/" target="_blank" rel="external">Docker Store</a> 这个平台上,其上能找到几乎所有的能想得到的容器, 不可小觑 .</p>
-<h4 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h4><p>可以通过执行 docker login 命令来输入用户名、密码和邮箱来完成注册和登录 . 注册成功后,本地用户目录的.dockercfg 中将保存用户的认证信息 .</p>
-<h4 id="基本操作-1"><a href="#基本操作-1" class="headerlink" title="基本操作"></a>基本操作</h4><p>用户无需登录即可通过 <code>docker search</code> 命令来查找官方仓库中的镜像, 并利用 <code>docker pull</code> 命令来将它下载到本地 .</p>
-<p>以搜索 mongo 为关键字搜索:</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker search mongo
-NAME                           DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
-mongo                          MongoDB document databases provide high av...   3427      [OK]
-mongo-express                  Web-based MongoDB admin interface, written...   168       [OK]
-mvertes/alpine-mongo           light MongoDB container                         51                               [OK]
-mongoclient/mongoclient        Official docker image for Mongoclient, fea...   29                               [OK]
-torusware/speedus-mongo        Always updated official MongoDB docker ima...   9                                [OK]
-mongooseim/mongooseim-docker   MongooseIM server the latest stable version     9                                [OK]
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>​搜索结果可以看到很多包含关键字的镜像,其中包括镜像名字、描述、星数（表示该镜像的受欢迎程度）、是否官方创建、是否自动创建 . 官方的镜像说明是官方项目组创建和维护的,automated 资源允许用户验证镜像的来源和内容 .</p>
-<p>​根据是否为官方提供, 镜像资源可分为两类 . 一类是累类似 mongo这样的基础镜像 . 这些镜像由 Docker 的用户创建、验证、支持、提供  . 这样的镜像往往是使用单个单词作为名字  . </p>
-<p>另一种类型,比如<code>mvertes/alpine-mongo</code> 镜像,它是由 Docker 的用户创建并维护的,往往带有用户名称前缀  . 可以通过前缀 <code>user_name/</code> 来指定使用某个用户提供的镜像  .</p>
-<p>另外,在查找的时候通过 <code>-s N</code> 参数可以指定仅显示星数为 N 以上的镜像 （新版本的 Docker 推荐使用 <code>--flter=stars=N</code> 参数） .</p>
-<p>下载镜像到本地</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker pull centos
-Pulling repository centos
-0b443ba03958: Download complete
-539c0211cd76: Download complete
-511136ea3c5a: Download complete
-7064731afe90: Download complete
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>用户也可以登录之后通过 <code>docker push</code> 命令来讲镜像推送到 Docker Hub  .</p>
-<h4 id="自动创建"><a href="#自动创建" class="headerlink" title="自动创建"></a>自动创建</h4><p>​自动创建（automated builds）功能对于需要经常升级镜像内程序来说,十分方便 .有时候,用户创建了镜像安装了某个软件,如果软件发布新版本则需要手动更新镜像 . .而自动创建允许用户通过 Docker Hub 指定跟踪一个目标网站（目前支持 GitHub或 BitBucket）上的项目,一旦项目发生新的提交,则自动执行创建 .</p>
-<p>要配置自动创建,包括如下的步骤：</p>
-<ul>
-<li>创建并登录 Docker Hub,以及目标网站；</li>
-<li>在目标网站中连接帐户到 Docker Hub；</li>
-<li>在 Docker Hub 中 配置一个自动创建；</li>
-<li>选取一个目标网站中的项目（需要含 Dockerfile）和分支；</li>
-<li>指定 Dockerfile 的位置,并提交创建 .</li>
-</ul>
-<p>之后,可以 在Docker Hub 的 自动创建页面 中跟踪每次创建的状态 .</p>
-<h3 id="私有仓库"><a href="#私有仓库" class="headerlink" title="私有仓库"></a>私有仓库</h3><p>有时候使用 Docker Hub 这样的公共仓库由于网络等原因可能不方便,用户可以创建一个本地仓库供私人使用 .</p>
-<p>需要用到 <code>docker-registry</code> 工具 .</p>
-<p><code>docker-registry</code> 是官方提供的工具,可以用于构建私有的镜像仓库  .</p>
-<h4 id="安装运行-docker-registry"><a href="#安装运行-docker-registry" class="headerlink" title="安装运行 docker-registry"></a>安装运行 docker-registry</h4><h5 id="容器运行"><a href="#容器运行" class="headerlink" title="容器运行"></a>容器运行</h5><p>在安装了 Docker 后,可以通过获取官方 registry 镜像来运行  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -d -p 5000:5000 registry
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>这将使用官方的 registry 镜像来启动本地的私有仓库 .用户可以通过制定参数来配置私有仓库位置,例如配置镜像存储到 Amazon S3 服务  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run \
--e SETTINGS_FLAVOR=s3 \
--e AWS_BUCKET=acme-docker \
--e STORAGE_PATH=/registry \
--e AWS_KEY=AKIAHSHB43HS3J92MXZ \
--e AWS_SECRET=xdDowwlK7TJajV1Y7EoOZrmuPEJlHYcNP2k4j49T
-\
--e SEARCH_BACKEND=sqlalchemy \
--p 5000:5000 \
-registry
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>此外,还可以指定本地路径（如<code>/home/user/registry-conf</code> ）下的配置文件  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -p 5000:5000 -v /home/user/registry-conf:/r
-egistry-conf -e DOCKER_REGISTRY_CONFIG=/registry-conf/config.yml
-registry
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-<p> 默认情况下,仓库会被创建在容器的 <code>/var/lib/registry</code> 下 .可以通过 <code>-v</code>  参数来将镜像文件存放在本地的指定路径  . 例如下面的例子将上传的镜像放到 <code>/opt/data/registy</code> 目录  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -p 5000:5000 -v /opt/data/registry:/var/lib
-/registry registry
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<h4 id="本地安装"><a href="#本地安装" class="headerlink" title="本地安装"></a>本地安装</h4><p>对于 Ubuntu 或 CentOS 等发行版,可以直接安装  .</p>
-<ul>
-<li>Ubuntu</li>
-</ul>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo apt-get install -y build-essential python-dev libevent-dev python-pip liblzma-dev
-$ sudo pip install docker-registry
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<ul>
-<li>CentOS</li>
-</ul>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo yum install -y python-devel libevent-devel python-pip gcc xz-devel
-$ sudo python-pip install docker-registry
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>也可以从 docker-registry 项目下载源码进行安装  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo apt-get install build-essential python-dev libevent-dev python-pip libssl-dev liblzma-dev libffi-dev
-$ git clone https://github.com/docker/docker-registry.git
-$ cd docker-registry
-$ sudo python setup.py install
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<p>然后修改配置文件,主要修改 dev 模板段的 <code>storage_path</code> 到本地的存储仓库的路径  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ cp config/config_sample.yml config/config.yml
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>之后启动 web 服务  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo gunicorn -c contrib/gunicorn.py docker_registry.wsgi:application
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>或者 </p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo gunicorn --access-logfile - --error-logfile - -k gevent -b 0.0.0.0:5000 -w 4 --max-requests 100 docker_registry.wsgi:application
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>此时使用 crul 访问本地的 5000 端口,看到输出 docker-registry 的版本信息说明运行成功  .</p>
-<p>*注 ： <code>config/config_sample.yml</code> 文件时示例配置文件</p>
-<h4 id="在私有仓库上传、下载、搜索镜像"><a href="#在私有仓库上传、下载、搜索镜像" class="headerlink" title="在私有仓库上传、下载、搜索镜像"></a>在私有仓库上传、下载、搜索镜像</h4><p>创建好私有仓库之后,就可以使用 <code>docker tag</code> 来标记一个镜像,然后推送它到仓库,别的机器上就可以下载了 .如 私有仓库地址为 <code>1192.168.7.26:5000</code></p>
-<p>先在本机上查看已有的镜像  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker images
-REPOSITORY              TAG                 IMAGE ID            CREATED             SIZE
-node                    latest              f93ba6280cbd        3 weeks ago         667MB
-cockroachdb/cockroach   latest              404f7ee26d38        4 weeks ago         163MB
-postgres                latest              ca3a55649cfc        7 weeks ago         269MB
-tomcat                  latest              0785a1d16826        7 weeks ago         367MB
-owncloud                latest              2327c8d59618        8 weeks ago         572MB
-mysql                   latest              e799c7f9ae9c        2 months ago        407MB
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>使用 <code>docker tag</code> 将 <code>tomcat</code>  这个镜像标记为 <code>192.168.7.26：5000/test</code></pre>
-<pre class="line-numbers language-shell"><code class="language-shell">[root@vultr ~]# docker tag tomcat 192.168.7.26:5000/test
-[root@vultr ~]# docker images
-REPOSITORY               TAG                 IMAGE ID            CREATED             SIZE
-node                     latest              f93ba6280cbd        3 weeks ago         667MB
-cockroachdb/cockroach    latest              404f7ee26d38        4 weeks ago         163MB
-postgres                 latest              ca3a55649cfc        7 weeks ago         269MB
-192.168.7.26:5000/test   latest              0785a1d16826        7 weeks ago         367MB
-tomcat                   latest              0785a1d16826        7 weeks ago         367MB
-owncloud                 latest              2327c8d59618        8 weeks ago         572MB
-mysql                    latest              e799c7f9ae9c        2 months ago        407MB
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>用 <code>docker push</code>  上传标记的镜像  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker push 192.168.7.26:5000/test
-The push refers to a repository [192.168.7.26:5000/test] (len: 1)
-Sending image list
-Pushing repository 192.168.7.26:5000/test (1 tags)
-Image 511136ea3c5a already pushed, skipping
-Image 9bad880da3d2 already pushed, skipping
-Image 25f11f5fb0cb already pushed, skipping
-Image ebc34468f71d already pushed, skipping
-Image 2318d26665ef already pushed, skipping
-Image ba5877dc9bec already pushed, skipping
-Pushing tag for rev [ba5877dc9bec] on {http://192.168.7.26:5000/
-v1/repositories/test/tags/latest}
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>用 <code>curl</code> 查看仓库中的镜像</p>
-<pre class="line-numbers language-shell"><code class="language-shell">curl http://192.168.7.26:5000/v1/search
-{"num_results": 7, "query": "", "results": [{"description": "","name": "library/miaxis_j2ee"}, {"description": "", "name": "library/tomcat"}, {"description": "", "name": "library/ubuntu"}, {"description": "", "name": "library/ubuntu_office"}, {"description": "", "name": "library/desktop_ubu"}, {"description": "", "name": "dockerfile/ubuntu"}, {"description": "", "name": "library/test"}]}
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>这里可以看到 <code>{&quot;description&quot;: &quot;&quot;, &quot;name&quot;: &quot;library/test&quot;}</code> ,表面镜像已经上传成功了  .</p>
-<p>下载可以用另一台机器去下载这个镜像  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker pull 192.168.7.26:5000/test
-Pulling repository 192.168.7.26:5000/test
-ba5877dc9bec: Download complete
-511136ea3c5a: Download complete
-9bad880da3d2: Download complete
-25f11f5fb0cb: Download complete
-ebc34468f71d: Download complete
-2318d26665ef: Download complete
-$ docker images
-REPOSITORY         TAG         IMAGE ID
-CREATED         VIRTUAL SIZE
-192.168.7.26:5000/test latest ba5877dc9bec 
-6 weeks ago         192.7 MB
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="仓库配置文件"><a href="#仓库配置文件" class="headerlink" title="仓库配置文件"></a>仓库配置文件</h3><p>Docker 的 registry 利用配置文件提供 了一些仓库的模板（flavor）,用户可以直接使用它们来进行开发或身产环境  .</p>
-<h4 id="模板"><a href="#模板" class="headerlink" title="模板"></a>模板</h4><p>在 <code>config_sample.yml</code> 文件中,可以看到一些现成的模板段：</p>
-<ul>
-<li><code>common</code> ：基础配置</li>
-<li><code>local</code> ：存储数据到本地文件系统</li>
-<li><code>s3</code> ：存储数据到 AWS S3 中</li>
-<li><code>dev</code> ：使用 local 模板的基本配置</li>
-<li><code>test</code> ：单元测试使用</li>
-<li><code>prod</code> ：生产环境配置（基本上跟s3配置类似）</li>
-<li><code>gcs</code> ：存储数据到 Google 的云存储</li>
-<li><code>swift</code> ：存储数据到 OpenStack Swift 服务</li>
-<li><code>glance</code> ：存储数据到 OpenStack Glance 服务,本地文件系统为后备</li>
-<li><code>glance-swift</code>：存储数据到 OpenStack Glance 服务,Swift 为后备</li>
-<li><code>elliptics</code> ：存储数据到 Elliptics key/value 存储</li>
-</ul>
-<p>用户可以添加自定义的模板段  .</p>
-<p>默认情况下使用的模板是 <code>dev</code> ,要是使用某个模板作为默认值,可以添加 <code>SETTING-FLAVOR</code> 到环境变量中去,</p>
-<pre class="line-numbers language-shell"><code class="language-shell">export SETTING_FLAVOR=dev
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>另外,配置文件中支持从环境变量中加载,语法格式为</p>
-<pre class="line-numbers language-shell"><code class="language-shell">_env:VARIABLENAME[:DEFAULT]
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<h4 id="示例配置"><a href="#示例配置" class="headerlink" title="示例配置"></a>示例配置</h4><pre class="line-numbers language-shell"><code class="language-shell">common:
-loglevel: info
-search_backend: "_env:SEARCH_BACKEND:"
-sqlalchemy_index_database:
-"_env:SQLALCHEMY_INDEX_DATABASE:sqlite:////tmp/docker-re
-gistry.db"
-prod:
-loglevel: warn
-storage: s3
-s3_access_key: _env:AWS_S3_ACCESS_KEY
-s3_secret_key: _env:AWS_S3_SECRET_KEY
-s3_bucket: _env:AWS_S3_BUCKET
-boto_bucket: _env:AWS_S3_BUCKET
-storage_path: /srv/docker
-smtp_host: localhost
-from_addr: docker@myself.com
-to_addr: my@myself.com
-dev:
-loglevel: debug
-storage: local
-storage_path: /home/myself/docker
-test:
-storage: local
-storage_path: /tmp/tmpdockertmp
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h2 id="Docker-数据管理"><a href="#Docker-数据管理" class="headerlink" title="Docker 数据管理"></a>Docker 数据管理</h2><p>在容器管理中数据主要有两种方式：</p>
-<ul>
-<li>数据卷 （Data volumes）</li>
-<li>数据卷容器 （Data volume containers）</li>
-</ul>
-<h3 id="数据卷"><a href="#数据卷" class="headerlink" title="数据卷"></a>数据卷</h3><p>数据卷是一个可提供一个或多个容器使用的特殊目录,它绕过 UFS, 可以提供很多有用的特征：</p>
-<ul>
-<li>数据卷可以再荣期间共享和重用</li>
-<li>对数据卷的修改立马生效</li>
-<li>对数据及的更新,不会影响镜像</li>
-<li>数据卷默认会一直存在,即使容器被删除</li>
-</ul>
-<p><em>注：数据卷的使用,类似于Linux 下对目录或文件进行 mount, 镜像中的被指定为挂载点的目录中的文件会隐藏掉,能显示看的是挂载的数据卷</em></p>
-<h4 id="创建一个数据卷"><a href="#创建一个数据卷" class="headerlink" title="创建一个数据卷"></a>创建一个数据卷</h4><p>​在使用 <code>docker run</code> 命令的时候,使用 <code>-v</code> 参数来创建一个数据卷并挂载到容器里 .在一次 run 中可以挂载多个数据卷  .</p>
-<p>下面创建一个名为 web 的容器,并加载一个数据卷到容器的 <code>/webapp</code> 目录  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -d -p --name web -v /webapp training/webapp python app.py
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p><em>注：也可以在 Docker 中使用 <code>volume</code> 来添加一个或多个新的卷到有该镜像创建的任意容器  .</em></p>
-<h4 id="删除数据卷"><a href="#删除数据卷" class="headerlink" title="删除数据卷"></a>删除数据卷</h4><p>数据卷是被设计用来持久化数据的,它的生命周期独立于容器,Docker 不会在容器被删除后自动删除数据卷,并且也不存在垃圾回收这样的机制来处理没有任何容器引用的数据卷 .日光需要在删除容器的同时移除数据卷,可以再删除容器的时候使用 <code>docker rm -v</code> 这个命令 .</p>
-<h4 id="挂载一个主句目录作为数据卷"><a href="#挂载一个主句目录作为数据卷" class="headerlink" title="挂载一个主句目录作为数据卷"></a>挂载一个主句目录作为数据卷</h4><p>使用 <code>-v</code> 参数也可以指定挂载一个本地主机的目录到容器中去  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -P --name web -v /src/webapp:/opt/webapp training/webapp python app.py
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>​    上面的命令加载主机的 <code>/src/webapp</code> 目录到容器的 <code>/opt/webapp</code> 目录 .这个功能在进行测试的时候十分方便,比如用户可以放置一些程序到本地目录中,来查看容器是否正常工作 .本地目录的路径必须是绝对路径,如果目录不存在 Docker会自动为你创建它 .</p>
-<p><em>注：Dockerfile 中不支持这种用法,因为 Dockerfile 是为了移植和分享用的  . 然而,不同的操作系统的路径格式不一样,所以目前还不支持</em> </p>
-<p>Docker 挂载数据卷的默认权限是读写, 用户也可以通过 <code>:ro</code> 指定为只读</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -P --name web -v /src/webapp:/opt/webapp:ro training/webapp python app.py
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>加了 <code>:ro</code> 之后,就挂载为只读了 .</p>
-<h4 id="查看数据卷的具体信息"><a href="#查看数据卷的具体信息" class="headerlink" title="查看数据卷的具体信息"></a>查看数据卷的具体信息</h4><p>在主机里使用以下命令可以查看指定容器的信息</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker inspect web
-...
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>在输出的内容中找到其中和数据卷相关的部分,可以看到所有的数据卷都是创建在主句的 <code>/var/lib/docker/volumes/</code> 下面的</p>
-<pre class="line-numbers language-shell"><code class="language-shell">"Volumes": {
-"/webapp": "/var/lib/docker/volumes/fac362...80535"
-},
-"VolumesRW": {
-"/webapp": true
-}
-...
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><em>注：从 Docker 1.8.0 起,数据卷配置在 “Mounts” Key 下面, 可以看到所有的数据卷都是创建在主机的 <code>/mnt/sda1/var/lib/docker/volumes/...</code> 下面了  .</em></p>
-<pre class="line-numbers language-json"><code class="language-json"><span class="token property">"Mounts"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
-<span class="token punctuation">{</span>
-<span class="token property">"Name"</span><span class="token operator">:</span> <span class="token string">"b53ebd40054dae599faf7c9666acfe205c3e922
-fc3e8bc3f2fd178ed788f1c29"</span><span class="token punctuation">,</span>
-<span class="token property">"Source"</span><span class="token operator">:</span> <span class="token string">"/mnt/sda1/var/lib/docker/volumes/b53e
-bd40054dae599faf7c9666acfe205c3e922fc3e8bc3f2fd178ed788f1c29/_data"</span><span class="token punctuation">,</span>
-<span class="token property">"Destination"</span><span class="token operator">:</span> <span class="token string">"/webapp"</span><span class="token punctuation">,</span>
-<span class="token property">"Driver"</span><span class="token operator">:</span> <span class="token string">"local"</span><span class="token punctuation">,</span>
-<span class="token property">"Mode"</span><span class="token operator">:</span> <span class="token string">""</span><span class="token punctuation">,</span>
-<span class="token property">"RW"</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
-<span class="token property">"Propagation"</span><span class="token operator">:</span> <span class="token string">""</span>
-<span class="token punctuation">}</span>
-<span class="token punctuation">]</span>
-...
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h4 id="挂载一个本地主机文件作为数据卷"><a href="#挂载一个本地主机文件作为数据卷" class="headerlink" title="挂载一个本地主机文件作为数据卷"></a>挂载一个本地主机文件作为数据卷</h4><p><code>-v</code> 参数也可以从主机挂载单个文件到文件到容器中</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run --rm -it -v ~/.bash_history:/.bash_history ubuntu /bin/bash
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>这样就可以记录在容器输入过得命令了  .</p>
-<h3 id="数据卷容器"><a href="#数据卷容器" class="headerlink" title="数据卷容器"></a>数据卷容器</h3><p>如果你有一些持续更新的数据需要在容器之间共享,最好创建数据卷容器  .</p>
-<p>数据卷容器,其实就是一个正常的容器,专门用来提供数据卷供其他容器挂载的  .</p>
-<p>首先,创建一个名为 dbdata 的数据卷容器：</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -v /dbdata --name dbdata training/postgres echo Data-only container for postgres
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>然后,在其他容器中使用 <code>--volumes-from</code> 来挂载 dbdata 容器中的数据卷  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d --volumes-form dbdata --name db1 training/postgres
-$ sudo docker run -d --volumes-form dbdata --name db2 training/postgres
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>可以使用超过一个的<code>--volumes-from</code> 参数来指定从多个容器挂载不同的数据卷  . 也可以从其他已经挂载了数据卷的容器来级联挂载数据卷  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -d --name db3 --volumes-from db1 training/postgres
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p><em>注：使用 <code>--volumes-from</code>  参数所挂载数据卷的容器自己并不需要保持运行状态</em> </p>
-<p>如果删除了挂载的容器（包括 dbdata、db1 和 db2 ）,数据卷并不会被自动删除 .如果删除一个数据卷,必须在删除最后一个还挂着它的容器时使用 <code>docker rm -v</code> 命令来指定同时删除关联的容器 .这可以让用户在容器之间升级和移到数据卷 .</p>
-<h4 id="利用数据卷容器来备份、恢复、迁移数据卷"><a href="#利用数据卷容器来备份、恢复、迁移数据卷" class="headerlink" title="利用数据卷容器来备份、恢复、迁移数据卷"></a>利用数据卷容器来备份、恢复、迁移数据卷</h4><p>可以利用数据卷对其中的数据进行备份、恢复和迁移 .</p>
-<h5 id="备份"><a href="#备份" class="headerlink" title="备份"></a>备份</h5><p>首先使用 <code>--volumes-from</code> 标记来创建一个加载 dbdata 数据卷的容器,并从主机挂载当前目录到容器的 /backup 目录 .命令如下：</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run --volumes-from dbdata -v$(pwd):/backup ubuntu tar cvf /backup/backup.tar /dbdata
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>容器启动后,使用了 <code>tar</code> 命令来将 dbdata 卷备份为容器中 /backup/backup.tar 文件,也就是主机当前目录下的名为 backup.tar 的文件  .</p>
-<h5 id="恢复"><a href="#恢复" class="headerlink" title="恢复"></a>恢复</h5><p>如果要恢复数据到一个容器,首先创建一个带有空数据卷的容器 dbdata2  .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -v /dbdata --name dbdata2 ubuntu /bin/bash
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>然后创建另一个容器,挂载 dbdata2 容器卷中的数据卷,并使用 <code>untar</code>  解压备份文件到挂载的容器卷中 .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run --volumes-form dbdata2 -v $(pwd):/backup busybox tar xvf
-/backup/backup.tar
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>为了查看/验证恢复的数据,可以再启动一个容器挂载同样的容器卷来查看</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker run --volumes-from dbdata2 busybox /bin/ls dbdata
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<h5 id="迁移数据卷"><a href="#迁移数据卷" class="headerlink" title="迁移数据卷"></a>迁移数据卷</h5><p>代写 . . .</p>
-<h1 id="Docker-中的网络"><a href="#Docker-中的网络" class="headerlink" title="Docker 中的网络"></a>Docker 中的网络</h1><p>Docker 允许通过外部访问容器或容器互联的方式来提供网络服务  .</p>
-<h2 id="外部访问容器"><a href="#外部访问容器" class="headerlink" title="外部访问容器"></a>外部访问容器</h2><p>容器中可以与运行一些网络应用,要让外部也可以访问这些应用,可以通过 <code>-P</code>  或 <code>-p</code> 参数来指定端口映射 .</p>
-<p>当使用 <code>-P</code> 参数时,Docker 会随机映射一个 <code>49000~49900</code> 的端口到内部容器开放的网络端口 .</p>
-<p>使用 <code>docker ps</code> 可以看到,本地主机的49155 被映射到了容器的5000 端口  .</p>
-<p>此时访问本机的49155 端口即可访问容器内 web 应用提供的界面 .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -P training/webapp python app.py
-$ sudo docker ps -l
-CONTAINER ID         IMAGE                     COMMAND         CREATED
-STATUS             PORTS                     NAMES
-bc533791f3f5         training/webapp:latest     python app.py     5 seconds ag
-o Up 2 seconds     0.0.0.0:49155->5000/tcp nostalgic_morse
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><code>-P</code> （小写）则可以指定要映射的端口,并且在一个指定端口上只可以绑定一个容器 .支持的格式有</p>
-<ul>
-<li><code>ip:HostPort:containerPort</code></li>
-<li><code>ip::containerPort</code></li>
-<li><code>hostPort:containerPort</code></li>
-</ul>
-<h3 id="映射所有接口地址"><a href="#映射所有接口地址" class="headerlink" title="映射所有接口地址"></a>映射所有接口地址</h3><p>使用 <code>hostPort ：containerPort</code> 格式本地的5000端口映射到容器的5000端口,可以执行</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -d -p 5000:5000 training/webapp python app.py
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>此时默认会绑定本地所有接口上的所有接口 .</p>
-<h3 id="映射到指定地址的指定端口"><a href="#映射到指定地址的指定端口" class="headerlink" title="映射到指定地址的指定端口"></a>映射到指定地址的指定端口</h3><p>可以使用 <code>ip:hostPort:containerPort</code> 格式指定映射使用一个特定地址,比如 localhost 地址 127.0.0.1</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ sudo docker run -d -p 127.0.0.1:5000:5000 training/webapp python app.py
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<h3 id="查看映射端口配置"><a href="#查看映射端口配置" class="headerlink" title="查看映射端口配置"></a>查看映射端口配置</h3><p>使用 <code>docker port</code> 来查看当前映射的端口配置,也可以查看到绑定的地址</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker port gogs
-22/tcp -> 0.0.0.0:10022
-3000/tcp -> 0.0.0.0:10080
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-<p>可以看到 <code>gogs</code> 有两个容器内的端口 22, 3000 分别映射主机的10022,10080 端口  .</p>
-<p><em>注： -p 可以多次使用来绑定多个端口,也就是说一条命令可以有多个 -p ,如：上面👆的 gogs 容器就绑定了俩端口</em></p>
-<h2 id="容器互联"><a href="#容器互联" class="headerlink" title="容器互联"></a>容器互联</h2><p>容器的连接（linking）系统是除了端口映射外,另一种跟容器中应用交互的方式 .该系统会在源和接受容器之间创建一个通道,接受容器可以看到源容器指定的信息 .</p>
-<h3 id="自定义容器命名"><a href="#自定义容器命名" class="headerlink" title="自定义容器命名"></a>自定义容器命名</h3><p>连接系统依据容器的名称来执行 .因此,首先需要自定义一个好记的容器命名 .</p>
-<p>虽然创建容器的时候,系统默认会分配给一个名字 .但是自定义命名容器的话,第一,好记,第二,可以作为有用的参考的 .</p>
-<p>使用 <code>--name</code> 参数可以为容器自定义命名 .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker run -d -p 8181:4040 --name own-cloud owncloud
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>使用 <code>docker ps</code> 来查看正运行的容器</p>
-<pre class="line-numbers language-shell"><code class="language-shell">CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                            NAMES
-2c2e766e86fd        owncloud            "/entrypoint.sh ap..."   23 hours ago        Up 23 hours         80/tcp, 0.0.0.0:8181->4040/tcp                   own-cloud
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>使用 <code>docker inspect</code> 命令来查看容器名字</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ docker inspect -f "{{.Name}}" 2c2e766e86fd
-/own-cloud
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p><em>注：容器的名称是唯一的 .如果已经命名了一个叫 own-cloud 的容器,当你再次使用这个名词的时候,需要先把之前的的同名容器删除</em></p>
-<p><em>tips：在执行  <code>docker run</code>  的时候可以添加  <code>—rm</code>  参数,这样容器在终止后立刻删除 .注意,<code>—rm</code> 和  <code>-d</code> 参数不能同时使用  .</em></p>
-<h3 id="容器互联-1"><a href="#容器互联-1" class="headerlink" title="容器互联"></a>容器互联</h3><p>使用 <code>--link</code> 参数可以让容器之间安全的进行交互 .</p>
-<p>下面是,运行 <code>Nginx</code> 容器的时候把 <code>gogs</code> 这个容器连接上</p>
-<pre class="line-numbers language-shell"><code class="language-shell">docker run -d --name my_nginx --link gogs:app --link own-cloud:app2 -p 80:80 -v /root/nginx/config:/etc/nginx/conf.d nginx
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>此时,gogs 容器和 my_nginx 容器建立互联关系</p>
-<p><code>--link</code> 参数的格式为 <code>--link name:alias</code> ,其中 name 是要连接的容器名称, alias 是这个连接的别名  .</p>
-<p>可以通过 <code>docker inspect</code> 命令查看 my_nginx 容器信息,就会发现有这么一段信息</p>
-<pre class="line-numbers language-shell"><code class="language-shell">"Links": [
-                "/gogs:/trusting_brown/app",
-                "/own-cloud:/trusting_brown/app2"
-            ],
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<p>表面此容器已经连上两个容器, gogs 和 own-cloud,trusting_brown 是系统分配给 Nginx 的名称,连接名称分别是 app 和 app2  .</p>
-<p>Docker 在两个互联的容器之间创建了一个安全的隧道,而且不用映射到它们的端口到主机上 .在启动被连接的容器的时候不用添加 -p 或 -P 参数,从而避免暴露端口到外部网络上 .</p>
-<p>连接之后,在 Nginx 容器里,就会发生两个变化  .</p>
-<p>一是环境变量 .在 Nginx 容器中会出现6个新增的环境变量,这些环境变量的名称分贝时由被连接的服务别名、端口等拼接而成的 .</p>
-<p><em>由于起得 gogs 容器有两个端口,所以其中 APP_PORT、APP_NAME、APP_ENV_GOGS_CUSTOM 是公用的,其它8个变量每四个的分别对应22, 3000 端口</em></p>
-<pre class="line-numbers language-shell"><code class="language-shell"># env | grep APP
-APP_PORT_3000_TCP=tcp://172.17.0.2:3000
-APP_PORT_22_TCP_PROTO=tcp
-APP_ENV_GOGS_CUSTOM=/data/gogs
-APP_PORT_3000_TCP_ADDR=172.17.0.2
-APP_PORT_3000_TCP_PROTO=tcp
-APP_PORT_22_TCP_PORT=22
-APP_PORT_3000_TCP_PORT=3000
-APP_PORT=tcp://172.17.0.2:22
-APP_NAME=/my_nginx/app
-APP_PORT_22_TCP=tcp://172.17.0.2:22
-APP_PORT_22_TCP_ADDR=172.17.0.2
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>二是 hosts 文件 .在 Nginx 容器的 hosts 文件看到下面的记录 .这就是说,一切访问 连接别名（app）、容器 ID（ac4c0cf35adf）和容器名（gogs）的请求都会被重新导向到实时实际的 app 的 ip 地址上 .</p>
-<pre class="line-numbers language-shell"><code class="language-shell"># cat /etc/hosts | grep app
-172.17.0.2    app ac4c0cf35adf gogs
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<h2 id="高级网络配置"><a href="#高级网络配置" class="headerlink" title="高级网络配置"></a>高级网络配置</h2><p>当 Docker 启动时,会自动的主机上创建一个 <code>docker0</code> 虚拟网桥,实际上是 Linux 的一个 bridge,可以理解为一个软件交换机 .它会挂载到它的网口之间进行转发 .</p>
-<pre class="line-numbers language-shell"><code class="language-shell">$ ip addr | grep docker0
-docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
-    link/ether 02:42:23:c6:3f:1c brd ff:ff:ff:ff:ff:ff
-    inet 172.17.0.1/16 scope global docker0
-       valid_lft forever preferred_lft forever
-    inet6 fe80::42:23ff:fec6:3f1c/64 scope link
-       valid_lft forever preferred_lft forever
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>同时,Docker 随机分一个本地未占用的私有网段（在 <a href="https://tools.ietf.org/html/rfc1918" target="_blank" rel="external">RFC1919</a> 中定义）中的一个地址给 <code>docker0</code> 接口 .比如我的主机上的 docker0 ip 为 <code>172.17.0.1</code> ,掩码为 <code>255.255.0.0</code>  .此后启动的容器内的网口也会自动分配有个一个同一网段（<code>172.17.0.0/16</code>）的地址 .</p>
-<p>当创建一个 Docker 容器的时候,同时会创建一对 <code>vath pair</code> 接口（当数据包发送到一个接口,另一个接口也可以收到相同的数据包） .这对接口一段在容器内,即 <code>eth0</code> ；另一端在本地并挂载到 docker0 网桥,名称以 <code>veth</code> 开头  .通过这种方式,主机可以跟容器通信,容器之间也可以相互通信 . Docker 就创建了在主机和所有容器之间一个虚拟共享网络 .</p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/network.png" alt="Docker 网络"></p>
-<p>​                                            图 i.i docker 网络</p>
-<p>接下来部分将介绍在一些场景中,Docker 所有的网络定制配置 .以及通过 Linux 命令来调整、补充、甚至替换 Docker 默认的网络配置 .</p>
-<h3 id="快速配置"><a href="#快速配置" class="headerlink" title="快速配置"></a>快速配置</h3><p>下面是一个跟 Docker 网络相关的命令列表 .</p>
-<p>其中有些命令选项只有在 Docker 服务启动的时候才能配置,而且不能马上生效 .</p>
-<ul>
-<li><code>-b BRIDGE or --bridge==BRIDGE</code> –指定容器挂载的网桥</li>
-<li><code>--bip=CIDR</code> — 定制 docker0 的掩码</li>
-<li><code>-H SOCKET... or --host=SOCKET…</code> —Docker 服务端接受命令的通道</li>
-<li><code>--icc=true|false</code> –是否支持容器之间进行通信</li>
-<li><code>--ip-forward=true|false</code> —容器是否能访问外网（详细解析请看下文的容器通信）</li>
-<li><code>--iptables=true|false</code> –是否允许 Docker 添加 iptables 规则</li>
-<li><code>--mtu=BYTES</code> —容器网络中的 MTU</li>
-</ul>
-<p>下面的两个命令既可以在服务启动时指定,也可以 Docker 容器启动（docker run ）时候指定 .</p>
-<p>在 Docker 服务启动的时候指定则会成为默认值,后面执行<code>docker run</code>时可以覆盖设置的默认值 .</p>
-<ul>
-<li><code>--dns=IP_ADDRESS…</code> —使用指定的 DNS 服务器</li>
-<li><code>--dns-search=DOMAIN...</code> 指定 DNS 搜索域</li>
-</ul>
-<p>最后这些选项只有在 docker run 执行时使用,因为它是针对容器的特性内容 .</p>
-<ul>
-<li><code>-h HOSTNAME or --hostname=HOSTNAME</code> –配置容器主机名</li>
-<li><code>--link=CONRATAINER_NAME:ALIAS</code> —添加到另一个容器的连接</li>
-</ul>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt; docker 的基本操作和使用。。。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="技术" scheme="http://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>docker-portainer</title>
-    <link href="http://yusank.github.io/portainer.html/"/>
-    <id>http://yusank.github.io/portainer.html/</id>
-    <published>2017-07-08T04:18:00.000Z</published>
-    <updated>2017-07-08T05:27:01.000Z</updated>
-    
-    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>安利一款很好用的工具</p>
-<a id="more"></a>
-<h1 id="管理-docker"><a href="#管理-docker" class="headerlink" title="管理 docker"></a>管理 docker</h1><h2 id="为什么管理"><a href="#为什么管理" class="headerlink" title="为什么管理"></a>为什么管理</h2><p>随着用的 docker 镜像种类增多，在一台机器上起得 docker 容器数量有时候会非常的多，管理起来也比较困难，而且有时候一些 docker 命令一时半会想不起来，更不用说命令行的枯燥性，所以有没有一直简单一点办法去管理 docker 镜像和容器呢？</p>
-<p>今天主角该登场了！</p>
-<p><code>Portainer</code></p>
-<p>这也是一个 docker 镜像，是可视化管理 docker 镜像和容器的镜像。</p>
-<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p>说的比较绕，不说废话，先上图：</p>
-<p><strong>Dashboard:</strong></p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.33.19%20PM.png" alt="首页"></p>
-<p>其前端是网页，容器启动以后，在浏览器输入主机名:端口号后，第一打开此页面需要设置管理员密码，设置完毕之后，登录进入后，会看到上面的页面。</p>
-<p>左边是选择菜单，右半部是显示你主机的基本信息和 docker 的基本信息，有多少个镜像，运行着几个容器等。</p>
-<p>下面，从上到下一个个点击左边的菜单。</p>
-<p><strong>App Templates</strong></p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.33.51%20PM.png" alt="镜像店"></p>
-<p>可以搜索查看并能一键下载（pull）镜像</p>
-<p><strong>Containers</strong></p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.09%20PM.png" alt="容器"></p>
-<p>显示所有的容器，并支持多个容器同时启动、停止、重启、删除，容器添加等操作。是所有的容器都可以点开查看更详细的信息。</p>
-<p><strong>Images</strong></p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.31%20PM.png" alt="镜像"></p>
-<p>可以查看本机所有的镜像。支持批量删除镜像，根据名字下载镜像，选择镜像仓库。点击任意镜像，可以查看进行详细信息。</p>
-<p><strong>Networks</strong></p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.39%20PM.png" alt="网络"></p>
-<p>查看 docker 内部网络情况。支持添加和删除网络连接。</p>
-<p><strong>Volums</strong></p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.43%20PM.png" alt="数据"></p>
-<p>数据卷。支持查看所有的数据卷，批量删除，添加新数据卷，查看详细信息。</p>
-<p><strong>Events</strong></p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.34.58%20PM.png" alt="事件"></p>
-<p>事件。这是类似于日志系统，记录容器和镜像的启动、停止删除等操作。</p>
-<p><strong>Docker</strong></p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.35.03%20PM.png" alt="docker"></p>
-<p>查看 docker 有关的详细信息，类似于命令行上的 <code>docker info</code>命令的结果。</p>
-<p><strong>EndPoint</strong></p>
-<p><img src="http://oid1xlj7h.bkt.clouddn.com/Screen%20Shot%202017-08-15%20at%202.35.11%20PM.png" alt="节点"></p>
-<p>查看管理的节点。可以添加多个节点，从而可以同时管理多个机器上的 docker。通过左上角的下拉框，选择要管理的 docker 节点即可。</p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>首先通过 docker 命令 pull 此镜像：</p>
-<pre class="line-numbers language-sh"><code class="language-sh">docker pull portainer/portainer
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>下载完成之后，通过以下名可以启动容器了：</p>
-<pre class="line-numbers language-shell"><code class="language-shell">docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p><em>注：-v 选项只对 Linux 环境有效</em></p>
-<p>现在你可以在浏览器输入 <code>localhost:9000</code> 就能访问 portainer 去管理你的 docker了。</p>
-<p>关于如何远程管理 docker，请看官方文档，在这儿不做详述。</p>
-<p>portaner github：<a href="https://github.com/portainer/portainer" target="_blank" rel="external">https://github.com/portainer/portainer</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;安利一款很好用的工具&lt;/p&gt;
-    
-    </summary>
+      <category term="GO" scheme="http://yusank.github.io/categories/GO/"/>
     
     
   </entry>
@@ -1503,6 +1655,8 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
     
     </summary>
     
+      <category term="GO" scheme="http://yusank.github.io/categories/GO/"/>
+    
     
   </entry>
   
@@ -1655,6 +1809,8 @@ ok      gotest    9.364s
       &lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;h1 id=&quot;Go-测试用例&quot;&gt;&lt;a href=&quot;#Go-测试用例&quot; clas
     
     </summary>
+    
+      <category term="GO" scheme="http://yusank.github.io/categories/GO/"/>
     
     
   </entry>
@@ -2477,7 +2633,7 @@ Origin http://api.bob.com is not allowed by Access-Control-Allow-Origin.
     <link href="http://yusank.github.io/Go%20Channel.html/"/>
     <id>http://yusank.github.io/Go Channel.html/</id>
     <published>2017-01-07T04:20:00.000Z</published>
-    <updated>2017-08-14T06:06:53.000Z</updated>
+    <updated>2017-08-17T07:09:59.000Z</updated>
     
     <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>讲解 Golang 的 channel（通道），学 go 语言的有必要看一下。以下正文。。。</p>
 <hr>
@@ -2738,6 +2894,8 @@ fmt<span class="token punctuation">.</span><span class="token function">Printf</
       &lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;p&gt;讲解 Golang 的 channel（通道），学 go 语言的有必要看一
     
     </summary>
+    
+      <category term="GO" scheme="http://yusank.github.io/categories/GO/"/>
     
     
   </entry>

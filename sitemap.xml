@@ -2,23 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://yusank.github.io/categories/index.html</loc>
+    <loc>http://yusank.github.io/GO-UDP.html/</loc>
     
-    <lastmod>2017-08-15T07:36:08.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yusank.github.io/Go%20Channel.html/</loc>
-    
-    <lastmod>2017-08-14T06:06:53.000Z</lastmod>
+    <lastmod>2017-08-17T07:10:26.000Z</lastmod>
     
   </url>
   
   <url>
     <loc>http://yusank.github.io/Go-TCP%20Socket.html/</loc>
     
-    <lastmod>2017-08-14T05:51:02.000Z</lastmod>
+    <lastmod>2017-08-17T07:10:14.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yusank.github.io/Go%20Channel.html/</loc>
+    
+    <lastmod>2017-08-17T07:09:59.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yusank.github.io/categories/index.html</loc>
+    
+    <lastmod>2017-08-17T07:08:06.000Z</lastmod>
     
   </url>
   
