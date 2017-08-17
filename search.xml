@@ -546,45 +546,47 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
 </table>
 <h2 id="TCP-与-UDP-的选择"><a href="#TCP-与-UDP-的选择" class="headerlink" title="TCP 与 UDP 的选择"></a>TCP 与 UDP 的选择</h2><p>当数据传输的性能必须让位于数据传输的完整性、可控制性和可靠性时，TCP协议是当然的选择。当强调传输性能而不是传输的完整性时，如：音频和多媒体应用，UDP是最好的选择。在数据传输时间很短，以至于此前的连接过程成为整个流量主体的情况下，UDP也是一个好的选择，如：DNS交换。把SNMP建立在UDP上的部分原因是设计者认为当发生网络阻塞时，UDP较低的开销使其有更好的机会去传送管理数据。TCP丰富的功能有时会导致不可预料的性能低下，但是我们相信在不远的将来，TCP可靠的点对点连接将会用于绝大多数的网络应用。</p>
 <h2 id="UDP-使用场景"><a href="#UDP-使用场景" class="headerlink" title="UDP 使用场景"></a>UDP 使用场景</h2><p>在选择使用协议的时候，选择UDP必须要谨慎。在网络质量令人十分不满意的环境下，UDP协议数据包丢失会比较严重。但是由于UDP的特性：它不属于连接型协议，因而具有资源消耗小，处理速度快的优点，所以通常音频、视频和普通数据在传送时使用UDP较多，因为它们即使偶尔丢失一两个数据包，也不会对接收结果产生太大影响。而且如果在内网的情况下，丢包率也很低，所以内网的数据传输也可以用 UDP 协议。我们常用的 QQ，一部分数据传输功能也是用 UDP协议来实现的。</p>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><figcaption><pre class="line-numbers language-go">package main</figcaption><pre><code class="server.go</code></p>"><code class="language-go">package main</figcaption><pre><code class="server.go</code></p>">
-import (
-    "fmt"
-    "net"
-)
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>下面分别是服务端和客户端实现代码：<br>服务端代码 <code>server.go</code>:</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> main
 
-func main() {
-    // 解析地址
-    addr, err := net.ResolveUDPAddr("udp", ":3017")
-    if err != nil {
-        fmt.Println("Can't resolve addr:", err.Error())
-        panic(err)
-    }
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">"fmt"</span>
+    <span class="token string">"net"</span>
+<span class="token punctuation">)</span>
 
-    // 监听端口
-    conn, err := net.ListenUDP("udp", addr)
-    if err != nil {
-        fmt.Println("listen error:", err.Error())
-        panic(err)
-    }
-    defer conn.Close()
-    for {
-        handlerClient(conn)
-    }
-}
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">// 解析地址</span>
+    addr<span class="token punctuation">,</span> err <span class="token operator">:=</span> net<span class="token punctuation">.</span><span class="token function">ResolveUDPAddr</span><span class="token punctuation">(</span><span class="token string">"udp"</span><span class="token punctuation">,</span> <span class="token string">":3017"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"Can't resolve addr:"</span><span class="token punctuation">,</span> err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token function">panic</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
 
-func handlerClient(conn *net.UDPConn) {
-    data := make([]byte, 1024)
-    // 从 UDP 中读取内容并写到 data
-    _, remoteAddr, err := conn.ReadFromUDP(data)
-    if err != nil {
-        fmt.Println("read udp msg failed with:", err.Error())
-        return
-    }
-    // 给收到消息的 client 写回信息
-    conn.WriteToUDP([]byte("a"), remoteAddr)
-}
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><code>client.go</code></pre>
+    <span class="token comment" spellcheck="true">// 监听端口</span>
+    conn<span class="token punctuation">,</span> err <span class="token operator">:=</span> net<span class="token punctuation">.</span><span class="token function">ListenUDP</span><span class="token punctuation">(</span><span class="token string">"udp"</span><span class="token punctuation">,</span> addr<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"listen error:"</span><span class="token punctuation">,</span> err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token function">panic</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">defer</span> conn<span class="token punctuation">.</span><span class="token function">Close</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">for</span> <span class="token punctuation">{</span>
+        <span class="token function">handlerClient</span><span class="token punctuation">(</span>conn<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">func</span> <span class="token function">handlerClient</span><span class="token punctuation">(</span>conn <span class="token operator">*</span>net<span class="token punctuation">.</span>UDPConn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    data <span class="token operator">:=</span> <span class="token function">make</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token builtin">byte</span><span class="token punctuation">,</span> <span class="token number">1024</span><span class="token punctuation">)</span>
+    <span class="token comment" spellcheck="true">// 从 UDP 中读取内容并写到 data</span>
+    <span class="token boolean">_</span><span class="token punctuation">,</span> remoteAddr<span class="token punctuation">,</span> err <span class="token operator">:=</span> conn<span class="token punctuation">.</span><span class="token function">ReadFromUDP</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"read udp msg failed with:"</span><span class="token punctuation">,</span> err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment" spellcheck="true">// 给收到消息的 client 写回信息</span>
+    conn<span class="token punctuation">.</span><span class="token function">WriteToUDP</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span><span class="token string">"a"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> remoteAddr<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>客户端代码<code>client.go</code>：</p>
 <pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> client
 
 <span class="token keyword">import</span> <span class="token punctuation">(</span>
