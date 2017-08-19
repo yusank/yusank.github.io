@@ -279,7 +279,7 @@
     </button>
     <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
         <li class="mdl-menu__item">
-        
+        <a class="post_tag-link" href="/tags/hexo/">hexo</a>
     </ul>
     
     <!-- Share -->
@@ -331,10 +331,10 @@
 	
 		<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>测试添加歌单。。。。<br><a id="more"></a></p>
 <h1 id="测试歌单"><a href="#测试歌单" class="headerlink" title="测试歌单"></a>测试歌单</h1>
-			<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;"></div>
+			<div id="aplayer2" class="aplayer" style="margin-bottom: 20px;"></div>
 			<script>
 				var options = {"narrow":false,"autoplay":false,"showlrc":1,"mode":"random","mutex":true,"theme":"#e6d0b2","preload":"metadata","listmaxheight":"513px","music":[{"title":"匆匆那年","author":"王菲","url":"http://oid1xlj7h.bkt.clouddn.com/%E7%8E%8B%E8%8F%B2%20-%20%E5%8C%86%E5%8C%86%E9%82%A3%E5%B9%B4.mp3","lrc":"http://oid1xlj7h.bkt.clouddn.com/ccnn.txt"},{"title":"Toca Toca","author":"Fly project","url":"http://oid1xlj7h.bkt.clouddn.com/Fly%20Project%20-%20Toca%20Toca.mp3"},{"title":"Danzo Kuduro","author":"Don Omar","url":"http://oid1xlj7h.bkt.clouddn.com/Don%20Omar,Lucenzo%20-%20Danza%20Kuduro%20-%20Album%20Version.mp3"},{"title":"难忘的一天","author":"许巍","url":"http://oid1xlj7h.bkt.clouddn.com/%E8%AE%B8%E5%B7%8D%20-%20%E9%9A%BE%E5%BF%98%E7%9A%84%E4%B8%80%E5%A4%A9.mp3","lrc":"http://oid1xlj7h.bkt.clouddn.com/nwdyt.txt"},{"title":"Counting Stars","author":"OneRepublic","url":"http://oid1xlj7h.bkt.clouddn.com/OneRepublic%20-%20Counting%20Stars.mp3"},{"title":"Zoobi Doobi","author":"Sonu Nigam,Shreya Ghoshal","url":"http://oid1xlj7h.bkt.clouddn.com/Sonu%20Nigam,Shreya%20Ghoshal%20-%20Zoobi%20Doobi.mp3","lrc":"http://oid1xlj7h.bkt.clouddn.com/tidoit.txt"}]};
-				options.element = document.getElementById("aplayer1");
+				options.element = document.getElementById("aplayer2");
 				new APlayer(options);
 			</script>
 
@@ -447,7 +447,7 @@
         <ul id="settings-dropdown" class="dropdown-menu">
 			
                 <li>
-                    <a href="https://gmail.google.com" target="_blank" title="Email Me">
+                    <a href="mailto:yusankurban@gmail.com" target="_blank" title="Email Me">
 						<i class="material-icons sidebar-material-icons sidebar-indent-left1pc-element">email</i>
                         Email Me
                     </a>
@@ -495,26 +495,32 @@
     <!-- Pages  -->
 	
 		<li>
+			<a href="/categories/" title="分类">
+				分类
+			</a>
+		</li>
+	
+		<li>
+			<a href="/tags/" title="标签">
+				标签
+			</a>
+		</li>
+	
+		<li>
+			<a href="/gallery/" title="图库">
+				图库
+			</a>
+		</li>
+	
+		<li>
 			<a href="/links/" title="友情链接">
 				友情链接
 			</a>
 		</li>
 	
 		<li>
-			<a href="/about" title="关于我">
+			<a href="/about/" title="关于我">
 				关于我
-			</a>
-		</li>
-	
-		<li>
-			<a href="/gallery" title="图库">
-				图库
-			</a>
-		</li>
-	
-		<li>
-			<a href="/categories" title="分类">
-				分类
 			</a>
 		</li>
 	
@@ -606,16 +612,10 @@ It will not impact the appearance and can give developers a lot of support :)
 		<div class="mdl-mini-footer--left-section sns-list">
     <!-- Twitter -->
     
-    <a href="https://twitter.com/twitter" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-twitter.png);">
-        <span class="visuallyhidden">Twitter</span>
-    </button></a>
     
     
     <!-- Facebook -->
     
-    <a href="https://www.facebook.com/facebook" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-facebook.png);">
-        <span class="visuallyhidden">Facebook</span>
-    </button></a>
     
     
     <!-- Google + -->
@@ -659,12 +659,6 @@ It will not impact the appearance and can give developers a lot of support :)
 		它不会影响美观并可以给开发者很大的支持。 :) 
 		-->
 
-		<div class="mdl-mini-footer--right-section">
-			<div>
-				<div class="footer-develop-div">Powered by <a href="https://hexo.io" target="_blank" class="footer-develop-a">Hexo</a></div>
-				<div class="footer-develop-div">Theme - <a href="https://github.com/viosey/hexo-theme-material" target="_blank" class="footer-develop-a">Material</a></div>
-			</div>
-		</div>
 	
     
 </footer>
@@ -703,6 +697,9 @@ It will not impact the appearance and can give developers a lot of support :)
 
 
 
+
+    <!-- Busuanzi -->
+    <script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 
 

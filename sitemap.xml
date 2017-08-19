@@ -2,30 +2,44 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://yusank.github.io/GO-UDP.html/</loc>
+    <loc>http://yusank.github.io/categories/index.html</loc>
     
-    <lastmod>2017-08-17T14:39:06.000Z</lastmod>
+    <lastmod>2017-08-19T06:18:45.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://yusank.github.io/Go%20Channel.html/</loc>
+    <loc>http://yusank.github.io/GO-UDP.html/</loc>
     
-    <lastmod>2017-08-17T14:35:46.000Z</lastmod>
+    <lastmod>2017-08-19T06:11:54.000Z</lastmod>
     
   </url>
   
   <url>
     <loc>http://yusank.github.io/Go-TCP%20Socket.html/</loc>
     
-    <lastmod>2017-08-17T07:10:14.000Z</lastmod>
+    <lastmod>2017-08-19T06:11:05.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://yusank.github.io/categories/index.html</loc>
+    <loc>http://yusank.github.io/awesomepython.html/</loc>
     
-    <lastmod>2017-08-17T07:08:06.000Z</lastmod>
+    <lastmod>2017-08-19T06:05:02.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yusank.github.io/tags/index.html</loc>
+    
+    <lastmod>2017-08-19T05:58:17.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yusank.github.io/Go%20Channel.html/</loc>
+    
+    <lastmod>2017-08-19T05:50:15.000Z</lastmod>
     
   </url>
   
@@ -149,23 +163,9 @@
   </url>
   
   <url>
-    <loc>http://yusank.github.io/tags/index.html</loc>
-    
-    <lastmod>2016-12-18T03:10:50.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://yusank.github.io/404/index.html</loc>
     
     <lastmod>2016-12-16T12:55:50.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yusank.github.io/awesomepython.html/</loc>
-    
-    <lastmod>2016-12-16T12:48:35.000Z</lastmod>
     
   </url>
   

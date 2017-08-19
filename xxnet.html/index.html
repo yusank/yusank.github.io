@@ -290,7 +290,7 @@
     </button>
     <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
         <li class="mdl-menu__item">
-        
+        <a class="post_tag-link" href="/tags/xx-net/">xx-net</a>
     </ul>
     
     <!-- Share -->
@@ -354,16 +354,12 @@
 <li>[强烈建议]<strong>获取和配置可靠的浏览器</strong>（[[Firefox火狐浏览器|使用Firefox浏览器]]，或[[Chrome谷歌浏览器|使用Chrome浏览器]]），并使用[[代理切换插件|安装和使用-SwitchyOmega]]。</li>
 </ol>
 <p>下面分别介绍各个操作系统平台下的使用方法：</p>
-<h1 id="Windows系统"><a href="#Windows系统" class="headerlink" title="Windows系统"></a>Windows系统</h1><ol>
-<li>双击 start.vbs或者start.bat启动。<ul>
-<li>Win7/8/10：将提示请求管理员权限（出于[[安装CA证书|GoAgent Import CA]]的需要）。请点击同意。</li>
-</ul>
-</li>
-<li>启动完毕后，将弹出浏览器，访问 <a href="http://localhost:8085/" target="_blank" rel="external">http://localhost:8085/</a> （[[配置页面简介]]）</li>
-<li>右下角将出现托盘图标：点击可弹出上述的XX-Net配置页面, 右键可显示[[常用功能菜单|托盘右键菜单]]。</li>
-<li>第一次启动, 会提示在桌面建立快捷方式,可根据自己需要选择。</li>
-</ol>
-<ul>
+<h1 id="Windows系统"><a href="#Windows系统" class="headerlink" title="Windows系统"></a>Windows系统</h1><pre><code>1. 双击 start.vbs或者start.bat启动。
+- Win7/8/10：将提示请求管理员权限（出于[[安装CA证书|GoAgent Import CA]]的需要）。请点击同意。
+2. 启动完毕后，将弹出浏览器，访问 http://localhost:8085/ （[[配置页面简介]]）
+3. 右下角将出现托盘图标：点击可弹出上述的XX-Net配置页面, 右键可显示[[常用功能菜单|托盘右键菜单]]。
+4. 第一次启动, 会提示在桌面建立快捷方式,可根据自己需要选择。
+</code></pre><ul>
 <li>推荐[[使用Chrome浏览器]], [[安装SwichySharp|安装和使用SwichySharp]], 可在XX-Net目录中的SwitchySharp文件夹下找到插件和配置文件。</li>
 <li>也可以选择[[使用Firefox（火狐）浏览器|使用Firefox浏览器]]。需[[手动导入证书|GoAgent Import CA#Firefox浏览器手动导入的方式]]</li>
 <li><p>启动失败，请关闭后双击start.bat再次启动程序，把日志发到bug反馈区  </p>
@@ -374,11 +370,9 @@
 <li>Windows Server 2008，需要安装  Visual C++ 2008 Redistributable - x86  </li>
 </ul>
 <p>针对两种常用浏览器，分别有详细的新手图文教程：[[使用Firefox浏览器]]、[[使用Chrome浏览器]]</p>
-<h1 id="Mac系统"><a href="#Mac系统" class="headerlink" title="Mac系统"></a>Mac系统</h1><ol>
-<li>双击 start 启动</li>
-<li>证书将被自动导入，如果还有提示非安全连接，请手动导入data/gae_proxy/CA.crt证书</li>
-</ol>
-<p>注：</p>
+<h1 id="Mac系统"><a href="#Mac系统" class="headerlink" title="Mac系统"></a>Mac系统</h1><pre><code>1. 双击 start 启动
+2. 证书将被自动导入，如果还有提示非安全连接，请手动导入data/gae_proxy/CA.crt证书
+</code></pre><p>注：</p>
 <ul>
 <li>命令行启动方式：./start</li>
 <li>推荐[[使用Chrome|使用Chrome浏览器]]和[[SwitchyOmega扩展|安装和使用SwichySharp]]</li>
@@ -387,10 +381,10 @@
 <h1 id="Linux系统"><a href="#Linux系统" class="headerlink" title="Linux系统"></a>Linux系统</h1><ul>
 <li><p>执行 ./start 启动</p>
 </li>
-<li><p>自动导入证书，需安装 libnss3-tools 包<br><code>sudo apt-get install libnss3-tools</code></p>
+<li><p>自动导入证书，需安装 libnss3-tools 包<br> <code>sudo apt-get install libnss3-tools</code></p>
 </li>
-<li>没有安装PyGtk的，需要先安装gtk：<br><code>sudo apt-get install python-gtk2</code></li>
-<li>配置http代理 localhost 8087, 勾选全部协议使用这个代理。<br>如Firefox，如果管理页面弹不出，请在地址栏输入127.0.0.1:8085，注意和代理端口的区别：<br><img src="https://github.com/sonichy/CMDU/blob/master/Firefox%E4%BB%A3%E7%90%86%E8%AE%BE%E7%BD%AE.png" alt=""><br>推荐Chrome + SwitchyOmega</li>
+<li>没有安装PyGtk的，需要先安装gtk：<br> <code>sudo apt-get install python-gtk2</code></li>
+<li>配置http代理 localhost 8087, 勾选全部协议使用这个代理。<br>  如Firefox，如果管理页面弹不出，请在地址栏输入127.0.0.1:8085，注意和代理端口的区别：<br>  <img src="https://github.com/sonichy/CMDU/blob/master/Firefox%E4%BB%A3%E7%90%86%E8%AE%BE%E7%BD%AE.png" alt=""><br>推荐Chrome + SwitchyOmega</li>
 <li>ubuntu 下，可能需要安装<br> <code>sudo apt-get install python-openssl</code><br> <code>sudo apt-get install libffi-dev</code><br> <code>sudo apt-get install -y python-gtk2</code><br> <code>sudo apt-get install python-appindicator</code><br> <code>sudo apt-get install libnss3-tools</code>  </li>
 <li>后台运行：在终端中运行：<br> <code>code/default/xx_net.sh start/stop/restart</code></li>
 <li>开机自启：在/etc/rc.local中添加一行：<br> <code>sudo /home/username/xxnet/code/default/xx_net.sh start</code></li>
@@ -524,7 +518,7 @@
         <ul id="settings-dropdown" class="dropdown-menu">
 			
                 <li>
-                    <a href="https://gmail.google.com" target="_blank" title="Email Me">
+                    <a href="mailto:yusankurban@gmail.com" target="_blank" title="Email Me">
 						<i class="material-icons sidebar-material-icons sidebar-indent-left1pc-element">email</i>
                         Email Me
                     </a>
@@ -572,26 +566,32 @@
     <!-- Pages  -->
 	
 		<li>
+			<a href="/categories/" title="分类">
+				分类
+			</a>
+		</li>
+	
+		<li>
+			<a href="/tags/" title="标签">
+				标签
+			</a>
+		</li>
+	
+		<li>
+			<a href="/gallery/" title="图库">
+				图库
+			</a>
+		</li>
+	
+		<li>
 			<a href="/links/" title="友情链接">
 				友情链接
 			</a>
 		</li>
 	
 		<li>
-			<a href="/about" title="关于我">
+			<a href="/about/" title="关于我">
 				关于我
-			</a>
-		</li>
-	
-		<li>
-			<a href="/gallery" title="图库">
-				图库
-			</a>
-		</li>
-	
-		<li>
-			<a href="/categories" title="分类">
-				分类
 			</a>
 		</li>
 	
@@ -683,16 +683,10 @@ It will not impact the appearance and can give developers a lot of support :)
 		<div class="mdl-mini-footer--left-section sns-list">
     <!-- Twitter -->
     
-    <a href="https://twitter.com/twitter" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-twitter.png);">
-        <span class="visuallyhidden">Twitter</span>
-    </button></a>
     
     
     <!-- Facebook -->
     
-    <a href="https://www.facebook.com/facebook" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-facebook.png);">
-        <span class="visuallyhidden">Facebook</span>
-    </button></a>
     
     
     <!-- Google + -->
@@ -736,12 +730,6 @@ It will not impact the appearance and can give developers a lot of support :)
 		它不会影响美观并可以给开发者很大的支持。 :) 
 		-->
 
-		<div class="mdl-mini-footer--right-section">
-			<div>
-				<div class="footer-develop-div">Powered by <a href="https://hexo.io" target="_blank" class="footer-develop-a">Hexo</a></div>
-				<div class="footer-develop-div">Theme - <a href="https://github.com/viosey/hexo-theme-material" target="_blank" class="footer-develop-a">Material</a></div>
-			</div>
-		</div>
 	
     
 </footer>
@@ -780,6 +768,9 @@ It will not impact the appearance and can give developers a lot of support :)
 
 
 
+
+    <!-- Busuanzi -->
+    <script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 
 

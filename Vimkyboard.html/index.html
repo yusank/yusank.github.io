@@ -290,7 +290,7 @@
     </button>
     <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
         <li class="mdl-menu__item">
-        
+        <a class="post_tag-link" href="/tags/vim/">vim</a>
     </ul>
     
     <!-- Share -->
@@ -346,10 +346,10 @@ e:下一个词的词尾。
 </code></pre><p>​    b:上一个词的词首。</p>
 <pre><code>&lt;&gt;: v 模式选中后进行缩进。
 </code></pre><a id="more"></a>
-<div id="aplayer2" class="aplayer" style="margin-bottom: 20px;"></div>
+<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;"></div>
 		<script>
 			new APlayer({
-				element: document.getElementById("aplayer2"),
+				element: document.getElementById("aplayer1"),
 				narrow: false,
 				autoplay: true,
 				showlrc: 0,
@@ -436,7 +436,7 @@ ctry+e: 下滚一行。
 <p>​    “#yy”:表示复制从光标所在的该行往下数#行文字。</p>
 <pre><code>    p: 粘贴。所有与y相关的操作必用p来结合粘贴。
     n1,n2 co n3：复制第n1行到第n2行之间的内容到第n3行后面。
-6. 大小写转换：
+    6. 大小写转换：
       gUU: 将当前行的字母改为大写。
               guu: 将当前行的字母改为小写。
               gUw: 将当前光标下的单词改为大写。
@@ -447,18 +447,18 @@ ctry+e: 下滚一行。
               gu: 把选择范围全部小写。
               G: 到文件结束。
               b. 整篇小写：gggUG
-7. 其它：
+    7. 其它：
       J：当前行和下一行合并成一行。
-8. 移动：
+    8. 移动：
       n1,n2 m n3：将n1行到n2行之间的内容移至n3行下。
-</code></pre><h2 id="五-退出："><a href="#五-退出：" class="headerlink" title="五.退出："></a>五.退出：</h2><pre><code> 1. w filename: 保存正在编辑的文件filename
- 2. wq filename: 保存后退出正在编辑的文件filename
- 3. q：退出不保存。
-</code></pre><h2 id="六-窗口操作："><a href="#六-窗口操作：" class="headerlink" title="六.窗口操作："></a>六.窗口操作：</h2><pre><code> 1. ctrl+w p: 在两个分割窗口之间来回切换。
- 2. ctrl+w j: 跳到下面的分割窗
- 3. ctrl+w h: 跳到左边的分割窗。
- 4. ctrl+w k: 跳到上面的分割窗。
- 5. ctrl+w l: 跳到右边的分割窗。
+</code></pre><h2 id="五-退出："><a href="#五-退出：" class="headerlink" title="五.退出："></a>五.退出：</h2><pre><code>      1. w filename: 保存正在编辑的文件filename
+      2. wq filename: 保存后退出正在编辑的文件filename
+      3. q：退出不保存。
+</code></pre><h2 id="六-窗口操作："><a href="#六-窗口操作：" class="headerlink" title="六.窗口操作："></a>六.窗口操作：</h2><pre><code>      1. ctrl+w p: 在两个分割窗口之间来回切换。
+      2. ctrl+w j: 跳到下面的分割窗
+      3. ctrl+w h: 跳到左边的分割窗。
+      4. ctrl+w k: 跳到上面的分割窗。
+      5. ctrl+w l: 跳到右边的分割窗。
 </code></pre>
 	
 	
@@ -568,7 +568,7 @@ ctry+e: 下滚一行。
         <ul id="settings-dropdown" class="dropdown-menu">
 			
                 <li>
-                    <a href="https://gmail.google.com" target="_blank" title="Email Me">
+                    <a href="mailto:yusankurban@gmail.com" target="_blank" title="Email Me">
 						<i class="material-icons sidebar-material-icons sidebar-indent-left1pc-element">email</i>
                         Email Me
                     </a>
@@ -616,26 +616,32 @@ ctry+e: 下滚一行。
     <!-- Pages  -->
 	
 		<li>
+			<a href="/categories/" title="分类">
+				分类
+			</a>
+		</li>
+	
+		<li>
+			<a href="/tags/" title="标签">
+				标签
+			</a>
+		</li>
+	
+		<li>
+			<a href="/gallery/" title="图库">
+				图库
+			</a>
+		</li>
+	
+		<li>
 			<a href="/links/" title="友情链接">
 				友情链接
 			</a>
 		</li>
 	
 		<li>
-			<a href="/about" title="关于我">
+			<a href="/about/" title="关于我">
 				关于我
-			</a>
-		</li>
-	
-		<li>
-			<a href="/gallery" title="图库">
-				图库
-			</a>
-		</li>
-	
-		<li>
-			<a href="/categories" title="分类">
-				分类
 			</a>
 		</li>
 	
@@ -727,16 +733,10 @@ It will not impact the appearance and can give developers a lot of support :)
 		<div class="mdl-mini-footer--left-section sns-list">
     <!-- Twitter -->
     
-    <a href="https://twitter.com/twitter" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-twitter.png);">
-        <span class="visuallyhidden">Twitter</span>
-    </button></a>
     
     
     <!-- Facebook -->
     
-    <a href="https://www.facebook.com/facebook" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-facebook.png);">
-        <span class="visuallyhidden">Facebook</span>
-    </button></a>
     
     
     <!-- Google + -->
@@ -780,12 +780,6 @@ It will not impact the appearance and can give developers a lot of support :)
 		它不会影响美观并可以给开发者很大的支持。 :) 
 		-->
 
-		<div class="mdl-mini-footer--right-section">
-			<div>
-				<div class="footer-develop-div">Powered by <a href="https://hexo.io" target="_blank" class="footer-develop-a">Hexo</a></div>
-				<div class="footer-develop-div">Theme - <a href="https://github.com/viosey/hexo-theme-material" target="_blank" class="footer-develop-a">Material</a></div>
-			</div>
-		</div>
 	
     
 </footer>
@@ -824,6 +818,9 @@ It will not impact the appearance and can give developers a lot of support :)
 
 
 
+
+    <!-- Busuanzi -->
+    <script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 
 

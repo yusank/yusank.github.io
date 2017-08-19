@@ -2077,10 +2077,10 @@ ulong_t                seq<span class="token punctuation">;</span>              
       <url>http://yusank.github.io/testlist.html/</url>
       <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>测试添加歌单。。。。<br><a id="more"></a></p>
 <h1 id="测试歌单"><a href="#测试歌单" class="headerlink" title="测试歌单"></a>测试歌单</h1>
-			<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;"></div>
+			<div id="aplayer2" class="aplayer" style="margin-bottom: 20px;"></div>
 			<script>
 				var options = {"narrow":false,"autoplay":false,"showlrc":1,"mode":"random","mutex":true,"theme":"#e6d0b2","preload":"metadata","listmaxheight":"513px","music":[{"title":"匆匆那年","author":"王菲","url":"http://oid1xlj7h.bkt.clouddn.com/%E7%8E%8B%E8%8F%B2%20-%20%E5%8C%86%E5%8C%86%E9%82%A3%E5%B9%B4.mp3","lrc":"http://oid1xlj7h.bkt.clouddn.com/ccnn.txt"},{"title":"Toca Toca","author":"Fly project","url":"http://oid1xlj7h.bkt.clouddn.com/Fly%20Project%20-%20Toca%20Toca.mp3"},{"title":"Danzo Kuduro","author":"Don Omar","url":"http://oid1xlj7h.bkt.clouddn.com/Don%20Omar,Lucenzo%20-%20Danza%20Kuduro%20-%20Album%20Version.mp3"},{"title":"难忘的一天","author":"许巍","url":"http://oid1xlj7h.bkt.clouddn.com/%E8%AE%B8%E5%B7%8D%20-%20%E9%9A%BE%E5%BF%98%E7%9A%84%E4%B8%80%E5%A4%A9.mp3","lrc":"http://oid1xlj7h.bkt.clouddn.com/nwdyt.txt"},{"title":"Counting Stars","author":"OneRepublic","url":"http://oid1xlj7h.bkt.clouddn.com/OneRepublic%20-%20Counting%20Stars.mp3"},{"title":"Zoobi Doobi","author":"Sonu Nigam,Shreya Ghoshal","url":"http://oid1xlj7h.bkt.clouddn.com/Sonu%20Nigam,Shreya%20Ghoshal%20-%20Zoobi%20Doobi.mp3","lrc":"http://oid1xlj7h.bkt.clouddn.com/tidoit.txt"}]};
-				options.element = document.getElementById("aplayer1");
+				options.element = document.getElementById("aplayer2");
 				new APlayer(options);
 			</script>
 
@@ -2205,10 +2205,10 @@ e:下一个词的词尾。
 </code></pre><p>​    b:上一个词的词首。</p>
 <pre><code>&lt;&gt;: v 模式选中后进行缩进。
 </code></pre><a id="more"></a>
-<div id="aplayer2" class="aplayer" style="margin-bottom: 20px;"></div>
+<div id="aplayer1" class="aplayer" style="margin-bottom: 20px;"></div>
 		<script>
 			new APlayer({
-				element: document.getElementById("aplayer2"),
+				element: document.getElementById("aplayer1"),
 				narrow: false,
 				autoplay: true,
 				showlrc: 0,
@@ -2295,7 +2295,7 @@ ctry+e: 下滚一行。
 <p>​    “#yy”:表示复制从光标所在的该行往下数#行文字。</p>
 <pre><code>    p: 粘贴。所有与y相关的操作必用p来结合粘贴。
     n1,n2 co n3：复制第n1行到第n2行之间的内容到第n3行后面。
-6. 大小写转换：
+    6. 大小写转换：
       gUU: 将当前行的字母改为大写。
               guu: 将当前行的字母改为小写。
               gUw: 将当前光标下的单词改为大写。
@@ -2306,18 +2306,18 @@ ctry+e: 下滚一行。
               gu: 把选择范围全部小写。
               G: 到文件结束。
               b. 整篇小写：gggUG
-7. 其它：
+    7. 其它：
       J：当前行和下一行合并成一行。
-8. 移动：
+    8. 移动：
       n1,n2 m n3：将n1行到n2行之间的内容移至n3行下。
-</code></pre><h2 id="五-退出："><a href="#五-退出：" class="headerlink" title="五.退出："></a>五.退出：</h2><pre><code> 1. w filename: 保存正在编辑的文件filename
- 2. wq filename: 保存后退出正在编辑的文件filename
- 3. q：退出不保存。
-</code></pre><h2 id="六-窗口操作："><a href="#六-窗口操作：" class="headerlink" title="六.窗口操作："></a>六.窗口操作：</h2><pre><code> 1. ctrl+w p: 在两个分割窗口之间来回切换。
- 2. ctrl+w j: 跳到下面的分割窗
- 3. ctrl+w h: 跳到左边的分割窗。
- 4. ctrl+w k: 跳到上面的分割窗。
- 5. ctrl+w l: 跳到右边的分割窗。
+</code></pre><h2 id="五-退出："><a href="#五-退出：" class="headerlink" title="五.退出："></a>五.退出：</h2><pre><code>      1. w filename: 保存正在编辑的文件filename
+      2. wq filename: 保存后退出正在编辑的文件filename
+      3. q：退出不保存。
+</code></pre><h2 id="六-窗口操作："><a href="#六-窗口操作：" class="headerlink" title="六.窗口操作："></a>六.窗口操作：</h2><pre><code>      1. ctrl+w p: 在两个分割窗口之间来回切换。
+      2. ctrl+w j: 跳到下面的分割窗
+      3. ctrl+w h: 跳到左边的分割窗。
+      4. ctrl+w k: 跳到上面的分割窗。
+      5. ctrl+w l: 跳到右边的分割窗。
 </code></pre>]]></content>
     </entry>
     
@@ -2819,7 +2819,7 @@ echo $pid > /sys/fs/cgroup/freezer/tasks
     <entry>
       <title><![CDATA[Goddbye 2016 and Hello 2017]]></title>
       <url>http://yusank.github.io/%E5%86%8D%E8%A7%81%E4%BA%862016%EF%BC%8C%E4%BD%A0%E5%A5%BD2017.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>突然想写一篇文章纪念一下我的2016，语文水平不是很好，要是写的不好，就不要在意太多的细节了，以下正文。。。。<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>突然想写一篇文章纪念一下我的2016，哪天看不顺眼的时候删。。。<br><a id="more"></a></p>
 <h2 id="再见了2016，你好2017"><a href="#再见了2016，你好2017" class="headerlink" title="再见了2016，你好2017"></a>再见了2016，你好2017</h2><p>来点音乐吧，</p>
 <p><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=186560&auto=0&height=66"></iframe><br>​    纵观过去的这一年，发生了很多我没有预料的到时事儿，不管是感情还是学习工作方面。</p>
 <p>​    去年的今天我做了不少的计划，许了不少的愿，但是实现了几个没做到几个，现在我是真想不出来。从我现在的情况来看，2016过得并不是很糟糕，也许可以用过得还不错的这句话来形容。</p>
@@ -4089,8 +4089,7 @@ $ touch
 <li><a href="http://hao.jobbole.com/python-pycrumbs/" target="_blank" rel="external">pycrumbs</a>：Python资源大全。<a href="https://github.com/kirang89/pycrumbs/blob/master/pycrumbs.md" target="_blank" rel="external">官网</a></li>
 <li><a href="http://hao.jobbole.com/python-patterns/" target="_blank" rel="external">python-patterns</a>：使用python实现设计模式。<a href="https://github.com/faif/python-patterns" target="_blank" rel="external">官网</a></li>
 <li><a href="http://hao.jobbole.com/python-projects/" target="_blank" rel="external">Projects</a>：Python项目大集合。<a href="https://github.com/karan/Projects" target="_blank" rel="external">官网</a></li>
-<li><a href="http://hao.jobbole.com/the-hitchhikers-guide-to-python/" target="_blank" rel="external">The Hitchhiker’s Guide to Python</a>：旅行者的Python学习指南。<a href="http://docs.python-guide.org/en/latest/" target="_blank" rel="external">官网</a></li>
-<li><a href="http://top.jobbole.com/18767/" target="_blank" rel="external">Code Like a Pythonista: Idiomatic Python</a>：如何像Python高手(Pythonista)一样编程。<a href="http://python.net/~goodger/projects/pycon/2007/idiomatic/handout.html" target="_blank" rel="external">官网</a></li>
+<li><a href="http://hao.jobbole.com/the-hitchhikers-guide-to-python/" target="_blank" rel="external">The Hitchhiker’s Guide to Python</a>：旅行者的Python学习指南。<a href="http://docs.python-guide.org/en/latest/" target="_blank" rel="external">官网</a><br>*<a href="http://top.jobbole.com/18767/" target="_blank" rel="external">Code Like a Pythonista: Idiomatic Python</a>：如何像Python高手(Pythonista)一样编程。<a href="http://python.net/~goodger/projects/pycon/2007/idiomatic/handout.html" target="_blank" rel="external">官网</a></li>
 </ul>
 <p></p><h3 id="websites">知名网站</h3><br><em>值得关注的 Python 技术站点。</em><p></p>
 <h4>中文站点</h4>
@@ -4128,16 +4127,12 @@ $ touch
 <li>[强烈建议]<strong>获取和配置可靠的浏览器</strong>（[[Firefox火狐浏览器|使用Firefox浏览器]]，或[[Chrome谷歌浏览器|使用Chrome浏览器]]），并使用[[代理切换插件|安装和使用-SwitchyOmega]]。</li>
 </ol>
 <p>下面分别介绍各个操作系统平台下的使用方法：</p>
-<h1 id="Windows系统"><a href="#Windows系统" class="headerlink" title="Windows系统"></a>Windows系统</h1><ol>
-<li>双击 start.vbs或者start.bat启动。<ul>
-<li>Win7/8/10：将提示请求管理员权限（出于[[安装CA证书|GoAgent Import CA]]的需要）。请点击同意。</li>
-</ul>
-</li>
-<li>启动完毕后，将弹出浏览器，访问 <a href="http://localhost:8085/" target="_blank" rel="external">http://localhost:8085/</a> （[[配置页面简介]]）</li>
-<li>右下角将出现托盘图标：点击可弹出上述的XX-Net配置页面, 右键可显示[[常用功能菜单|托盘右键菜单]]。</li>
-<li>第一次启动, 会提示在桌面建立快捷方式,可根据自己需要选择。</li>
-</ol>
-<ul>
+<h1 id="Windows系统"><a href="#Windows系统" class="headerlink" title="Windows系统"></a>Windows系统</h1><pre><code>1. 双击 start.vbs或者start.bat启动。
+- Win7/8/10：将提示请求管理员权限（出于[[安装CA证书|GoAgent Import CA]]的需要）。请点击同意。
+2. 启动完毕后，将弹出浏览器，访问 http://localhost:8085/ （[[配置页面简介]]）
+3. 右下角将出现托盘图标：点击可弹出上述的XX-Net配置页面, 右键可显示[[常用功能菜单|托盘右键菜单]]。
+4. 第一次启动, 会提示在桌面建立快捷方式,可根据自己需要选择。
+</code></pre><ul>
 <li>推荐[[使用Chrome浏览器]], [[安装SwichySharp|安装和使用SwichySharp]], 可在XX-Net目录中的SwitchySharp文件夹下找到插件和配置文件。</li>
 <li>也可以选择[[使用Firefox（火狐）浏览器|使用Firefox浏览器]]。需[[手动导入证书|GoAgent Import CA#Firefox浏览器手动导入的方式]]</li>
 <li><p>启动失败，请关闭后双击start.bat再次启动程序，把日志发到bug反馈区  </p>
@@ -4148,11 +4143,9 @@ $ touch
 <li>Windows Server 2008，需要安装  Visual C++ 2008 Redistributable - x86  </li>
 </ul>
 <p>针对两种常用浏览器，分别有详细的新手图文教程：[[使用Firefox浏览器]]、[[使用Chrome浏览器]]</p>
-<h1 id="Mac系统"><a href="#Mac系统" class="headerlink" title="Mac系统"></a>Mac系统</h1><ol>
-<li>双击 start 启动</li>
-<li>证书将被自动导入，如果还有提示非安全连接，请手动导入data/gae_proxy/CA.crt证书</li>
-</ol>
-<p>注：</p>
+<h1 id="Mac系统"><a href="#Mac系统" class="headerlink" title="Mac系统"></a>Mac系统</h1><pre><code>1. 双击 start 启动
+2. 证书将被自动导入，如果还有提示非安全连接，请手动导入data/gae_proxy/CA.crt证书
+</code></pre><p>注：</p>
 <ul>
 <li>命令行启动方式：./start</li>
 <li>推荐[[使用Chrome|使用Chrome浏览器]]和[[SwitchyOmega扩展|安装和使用SwichySharp]]</li>
@@ -4161,10 +4154,10 @@ $ touch
 <h1 id="Linux系统"><a href="#Linux系统" class="headerlink" title="Linux系统"></a>Linux系统</h1><ul>
 <li><p>执行 ./start 启动</p>
 </li>
-<li><p>自动导入证书，需安装 libnss3-tools 包<br><code>sudo apt-get install libnss3-tools</code></p>
+<li><p>自动导入证书，需安装 libnss3-tools 包<br> <code>sudo apt-get install libnss3-tools</code></p>
 </li>
-<li>没有安装PyGtk的，需要先安装gtk：<br><code>sudo apt-get install python-gtk2</code></li>
-<li>配置http代理 localhost 8087, 勾选全部协议使用这个代理。<br>如Firefox，如果管理页面弹不出，请在地址栏输入127.0.0.1:8085，注意和代理端口的区别：<br><img src="https://github.com/sonichy/CMDU/blob/master/Firefox%E4%BB%A3%E7%90%86%E8%AE%BE%E7%BD%AE.png" alt=""><br>推荐Chrome + SwitchyOmega</li>
+<li>没有安装PyGtk的，需要先安装gtk：<br> <code>sudo apt-get install python-gtk2</code></li>
+<li>配置http代理 localhost 8087, 勾选全部协议使用这个代理。<br>  如Firefox，如果管理页面弹不出，请在地址栏输入127.0.0.1:8085，注意和代理端口的区别：<br>  <img src="https://github.com/sonichy/CMDU/blob/master/Firefox%E4%BB%A3%E7%90%86%E8%AE%BE%E7%BD%AE.png" alt=""><br>推荐Chrome + SwitchyOmega</li>
 <li>ubuntu 下，可能需要安装<br> <code>sudo apt-get install python-openssl</code><br> <code>sudo apt-get install libffi-dev</code><br> <code>sudo apt-get install -y python-gtk2</code><br> <code>sudo apt-get install python-appindicator</code><br> <code>sudo apt-get install libnss3-tools</code>  </li>
 <li>后台运行：在终端中运行：<br> <code>code/default/xx_net.sh start/stop/restart</code></li>
 <li>开机自启：在/etc/rc.local中添加一行：<br> <code>sudo /home/username/xxnet/code/default/xx_net.sh start</code></li>
