@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yusank.github.io/go_file.html/</loc>
+    
+    <lastmod>2017-08-19T07:18:41.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yusank.github.io/Go%20Channel.html/</loc>
+    
+    <lastmod>2017-08-19T07:09:31.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://yusank.github.io/categories/index.html</loc>
     
     <lastmod>2017-08-19T06:18:45.000Z</lastmod>
@@ -33,13 +47,6 @@
     <loc>http://yusank.github.io/tags/index.html</loc>
     
     <lastmod>2017-08-19T05:58:17.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yusank.github.io/Go%20Channel.html/</loc>
-    
-    <lastmod>2017-08-19T05:50:15.000Z</lastmod>
     
   </url>
   
