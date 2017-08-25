@@ -22,7 +22,7 @@
     <published>2017-08-02T11:00:01.000Z</published>
     <updated>2017-08-23T14:19:23.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ……<br><a id="more"></a></p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ……<br><a id="more"></a></p>
 <h1 id="用-go-实现简单的-udp"><a href="#用-go-实现简单的-udp" class="headerlink" title="用 go 实现简单的 udp"></a>用 go 实现简单的 udp</h1><p>用户数据包协议（英语：User Datagram Protocol，缩写为UDP），又称用户数据报文协议，是一个简单的面向数据报的传输层协议，正式规范为RFC 768。<br>在TCP/IP模型中，UDP为网络层以上和应用层以下提供了一个简单的接口。UDP只提供数据的不可靠传递，它一旦把应用程序发给网络层的数据发送出去，就不保留数据备份（所以UDP有时候也被认为是不可靠的数据报协议）。UDP在IP数据报的头部仅仅加入了复用和数据校验（字段）。</p>
 <h2 id="UDP-与-TCP-的比较"><a href="#UDP-与-TCP-的比较" class="headerlink" title="UDP 与 TCP 的比较"></a>UDP 与 TCP 的比较</h2><ul>
 <li><p>UDP – 用户数据协议包，是一个简单的面向数据报的运输层协议。UDP 不提供可靠性，它只是把应用程序给 IP 层的数据报发送出去，但是并不能保证他们能达到目的地。由于 UDP 在传输数据报之前不用在客户端和服务端之间建立连接，且没有超时机制，故而传输速度很快。</p>
@@ -180,7 +180,7 @@
     <published>2017-07-31T02:00:01.000Z</published>
     <updated>2017-08-23T14:19:51.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>转载文章</p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>转载文章</p>
 <h1 id="Go语言TCP-Socket编程"><a href="#Go语言TCP-Socket编程" class="headerlink" title="Go语言TCP Socket编程"></a>Go语言TCP Socket编程</h1><p><strong>文章原始地址:</strong> <a href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/" target="_blank" rel="external">http://tonybai.com/2015/11/17/tcp-programming-in-golang/</a></p>
 <p><a href="http://tonybai.com/tag/go" target="_blank" rel="external">Golang</a>的主要 设计目标之一就是面向大规模后端服务程序，网络通信这块是服务端 程序必不可少也是至关重要的一部分。在日常应用中，我们也可以看到Go中的net以及其subdirectories下的包均是“高频+刚需”，而TCP socket则是网络编程的主流，即便您没有直接使用到net中有关TCP Socket方面的接口，但net/http总是用到了吧，http底层依旧是用tcp socket实现的。</p>
 <p>网络编程方面，我们最常用的就是tcp socket编程了，在posix标准出来后，socket在各大主流OS平台上都得到了很好的支持。关于tcp programming，最好的资料莫过于<a href="http://en.wikipedia.org/wiki/W._Richard_Stevens" target="_blank" rel="external">W. Richard Stevens</a> 的网络编程圣经《<a href="http://book.douban.com/subject/4859464/" target="_blank" rel="external">UNIX网络 编程 卷1：套接字联网API</a>》 了，书中关于tcp socket接口的各种使用、行为模式、异常处理讲解的十分细致。Go是自带runtime的跨平台编程语言，Go中暴露给语言使用者的tcp socket api是建立OS原生tcp socket接口之上的。由于Go runtime调度的需要，golang tcp socket接口在行为特点与异常处理方面与OS原生接口有着一些差别。这篇博文的目标就是整理出关于Go tcp socket在各个场景下的使用方法、行为特点以及注意事项。</p>
@@ -832,7 +832,7 @@ $go run client1.go
     
     <summary type="html">
     
-      &lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;p&gt;转载文章&lt;/p&gt;
+      &lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;p&gt;转载文章&lt;/p&gt;
 &lt;h1 id=&quot;Go语言TCP-Socket编程&quot;&gt;&lt;a
     
     </summary>
@@ -855,7 +855,7 @@ $go run client1.go
     <published>2017-07-17T07:52:00.000Z</published>
     <updated>2017-07-17T07:52:01.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p> docker 的基本操作和使用。。。<br> <a id="more"></a></p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p> docker 的基本操作和使用。。。<br> <a id="more"></a></p>
 <h1 id="Docker-的使用"><a href="#Docker-的使用" class="headerlink" title="Docker 的使用"></a>Docker 的使用</h1><h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><hr>
 <h3 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h3><hr>
 <h4 id="新建并启动"><a href="#新建并启动" class="headerlink" title="新建并启动"></a>新建并启动</h4><p>所需的命令是 <code>docker run</code></p>
@@ -1370,7 +1370,7 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
     <published>2017-07-08T04:18:00.000Z</published>
     <updated>2017-07-08T05:27:01.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>安利一款很好用的工具</p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>安利一款很好用的工具</p>
 <a id="more"></a>
 <h1 id="管理-docker"><a href="#管理-docker" class="headerlink" title="管理 docker"></a>管理 docker</h1><h2 id="为什么管理"><a href="#为什么管理" class="headerlink" title="为什么管理"></a>为什么管理</h2><p>随着用的 docker 镜像种类增多，在一台机器上起得 docker 容器数量有时候会非常的多，管理起来也比较困难，而且有时候一些 docker 命令一时半会想不起来，更不用说命令行的枯燥性，所以有没有一直简单一点办法去管理 docker 镜像和容器呢？</p>
 <p>今天主角该登场了！</p>
@@ -1438,7 +1438,7 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
     <published>2017-06-08T07:07:00.000Z</published>
     <updated>2017-06-08T07:07:01.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Go-interface"><a href="#Go-interface" class="headerlink" title="Go interface"></a>Go interface</h1><h2 id="interface"><a href="#interface" class="headerlink" title="interface"></a>interface</h2><p>在 Golang 中 interface 是一个很重要的概念和特性。</p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Go-interface"><a href="#Go-interface" class="headerlink" title="Go interface"></a>Go interface</h1><h2 id="interface"><a href="#interface" class="headerlink" title="interface"></a>interface</h2><p>在 Golang 中 interface 是一个很重要的概念和特性。</p>
 <h3 id="什么是-interface？"><a href="#什么是-interface？" class="headerlink" title="什么是 interface？"></a>什么是 interface？</h3><blockquote>
 <p>In <a href="https://en.wikipedia.org/wiki/Object-oriented_programming" target="_blank" rel="external">object-oriented programming</a>, a <strong>protocol</strong> or <strong>interface</strong> is a common means for unrelated <a href="https://en.wikipedia.org/wiki/Object_(computer_science" target="_blank" rel="external">objects</a>) to communicate with each other. These are definitions of <a href="https://en.wikipedia.org/wiki/Method_(computer_science" target="_blank" rel="external">methods</a>) and values which the objects agree upon in order to co-operate. — wikipedia</p>
 </blockquote>
@@ -1671,7 +1671,7 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
     
     <summary type="html">
     
-      &lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;h1 id=&quot;Go-interface&quot;&gt;&lt;a href=&quot;#Go-inter
+      &lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;h1 id=&quot;Go-interface&quot;&gt;&lt;a href=&quot;#Go-inter
     
     </summary>
     
@@ -1689,7 +1689,7 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
     <published>2017-06-04T09:59:00.000Z</published>
     <updated>2017-08-23T14:18:17.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>go 代码的一些规范和命名规则……<br><a id="more"></a></p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>go 代码的一些规范和命名规则……<br><a id="more"></a></p>
 <h1 id="Golang-代码规范"><a href="#Golang-代码规范" class="headerlink" title="Golang 代码规范"></a>Golang 代码规范</h1><h2 id="项目目录结构"><a href="#项目目录结构" class="headerlink" title="项目目录结构"></a>项目目录结构</h2><pre class="line-numbers language-sh"><code class="language-sh">PROJECT_NAME
 ├── README.md 介绍软件及文档入口
 ├── bin 编译好的二进制文件,执行./build.sh自动生成，该目录也用于程序打包
@@ -2007,7 +2007,7 @@ func (t T) lock() {
     <published>2017-06-01T07:07:00.000Z</published>
     <updated>2017-06-01T07:07:01.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Go-测试用例"><a href="#Go-测试用例" class="headerlink" title="Go 测试用例"></a>Go 测试用例</h1><p>开发程序其中很重要的一点是测试，我们如何保证代码的质量，如何保证每个函数是可运行，运行结果是正确的，又如何保证写出来的代码性能是好的，我们知道单元测试的重点在于发现程序设计或实现的逻辑错误，使问题及早暴露，便于问题的定位解决，而性能测试的重点在于发现程序设计上的一些问题，让线上的程序能够在高并发的情况下还能保持稳定。本小节将带着这一连串的问题来讲解Go语言中如何来实现单元测试和性能测试。</p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Go-测试用例"><a href="#Go-测试用例" class="headerlink" title="Go 测试用例"></a>Go 测试用例</h1><p>开发程序其中很重要的一点是测试，我们如何保证代码的质量，如何保证每个函数是可运行，运行结果是正确的，又如何保证写出来的代码性能是好的，我们知道单元测试的重点在于发现程序设计或实现的逻辑错误，使问题及早暴露，便于问题的定位解决，而性能测试的重点在于发现程序设计上的一些问题，让线上的程序能够在高并发的情况下还能保持稳定。本小节将带着这一连串的问题来讲解Go语言中如何来实现单元测试和性能测试。</p>
 <p>Go语言中自带有一个轻量级的测试框架<code>testing</code>和自带的<code>go test</code>命令来实现单元测试和性能测试，<code>testing</code>框架和其他语言中的测试框架类似，你可以基于这个框架写针对相应函数的测试用例，也可以基于该框架写相应的压力测试用例，那么接下来让我们一一来看一下怎么写。</p>
 <p>另外建议安装<a href="https://github.com/cweill/gotests" target="_blank" rel="external">gotests</a>插件自动生成测试代码:</p>
 <pre class="line-numbers language-shell"><code class="language-shell">go get -u -v github.com/cweill/gotests/...
@@ -2146,7 +2146,7 @@ ok      gotest    9.364s
     
     <summary type="html">
     
-      &lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;h1 id=&quot;Go-测试用例&quot;&gt;&lt;a href=&quot;#Go-测试用例&quot; clas
+      &lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;h1 id=&quot;Go-测试用例&quot;&gt;&lt;a href=&quot;#Go-测试用例&quot; clas
     
     </summary>
     
@@ -2164,7 +2164,7 @@ ok      gotest    9.364s
     <published>2017-05-22T04:20:00.000Z</published>
     <updated>2017-08-23T14:18:57.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>go 的文件操作和校验<br><a id="more"></a></p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>go 的文件操作和校验<br><a id="more"></a></p>
 <h1 id="GO-文件操作"><a href="#GO-文件操作" class="headerlink" title="GO 文件操作"></a>GO 文件操作</h1><p>在任何计算机设备中，文件是都是必须的对象，而在Web编程中,文件的操作一直是Web程序员经常遇到的问题,文件操作在Web应用中是必须的,非常有用的,我们经常遇到生成文件目录,文件(夹)编辑等操作,现在我们来看看 go 对文件是怎么操作的。</p>
 <h2 id="目录操作"><a href="#目录操作" class="headerlink" title="目录操作"></a>目录操作</h2><p>文件操作的大多数函数都是在os包里面，下面列举了几个目录操作的：</p>
 <ul>
@@ -2388,7 +2388,7 @@ ok      gotest    9.364s
     <published>2017-04-22T08:52:00.000Z</published>
     <updated>2017-04-22T08:52:01.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Unix-网络编程"><a href="#Unix-网络编程" class="headerlink" title="Unix 网络编程"></a>Unix 网络编程</h1><p>​                                                                        <strong>卷II - 进程间通信</strong></p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Unix-网络编程"><a href="#Unix-网络编程" class="headerlink" title="Unix 网络编程"></a>Unix 网络编程</h1><p>​                                                                        <strong>卷II - 进程间通信</strong></p>
 <p>IPC是进程间通信（interprocess communication）的简称。传统上该术语描述的是运行在某个操作系统之上的不同进程间各种消息传递（<em>message passing</em>）的方式。</p>
 <p>进程间的通信一般是一下四种形式：</p>
 <ul>
@@ -2736,7 +2736,7 @@ ulong_t                seq<span class="token punctuation">;</span>              
     
     <summary type="html">
     
-      &lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;h1 id=&quot;Unix-网络编程&quot;&gt;&lt;a href=&quot;#Unix-网络编程&quot; 
+      &lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;h1 id=&quot;Unix-网络编程&quot;&gt;&lt;a href=&quot;#Unix-网络编程&quot; 
     
     </summary>
     
@@ -2756,7 +2756,7 @@ ulong_t                seq<span class="token punctuation">;</span>              
     <published>2017-04-09T07:13:11.000Z</published>
     <updated>2017-04-09T07:13:11.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>测试添加歌单。。。。<br><a id="more"></a></p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>测试添加歌单。。。。<br><a id="more"></a></p>
 <h1 id="测试歌单"><a href="#测试歌单" class="headerlink" title="测试歌单"></a>测试歌单</h1>
 			<div id="aplayer2" class="aplayer" style="margin-bottom: 20px;"></div>
 			<script>
@@ -2787,7 +2787,7 @@ ulong_t                seq<span class="token punctuation">;</span>              
     <published>2017-04-09T05:13:11.000Z</published>
     <updated>2017-04-09T05:13:11.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>找到一个炒鸡流弊的东西。。。</p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>找到一个炒鸡流弊的东西。。。</p>
 <a id="more"></a>
 <h1 id="Hexo-博客中插入视频-音乐"><a href="#Hexo-博客中插入视频-音乐" class="headerlink" title="Hexo 博客中插入视频/音乐"></a>Hexo 博客中插入视频/音乐</h1><p>博客中插入音乐/视频，可以让博客的逼格瞬间提高。作为优秀的静态博客，Hexo 当然也少不了这些高大上的功能。</p>
 <h2 id="Markdown-通用音乐-视频插入方法"><a href="#Markdown-通用音乐-视频插入方法" class="headerlink" title="Markdown 通用音乐/视频插入方法"></a>Markdown 通用音乐/视频插入方法</h2><p>Markdown 作为轻量级的标记语言，兼容 html 语法，所以可以直接在 Markdown 文档中使用 html 语法。</p>
@@ -2912,7 +2912,7 @@ npm install hexo-tag-aplayer --save
     <published>2017-04-07T07:07:00.000Z</published>
     <updated>2017-04-07T07:07:01.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Vim-快捷键"><a href="#Vim-快捷键" class="headerlink" title="Vim 快捷键"></a>Vim 快捷键</h1><h2 id="一-移动："><a href="#一-移动：" class="headerlink" title="一. 移动："></a>一. 移动：</h2><pre><code>h,j,k,l: 左，下，上，右。
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Vim-快捷键"><a href="#Vim-快捷键" class="headerlink" title="Vim 快捷键"></a>Vim 快捷键</h1><h2 id="一-移动："><a href="#一-移动：" class="headerlink" title="一. 移动："></a>一. 移动：</h2><pre><code>h,j,k,l: 左，下，上，右。
 w: 下一个词的词首。
 e:下一个词的词尾。
 </code></pre><p>​    b:上一个词的词首。</p>
@@ -3058,7 +3058,7 @@ e:下一个词的词尾。
     <published>2017-04-07T04:20:00.000Z</published>
     <updated>2017-08-19T07:09:31.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>讲解 Golang 的 channel（通道），学 go 语言的有必要看一下。以下正文。。。</p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>讲解 Golang 的 channel（通道），学 go 语言的有必要看一下。以下正文。。。</p>
 <hr>
 <h1 id="Go-Channel-详解"><a href="#Go-Channel-详解" class="headerlink" title="Go Channel 详解"></a>Go Channel 详解</h1><p>Channel是Go中的一个核心类型，你可以把它看成一个管道，通过它并发核心单元就可以发送或者接收数据进行通讯(communication)。</p>
 <p>它的操作符是箭头 <strong>&lt;-</strong> 。</p>
@@ -3314,7 +3314,7 @@ fmt<span class="token punctuation">.</span><span class="token function">Printf</
     
     <summary type="html">
     
-      &lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;p&gt;讲解 Golang 的 channel（通道），学 go 语言的有必要看一
+      &lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;p&gt;讲解 Golang 的 channel（通道），学 go 语言的有必要看一
     
     </summary>
     
@@ -3332,7 +3332,7 @@ fmt<span class="token punctuation">.</span><span class="token function">Printf</
     <published>2017-01-30T07:07:00.000Z</published>
     <updated>2017-01-30T07:07:01.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="跨域资源共享-CORS-详解"><a href="#跨域资源共享-CORS-详解" class="headerlink" title="跨域资源共享 CORS 详解"></a>跨域资源共享 CORS 详解</h1><p>CORS是一个W3C标准，全称是”跨域资源共享”（Cross-origin resource sharing）。<br>它允许浏览器向跨源服务器，发出<code>XMLHttpRequest</code>请求，从而克服了AJAX只能<strong>同源</strong>使用的限制。<br>本文详细介绍CORS的内部机制。<br><a id="more"></a></p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="跨域资源共享-CORS-详解"><a href="#跨域资源共享-CORS-详解" class="headerlink" title="跨域资源共享 CORS 详解"></a>跨域资源共享 CORS 详解</h1><p>CORS是一个W3C标准，全称是”跨域资源共享”（Cross-origin resource sharing）。<br>它允许浏览器向跨源服务器，发出<code>XMLHttpRequest</code>请求，从而克服了AJAX只能<strong>同源</strong>使用的限制。<br>本文详细介绍CORS的内部机制。<br><a id="more"></a></p>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=5110131&auto=1&height=66"></iframe>
 
 <h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>CORS需要浏览器和服务器同时支持。目前，所有浏览器都支持该功能，IE浏览器不能低于IE10。</p>
@@ -3497,7 +3497,7 @@ Origin http://api.bob.com is not allowed by Access-Control-Allow-Origin.
     <published>2017-01-03T10:11:00.000Z</published>
     <updated>2017-01-04T06:12:00.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>学习 Docker 技术，每看完一章或够写一篇文章的时候就上传一次. 这一篇讲容器技术。以下正文。。。<br><a id="more"></a></p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>学习 Docker 技术，每看完一章或够写一篇文章的时候就上传一次. 这一篇讲容器技术。以下正文。。。<br><a id="more"></a></p>
 <h2 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h2><h3 id="容器技术"><a href="#容器技术" class="headerlink" title="容器技术"></a>容器技术</h3><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=437292675&auto=1&height=66"></iframe>
 
 <p>对于容器，目前并没有一个严格的定义，但是普遍被认可的说法是，它首先必须是一个相对独立的环境，在这一点上有点类似虚拟机，但是没有虚拟机那么彻底。另外，在一个容器环境中，应该最小化其对外界的影响，比如不能在容器中吧host上的资源耗尽，这就是资源的控制。</p>
@@ -3605,7 +3605,7 @@ echo $pid > /sys/fs/cgroup/freezer/tasks
     <published>2016-12-31T09:07:55.000Z</published>
     <updated>2016-12-31T09:07:56.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>突然想写一篇文章纪念一下我的2016，哪天看不顺眼的时候删。。。<br><a id="more"></a></p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>突然想写一篇文章纪念一下我的2016，哪天看不顺眼的时候删。。。<br><a id="more"></a></p>
 <h2 id="再见了2016，你好2017"><a href="#再见了2016，你好2017" class="headerlink" title="再见了2016，你好2017"></a>再见了2016，你好2017</h2><p>来点音乐吧，</p>
 <p><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=186560&auto=0&height=66"></iframe><br>​    纵观过去的这一年，发生了很多我没有预料的到时事儿，不管是感情还是学习工作方面。</p>
 <p>​    去年的今天我做了不少的计划，许了不少的愿，但是实现了几个没做到几个，现在我是真想不出来。从我现在的情况来看，2016过得并不是很糟糕，也许可以用过得还不错的这句话来形容。</p>
@@ -3638,7 +3638,7 @@ echo $pid > /sys/fs/cgroup/freezer/tasks
     <published>2016-12-28T05:13:13.000Z</published>
     <updated>2016-12-28T05:13:13.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>welcome to learn terminal command!!!<br><a id="more"></a></p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>welcome to learn terminal command!!!<br><a id="more"></a></p>
 <h1 id="linux命令"><a href="#linux命令" class="headerlink" title="linux命令"></a>linux命令</h1><h3 id="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"><a href="#永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！" class="headerlink" title="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"></a>永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！</h3><h2 id="实用性"><a href="#实用性" class="headerlink" title="实用性"></a>实用性</h2><pre class="line-numbers language-shell"><code class="language-shell">$ ls -l | sed '1d' | sort -n -k5 | awk '{printf "%15s %10s\n", $9,$5}'
 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>按文件大小增序打印出当前目录下的文件名及其文件大小(单位字节）</p>
@@ -3786,7 +3786,7 @@ $ touch
     <published>2016-12-18T06:14:14.000Z</published>
     <updated>2016-12-19T06:14:14.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Material-原质"><a href="#Material-原质" class="headerlink" title="Material 原质"></a>Material 原质</h1><p><a href="https://material.vss.im" target="_blank" rel="external">Material Theme</a></p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Material-原质"><a href="#Material-原质" class="headerlink" title="Material 原质"></a>Material 原质</h1><p><a href="https://material.vss.im" target="_blank" rel="external">Material Theme</a></p>
 <blockquote>
 <p>Nature, Source</p>
 <p>stay with light`s</p>
@@ -3821,7 +3821,7 @@ $ touch
     
     <summary type="html">
     
-      &lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;h1 id=&quot;Material-原质&quot;&gt;&lt;a href=&quot;#Material-
+      &lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;h1 id=&quot;Material-原质&quot;&gt;&lt;a href=&quot;#Material-
     
     </summary>
     
@@ -3837,7 +3837,7 @@ $ touch
     <published>2016-12-17T12:55:55.000Z</published>
     <updated>2017-08-19T06:05:02.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Python-资源大全中文版"><a href="#Python-资源大全中文版" class="headerlink" title="Python 资源大全中文版"></a>Python 资源大全中文版</h1><a id="more"></a>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Python-资源大全中文版"><a href="#Python-资源大全中文版" class="headerlink" title="Python 资源大全中文版"></a>Python 资源大全中文版</h1><a id="more"></a>
 <p>我想很多程序员应该记得 GitHub 上有一个 Awesome - XXX 系列的资源整理。<a href="https://github.com/vinta/awesome-python" target="_blank" rel="external">awesome-python</a> 是 vinta 发起维护的 Python 资源列表，内容包括：Web框架、网络爬虫、网络内容提取、模板引擎、数据库、数据可视化、图片处理、文本处理、自然语言处理、机器学习、日志、代码分析等。由伯乐在线持续更新。</p>
 <p>Awesome 系列虽然挺全，但基本只对收录的资源做了极为简要的介绍，如果有更详细的中文介绍，对相应开发者的帮助会更大。这也是我们发起这个开源项目的初衷。</p>
 <hr>
@@ -4961,7 +4961,7 @@ $ touch
     <published>2016-12-17T05:13:13.000Z</published>
     <updated>2016-12-19T05:13:13.000Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>注意：    </p>
+    <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>注意：    </p>
 <ol>
 <li>由于封锁严重，软件自带IP已经被封杀殆尽。因此需要<strong>数分钟到数小时的初始化IP扫描</strong>，方能正常运行。    </li>
 <li>虽然系统内置了公共appid, 还是建议[[部署自己的appid|how to create my appids]]，公共appid限制看视频。需要注意的是，只有当你能访问Google之后，才能部署自己的APPID。    </li>
@@ -5034,7 +5034,7 @@ $ touch
     
     <summary type="html">
     
-      &lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;p&gt;注意：    &lt;/p&gt;
+      &lt;script src=&quot;/assets/js/DPlayer.min.js&quot;&gt; &lt;/script&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;p&gt;注意：    &lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;由于封锁严重，软件自带IP已经被
     
