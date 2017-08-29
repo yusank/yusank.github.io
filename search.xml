@@ -4,6 +4,143 @@
   
     
     <entry>
+      <title><![CDATA[Go Image]]></title>
+      <url>http://yusank.github.io/go-image.html/</url>
+      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>用 GO 实现图片处理和文字合成<br><a id="more"></a></p>
+<h1 id="Go-的图片处理"><a href="#Go-的图片处理" class="headerlink" title="Go 的图片处理"></a>Go 的图片处理</h1><p>最近需要一个合成明信片的工具，即往背景图的固定位置上添加一个图片和一段文字， 最后合成一张图片。由于是 go 程序的一个子功能，所以我想我只加拿 go 写好了，正好有 go 的 <code>image</code> 库，拿来练练。</p>
+<h2 id="图片合成"><a href="#图片合成" class="headerlink" title="图片合成"></a>图片合成</h2><p>图片合成我用到了这个库  <code>github.com/disintegration/imaging</code></p>
+<p>代码：</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">"fmt"</span>
+    <span class="token string">"image"</span>
+
+    <span class="token string">"github.com/disintegration/imaging"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token function">HandleUserImage</span><span class="token punctuation">(</span>fileName <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token builtin">string</span><span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    m<span class="token punctuation">,</span> err <span class="token operator">:=</span> imaging<span class="token punctuation">.</span><span class="token function">Open</span><span class="token punctuation">(</span><span class="token string">"target.jpg"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Printf</span><span class="token punctuation">(</span><span class="token string">"open file failed"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    bm<span class="token punctuation">,</span> err <span class="token operator">:=</span> imaging<span class="token punctuation">.</span><span class="token function">Open</span><span class="token punctuation">(</span><span class="token string">"bg.jpg"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Printf</span><span class="token punctuation">(</span><span class="token string">"open file failed"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment" spellcheck="true">// 图片按比例缩放</span>
+    dst <span class="token operator">:=</span> imaging<span class="token punctuation">.</span><span class="token function">Resize</span><span class="token punctuation">(</span>m<span class="token punctuation">,</span> <span class="token number">200</span><span class="token punctuation">,</span> <span class="token number">200</span><span class="token punctuation">,</span> imaging<span class="token punctuation">.</span>Lanczos<span class="token punctuation">)</span>
+    <span class="token comment" spellcheck="true">// 将图片粘贴到背景图的固定位置</span>
+    result <span class="token operator">:=</span> imaging<span class="token punctuation">.</span><span class="token function">Overlay</span><span class="token punctuation">(</span>bm<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> image<span class="token punctuation">.</span><span class="token function">Pt</span><span class="token punctuation">(</span><span class="token number">120</span><span class="token punctuation">,</span> <span class="token number">140</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+
+    fileName <span class="token operator">:=</span> fmt<span class="token punctuation">.</span><span class="token function">Sprintf</span><span class="token punctuation">(</span><span class="token string">"%d.jpg"</span><span class="token punctuation">,</span> fileName<span class="token punctuation">)</span>
+    err <span class="token operator">=</span> imaging<span class="token punctuation">.</span><span class="token function">Save</span><span class="token punctuation">(</span>result<span class="token punctuation">,</span> fileName<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> fileName<span class="token punctuation">,</span> <span class="token boolean">nil</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>以上是将 <code>target.jpg</code> 文件先进行缩放，再贴到 <code>bg.jpg</code> 文件的 （120，140）位置，最后保存成文件。</p>
+<h2 id="图片上写文字"><a href="#图片上写文字" class="headerlink" title="图片上写文字"></a>图片上写文字</h2><p>以下是写文字和贴图的一块用的实例：</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">"fmt"</span>
+    <span class="token string">"image"</span>
+    <span class="token string">"image/color"</span>
+    <span class="token string">"io/ioutil"</span>
+
+    <span class="token string">"github.com/disintegration/imaging"</span>
+    <span class="token string">"github.com/golang/freetype"</span>
+    <span class="token string">"github.com/golang/freetype/truetype"</span>
+    <span class="token string">"golang.org/x/image/font"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">HandleUserImage</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// HandleUserImage paste user image onto background</span>
+<span class="token keyword">func</span> <span class="token function">HandleUserImage</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token builtin">string</span><span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    m<span class="token punctuation">,</span> err <span class="token operator">:=</span> imaging<span class="token punctuation">.</span><span class="token function">Open</span><span class="token punctuation">(</span><span class="token string">"target.png"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Printf</span><span class="token punctuation">(</span><span class="token string">"open file failed"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    bm<span class="token punctuation">,</span> err <span class="token operator">:=</span> imaging<span class="token punctuation">.</span><span class="token function">Open</span><span class="token punctuation">(</span><span class="token string">"bg.jpg"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Printf</span><span class="token punctuation">(</span><span class="token string">"open file failed"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment" spellcheck="true">// 图片按比例缩放</span>
+    dst <span class="token operator">:=</span> imaging<span class="token punctuation">.</span><span class="token function">Resize</span><span class="token punctuation">(</span>m<span class="token punctuation">,</span> <span class="token number">200</span><span class="token punctuation">,</span> <span class="token number">200</span><span class="token punctuation">,</span> imaging<span class="token punctuation">.</span>Lanczos<span class="token punctuation">)</span>
+    <span class="token comment" spellcheck="true">// 将图片粘贴到背景图的固定位置</span>
+    result <span class="token operator">:=</span> imaging<span class="token punctuation">.</span><span class="token function">Overlay</span><span class="token punctuation">(</span>bm<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> image<span class="token punctuation">.</span><span class="token function">Pt</span><span class="token punctuation">(</span><span class="token number">120</span><span class="token punctuation">,</span> <span class="token number">140</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token function">writeOnImage</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+
+    fileName <span class="token operator">:=</span> fmt<span class="token punctuation">.</span><span class="token function">Sprintf</span><span class="token punctuation">(</span><span class="token string">"%d.jpg"</span><span class="token punctuation">,</span> <span class="token number">1234</span><span class="token punctuation">)</span>
+    err <span class="token operator">=</span> imaging<span class="token punctuation">.</span><span class="token function">Save</span><span class="token punctuation">(</span>result<span class="token punctuation">,</span> fileName<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> fileName<span class="token punctuation">,</span> <span class="token boolean">nil</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">var</span> dpi <span class="token operator">=</span> flag<span class="token punctuation">.</span><span class="token function">Float64</span><span class="token punctuation">(</span><span class="token string">"dpi"</span><span class="token punctuation">,</span> <span class="token number">256</span><span class="token punctuation">,</span> <span class="token string">"screen resolution"</span><span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token function">writeOnImage</span><span class="token punctuation">(</span>target <span class="token operator">*</span>image<span class="token punctuation">.</span>NRGBA<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    c <span class="token operator">:=</span> freetype<span class="token punctuation">.</span><span class="token function">NewContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    c<span class="token punctuation">.</span><span class="token function">SetDPI</span><span class="token punctuation">(</span><span class="token operator">*</span>dpi<span class="token punctuation">)</span>
+    c<span class="token punctuation">.</span><span class="token function">SetClip</span><span class="token punctuation">(</span>target<span class="token punctuation">.</span><span class="token function">Bounds</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    c<span class="token punctuation">.</span><span class="token function">SetDst</span><span class="token punctuation">(</span>target<span class="token punctuation">)</span>
+    c<span class="token punctuation">.</span><span class="token function">SetHinting</span><span class="token punctuation">(</span>font<span class="token punctuation">.</span>HintingFull<span class="token punctuation">)</span>
+
+        <span class="token comment" spellcheck="true">// 设置文字颜色、字体、字大小</span>
+    c<span class="token punctuation">.</span><span class="token function">SetSrc</span><span class="token punctuation">(</span>image<span class="token punctuation">.</span><span class="token function">NewUniform</span><span class="token punctuation">(</span>color<span class="token punctuation">.</span>RGBA<span class="token punctuation">{</span>R<span class="token punctuation">:</span> <span class="token number">240</span><span class="token punctuation">,</span> G<span class="token punctuation">:</span> <span class="token number">240</span><span class="token punctuation">,</span> B<span class="token punctuation">:</span> <span class="token number">245</span><span class="token punctuation">,</span> A<span class="token punctuation">:</span> <span class="token number">180</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    c<span class="token punctuation">.</span><span class="token function">SetFontSize</span><span class="token punctuation">(</span><span class="token number">16</span><span class="token punctuation">)</span>
+    fontFam<span class="token punctuation">,</span> err <span class="token operator">:=</span> <span class="token function">getFontFamily</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"get font family error"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+    c<span class="token punctuation">.</span><span class="token function">SetFont</span><span class="token punctuation">(</span>fontFam<span class="token punctuation">)</span>
+
+    pt <span class="token operator">:=</span> freetype<span class="token punctuation">.</span><span class="token function">Pt</span><span class="token punctuation">(</span><span class="token number">500</span><span class="token punctuation">,</span> <span class="token number">400</span><span class="token punctuation">)</span>
+
+    <span class="token boolean">_</span><span class="token punctuation">,</span> err <span class="token operator">=</span> c<span class="token punctuation">.</span><span class="token function">DrawString</span><span class="token punctuation">(</span><span class="token string">"我是水印"</span><span class="token punctuation">,</span> pt<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Printf</span><span class="token punctuation">(</span><span class="token string">"draw error: %v \n"</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token keyword">func</span> <span class="token function">getFontFamily</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token operator">*</span>truetype<span class="token punctuation">.</span>Font<span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">// 这里需要读取中文字体，否则中文文字会变成方格</span>
+    fontBytes<span class="token punctuation">,</span> err <span class="token operator">:=</span> ioutil<span class="token punctuation">.</span><span class="token function">ReadFile</span><span class="token punctuation">(</span><span class="token string">"Hei.ttc"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"read file error:"</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> <span class="token operator">&amp;</span>truetype<span class="token punctuation">.</span>Font<span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">}</span>
+
+    f<span class="token punctuation">,</span> err <span class="token operator">:=</span> freetype<span class="token punctuation">.</span><span class="token function">ParseFont</span><span class="token punctuation">(</span>fontBytes<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"parse font error:"</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> <span class="token operator">&amp;</span>truetype<span class="token punctuation">.</span>Font<span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> f<span class="token punctuation">,</span> err
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>最后来一张效果图<br><img src="http://oid1xlj7h.bkt.clouddn.com/image/jpg/1234.jpg" alt=""></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>做的过程中，合作这一块比较好做，但是图片上写文字，相对比较麻烦，而且 <code>freetype</code> 库并没有默认的中英文字体，如果不指定字体会报错，而且字体格式只限制于 <code>ttf</code> 和 <code>ttc</code> 两种。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Go UDP Socket]]></title>
       <url>http://yusank.github.io/GO-UDP.html/</url>
       <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ……<br><a id="more"></a></p>
