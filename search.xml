@@ -6,7 +6,7 @@
     <entry>
       <title><![CDATA[Go Image]]></title>
       <url>http://yusank.github.io/go-image.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>用 GO 实现图片处理和文字合成<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>用 GO 实现图片处理和文字合成<br><a id="more"></a></p>
 <h1 id="Go-的图片处理"><a href="#Go-的图片处理" class="headerlink" title="Go 的图片处理"></a>Go 的图片处理</h1><p>最近需要一个合成明信片的工具，即往背景图的固定位置上添加一个图片和一段文字， 最后合成一张图片。由于是 go 程序的一个子功能，所以我想我只加拿 go 写好了，正好有 go 的 <code>image</code> 库，拿来练练。</p>
 <h2 id="图片合成"><a href="#图片合成" class="headerlink" title="图片合成"></a>图片合成</h2><p>图片合成我用到了这个库  <code>github.com/disintegration/imaging</code></p>
 <p>代码：</p>
@@ -141,9 +141,200 @@
     </entry>
     
     <entry>
+      <title><![CDATA[Cobra - 一个 Golang 命令行项目生成工具]]></title>
+      <url>http://yusank.github.io/cobra-terminal_tools.html/</url>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p><strong>转载于</strong>   <a href="https://jsharkc.github.io/2017/07/17/cobra%E5%85%A5%E9%97%A8%E5%B0%8F%E6%95%99%E7%A8%8B/" target="_blank" rel="external">Jsharkc 的博客</a></p>
+<h1 id="Cobra-Golang-命令行库"><a href="#Cobra-Golang-命令行库" class="headerlink" title="Cobra - Golang 命令行库"></a>Cobra - Golang 命令行库</h1><h3 id="简介："><a href="#简介：" class="headerlink" title="简介："></a>简介：</h3><p>Cobra 是一个创建 CLI 命令行的 golang 库。</p>
+<h3 id="组成："><a href="#组成：" class="headerlink" title="组成："></a>组成：</h3><p>Cobra 结构由三部分组成：命令( Command )、参数( Args )、标志( Flag )。</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">type</span> Command <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    Use   <span class="token builtin">string</span>  <span class="token comment" spellcheck="true">// The one-line usage message.</span>
+    Short <span class="token builtin">string</span>  <span class="token comment" spellcheck="true">// The short description shown in the 'help' output.</span>
+    Long  <span class="token builtin">string</span>  <span class="token comment" spellcheck="true">// The long message shown in the 'help&lt;this-command>' output.</span>
+    Run   <span class="token keyword">func</span><span class="token punctuation">(</span>cmd <span class="token operator">*</span>Command<span class="token punctuation">,</span> args <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token builtin">string</span><span class="token punctuation">)</span>  <span class="token comment" spellcheck="true">// Run runs the command.</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>前三个是不同场景下的说明，最后一个是要执行的函数。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>安装 Cobra 很简单，首先，用 <code>go get</code> 安装最新版本的库，这个命令会安装 Cobra 框架生成工具和依赖。</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">go</span> get <span class="token operator">-</span>u github<span class="token punctuation">.</span>com<span class="token operator">/</span>spf13<span class="token operator">/</span>cobra<span class="token operator">/</span>cobra
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>然后，把 Cobra 添加到你的 app 中：</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">import</span> <span class="token string">"github.com/spf13/cobra"</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h3 id="快速开始"><a href="#快速开始" class="headerlink" title="快速开始"></a>快速开始</h3><p>​一般用 cobra 命令生成d的项目结构如下：</p>
+<pre class="line-numbers language-go"><code class="language-go"> ▾ appName<span class="token operator">/</span>
+    ▾ cmd<span class="token operator">/</span>
+        add<span class="token punctuation">.</span><span class="token keyword">go</span>
+        your<span class="token punctuation">.</span><span class="token keyword">go</span>
+        commands<span class="token punctuation">.</span><span class="token keyword">go</span>
+        here<span class="token punctuation">.</span><span class="token keyword">go</span>
+      main<span class="token punctuation">.</span><span class="token keyword">go</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>main 函数中非常简洁，只有一个目的：初始化 Cobra.</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">"fmt"</span>
+    <span class="token string">"os"</span>
+
+    <span class="token string">"{pathToYourApp}/cmd"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> err <span class="token operator">:=</span> cmd<span class="token punctuation">.</span>RootCmd<span class="token punctuation">.</span><span class="token function">Execute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+        os<span class="token punctuation">.</span><span class="token function">Exit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="用-Cobra-工具生成项目框架"><a href="#用-Cobra-工具生成项目框架" class="headerlink" title="用 Cobra 工具生成项目框架"></a>用 Cobra 工具生成项目框架</h3><h4 id="cobra-init"><a href="#cobra-init" class="headerlink" title="cobra init"></a>cobra init</h4><p><code>cobra init [yourAppName]</code> ，这个命令可以让你的程序有一个正确的结构，你立刻能够感受到 Cobra 带给你的快乐，你可以配置它自动生成你需要的开源协议。</p>
+<pre class="line-numbers language-go"><code class="language-go">cobra init newAppName
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>newAppName 是你的项目名称。它会在你的 GOPATH 目录下面生成项目。</p>
+<p>我们看一下 main.go 函数</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token string">"cobra_exp1/cmd"</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    cmd<span class="token punctuation">.</span><span class="token function">Execute</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>main 调用 cmd.Execute()，那我们找到这个地方，cmd/root.go 文件：</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> cmd
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">"fmt"</span>
+    <span class="token string">"os"</span>
+
+    <span class="token string">"github.com/spf13/cobra"</span>
+    <span class="token string">"github.com/spf13/viper"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">var</span> cfgFile <span class="token builtin">string</span>
+
+<span class="token comment" spellcheck="true">// RootCmd represents the base command when called without any subcommands</span>
+<span class="token keyword">var</span> RootCmd <span class="token operator">=</span> <span class="token operator">&amp;</span>cobra<span class="token punctuation">.</span>Command<span class="token punctuation">{</span>
+    Use<span class="token punctuation">:</span>   <span class="token string">"cobra_exp1"</span><span class="token punctuation">,</span>
+    Short<span class="token punctuation">:</span> <span class="token string">"A brief description of your application"</span><span class="token punctuation">,</span>
+    Long<span class="token punctuation">:</span> <span class="token string">`A longer description that spans multiple lines and likely contains
+examples and usage of using your application. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`</span><span class="token punctuation">,</span>
+<span class="token comment" spellcheck="true">// Uncomment the following line if your bare application</span>
+<span class="token comment" spellcheck="true">// has an action associated with it:</span>
+<span class="token comment" spellcheck="true">//    Run: func(cmd *cobra.Command, args []string) { },</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// Execute adds all child commands to the root command sets flags appropriately.</span>
+<span class="token comment" spellcheck="true">// This is called by main.main(). It only needs to happen once to the rootCmd.</span>
+<span class="token keyword">func</span> <span class="token function">Execute</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> err <span class="token operator">:=</span> RootCmd<span class="token punctuation">.</span><span class="token function">Execute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+        os<span class="token punctuation">.</span><span class="token function">Exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">func</span> <span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    cobra<span class="token punctuation">.</span><span class="token function">OnInitialize</span><span class="token punctuation">(</span>initConfig<span class="token punctuation">)</span>
+
+    <span class="token comment" spellcheck="true">// Here you will define your flags and configuration settings.</span>
+    <span class="token comment" spellcheck="true">// Cobra supports Persistent Flags, which, if defined here,</span>
+    <span class="token comment" spellcheck="true">// will be global for your application.</span>
+
+    RootCmd<span class="token punctuation">.</span><span class="token function">PersistentFlags</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">StringVar</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>cfgFile<span class="token punctuation">,</span> <span class="token string">"config"</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">,</span> <span class="token string">"config file (default is $HOME/.cobra_exp1.yaml)"</span><span class="token punctuation">)</span>
+    <span class="token comment" spellcheck="true">// Cobra also supports local flags, which will only run</span>
+    <span class="token comment" spellcheck="true">// when this action is called directly.</span>
+    RootCmd<span class="token punctuation">.</span><span class="token function">Flags</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">BoolP</span><span class="token punctuation">(</span><span class="token string">"toggle"</span><span class="token punctuation">,</span> <span class="token string">"t"</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token string">"Help message for toggle"</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// initConfig reads in config file and ENV variables if set.</span>
+<span class="token keyword">func</span> <span class="token function">initConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> cfgFile <span class="token operator">!=</span> <span class="token string">""</span> <span class="token punctuation">{</span> <span class="token comment" spellcheck="true">// enable ability to specify config file via flag</span>
+        viper<span class="token punctuation">.</span><span class="token function">SetConfigFile</span><span class="token punctuation">(</span>cfgFile<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    viper<span class="token punctuation">.</span><span class="token function">SetConfigName</span><span class="token punctuation">(</span><span class="token string">".cobra_exp1"</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// name of config file (without extension)</span>
+    viper<span class="token punctuation">.</span><span class="token function">AddConfigPath</span><span class="token punctuation">(</span><span class="token string">"$HOME"</span><span class="token punctuation">)</span>  <span class="token comment" spellcheck="true">// adding home directory as first search path</span>
+    viper<span class="token punctuation">.</span><span class="token function">AutomaticEnv</span><span class="token punctuation">(</span><span class="token punctuation">)</span>          <span class="token comment" spellcheck="true">// read in environment variables that match</span>
+
+    <span class="token comment" spellcheck="true">// If a config file is found, read it in.</span>
+    <span class="token keyword">if</span> err <span class="token operator">:=</span> viper<span class="token punctuation">.</span><span class="token function">ReadInConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> err <span class="token operator">==</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"Using config file:"</span><span class="token punctuation">,</span> viper<span class="token punctuation">.</span><span class="token function">ConfigFileUsed</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>我们看到 Execute() 函数中调用 RootCmd.Execute()，RootCmd 是开始讲组成 Command 结构的一个实例。</p>
+<p>我们运行看看：</p>
+<pre class="line-numbers language-sh"><code class="language-sh">> go run main.go 
+A longer description that spans multiple lines and likely contains
+examples and usage of using your application. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>空空如也，还什么也没有，那接下来我们来添加一些子命令。</p>
+<h4 id="cobra-add"><a href="#cobra-add" class="headerlink" title="cobra add"></a>cobra add</h4><p>这个命令用来创建子命令，子命令就是像下面这样：</p>
+<ul>
+<li>app serve</li>
+<li>app config</li>
+<li>app config create</li>
+</ul>
+<p>在你项目的目录下，运行下面这些命令：</p>
+<pre class="line-numbers language-go"><code class="language-go">cobra add serve
+cobra add config
+cobra add create <span class="token operator">-</span>p <span class="token string">'configCmd'</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>这样以后，你就可以运行上面那些 app serve 之类的命令了。项目目录如下：</p>
+<pre class="line-numbers language-Sh"><code class="language-Sh">  ▾ app/
+    ▾ cmd/
+        serve.go
+        config.go
+        create.go
+      main.go
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>然后再运行程序：</p>
+<pre class="line-numbers language-Sh"><code class="language-Sh">❯ go run main.go 
+A longer description that spans multiple lines and likely contains
+examples and usage of using your application. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.
+
+Usage:
+  llleon [command]
+
+Available Commands:
+  config      A brief description of your command
+  help        Help about any command
+  serve       A brief description of your command
+
+Flags:
+      --config string   config file (default is $HOME/.llleon.yaml)
+  -h, --help            help for llleon
+  -t, --toggle          Help message for toggle
+
+Use "llleon [command] --help" for more information about a command.
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>现在我们有了三个子命令，并且都可以使用，然后只要添加命令逻辑就能真正用了。</p>
+<h4 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h4><p>cobra 有两种 flag，一个是全局变量，一个是局部变量。全局什么意思呢，就是所以子命令都可以用。局部的只有自己能用。先看全局的：</p>
+<pre class="line-numbers language-go"><code class="language-go">RootCmd<span class="token punctuation">.</span><span class="token function">PersistentFlags</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">StringVar</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>cfgFile<span class="token punctuation">,</span> <span class="token string">"config"</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">,</span> <span class="token string">"config file (default is $HOME/.cobra_exp1.yaml)"</span><span class="token punctuation">)</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>在看局部的：</p>
+<pre class="line-numbers language-go"><code class="language-go">RootCmd<span class="token punctuation">.</span><span class="token function">Flags</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">BoolP</span><span class="token punctuation">(</span><span class="token string">"toggle"</span><span class="token punctuation">,</span> <span class="token string">"t"</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token string">"Help message for toggle"</span><span class="token punctuation">)</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>区别就在 RootCmd 后面的是 Flags 还是 PersistentFlags。</p>
+<p>好了，入门教程到此结束，感兴趣的童鞋可以到 <a href="https://github.com/spf13/cobra" target="_blank" rel="external">Cobra</a> 深入研究一番。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Go UDP Socket]]></title>
       <url>http://yusank.github.io/GO-UDP.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ……<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ……<br><a id="more"></a></p>
 <h1 id="用-go-实现简单的-udp"><a href="#用-go-实现简单的-udp" class="headerlink" title="用 go 实现简单的 udp"></a>用 go 实现简单的 udp</h1><p>用户数据包协议（英语：User Datagram Protocol，缩写为UDP），又称用户数据报文协议，是一个简单的面向数据报的传输层协议，正式规范为RFC 768。<br>在TCP/IP模型中，UDP为网络层以上和应用层以下提供了一个简单的接口。UDP只提供数据的不可靠传递，它一旦把应用程序发给网络层的数据发送出去，就不保留数据备份（所以UDP有时候也被认为是不可靠的数据报协议）。UDP在IP数据报的头部仅仅加入了复用和数据校验（字段）。</p>
 <h2 id="UDP-与-TCP-的比较"><a href="#UDP-与-TCP-的比较" class="headerlink" title="UDP 与 TCP 的比较"></a>UDP 与 TCP 的比较</h2><ul>
 <li><p>UDP – 用户数据协议包，是一个简单的面向数据报的运输层协议。UDP 不提供可靠性，它只是把应用程序给 IP 层的数据报发送出去，但是并不能保证他们能达到目的地。由于 UDP 在传输数据报之前不用在客户端和服务端之间建立连接，且没有超时机制，故而传输速度很快。</p>
@@ -281,7 +472,7 @@
     <entry>
       <title><![CDATA[Go TCP Socket]]></title>
       <url>http://yusank.github.io/Go-TCP%20Socket.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>转载文章</p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>转载文章</p>
 <h1 id="Go语言TCP-Socket编程"><a href="#Go语言TCP-Socket编程" class="headerlink" title="Go语言TCP Socket编程"></a>Go语言TCP Socket编程</h1><p><strong>文章原始地址:</strong> <a href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/" target="_blank" rel="external">http://tonybai.com/2015/11/17/tcp-programming-in-golang/</a></p>
 <p><a href="http://tonybai.com/tag/go" target="_blank" rel="external">Golang</a>的主要 设计目标之一就是面向大规模后端服务程序，网络通信这块是服务端 程序必不可少也是至关重要的一部分。在日常应用中，我们也可以看到Go中的net以及其subdirectories下的包均是“高频+刚需”，而TCP socket则是网络编程的主流，即便您没有直接使用到net中有关TCP Socket方面的接口，但net/http总是用到了吧，http底层依旧是用tcp socket实现的。</p>
 <p>网络编程方面，我们最常用的就是tcp socket编程了，在posix标准出来后，socket在各大主流OS平台上都得到了很好的支持。关于tcp programming，最好的资料莫过于<a href="http://en.wikipedia.org/wiki/W._Richard_Stevens" target="_blank" rel="external">W. Richard Stevens</a> 的网络编程圣经《<a href="http://book.douban.com/subject/4859464/" target="_blank" rel="external">UNIX网络 编程 卷1：套接字联网API</a>》 了，书中关于tcp socket接口的各种使用、行为模式、异常处理讲解的十分细致。Go是自带runtime的跨平台编程语言，Go中暴露给语言使用者的tcp socket api是建立OS原生tcp socket接口之上的。由于Go runtime调度的需要，golang tcp socket接口在行为特点与异常处理方面与OS原生接口有着一些差别。这篇博文的目标就是整理出关于Go tcp socket在各个场景下的使用方法、行为特点以及注意事项。</p>
@@ -935,7 +1126,7 @@ $go run client1.go
     <entry>
       <title><![CDATA[Docker 的使用]]></title>
       <url>http://yusank.github.io/docker-practice.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p> docker 的基本操作和使用。。。<br> <a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p> docker 的基本操作和使用。。。<br> <a id="more"></a></p>
 <h1 id="Docker-的使用"><a href="#Docker-的使用" class="headerlink" title="Docker 的使用"></a>Docker 的使用</h1><h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><hr>
 <h3 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h3><hr>
 <h4 id="新建并启动"><a href="#新建并启动" class="headerlink" title="新建并启动"></a>新建并启动</h4><p>所需的命令是 <code>docker run</code></p>
@@ -1434,7 +1625,7 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
     <entry>
       <title><![CDATA[docker-portainer]]></title>
       <url>http://yusank.github.io/portainer.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>安利一款很好用的工具</p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>安利一款很好用的工具</p>
 <a id="more"></a>
 <h1 id="管理-docker"><a href="#管理-docker" class="headerlink" title="管理 docker"></a>管理 docker</h1><h2 id="为什么管理"><a href="#为什么管理" class="headerlink" title="为什么管理"></a>为什么管理</h2><p>随着用的 docker 镜像种类增多，在一台机器上起得 docker 容器数量有时候会非常的多，管理起来也比较困难，而且有时候一些 docker 命令一时半会想不起来，更不用说命令行的枯燥性，所以有没有一直简单一点办法去管理 docker 镜像和容器呢？</p>
 <p>今天主角该登场了！</p>
@@ -1486,7 +1677,7 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
     <entry>
       <title><![CDATA[GO interface]]></title>
       <url>http://yusank.github.io/Go_interface.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Go-interface"><a href="#Go-interface" class="headerlink" title="Go interface"></a>Go interface</h1><h2 id="interface"><a href="#interface" class="headerlink" title="interface"></a>interface</h2><p>在 Golang 中 interface 是一个很重要的概念和特性。</p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Go-interface"><a href="#Go-interface" class="headerlink" title="Go interface"></a>Go interface</h1><h2 id="interface"><a href="#interface" class="headerlink" title="interface"></a>interface</h2><p>在 Golang 中 interface 是一个很重要的概念和特性。</p>
 <h3 id="什么是-interface？"><a href="#什么是-interface？" class="headerlink" title="什么是 interface？"></a>什么是 interface？</h3><blockquote>
 <p>In <a href="https://en.wikipedia.org/wiki/Object-oriented_programming" target="_blank" rel="external">object-oriented programming</a>, a <strong>protocol</strong> or <strong>interface</strong> is a common means for unrelated <a href="https://en.wikipedia.org/wiki/Object_(computer_science" target="_blank" rel="external">objects</a>) to communicate with each other. These are definitions of <a href="https://en.wikipedia.org/wiki/Method_(computer_science" target="_blank" rel="external">methods</a>) and values which the objects agree upon in order to co-operate. — wikipedia</p>
 </blockquote>
@@ -1721,7 +1912,7 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
     <entry>
       <title><![CDATA[Go Format]]></title>
       <url>http://yusank.github.io/GO-format.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>go 代码的一些规范和命名规则……<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>go 代码的一些规范和命名规则……<br><a id="more"></a></p>
 <h1 id="Golang-代码规范"><a href="#Golang-代码规范" class="headerlink" title="Golang 代码规范"></a>Golang 代码规范</h1><h2 id="项目目录结构"><a href="#项目目录结构" class="headerlink" title="项目目录结构"></a>项目目录结构</h2><pre class="line-numbers language-sh"><code class="language-sh">PROJECT_NAME
 ├── README.md 介绍软件及文档入口
 ├── bin 编译好的二进制文件,执行./build.sh自动生成，该目录也用于程序打包
@@ -2021,7 +2212,7 @@ func (t T) lock() {
     <entry>
       <title><![CDATA[GO test]]></title>
       <url>http://yusank.github.io/go-test.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Go-测试用例"><a href="#Go-测试用例" class="headerlink" title="Go 测试用例"></a>Go 测试用例</h1><p>开发程序其中很重要的一点是测试，我们如何保证代码的质量，如何保证每个函数是可运行，运行结果是正确的，又如何保证写出来的代码性能是好的，我们知道单元测试的重点在于发现程序设计或实现的逻辑错误，使问题及早暴露，便于问题的定位解决，而性能测试的重点在于发现程序设计上的一些问题，让线上的程序能够在高并发的情况下还能保持稳定。本小节将带着这一连串的问题来讲解Go语言中如何来实现单元测试和性能测试。</p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Go-测试用例"><a href="#Go-测试用例" class="headerlink" title="Go 测试用例"></a>Go 测试用例</h1><p>开发程序其中很重要的一点是测试，我们如何保证代码的质量，如何保证每个函数是可运行，运行结果是正确的，又如何保证写出来的代码性能是好的，我们知道单元测试的重点在于发现程序设计或实现的逻辑错误，使问题及早暴露，便于问题的定位解决，而性能测试的重点在于发现程序设计上的一些问题，让线上的程序能够在高并发的情况下还能保持稳定。本小节将带着这一连串的问题来讲解Go语言中如何来实现单元测试和性能测试。</p>
 <p>Go语言中自带有一个轻量级的测试框架<code>testing</code>和自带的<code>go test</code>命令来实现单元测试和性能测试，<code>testing</code>框架和其他语言中的测试框架类似，你可以基于这个框架写针对相应函数的测试用例，也可以基于该框架写相应的压力测试用例，那么接下来让我们一一来看一下怎么写。</p>
 <p>另外建议安装<a href="https://github.com/cweill/gotests" target="_blank" rel="external">gotests</a>插件自动生成测试代码:</p>
 <pre class="line-numbers language-shell"><code class="language-shell">go get -u -v github.com/cweill/gotests/...
@@ -2162,7 +2353,7 @@ ok      gotest    9.364s
     <entry>
       <title><![CDATA[Go File]]></title>
       <url>http://yusank.github.io/go_file.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>go 的文件操作和校验<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>go 的文件操作和校验<br><a id="more"></a></p>
 <h1 id="GO-文件操作"><a href="#GO-文件操作" class="headerlink" title="GO 文件操作"></a>GO 文件操作</h1><p>在任何计算机设备中，文件是都是必须的对象，而在Web编程中,文件的操作一直是Web程序员经常遇到的问题,文件操作在Web应用中是必须的,非常有用的,我们经常遇到生成文件目录,文件(夹)编辑等操作,现在我们来看看 go 对文件是怎么操作的。</p>
 <h2 id="目录操作"><a href="#目录操作" class="headerlink" title="目录操作"></a>目录操作</h2><p>文件操作的大多数函数都是在os包里面，下面列举了几个目录操作的：</p>
 <ul>
@@ -2370,7 +2561,7 @@ ok      gotest    9.364s
     <entry>
       <title><![CDATA[Unix 网络编程]]></title>
       <url>http://yusank.github.io/Unix-Network.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Unix-网络编程"><a href="#Unix-网络编程" class="headerlink" title="Unix 网络编程"></a>Unix 网络编程</h1><p>​                                                                        <strong>卷II - 进程间通信</strong></p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Unix-网络编程"><a href="#Unix-网络编程" class="headerlink" title="Unix 网络编程"></a>Unix 网络编程</h1><p>​                                                                        <strong>卷II - 进程间通信</strong></p>
 <p>IPC是进程间通信（interprocess communication）的简称。传统上该术语描述的是运行在某个操作系统之上的不同进程间各种消息传递（<em>message passing</em>）的方式。</p>
 <p>进程间的通信一般是一下四种形式：</p>
 <ul>
@@ -2720,7 +2911,7 @@ ulong_t                seq<span class="token punctuation">;</span>              
     <entry>
       <title><![CDATA[Hexo 添加歌单]]></title>
       <url>http://yusank.github.io/testlist.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>测试添加歌单。。。。<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>测试添加歌单。。。。<br><a id="more"></a></p>
 <h1 id="测试歌单"><a href="#测试歌单" class="headerlink" title="测试歌单"></a>测试歌单</h1>
 			<div id="aplayer2" class="aplayer" style="margin-bottom: 20px;"></div>
 			<script>
@@ -2735,7 +2926,7 @@ ulong_t                seq<span class="token punctuation">;</span>              
     <entry>
       <title><![CDATA[Hexo 博客添加视频和音乐]]></title>
       <url>http://yusank.github.io/HexoMedia.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>找到一个炒鸡流弊的东西。。。</p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>找到一个炒鸡流弊的东西。。。</p>
 <a id="more"></a>
 <h1 id="Hexo-博客中插入视频-音乐"><a href="#Hexo-博客中插入视频-音乐" class="headerlink" title="Hexo 博客中插入视频/音乐"></a>Hexo 博客中插入视频/音乐</h1><p>博客中插入音乐/视频，可以让博客的逼格瞬间提高。作为优秀的静态博客，Hexo 当然也少不了这些高大上的功能。</p>
 <h2 id="Markdown-通用音乐-视频插入方法"><a href="#Markdown-通用音乐-视频插入方法" class="headerlink" title="Markdown 通用音乐/视频插入方法"></a>Markdown 通用音乐/视频插入方法</h2><p>Markdown 作为轻量级的标记语言，兼容 html 语法，所以可以直接在 Markdown 文档中使用 html 语法。</p>
@@ -2844,7 +3035,7 @@ npm install hexo-tag-aplayer --save
     <entry>
       <title><![CDATA[Vim 快捷键]]></title>
       <url>http://yusank.github.io/Vimkyboard.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Vim-快捷键"><a href="#Vim-快捷键" class="headerlink" title="Vim 快捷键"></a>Vim 快捷键</h1><h2 id="一-移动："><a href="#一-移动：" class="headerlink" title="一. 移动："></a>一. 移动：</h2><pre><code>h,j,k,l: 左，下，上，右。
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Vim-快捷键"><a href="#Vim-快捷键" class="headerlink" title="Vim 快捷键"></a>Vim 快捷键</h1><h2 id="一-移动："><a href="#一-移动：" class="headerlink" title="一. 移动："></a>一. 移动：</h2><pre><code>h,j,k,l: 左，下，上，右。
 w: 下一个词的词首。
 e:下一个词的词尾。
 </code></pre><p>​    b:上一个词的词首。</p>
@@ -2969,7 +3160,7 @@ ctry+e: 下滚一行。
     <entry>
       <title><![CDATA[Go Channel]]></title>
       <url>http://yusank.github.io/Go%20Channel.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>讲解 Golang 的 channel（通道），学 go 语言的有必要看一下。以下正文。。。</p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>讲解 Golang 的 channel（通道），学 go 语言的有必要看一下。以下正文。。。</p>
 <hr>
 <h1 id="Go-Channel-详解"><a href="#Go-Channel-详解" class="headerlink" title="Go Channel 详解"></a>Go Channel 详解</h1><p>Channel是Go中的一个核心类型，你可以把它看成一个管道，通过它并发核心单元就可以发送或者接收数据进行通讯(communication)。</p>
 <p>它的操作符是箭头 <strong>&lt;-</strong> 。</p>
@@ -3227,7 +3418,7 @@ fmt<span class="token punctuation">.</span><span class="token function">Printf</
     <entry>
       <title><![CDATA[跨域资源共享 CORS 详解]]></title>
       <url>http://yusank.github.io/CORS.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="跨域资源共享-CORS-详解"><a href="#跨域资源共享-CORS-详解" class="headerlink" title="跨域资源共享 CORS 详解"></a>跨域资源共享 CORS 详解</h1><p>CORS是一个W3C标准，全称是”跨域资源共享”（Cross-origin resource sharing）。<br>它允许浏览器向跨源服务器，发出<code>XMLHttpRequest</code>请求，从而克服了AJAX只能<strong>同源</strong>使用的限制。<br>本文详细介绍CORS的内部机制。<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="跨域资源共享-CORS-详解"><a href="#跨域资源共享-CORS-详解" class="headerlink" title="跨域资源共享 CORS 详解"></a>跨域资源共享 CORS 详解</h1><p>CORS是一个W3C标准，全称是”跨域资源共享”（Cross-origin resource sharing）。<br>它允许浏览器向跨源服务器，发出<code>XMLHttpRequest</code>请求，从而克服了AJAX只能<strong>同源</strong>使用的限制。<br>本文详细介绍CORS的内部机制。<br><a id="more"></a></p>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=5110131&auto=1&height=66"></iframe>
 
 <h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>CORS需要浏览器和服务器同时支持。目前，所有浏览器都支持该功能，IE浏览器不能低于IE10。</p>
@@ -3376,7 +3567,7 @@ Origin http://api.bob.com is not allowed by Access-Control-Allow-Origin.
     <entry>
       <title><![CDATA[Docker 进阶与实践（第一讲）]]></title>
       <url>http://yusank.github.io/Docker.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>学习 Docker 技术，每看完一章或够写一篇文章的时候就上传一次. 这一篇讲容器技术。以下正文。。。<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>学习 Docker 技术，每看完一章或够写一篇文章的时候就上传一次. 这一篇讲容器技术。以下正文。。。<br><a id="more"></a></p>
 <h2 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h2><h3 id="容器技术"><a href="#容器技术" class="headerlink" title="容器技术"></a>容器技术</h3><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=437292675&auto=1&height=66"></iframe>
 
 <p>对于容器，目前并没有一个严格的定义，但是普遍被认可的说法是，它首先必须是一个相对独立的环境，在这一点上有点类似虚拟机，但是没有虚拟机那么彻底。另外，在一个容器环境中，应该最小化其对外界的影响，比如不能在容器中吧host上的资源耗尽，这就是资源的控制。</p>
@@ -3464,7 +3655,7 @@ echo $pid > /sys/fs/cgroup/freezer/tasks
     <entry>
       <title><![CDATA[Goddbye 2016 and Hello 2017]]></title>
       <url>http://yusank.github.io/%E5%86%8D%E8%A7%81%E4%BA%862016%EF%BC%8C%E4%BD%A0%E5%A5%BD2017.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>突然想写一篇文章纪念一下我的2016，哪天看不顺眼的时候删。。。<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>突然想写一篇文章纪念一下我的2016，哪天看不顺眼的时候删。。。<br><a id="more"></a></p>
 <h2 id="再见了2016，你好2017"><a href="#再见了2016，你好2017" class="headerlink" title="再见了2016，你好2017"></a>再见了2016，你好2017</h2><p>来点音乐吧，</p>
 <p><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=186560&auto=0&height=66"></iframe><br>​    纵观过去的这一年，发生了很多我没有预料的到时事儿，不管是感情还是学习工作方面。</p>
 <p>​    去年的今天我做了不少的计划，许了不少的愿，但是实现了几个没做到几个，现在我是真想不出来。从我现在的情况来看，2016过得并不是很糟糕，也许可以用过得还不错的这句话来形容。</p>
@@ -3481,7 +3672,7 @@ echo $pid > /sys/fs/cgroup/freezer/tasks
     <entry>
       <title><![CDATA[linux命令]]></title>
       <url>http://yusank.github.io/linux%E5%91%BD%E4%BB%A4.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>welcome to learn terminal command!!!<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>welcome to learn terminal command!!!<br><a id="more"></a></p>
 <h1 id="linux命令"><a href="#linux命令" class="headerlink" title="linux命令"></a>linux命令</h1><h3 id="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"><a href="#永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！" class="headerlink" title="永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！"></a>永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！</h3><h2 id="实用性"><a href="#实用性" class="headerlink" title="实用性"></a>实用性</h2><pre class="line-numbers language-shell"><code class="language-shell">$ ls -l | sed '1d' | sort -n -k5 | awk '{printf "%15s %10s\n", $9,$5}'
 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>按文件大小增序打印出当前目录下的文件名及其文件大小(单位字节）</p>
@@ -3613,7 +3804,7 @@ $ touch
     <entry>
       <title><![CDATA[Material 的配置]]></title>
       <url>http://yusank.github.io/%20Material%20%E5%8E%9F%E8%B4%A8.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Material-原质"><a href="#Material-原质" class="headerlink" title="Material 原质"></a>Material 原质</h1><p><a href="https://material.vss.im" target="_blank" rel="external">Material Theme</a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Material-原质"><a href="#Material-原质" class="headerlink" title="Material 原质"></a>Material 原质</h1><p><a href="https://material.vss.im" target="_blank" rel="external">Material Theme</a></p>
 <blockquote>
 <p>Nature, Source</p>
 <p>stay with light`s</p>
@@ -3650,7 +3841,7 @@ $ touch
     <entry>
       <title><![CDATA[Python 资源大全]]></title>
       <url>http://yusank.github.io/awesomepython.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><h1 id="Python-资源大全中文版"><a href="#Python-资源大全中文版" class="headerlink" title="Python 资源大全中文版"></a>Python 资源大全中文版</h1><a id="more"></a>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><h1 id="Python-资源大全中文版"><a href="#Python-资源大全中文版" class="headerlink" title="Python 资源大全中文版"></a>Python 资源大全中文版</h1><a id="more"></a>
 <p>我想很多程序员应该记得 GitHub 上有一个 Awesome - XXX 系列的资源整理。<a href="https://github.com/vinta/awesome-python" target="_blank" rel="external">awesome-python</a> 是 vinta 发起维护的 Python 资源列表，内容包括：Web框架、网络爬虫、网络内容提取、模板引擎、数据库、数据可视化、图片处理、文本处理、自然语言处理、机器学习、日志、代码分析等。由伯乐在线持续更新。</p>
 <p>Awesome 系列虽然挺全，但基本只对收录的资源做了极为简要的介绍，如果有更详细的中文介绍，对相应开发者的帮助会更大。这也是我们发起这个开源项目的初衷。</p>
 <hr>
@@ -4758,7 +4949,7 @@ $ touch
     <entry>
       <title><![CDATA[xx-net 使用方法]]></title>
       <url>http://yusank.github.io/xxnet.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>注意：    </p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>注意：    </p>
 <ol>
 <li>由于封锁严重，软件自带IP已经被封杀殆尽。因此需要<strong>数分钟到数小时的初始化IP扫描</strong>，方能正常运行。    </li>
 <li>虽然系统内置了公共appid, 还是建议[[部署自己的appid|how to create my appids]]，公共appid限制看视频。需要注意的是，只有当你能访问Google之后，才能部署自己的APPID。    </li>
@@ -4833,7 +5024,7 @@ $ touch
     <entry>
       <title><![CDATA[Hello World]]></title>
       <url>http://yusank.github.io/hello-world.html/</url>
-      <content type="html"><![CDATA[<script src="/assets/js/DPlayer.min.js"> </script><script src="/assets/js/APlayer.min.js"> </script><p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.<br><a id="more"></a></p>
 <h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre class="line-numbers language-bash"><code class="language-bash">$ hexo new <span class="token string">"My New Post"</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>

@@ -4,7 +4,7 @@
     <!-- Title -->
     
     <title>
-        Go UDP Socket | Yusank&#39;s blog
+        Cobra - 一个 Golang 命令行项目生成工具 | Yusank&#39;s blog
     </title>
     
     <!-- Favicons -->
@@ -40,7 +40,7 @@
     <!-- The Open Graph protocol -->
     <meta property="og:url" content="http://yusank.github.io">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="Go UDP Socket | Yusank&#39;s blog">
+    <meta property="og:title" content="Cobra - 一个 Golang 命令行项目生成工具 | Yusank&#39;s blog">
     <meta property="og:description" content="Sharing programing articel of myself . 分享自己的技术文章 。">
     
      <!--[if lte IE 9]>
@@ -218,7 +218,7 @@
 	<ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
 		for="post-toc-trigger-btn">
 			
-			<ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#用-go-实现简单的-udp"><span class="post-toc-number">1.</span> <span class="post-toc-text">用 go 实现简单的 udp</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#UDP-与-TCP-的比较"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">UDP 与 TCP 的比较</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#TCP-与-UDP-的选择"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">TCP 与 UDP 的选择</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#UDP-使用场景"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">UDP 使用场景</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">1.5.</span> <span class="post-toc-text">总结</span></a></li></ol></li></ol>
+			<ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Cobra-Golang-命令行库"><span class="post-toc-number">1.</span> <span class="post-toc-text">Cobra - Golang 命令行库</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#简介："><span class="post-toc-number">1.0.1.</span> <span class="post-toc-text">简介：</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#组成："><span class="post-toc-number">1.0.2.</span> <span class="post-toc-text">组成：</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#安装"><span class="post-toc-number">1.0.3.</span> <span class="post-toc-text">安装</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#快速开始"><span class="post-toc-number">1.0.4.</span> <span class="post-toc-text">快速开始</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#用-Cobra-工具生成项目框架"><span class="post-toc-number">1.0.5.</span> <span class="post-toc-text">用 Cobra 工具生成项目框架</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#cobra-init"><span class="post-toc-number">1.0.5.1.</span> <span class="post-toc-text">cobra init</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#cobra-add"><span class="post-toc-number">1.0.5.2.</span> <span class="post-toc-text">cobra add</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Flag"><span class="post-toc-number">1.0.5.3.</span> <span class="post-toc-text">Flag</span></a></li></ol></li></ol></li></ol></li></ol>
 		
 <!--			<li class="mdl-menu__item">Some Action</li>-->
 	</ul>
@@ -238,10 +238,10 @@
 	<!-- Paradox Post Header -->
 	
 		<!-- Custom Thumbnail -->
-		<div class="post_thumbnail-custom mdl-card__media mdl-color-text--grey-50" style="background-image:url(/img/go.png)">
+		<div class="post_thumbnail-custom mdl-card__media mdl-color-text--grey-50" style="background-image:url(https://cloud.githubusercontent.com/assets/173412/10886352/ad566232-814f-11e5-9cd0-aa101788c117.png)">
 	
         <p class="article-headline-p">
-            Go UDP Socket
+            Cobra - 一个 Golang 命令行项目生成工具
         </p>
     </div>
 
@@ -259,7 +259,7 @@
     <!-- Author Name & Date -->
     <div>
         <strong>Yusank</strong>
-        <span>8月 02, 2017</span>
+        <span>8月 17, 2017</span>
     </div>
     
     <div class="section-spacer"></div>
@@ -279,7 +279,7 @@
     </button>
     <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
         <li class="mdl-menu__item">
-        <a class="post_tag-link" href="/tags/GO/">GO</a></li><li class="mdl-menu__item"><a class="post_tag-link" href="/tags/UDP/">UDP</a></li><li class="mdl-menu__item"><a class="post_tag-link" href="/tags/网络编程/">网络编程</a>
+        <a class="post_tag-link" href="/tags/Golang/">Golang</a>
     </ul>
     
     <!-- Share -->
@@ -303,21 +303,21 @@
     
     
     <!-- Share Twitter -->
-    <a class="post_share-link" href="https://twitter.com/intent/tweet?text=Go UDP Socket&url=http://yusank.github.io//GO-UDP.html/index.html&via=Yusank" target="_blank">
+    <a class="post_share-link" href="https://twitter.com/intent/tweet?text=Cobra - 一个 Golang 命令行项目生成工具&url=http://yusank.github.io//cobra-terminal_tools.html/index.html&via=Yusank" target="_blank">
         <li class="mdl-menu__item">
             分享到 Twitter
         </li>
     </a>
     
     <!-- Share Google+ -->
-    <a class="post_share-link" href="https://plus.google.com/share?url=http://yusank.github.io//GO-UDP.html/index.html" target="_blank">
+    <a class="post_share-link" href="https://plus.google.com/share?url=http://yusank.github.io//cobra-terminal_tools.html/index.html" target="_blank">
         <li class="mdl-menu__item">
             分享到 Google+
         </li>
     </a>
     
     <!-- Share Weibo -->
-    <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=Go UDP Socket&url=http://yusank.github.io//GO-UDP.html/index.html&pic=&searchPic=false&style=simple" target="_blank">
+    <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=Cobra - 一个 Golang 命令行项目生成工具&url=http://yusank.github.io//cobra-terminal_tools.html/index.html&pic=&searchPic=false&style=simple" target="_blank">
         <li class="mdl-menu__item">
             分享到微博
         </li>
@@ -329,138 +329,191 @@
                 <!-- Post Content -->
                 <div id="post-content" class="markdown-Github mdl-color-text--grey-700 mdl-card__supporting-text fade out">
 	
-		<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p>udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ……<br><a id="more"></a></p>
-<h1 id="用-go-实现简单的-udp"><a href="#用-go-实现简单的-udp" class="headerlink" title="用 go 实现简单的 udp"></a>用 go 实现简单的 udp</h1><p>用户数据包协议（英语：User Datagram Protocol，缩写为UDP），又称用户数据报文协议，是一个简单的面向数据报的传输层协议，正式规范为RFC 768。<br>在TCP/IP模型中，UDP为网络层以上和应用层以下提供了一个简单的接口。UDP只提供数据的不可靠传递，它一旦把应用程序发给网络层的数据发送出去，就不保留数据备份（所以UDP有时候也被认为是不可靠的数据报协议）。UDP在IP数据报的头部仅仅加入了复用和数据校验（字段）。</p>
-<h2 id="UDP-与-TCP-的比较"><a href="#UDP-与-TCP-的比较" class="headerlink" title="UDP 与 TCP 的比较"></a>UDP 与 TCP 的比较</h2><ul>
-<li><p>UDP – 用户数据协议包，是一个简单的面向数据报的运输层协议。UDP 不提供可靠性，它只是把应用程序给 IP 层的数据报发送出去，但是并不能保证他们能达到目的地。由于 UDP 在传输数据报之前不用在客户端和服务端之间建立连接，且没有超时机制，故而传输速度很快。</p>
-</li>
-<li><p>TCP – 传输控制协议，提供的是面向连接，可靠的字节流服务。当客户端和服务端彼此交换数据前，必须先在双方之间建立 TCP 连接，之后才能传输数据。TCP 提供超时重发，丢弃重复数据，检验数据，流量控制等功能，保证数据能从一段传到另一端。</p>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>-</th>
-<th>TCP</th>
-<th>UDP</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>是否连接</td>
-<td>面向连接</td>
-<td>面向非连接</td>
-</tr>
-<tr>
-<td>传输可靠性</td>
-<td>可靠</td>
-<td>会丢包，不可靠</td>
-</tr>
-<tr>
-<td>应用场景</td>
-<td>传输数据量大</td>
-<td>传输数据量小</td>
-</tr>
-<tr>
-<td>速度</td>
-<td>慢</td>
-<td>快</td>
-</tr>
-</tbody>
-</table>
-<h2 id="TCP-与-UDP-的选择"><a href="#TCP-与-UDP-的选择" class="headerlink" title="TCP 与 UDP 的选择"></a>TCP 与 UDP 的选择</h2><p>当数据传输的性能必须让位于数据传输的完整性、可控制性和可靠性时，TCP协议是当然的选择。当强调传输性能而不是传输的完整性时，如：音频和多媒体应用，UDP是最好的选择。在数据传输时间很短，以至于此前的连接过程成为整个流量主体的情况下，UDP也是一个好的选择，如：DNS交换。把SNMP建立在UDP上的部分原因是设计者认为当发生网络阻塞时，UDP较低的开销使其有更好的机会去传送管理数据。TCP丰富的功能有时会导致不可预料的性能低下，但是我们相信在不远的将来，TCP可靠的点对点连接将会用于绝大多数的网络应用。</p>
-<h2 id="UDP-使用场景"><a href="#UDP-使用场景" class="headerlink" title="UDP 使用场景"></a>UDP 使用场景</h2><p>在选择使用协议的时候，选择UDP必须要谨慎。在网络质量令人十分不满意的环境下，UDP协议数据包丢失会比较严重。但是由于UDP的特性：它不属于连接型协议，因而具有资源消耗小，处理速度快的优点，所以通常音频、视频和普通数据在传送时使用UDP较多，因为它们即使偶尔丢失一两个数据包，也不会对接收结果产生太大影响。而且如果在内网的情况下，丢包率也很低，所以内网的数据传输也可以用 UDP 协议。我们常用的 QQ，一部分数据传输功能也是用 UDP协议来实现的。</p>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>下面分别是服务端和客户端实现代码：<br>服务端代码 <code>server.go</code>:</p>
+		<script src="/assets/js/APlayer.min.js"> </script><script src="/assets/js/DPlayer.min.js"> </script><p><strong>转载于</strong>   <a href="https://jsharkc.github.io/2017/07/17/cobra%E5%85%A5%E9%97%A8%E5%B0%8F%E6%95%99%E7%A8%8B/" target="_blank" rel="external">Jsharkc 的博客</a></p>
+<h1 id="Cobra-Golang-命令行库"><a href="#Cobra-Golang-命令行库" class="headerlink" title="Cobra - Golang 命令行库"></a>Cobra - Golang 命令行库</h1><h3 id="简介："><a href="#简介：" class="headerlink" title="简介："></a>简介：</h3><p>Cobra 是一个创建 CLI 命令行的 golang 库。</p>
+<h3 id="组成："><a href="#组成：" class="headerlink" title="组成："></a>组成：</h3><p>Cobra 结构由三部分组成：命令( Command )、参数( Args )、标志( Flag )。</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">type</span> Command <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    Use   <span class="token builtin">string</span>  <span class="token comment" spellcheck="true">// The one-line usage message.</span>
+    Short <span class="token builtin">string</span>  <span class="token comment" spellcheck="true">// The short description shown in the 'help' output.</span>
+    Long  <span class="token builtin">string</span>  <span class="token comment" spellcheck="true">// The long message shown in the 'help&lt;this-command>' output.</span>
+    Run   <span class="token keyword">func</span><span class="token punctuation">(</span>cmd <span class="token operator">*</span>Command<span class="token punctuation">,</span> args <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token builtin">string</span><span class="token punctuation">)</span>  <span class="token comment" spellcheck="true">// Run runs the command.</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>前三个是不同场景下的说明，最后一个是要执行的函数。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>安装 Cobra 很简单，首先，用 <code>go get</code> 安装最新版本的库，这个命令会安装 Cobra 框架生成工具和依赖。</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">go</span> get <span class="token operator">-</span>u github<span class="token punctuation">.</span>com<span class="token operator">/</span>spf13<span class="token operator">/</span>cobra<span class="token operator">/</span>cobra
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>然后，把 Cobra 添加到你的 app 中：</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">import</span> <span class="token string">"github.com/spf13/cobra"</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h3 id="快速开始"><a href="#快速开始" class="headerlink" title="快速开始"></a>快速开始</h3><p>​一般用 cobra 命令生成d的项目结构如下：</p>
+<pre class="line-numbers language-go"><code class="language-go"> ▾ appName<span class="token operator">/</span>
+    ▾ cmd<span class="token operator">/</span>
+        add<span class="token punctuation">.</span><span class="token keyword">go</span>
+        your<span class="token punctuation">.</span><span class="token keyword">go</span>
+        commands<span class="token punctuation">.</span><span class="token keyword">go</span>
+        here<span class="token punctuation">.</span><span class="token keyword">go</span>
+      main<span class="token punctuation">.</span><span class="token keyword">go</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>main 函数中非常简洁，只有一个目的：初始化 Cobra.</p>
 <pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> main
 
 <span class="token keyword">import</span> <span class="token punctuation">(</span>
     <span class="token string">"fmt"</span>
-    <span class="token string">"net"</span>
+    <span class="token string">"os"</span>
+
+    <span class="token string">"{pathToYourApp}/cmd"</span>
 <span class="token punctuation">)</span>
 
 <span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">// 解析地址</span>
-    addr<span class="token punctuation">,</span> err <span class="token operator">:=</span> net<span class="token punctuation">.</span><span class="token function">ResolveUDPAddr</span><span class="token punctuation">(</span><span class="token string">"udp"</span><span class="token punctuation">,</span> <span class="token string">":3017"</span><span class="token punctuation">)</span>
-    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
-        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"Can't resolve addr:"</span><span class="token punctuation">,</span> err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-        <span class="token function">panic</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token comment" spellcheck="true">// 监听端口</span>
-    conn<span class="token punctuation">,</span> err <span class="token operator">:=</span> net<span class="token punctuation">.</span><span class="token function">ListenUDP</span><span class="token punctuation">(</span><span class="token string">"udp"</span><span class="token punctuation">,</span> addr<span class="token punctuation">)</span>
-    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
-        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"listen error:"</span><span class="token punctuation">,</span> err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-        <span class="token function">panic</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">defer</span> conn<span class="token punctuation">.</span><span class="token function">Close</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-    <span class="token keyword">for</span> <span class="token punctuation">{</span>
-        <span class="token function">handlerClient</span><span class="token punctuation">(</span>conn<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">:=</span> cmd<span class="token punctuation">.</span>RootCmd<span class="token punctuation">.</span><span class="token function">Execute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+        os<span class="token punctuation">.</span><span class="token function">Exit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="用-Cobra-工具生成项目框架"><a href="#用-Cobra-工具生成项目框架" class="headerlink" title="用 Cobra 工具生成项目框架"></a>用 Cobra 工具生成项目框架</h3><h4 id="cobra-init"><a href="#cobra-init" class="headerlink" title="cobra init"></a>cobra init</h4><p><code>cobra init [yourAppName]</code> ，这个命令可以让你的程序有一个正确的结构，你立刻能够感受到 Cobra 带给你的快乐，你可以配置它自动生成你需要的开源协议。</p>
+<pre class="line-numbers language-go"><code class="language-go">cobra init newAppName
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>newAppName 是你的项目名称。它会在你的 GOPATH 目录下面生成项目。</p>
+<p>我们看一下 main.go 函数</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> main
 
-<span class="token keyword">func</span> <span class="token function">handlerClient</span><span class="token punctuation">(</span>conn <span class="token operator">*</span>net<span class="token punctuation">.</span>UDPConn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    data <span class="token operator">:=</span> <span class="token function">make</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token builtin">byte</span><span class="token punctuation">,</span> <span class="token number">1024</span><span class="token punctuation">)</span>
-    <span class="token comment" spellcheck="true">// 从 UDP 中读取内容并写到 data</span>
-    <span class="token boolean">_</span><span class="token punctuation">,</span> remoteAddr<span class="token punctuation">,</span> err <span class="token operator">:=</span> conn<span class="token punctuation">.</span><span class="token function">ReadFromUDP</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span>
-    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
-        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"read udp msg failed with:"</span><span class="token punctuation">,</span> err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-        <span class="token keyword">return</span>
-    <span class="token punctuation">}</span>
-    <span class="token comment" spellcheck="true">// 给收到消息的 client 写回信息</span>
-    conn<span class="token punctuation">.</span><span class="token function">WriteToUDP</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span><span class="token string">"a"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> remoteAddr<span class="token punctuation">)</span>
+<span class="token keyword">import</span> <span class="token string">"cobra_exp1/cmd"</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    cmd<span class="token punctuation">.</span><span class="token function">Execute</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>客户端代码<code>client.go</code>：</p>
-<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> client
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>main 调用 cmd.Execute()，那我们找到这个地方，cmd/root.go 文件：</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> cmd
 
 <span class="token keyword">import</span> <span class="token punctuation">(</span>
     <span class="token string">"fmt"</span>
-    <span class="token string">"net"</span>
+    <span class="token string">"os"</span>
+
+    <span class="token string">"github.com/spf13/cobra"</span>
+    <span class="token string">"github.com/spf13/viper"</span>
 <span class="token punctuation">)</span>
 
-<span class="token keyword">var</span> <span class="token punctuation">(</span>
-    <span class="token comment" spellcheck="true">// Connection *net.UDPConn</span>
-    Connection <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">*</span>net<span class="token punctuation">.</span>UDPConn
-<span class="token punctuation">)</span>
+<span class="token keyword">var</span> cfgFile <span class="token builtin">string</span>
 
-<span class="token comment" spellcheck="true">// Client 创建一个 UDP 连接</span>
-<span class="token keyword">func</span> <span class="token function">Client</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    addr<span class="token punctuation">,</span> err <span class="token operator">:=</span> net<span class="token punctuation">.</span><span class="token function">ResolveUDPAddr</span><span class="token punctuation">(</span><span class="token string">"udp"</span><span class="token punctuation">,</span> <span class="token string">"127.0.0.1:3017"</span><span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true">// RootCmd represents the base command when called without any subcommands</span>
+<span class="token keyword">var</span> RootCmd <span class="token operator">=</span> <span class="token operator">&amp;</span>cobra<span class="token punctuation">.</span>Command<span class="token punctuation">{</span>
+    Use<span class="token punctuation">:</span>   <span class="token string">"cobra_exp1"</span><span class="token punctuation">,</span>
+    Short<span class="token punctuation">:</span> <span class="token string">"A brief description of your application"</span><span class="token punctuation">,</span>
+    Long<span class="token punctuation">:</span> <span class="token string">`A longer description that spans multiple lines and likely contains
+examples and usage of using your application. For example:
 
-    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
-        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"Can't resolve address: "</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span>
-
-        <span class="token function">panic</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
-    <span class="token punctuation">}</span>
-
-    conn<span class="token punctuation">,</span> err <span class="token operator">:=</span> net<span class="token punctuation">.</span><span class="token function">DialUDP</span><span class="token punctuation">(</span><span class="token string">"udp"</span><span class="token punctuation">,</span> <span class="token boolean">nil</span><span class="token punctuation">,</span> addr<span class="token punctuation">)</span>
-
-    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
-        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"Can't dial: "</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span>
-
-        <span class="token function">panic</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
-    <span class="token punctuation">}</span>
-
-    Connection <span class="token operator">=</span> <span class="token function">append</span><span class="token punctuation">(</span>Connection<span class="token punctuation">,</span> conn<span class="token punctuation">)</span>
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`</span><span class="token punctuation">,</span>
+<span class="token comment" spellcheck="true">// Uncomment the following line if your bare application</span>
+<span class="token comment" spellcheck="true">// has an action associated with it:</span>
+<span class="token comment" spellcheck="true">//    Run: func(cmd *cobra.Command, args []string) { },</span>
 <span class="token punctuation">}</span>
 
-<span class="token comment" spellcheck="true">// WriteTo 像传入参数 conn 写数据</span>
-<span class="token keyword">func</span> <span class="token function">WriteTo</span><span class="token punctuation">(</span>conn <span class="token operator">*</span>net<span class="token punctuation">.</span>UDPConn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token boolean">_</span><span class="token punctuation">,</span> err <span class="token operator">:=</span> conn<span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span><span class="token string">"hello from the other site"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-
-    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
-        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"failed:"</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span>
-    <span class="token punctuation">}</span>
-
-    data <span class="token operator">:=</span> <span class="token function">make</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token builtin">byte</span><span class="token punctuation">,</span> <span class="token number">1024</span><span class="token punctuation">)</span>
-    <span class="token boolean">_</span><span class="token punctuation">,</span> err <span class="token operator">=</span> conn<span class="token punctuation">.</span><span class="token function">Read</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span>
-
-    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
-        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"failed to read UDP msg because of "</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true">// Execute adds all child commands to the root command sets flags appropriately.</span>
+<span class="token comment" spellcheck="true">// This is called by main.main(). It only needs to happen once to the rootCmd.</span>
+<span class="token keyword">func</span> <span class="token function">Execute</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> err <span class="token operator">:=</span> RootCmd<span class="token punctuation">.</span><span class="token function">Execute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+        os<span class="token punctuation">.</span><span class="token function">Exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上是一个最简单的 UDP 客户端服务器的代码，只有启动服务和收发消息的功能，但实际应用 UDP 协议到具体需求的时候，需要考虑的问题很多，比如包的设计，包头的设计，错误处理，丢包处理，包顺序调换处理等。所以需要用到传输数据协议的时候，请考虑好需求和可能遇到的问题，以及对问题的处理方案。</p>
+
+<span class="token keyword">func</span> <span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    cobra<span class="token punctuation">.</span><span class="token function">OnInitialize</span><span class="token punctuation">(</span>initConfig<span class="token punctuation">)</span>
+
+    <span class="token comment" spellcheck="true">// Here you will define your flags and configuration settings.</span>
+    <span class="token comment" spellcheck="true">// Cobra supports Persistent Flags, which, if defined here,</span>
+    <span class="token comment" spellcheck="true">// will be global for your application.</span>
+
+    RootCmd<span class="token punctuation">.</span><span class="token function">PersistentFlags</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">StringVar</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>cfgFile<span class="token punctuation">,</span> <span class="token string">"config"</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">,</span> <span class="token string">"config file (default is $HOME/.cobra_exp1.yaml)"</span><span class="token punctuation">)</span>
+    <span class="token comment" spellcheck="true">// Cobra also supports local flags, which will only run</span>
+    <span class="token comment" spellcheck="true">// when this action is called directly.</span>
+    RootCmd<span class="token punctuation">.</span><span class="token function">Flags</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">BoolP</span><span class="token punctuation">(</span><span class="token string">"toggle"</span><span class="token punctuation">,</span> <span class="token string">"t"</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token string">"Help message for toggle"</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// initConfig reads in config file and ENV variables if set.</span>
+<span class="token keyword">func</span> <span class="token function">initConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> cfgFile <span class="token operator">!=</span> <span class="token string">""</span> <span class="token punctuation">{</span> <span class="token comment" spellcheck="true">// enable ability to specify config file via flag</span>
+        viper<span class="token punctuation">.</span><span class="token function">SetConfigFile</span><span class="token punctuation">(</span>cfgFile<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    viper<span class="token punctuation">.</span><span class="token function">SetConfigName</span><span class="token punctuation">(</span><span class="token string">".cobra_exp1"</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// name of config file (without extension)</span>
+    viper<span class="token punctuation">.</span><span class="token function">AddConfigPath</span><span class="token punctuation">(</span><span class="token string">"$HOME"</span><span class="token punctuation">)</span>  <span class="token comment" spellcheck="true">// adding home directory as first search path</span>
+    viper<span class="token punctuation">.</span><span class="token function">AutomaticEnv</span><span class="token punctuation">(</span><span class="token punctuation">)</span>          <span class="token comment" spellcheck="true">// read in environment variables that match</span>
+
+    <span class="token comment" spellcheck="true">// If a config file is found, read it in.</span>
+    <span class="token keyword">if</span> err <span class="token operator">:=</span> viper<span class="token punctuation">.</span><span class="token function">ReadInConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> err <span class="token operator">==</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"Using config file:"</span><span class="token punctuation">,</span> viper<span class="token punctuation">.</span><span class="token function">ConfigFileUsed</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>我们看到 Execute() 函数中调用 RootCmd.Execute()，RootCmd 是开始讲组成 Command 结构的一个实例。</p>
+<p>我们运行看看：</p>
+<pre class="line-numbers language-sh"><code class="language-sh">> go run main.go 
+A longer description that spans multiple lines and likely contains
+examples and usage of using your application. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>空空如也，还什么也没有，那接下来我们来添加一些子命令。</p>
+<h4 id="cobra-add"><a href="#cobra-add" class="headerlink" title="cobra add"></a>cobra add</h4><p>这个命令用来创建子命令，子命令就是像下面这样：</p>
+<ul>
+<li>app serve</li>
+<li>app config</li>
+<li>app config create</li>
+</ul>
+<p>在你项目的目录下，运行下面这些命令：</p>
+<pre class="line-numbers language-go"><code class="language-go">cobra add serve
+cobra add config
+cobra add create <span class="token operator">-</span>p <span class="token string">'configCmd'</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>这样以后，你就可以运行上面那些 app serve 之类的命令了。项目目录如下：</p>
+<pre class="line-numbers language-Sh"><code class="language-Sh">  ▾ app/
+    ▾ cmd/
+        serve.go
+        config.go
+        create.go
+      main.go
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>然后再运行程序：</p>
+<pre class="line-numbers language-Sh"><code class="language-Sh">❯ go run main.go 
+A longer description that spans multiple lines and likely contains
+examples and usage of using your application. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.
+
+Usage:
+  llleon [command]
+
+Available Commands:
+  config      A brief description of your command
+  help        Help about any command
+  serve       A brief description of your command
+
+Flags:
+      --config string   config file (default is $HOME/.llleon.yaml)
+  -h, --help            help for llleon
+  -t, --toggle          Help message for toggle
+
+Use "llleon [command] --help" for more information about a command.
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>现在我们有了三个子命令，并且都可以使用，然后只要添加命令逻辑就能真正用了。</p>
+<h4 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h4><p>cobra 有两种 flag，一个是全局变量，一个是局部变量。全局什么意思呢，就是所以子命令都可以用。局部的只有自己能用。先看全局的：</p>
+<pre class="line-numbers language-go"><code class="language-go">RootCmd<span class="token punctuation">.</span><span class="token function">PersistentFlags</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">StringVar</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>cfgFile<span class="token punctuation">,</span> <span class="token string">"config"</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">,</span> <span class="token string">"config file (default is $HOME/.cobra_exp1.yaml)"</span><span class="token punctuation">)</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>在看局部的：</p>
+<pre class="line-numbers language-go"><code class="language-go">RootCmd<span class="token punctuation">.</span><span class="token function">Flags</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">BoolP</span><span class="token punctuation">(</span><span class="token string">"toggle"</span><span class="token punctuation">,</span> <span class="token string">"t"</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token string">"Help message for toggle"</span><span class="token punctuation">)</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>区别就在 RootCmd 后面的是 Flags 还是 PersistentFlags。</p>
+<p>好了，入门教程到此结束，感兴趣的童鞋可以到 <a href="https://github.com/spf13/cobra" target="_blank" rel="external">Cobra</a> 深入研究一番。</p>
 
 	
 	
@@ -507,7 +560,7 @@
     
     <!-- Prev Nav -->
     
-        <a href="/cobra-terminal_tools.html/" id="post_nav-newer" class="prev-content">
+        <a href="/go-image.html/" id="post_nav-newer" class="prev-content">
             <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
                 <i class="material-icons">arrow_back</i>
             </button>
@@ -521,7 +574,7 @@
 
     <!-- Next Nav -->
     
-        <a href="/Go-TCP Socket.html/" id="post_nav-older" class="next-content">
+        <a href="/GO-UDP.html/" id="post_nav-older" class="next-content">
             旧篇
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
