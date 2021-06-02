@@ -13,8 +13,6 @@ tags:
 
 # 知识架构
 
-[TOC]
-
 ![xmind](https://raw.githubusercontent.com/yusank/hugo.yusank.space/master/xmind.png)
 
 ## 数据库
