@@ -129,7 +129,7 @@ type Config interface {
 	// Stop the config loader/watcher
 	Close() error
 	// Load config sources
-    // 可以加载多个 Source
+    // 可以加载多个Source
 	Load(source ...source.Source) error
 	// Force a source changeset sync
     // 同步配置变化
@@ -258,6 +258,32 @@ plugins/config/source
 └── vault
 ```
 
+### Logger
+
+> `Logger` 包为全局日志库，默认实现了一套，并在`plugins` 内实现了基于 logrus，zap的个主流的日志的实现。
+
+接口定义：
+
+```go
+// Logger is a generic logging interface
+type Logger interface {
+	// Init initialises options
+	Init(options ...Option) error
+	// The Logger options
+	Options() Options
+	// Fields set fields to always be logged
+	Fields(fields map[string]interface{}) Logger
+	// Log writes a log entry
+	Log(level Level, v ...interface{})
+	// Logf writes a formatted log entry
+	Logf(level Level, format string, v ...interface{})
+	// String returns the name of logger
+	String() string
+}
+```
+
+若需要自己定义日志格式和日志库，可以实现上面接口，并初始化的时候指定即可。
+
 ### plugins
 
 > 该目录作为插件目录，实现了大部分预定义的接口，方便使用的时候替换成默认实现的模块代码。
@@ -382,4 +408,179 @@ plugins
     ├── service
     ├── trace // 链路追踪
     └── validator // 参数校验（处理请求时 可以统一参数校验等工作）
+```
+
+### Registry
+
+> 服务发现/服务注册相关逻辑均在 `registry` 包内实现。
+
+核心接口定义：
+
+```go
+// The registry provides an interface for service discovery
+// and an abstraction over varying implementations
+// {consul, etcd, zookeeper, ...}
+type Registry interface {
+	Init(...Option) error
+	Options() Options
+    // 服务注册
+	Register(*Service, ...RegisterOption) error
+    // 服务注销
+	Deregister(*Service, ...DeregisterOption) error
+    // 查询服务
+	GetService(string, ...GetOption) ([]*Service, error)
+    // 列出服务列表
+	ListServices(...ListOption) ([]*Service, error)
+    // 监控服务
+	Watch(...WatchOption) (Watcher, error)
+	String() string
+}
+
+// Watcher is an interface that returns updates
+// about services within the registry.
+type Watcher interface {
+	// Next is a blocking call
+	Next() (*Result, error)
+	Stop()
+}
+```
+
+### Selector
+
+> 负载均衡逻辑，即客户端请求其他服务时如何选取服务节点都是在该包内实现。可以通过option指定策略，随机，轮询等。
+
+接口定义：
+
+```go
+// Selector builds on the registry as a mechanism to pick nodes
+// and mark their status. This allows host pools and other things
+// to be built using various algorithms.
+type Selector interface {
+	Init(opts ...Option) error
+	Options() Options
+	// Select returns a function which should return the next node
+	Select(service string, opts ...SelectOption) (Next, error)
+	// Mark sets the success/error against a node
+	Mark(service string, node *registry.Node, err error)
+	// Reset returns state back to zero for a service
+	Reset(service string)
+	// Close renders the selector unusable
+	Close() error
+	// Name of the selector
+	String() string
+}
+
+// Next is a function that returns the next node
+// based on the selector's strategy
+type Next func() (*registry.Node, error)
+```
+
+### Server
+
+> server 包为定义和实现管理服务相关逻辑。
+
+server的定义：
+
+```go
+// Server is a simple micro server abstraction
+type Server interface {
+	// Initialise options
+	Init(...Option) error
+	// Retrieve the options
+	Options() Options
+	// Register a handler
+	Handle(Handler) error
+	// Create a new handler
+	NewHandler(interface{}, ...HandlerOption) Handler
+	// Create a new subscriber
+	NewSubscriber(string, interface{}, ...SubscriberOption) Subscriber
+	// Register a subscriber
+	Subscribe(Subscriber) error
+	// Start the server
+	Start() error
+	// Stop the server
+	Stop() error
+	// Server implementation
+	String() string
+}
+
+// Router handle serving messages
+type Router interface {
+	// ProcessMessage processes a message
+    // 处理消息队列消息
+	ProcessMessage(context.Context, Message) error
+	// ServeRequest processes a request to completion
+    // 处理 http/rpc 请求
+	ServeRequest(context.Context, Request, Response) error
+}
+```
+
+默认实现了rpc和消息队列，http服务 可以使用`plugins/server/http` 包。
+
+### Store
+
+> 该包定义了数据存储的接口。
+
+接口定义：
+
+```go
+// Store is a data storage interface
+type Store interface {
+	// Init initialises the store. It must perform any required setup on the backing storage implementation and check that it is ready for use, returning any errors.
+	Init(...Option) error
+	// Options allows you to view the current options.
+	Options() Options
+	// Read takes a single key name and optional ReadOptions. It returns matching []*Record or an error.
+	Read(key string, opts ...ReadOption) ([]*Record, error)
+	// Write() writes a record to the store, and returns an error if the record was not written.
+	Write(r *Record, opts ...WriteOption) error
+	// Delete removes the record with the corresponding key from the store.
+	Delete(key string, opts ...DeleteOption) error
+	// List returns any keys that match, or an empty list with no error if none matched.
+	List(opts ...ListOption) ([]string, error)
+	// Close the store
+	Close() error
+	// String returns the name of the implementation.
+	String() string
+}
+```
+
+具体使用数据库类型，在`plugins/store` 内初始化对应的实例。
+
+### Sync
+
+> `sync` 包为定义分布式选举和分布式锁的定义。
+
+接口定义：
+
+```go
+// Sync is an interface for distributed synchronization
+type Sync interface {
+	// Initialise options
+	Init(...Option) error
+	// Return the options
+	Options() Options
+	// Elect a leader
+    // 选举
+	Leader(id string, opts ...LeaderOption) (Leader, error)
+	// Lock acquires a lock
+    // 上锁
+	Lock(id string, opts ...LockOption) error
+	// Unlock releases a lock
+    // 释放锁
+	Unlock(id string) error
+	// Sync implementation
+	String() string
+}
+
+// Leader provides leadership election
+// 提供分布式选举
+type Leader interface {
+	// resign leadership
+    // 辞职 即放弃Leader状态
+	Resign() error
+	// status returns when leadership is lost
+    // 在leader 状态失去时，channel内可读取
+	Status() chan bool
+}
 ```
