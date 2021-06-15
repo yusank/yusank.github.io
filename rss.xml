@@ -1,4 +1,706 @@
-<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.83.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Fri, 11 Jun 2021 10:33:44 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>Go-Micro 的使用（一）</title><link>https://yusank.github.io/posts/go-micro-1/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-micro-1/</guid><pubDate>Fri, 11 Jun 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;p>关于如何使用go的微服务框架 &lt;code>go-micro/v3&lt;/code> 的使用和其插件的自定义。&lt;/p></description><category domain="https://yusank.github.io/categories/go/">go</category><category domain="https://yusank.github.io/categories/micro/">micro</category><category domain="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category></item><item><title>Go 面试总结</title><link>https://yusank.github.io/posts/go-interview/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-interview/</guid><pubDate>Mon, 31 May 2021 21:13:41 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<p>经历了2个月的面试折磨，拿到offer总算结束了这段时间。主要是想记录面试中遇到的问题，列出来的问题不一定有答案，有答案也不一定是最佳答案，所以还是看问题为主，答案自行解决。</p>
+<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.83.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Tue, 15 Jun 2021 07:27:49 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>Go-Micro 的架构及其使用（一）</title><link>https://yusank.github.io/posts/go-micro-1/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-micro-1/</guid><pubDate>Fri, 11 Jun 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<p>关于如何使用go的微服务框架 <code>go-micro/v3</code> 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。</p>
+<h2 id="架构">架构</h2>
+<blockquote>
+<p>以 <code>v3.5.1</code> 分支为例</p>
+</blockquote>
+<p><code>go-micor</code> 项目的目录结构如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">$ tree -L <span class="m">2</span>
+.
+├── LICENSE
+├── README.md
+├── _config.yml
+├── api // api 接口的定义，包括http、grpc、router等
+├── auth // 账号认证接口的定义
+├── broker // 消息队列接口定义及默认实现
+├── client // 客户端相关接口定义和实现
+├── cmd // 可执行命令（包括生成protobuf的命令实现）
+├── codec // code encoder
+├── config // 动态配置的接口定义
+├── debug // debug 模式
+├── errors // 错误处理
+├── examples // 各个模块的示例代码
+├── logger // 日志模块接口定义
+├── metadata // 原数据
+├── plugins // 各个模块定义的接口的不同实现
+├── registry // 服务注册接口定义
+├── selector // 负载均衡
+├── server // 服务端接口定义
+├── store // 数据存储接口定义
+├── sync 
+├── transport // 请求转发
+└── util // 工具类
+</code></pre></td></tr></table>
+</div>
+</div><p>下面按目录将 <code>go-micro</code> 的主要核心模块过一遍。</p>
+<h3 id="api">API</h3>
+<blockquote>
+<p><code>api</code> 层为定义和实现基于http/gRPC的api service。即http请求处理 路由处理 路由注册等。</p>
+</blockquote>
+<p>接口定义：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Api</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="c1">// Initialise options
+</span><span class="c1"></span>	<span class="nf">Init</span><span class="p">(</span><span class="o">...</span><span class="nx">Option</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Get the options
+</span><span class="c1"></span>	<span class="nf">Options</span><span class="p">()</span> <span class="nx">Options</span>
+	<span class="c1">// Register a http handler
+</span><span class="c1"></span>	<span class="nf">Register</span><span class="p">(</span><span class="o">*</span><span class="nx">Endpoint</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Register a route
+</span><span class="c1"></span>	<span class="nf">Deregister</span><span class="p">(</span><span class="o">*</span><span class="nx">Endpoint</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Implemenation of api
+</span><span class="c1"></span>	<span class="nf">String</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>目录结构：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">$ tree
+.
+├── api.go
+├── api_test.go
+├── handler // 接口处理方法
+│   ├── api // 实现 http.ServerHTTP<span class="o">()</span> 方法
+│   ├── event // 基于消息队列的实现
+│   ├── handler.go // 接口定义
+│   ├── http // 基于http的实现
+│   ├── options.go
+│   ├── rpc // 基于rpc的实现
+│   └── web // 支持websocket的实现
+├── proto
+│   ├── api.pb.go
+│   ├── api.pb.micro.go
+│   └── api.proto // 数据结构定义
+├── resolver // 解析请求及路由
+│   ├── grpc
+│   ├── host
+│   ├── options.go
+│   ├── path
+│   ├── resolver.go
+│   └── vpath
+├── router // 路由定义和注册
+│   ├── options.go
+│   ├── registry
+│   ├── router.go
+│   ├── static
+│   └── util
+└── server // 服务定义和启动
+    ├── acme
+    ├── cors
+    ├── http
+    ├── options.go
+    └── server.go
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="config">Config</h3>
+<blockquote>
+<p><code>config</code> 作为动态配置中心的接口定义和实现。支持动态加载、插件式配置源、配置合并和观察配置变化。</p>
+</blockquote>
+<p>接口定义：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Config is an interface abstraction for dynamic configuration
+</span><span class="c1">// 配置接口定义
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Config</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="c1">// provide the reader.Values interface
+</span><span class="c1"></span>    <span class="c1">// 读取到的配置的reader
+</span><span class="c1"></span>	<span class="nx">reader</span><span class="p">.</span><span class="nx">Values</span>
+	<span class="c1">// Init the config
+</span><span class="c1"></span>	<span class="nf">Init</span><span class="p">(</span><span class="nx">opts</span> <span class="o">...</span><span class="nx">Option</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Options in the config
+</span><span class="c1"></span>	<span class="nf">Options</span><span class="p">()</span> <span class="nx">Options</span>
+	<span class="c1">// Stop the config loader/watcher
+</span><span class="c1"></span>	<span class="nf">Close</span><span class="p">()</span> <span class="kt">error</span>
+	<span class="c1">// Load config sources
+</span><span class="c1"></span>    <span class="c1">// 可以加载多个 Source
+</span><span class="c1"></span>	<span class="nf">Load</span><span class="p">(</span><span class="nx">source</span> <span class="o">...</span><span class="nx">source</span><span class="p">.</span><span class="nx">Source</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Force a source changeset sync
+</span><span class="c1"></span>    <span class="c1">// 同步配置变化
+</span><span class="c1"></span>	<span class="nf">Sync</span><span class="p">()</span> <span class="kt">error</span>
+	<span class="c1">// Watch a value for changes
+</span><span class="c1"></span>    <span class="c1">// 订阅配置变化
+</span><span class="c1"></span>	<span class="nf">Watch</span><span class="p">(</span><span class="nx">path</span> <span class="o">...</span><span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="nx">Watcher</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Watcher is the config watcher
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Watcher</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">Next</span><span class="p">()</span> <span class="p">(</span><span class="nx">reader</span><span class="p">.</span><span class="nx">Value</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="nf">Stop</span><span class="p">()</span> <span class="kt">error</span>
+<span class="p">}</span>
+
+<span class="c1">// Source is the source from which config is loaded
+</span><span class="c1">// Source 就是配置来源 go-micro 已实现基于consul，etcd，file等多种配置来源，也可以自己实现下面接口来使用
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Source</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">Read</span><span class="p">()</span> <span class="p">(</span><span class="o">*</span><span class="nx">ChangeSet</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="nf">Write</span><span class="p">(</span><span class="o">*</span><span class="nx">ChangeSet</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="nf">Watch</span><span class="p">()</span> <span class="p">(</span><span class="nx">Watcher</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="nf">String</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// Reader is an interface for merging changesets
+</span><span class="c1">// 用于配置合并
+</span><span class="c1">// go-micro 实现了基于json的Reader,默认用json作为解析配置内容，并在插件目录内实现了 toml yaml xml等格式的Encoder可以按需求替换
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Reader</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">Merge</span><span class="p">(</span><span class="o">...*</span><span class="nx">source</span><span class="p">.</span><span class="nx">ChangeSet</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">source</span><span class="p">.</span><span class="nx">ChangeSet</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="nf">Values</span><span class="p">(</span><span class="o">*</span><span class="nx">source</span><span class="p">.</span><span class="nx">ChangeSet</span><span class="p">)</span> <span class="p">(</span><span class="nx">Values</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="nf">String</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// Values is returned by the reader
+</span><span class="c1">// 用于读写配置，读取的配置会返回 Value
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Values</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">Bytes</span><span class="p">()</span> <span class="p">[]</span><span class="kt">byte</span>
+	<span class="nf">Get</span><span class="p">(</span><span class="nx">path</span> <span class="o">...</span><span class="kt">string</span><span class="p">)</span> <span class="nx">Value</span>
+	<span class="nf">Set</span><span class="p">(</span><span class="nx">val</span> <span class="kd">interface</span><span class="p">{},</span> <span class="nx">path</span> <span class="o">...</span><span class="kt">string</span><span class="p">)</span>
+	<span class="nf">Del</span><span class="p">(</span><span class="nx">path</span> <span class="o">...</span><span class="kt">string</span><span class="p">)</span>
+	<span class="nf">Map</span><span class="p">()</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}</span>
+	<span class="nf">Scan</span><span class="p">(</span><span class="nx">v</span> <span class="kd">interface</span><span class="p">{})</span> <span class="kt">error</span>
+<span class="p">}</span>
+
+<span class="c1">// Value represents a value of any type
+</span><span class="c1">// Value 为拿到的配置，可以通过其方法转到基础类型。
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Value</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">Bool</span><span class="p">(</span><span class="nx">def</span> <span class="kt">bool</span><span class="p">)</span> <span class="kt">bool</span>
+	<span class="nf">Int</span><span class="p">(</span><span class="nx">def</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">int</span>
+	<span class="nf">String</span><span class="p">(</span><span class="nx">def</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span>
+	<span class="nf">Float64</span><span class="p">(</span><span class="nx">def</span> <span class="kt">float64</span><span class="p">)</span> <span class="kt">float64</span>
+	<span class="nf">Duration</span><span class="p">(</span><span class="nx">def</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="p">)</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span>
+	<span class="nf">StringSlice</span><span class="p">(</span><span class="nx">def</span> <span class="p">[]</span><span class="kt">string</span><span class="p">)</span> <span class="p">[]</span><span class="kt">string</span>
+	<span class="nf">StringMap</span><span class="p">(</span><span class="nx">def</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">)</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
+	<span class="nf">Scan</span><span class="p">(</span><span class="nx">val</span> <span class="kd">interface</span><span class="p">{})</span> <span class="kt">error</span>
+	<span class="nf">Bytes</span><span class="p">()</span> <span class="p">[]</span><span class="kt">byte</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>目录结构：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">$ tree -L <span class="m">2</span>
+.
+├── README.md
+├── config.go // Config 接口定义
+├── default.go // 默认实现的Config
+├── default_test.go
+├── encoder // encoder 解析配置内容
+│   ├── encoder.go
+│   └── json // json实现
+├── loader // 加载配置
+│   ├── loader.go
+│   └── memory // 基于内存的加载，即启动时会将配置加载到内存
+├── options.go
+├── reader // 定义和实现Reader，内部依赖Encoder
+│   ├── json
+│   ├── options.go
+│   ├── preprocessor.go
+│   ├── preprocessor_test.go
+│   └── reader.go
+├── secrets // 定义和实现需要加解密的配置
+│   ├── box
+│   ├── secretbox
+│   └── secrets.go
+├── <span class="nb">source</span> // 配置来源
+│   ├── changeset.go
+│   ├── cli
+│   ├── env // 基于环境变量的实现
+│   ├── file // 基于本地文件实现
+│   ├── flag // 基于启动参数flag实现
+│   ├── memory // 基于内存实现
+│   ├── noop.go
+│   ├── options.go
+│   └── source.go
+└── value.go
+</code></pre></td></tr></table>
+</div>
+</div><p><code>plugins/config/encoder</code> 目录:</p>
+<blockquote>
+<p>实现Encoder接口</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">$ tree
+plugins/config/encoder
+├── cue
+├── hcl
+├── toml
+├── xml
+└── yaml
+</code></pre></td></tr></table>
+</div>
+</div><p><code>plugins/config/source</code> 目录：</p>
+<blockquote>
+<p>实现Source接口</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">$ tree
+plugins/config/source
+├── configmap
+├── consul
+├── etcd
+├── grpc
+├── mucp
+├── pkger
+├── runtimevar
+├── url
+└── vault
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="plugins">plugins</h3>
+<blockquote>
+<p>该目录作为插件目录，实现了大部分预定义的接口，方便使用的时候替换成默认实现的模块代码。
+该目录下所有子目录均可以作为go mod package 导入使用
+在之后讲如何使用是 同时演示如何使用插件</p>
+</blockquote>
+<p>目录结构：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">$ tree
+plugins
+├── LICENSE
+├── README.md
+├── auth // 用户认真
+│   └── jwt // 实现基于jwt的auth接口
+├── broker // 支持了市面上大部分消息队列
+│   ├── gocloud
+│   ├── googlepubsub
+│   ├── grpc
+│   ├── http
+│   ├── kafka
+│   ├── memory
+│   ├── mqtt
+│   ├── nats
+│   ├── nsq
+│   ├── proxy
+│   ├── rabbitmq
+│   ├── redis
+│   ├── segmentio
+│   ├── snssqs
+│   ├── sqs
+│   ├── stan
+│   └── stomp
+├── client // 支持了grpc http 等方式的客户端实现
+│   ├── grpc
+│   ├── http
+│   ├── mock
+│   └── mucp
+├── codec // 消息的编码解码的实现
+│   ├── bsonrpc
+│   ├── json-iterator
+│   ├── jsonrpc2
+│   ├── msgpackrpc
+│   └── segmentio
+├── config // 配置
+│    ├── encoder // 配置编码解码
+│       ├── cue
+│       ├── hcl
+│       ├── toml
+│       ├── xml
+│       └── yaml
+│   └── <span class="nb">source</span> // 配置数据源
+│       ├── configmap
+│       ├── consul
+│       ├── etcd
+│       ├── grpc
+│       ├── mucp
+│       ├── pkger
+│       ├── runtimevar
+│       ├── url
+│       └── vault
+├── logger // 日志库
+│   ├── apex
+│   ├── logrus
+│   ├── zap
+│   └── zerolog
+├── plugin.go
+├── proxy
+│   └── http
+├── registry // 服务发现服务注册
+│   ├── cache
+│   ├── consul
+│   ├── etcd
+│   ├── eureka
+│   ├── gossip
+│   ├── kubernetes
+│   ├── mdns
+│   ├── memory
+│   ├── multi
+│   ├── nats
+│   ├── proxy
+│   └── zookeeper
+├── release.sh
+├── selector // 负载均衡
+│   ├── dns
+│   ├── label
+│   ├── registry
+│   ├── shard
+│   └── static
+├── server // 后端服务
+│   ├── grpc
+│   ├── http
+│   └── mucp
+├── store // 数据存储的实现
+│   ├── cockroach
+│   ├── consul
+│   ├── file
+│   ├── memcached
+│   ├── memory
+│   ├── mysql
+│   └── redis
+├── sync // 数据同步
+│   ├── etcd
+│   └── memory
+├── template.go
+├── transport // 服务之间通讯模块
+│   ├── grpc
+│   ├── http
+│   ├── memory
+│   ├── nats
+│   ├── quic
+│   ├── rabbitmq
+│   ├── tcp
+│   └── utp
+└── wrapper // 自定义组件 比如监控、限流、熔断、追踪等
+    ├── README.md
+    ├── breaker // 熔断
+    ├── endpoint // 指定服务节点
+    ├── monitoring // 监控
+    ├── ratelimiter // 限流
+    ├── <span class="k">select</span> // 负载均衡
+    ├── service
+    ├── trace // 链路追踪
+    └── validator // 参数校验（处理请求时 可以统一参数校验等工作）
+</code></pre></td></tr></table>
+</div>
+</div>]]></description><category domain="https://yusank.github.io/categories/go/">go</category><category domain="https://yusank.github.io/categories/microservice/">microservice</category><category domain="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category></item><item><title>Go 面试总结</title><link>https://yusank.github.io/posts/go-interview/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-interview/</guid><pubDate>Mon, 31 May 2021 21:13:41 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<p>经历了2个月的面试折磨，拿到offer总算结束了这段时间。主要是想记录面试中遇到的问题，列出来的问题不一定有答案，有答案也不一定是最佳答案，所以还是看问题为主，答案自行解决。</p>
 <h1 id="知识架构">知识架构</h1>
 <p><img src="https://raw.githubusercontent.com/yusank/hugo.yusank.space/master/xmind.png" alt="xmind"></p>
 <h2 id="数据库">数据库</h2>
