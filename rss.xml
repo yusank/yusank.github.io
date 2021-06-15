@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.83.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Tue, 15 Jun 2021 09:48:39 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>Go-Micro 的架构及其使用（一）</title><link>https://yusank.github.io/posts/go-micro-1/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-micro-1/</guid><pubDate>Fri, 11 Jun 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<p>关于如何使用go的微服务框架 <code>go-micro/v3</code> 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。</p>
+<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.83.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Tue, 15 Jun 2021 11:42:47 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>Go-Micro 的架构及其使用（一）</title><link>https://yusank.github.io/posts/go-micro-1/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-micro-1/</guid><pubDate>Fri, 11 Jun 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<p>关于如何使用go的微服务框架 <code>go-micro/v3</code> 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。</p>
 <h2 id="架构">架构</h2>
 <blockquote>
 <p>以 <code>v3.5.1</code> 分支为例</p>
@@ -266,7 +266,7 @@
 	<span class="c1">// Stop the config loader/watcher
 </span><span class="c1"></span>	<span class="nf">Close</span><span class="p">()</span> <span class="kt">error</span>
 	<span class="c1">// Load config sources
-</span><span class="c1"></span>    <span class="c1">// 可以加载多个 Source
+</span><span class="c1"></span>    <span class="c1">// 可以加载多个Source
 </span><span class="c1"></span>	<span class="nf">Load</span><span class="p">(</span><span class="nx">source</span> <span class="o">...</span><span class="nx">source</span><span class="p">.</span><span class="nx">Source</span><span class="p">)</span> <span class="kt">error</span>
 	<span class="c1">// Force a source changeset sync
 </span><span class="c1"></span>    <span class="c1">// 同步配置变化
@@ -457,7 +457,49 @@ plugins/config/source
 └── vault
 </code></pre></td></tr></table>
 </div>
-</div><h3 id="plugins">plugins</h3>
+</div><h3 id="logger">Logger</h3>
+<blockquote>
+<p><code>Logger</code> 包为全局日志库，默认实现了一套，并在<code>plugins</code> 内实现了基于 logrus，zap的个主流的日志的实现。</p>
+</blockquote>
+<p>接口定义：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Logger is a generic logging interface
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Logger</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="c1">// Init initialises options
+</span><span class="c1"></span>	<span class="nf">Init</span><span class="p">(</span><span class="nx">options</span> <span class="o">...</span><span class="nx">Option</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// The Logger options
+</span><span class="c1"></span>	<span class="nf">Options</span><span class="p">()</span> <span class="nx">Options</span>
+	<span class="c1">// Fields set fields to always be logged
+</span><span class="c1"></span>	<span class="nf">Fields</span><span class="p">(</span><span class="nx">fields</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{})</span> <span class="nx">Logger</span>
+	<span class="c1">// Log writes a log entry
+</span><span class="c1"></span>	<span class="nf">Log</span><span class="p">(</span><span class="nx">level</span> <span class="nx">Level</span><span class="p">,</span> <span class="nx">v</span> <span class="o">...</span><span class="kd">interface</span><span class="p">{})</span>
+	<span class="c1">// Logf writes a formatted log entry
+</span><span class="c1"></span>	<span class="nf">Logf</span><span class="p">(</span><span class="nx">level</span> <span class="nx">Level</span><span class="p">,</span> <span class="nx">format</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">v</span> <span class="o">...</span><span class="kd">interface</span><span class="p">{})</span>
+	<span class="c1">// String returns the name of logger
+</span><span class="c1"></span>	<span class="nf">String</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>若需要自己定义日志格式和日志库，可以实现上面接口，并初始化的时候指定即可。</p>
+<h3 id="plugins">plugins</h3>
 <blockquote>
 <p>该目录作为插件目录，实现了大部分预定义的接口，方便使用的时候替换成默认实现的模块代码。
 该目录下所有子目录均可以作为go mod package 导入使用
@@ -698,6 +740,315 @@ plugins
     ├── service
     ├── trace // 链路追踪
     └── validator // 参数校验（处理请求时 可以统一参数校验等工作）
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="registry">Registry</h3>
+<blockquote>
+<p>服务发现/服务注册相关逻辑均在 <code>registry</code> 包内实现。</p>
+</blockquote>
+<p>核心接口定义：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// The registry provides an interface for service discovery
+</span><span class="c1">// and an abstraction over varying implementations
+</span><span class="c1">// {consul, etcd, zookeeper, ...}
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Registry</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">Init</span><span class="p">(</span><span class="o">...</span><span class="nx">Option</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="nf">Options</span><span class="p">()</span> <span class="nx">Options</span>
+    <span class="c1">// 服务注册
+</span><span class="c1"></span>	<span class="nf">Register</span><span class="p">(</span><span class="o">*</span><span class="nx">Service</span><span class="p">,</span> <span class="o">...</span><span class="nx">RegisterOption</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="c1">// 服务注销
+</span><span class="c1"></span>	<span class="nf">Deregister</span><span class="p">(</span><span class="o">*</span><span class="nx">Service</span><span class="p">,</span> <span class="o">...</span><span class="nx">DeregisterOption</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="c1">// 查询服务
+</span><span class="c1"></span>	<span class="nf">GetService</span><span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="o">...</span><span class="nx">GetOption</span><span class="p">)</span> <span class="p">([]</span><span class="o">*</span><span class="nx">Service</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+    <span class="c1">// 列出服务列表
+</span><span class="c1"></span>	<span class="nf">ListServices</span><span class="p">(</span><span class="o">...</span><span class="nx">ListOption</span><span class="p">)</span> <span class="p">([]</span><span class="o">*</span><span class="nx">Service</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+    <span class="c1">// 监控服务
+</span><span class="c1"></span>	<span class="nf">Watch</span><span class="p">(</span><span class="o">...</span><span class="nx">WatchOption</span><span class="p">)</span> <span class="p">(</span><span class="nx">Watcher</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="nf">String</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// Watcher is an interface that returns updates
+</span><span class="c1">// about services within the registry.
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Watcher</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="c1">// Next is a blocking call
+</span><span class="c1"></span>	<span class="nf">Next</span><span class="p">()</span> <span class="p">(</span><span class="o">*</span><span class="nx">Result</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="nf">Stop</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="selector">Selector</h3>
+<blockquote>
+<p>负载均衡逻辑，即客户端请求其他服务时如何选取服务节点都是在该包内实现。可以通过option指定策略，随机，轮询等。</p>
+</blockquote>
+<p>接口定义：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Selector builds on the registry as a mechanism to pick nodes
+</span><span class="c1">// and mark their status. This allows host pools and other things
+</span><span class="c1">// to be built using various algorithms.
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Selector</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">Init</span><span class="p">(</span><span class="nx">opts</span> <span class="o">...</span><span class="nx">Option</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="nf">Options</span><span class="p">()</span> <span class="nx">Options</span>
+	<span class="c1">// Select returns a function which should return the next node
+</span><span class="c1"></span>	<span class="nf">Select</span><span class="p">(</span><span class="nx">service</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">opts</span> <span class="o">...</span><span class="nx">SelectOption</span><span class="p">)</span> <span class="p">(</span><span class="nx">Next</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="c1">// Mark sets the success/error against a node
+</span><span class="c1"></span>	<span class="nf">Mark</span><span class="p">(</span><span class="nx">service</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">node</span> <span class="o">*</span><span class="nx">registry</span><span class="p">.</span><span class="nx">Node</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="c1">// Reset returns state back to zero for a service
+</span><span class="c1"></span>	<span class="nf">Reset</span><span class="p">(</span><span class="nx">service</span> <span class="kt">string</span><span class="p">)</span>
+	<span class="c1">// Close renders the selector unusable
+</span><span class="c1"></span>	<span class="nf">Close</span><span class="p">()</span> <span class="kt">error</span>
+	<span class="c1">// Name of the selector
+</span><span class="c1"></span>	<span class="nf">String</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// Next is a function that returns the next node
+</span><span class="c1">// based on the selector&#39;s strategy
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Next</span> <span class="kd">func</span><span class="p">()</span> <span class="p">(</span><span class="o">*</span><span class="nx">registry</span><span class="p">.</span><span class="nx">Node</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="server">Server</h3>
+<blockquote>
+<p>server 包为定义和实现管理服务相关逻辑。</p>
+</blockquote>
+<p>server的定义：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Server is a simple micro server abstraction
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Server</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="c1">// Initialise options
+</span><span class="c1"></span>	<span class="nf">Init</span><span class="p">(</span><span class="o">...</span><span class="nx">Option</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Retrieve the options
+</span><span class="c1"></span>	<span class="nf">Options</span><span class="p">()</span> <span class="nx">Options</span>
+	<span class="c1">// Register a handler
+</span><span class="c1"></span>	<span class="nf">Handle</span><span class="p">(</span><span class="nx">Handler</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Create a new handler
+</span><span class="c1"></span>	<span class="nf">NewHandler</span><span class="p">(</span><span class="kd">interface</span><span class="p">{},</span> <span class="o">...</span><span class="nx">HandlerOption</span><span class="p">)</span> <span class="nx">Handler</span>
+	<span class="c1">// Create a new subscriber
+</span><span class="c1"></span>	<span class="nf">NewSubscriber</span><span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kd">interface</span><span class="p">{},</span> <span class="o">...</span><span class="nx">SubscriberOption</span><span class="p">)</span> <span class="nx">Subscriber</span>
+	<span class="c1">// Register a subscriber
+</span><span class="c1"></span>	<span class="nf">Subscribe</span><span class="p">(</span><span class="nx">Subscriber</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Start the server
+</span><span class="c1"></span>	<span class="nf">Start</span><span class="p">()</span> <span class="kt">error</span>
+	<span class="c1">// Stop the server
+</span><span class="c1"></span>	<span class="nf">Stop</span><span class="p">()</span> <span class="kt">error</span>
+	<span class="c1">// Server implementation
+</span><span class="c1"></span>	<span class="nf">String</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// Router handle serving messages
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Router</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="c1">// ProcessMessage processes a message
+</span><span class="c1"></span>    <span class="c1">// 处理消息队列消息
+</span><span class="c1"></span>	<span class="nf">ProcessMessage</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">Message</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// ServeRequest processes a request to completion
+</span><span class="c1"></span>    <span class="c1">// 处理 http/rpc 请求
+</span><span class="c1"></span>	<span class="nf">ServeRequest</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">Request</span><span class="p">,</span> <span class="nx">Response</span><span class="p">)</span> <span class="kt">error</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>默认实现了rpc和消息队列，http服务 可以使用<code>plugins/server/http</code> 包。</p>
+<h3 id="store">Store</h3>
+<blockquote>
+<p>该包定义了数据存储的接口。</p>
+</blockquote>
+<p>接口定义：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Store is a data storage interface
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Store</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="c1">// Init initialises the store. It must perform any required setup on the backing storage implementation and check that it is ready for use, returning any errors.
+</span><span class="c1"></span>	<span class="nf">Init</span><span class="p">(</span><span class="o">...</span><span class="nx">Option</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Options allows you to view the current options.
+</span><span class="c1"></span>	<span class="nf">Options</span><span class="p">()</span> <span class="nx">Options</span>
+	<span class="c1">// Read takes a single key name and optional ReadOptions. It returns matching []*Record or an error.
+</span><span class="c1"></span>	<span class="nf">Read</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">opts</span> <span class="o">...</span><span class="nx">ReadOption</span><span class="p">)</span> <span class="p">([]</span><span class="o">*</span><span class="nx">Record</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="c1">// Write() writes a record to the store, and returns an error if the record was not written.
+</span><span class="c1"></span>	<span class="nf">Write</span><span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">Record</span><span class="p">,</span> <span class="nx">opts</span> <span class="o">...</span><span class="nx">WriteOption</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Delete removes the record with the corresponding key from the store.
+</span><span class="c1"></span>	<span class="nf">Delete</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">opts</span> <span class="o">...</span><span class="nx">DeleteOption</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// List returns any keys that match, or an empty list with no error if none matched.
+</span><span class="c1"></span>	<span class="nf">List</span><span class="p">(</span><span class="nx">opts</span> <span class="o">...</span><span class="nx">ListOption</span><span class="p">)</span> <span class="p">([]</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="c1">// Close the store
+</span><span class="c1"></span>	<span class="nf">Close</span><span class="p">()</span> <span class="kt">error</span>
+	<span class="c1">// String returns the name of the implementation.
+</span><span class="c1"></span>	<span class="nf">String</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>具体使用数据库类型，在<code>plugins/store</code> 内初始化对应的实例。</p>
+<h3 id="sync">Sync</h3>
+<blockquote>
+<p><code>sync</code> 包为定义分布式选举和分布式锁的定义。</p>
+</blockquote>
+<p>接口定义：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Sync is an interface for distributed synchronization
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Sync</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="c1">// Initialise options
+</span><span class="c1"></span>	<span class="nf">Init</span><span class="p">(</span><span class="o">...</span><span class="nx">Option</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Return the options
+</span><span class="c1"></span>	<span class="nf">Options</span><span class="p">()</span> <span class="nx">Options</span>
+	<span class="c1">// Elect a leader
+</span><span class="c1"></span>    <span class="c1">// 选举
+</span><span class="c1"></span>	<span class="nf">Leader</span><span class="p">(</span><span class="nx">id</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">opts</span> <span class="o">...</span><span class="nx">LeaderOption</span><span class="p">)</span> <span class="p">(</span><span class="nx">Leader</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="c1">// Lock acquires a lock
+</span><span class="c1"></span>    <span class="c1">// 上锁
+</span><span class="c1"></span>	<span class="nf">Lock</span><span class="p">(</span><span class="nx">id</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">opts</span> <span class="o">...</span><span class="nx">LockOption</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Unlock releases a lock
+</span><span class="c1"></span>    <span class="c1">// 释放锁
+</span><span class="c1"></span>	<span class="nf">Unlock</span><span class="p">(</span><span class="nx">id</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Sync implementation
+</span><span class="c1"></span>	<span class="nf">String</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// Leader provides leadership election
+</span><span class="c1">// 提供分布式选举
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Leader</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="c1">// resign leadership
+</span><span class="c1"></span>    <span class="c1">// 辞职 即放弃Leader状态
+</span><span class="c1"></span>	<span class="nf">Resign</span><span class="p">()</span> <span class="kt">error</span>
+	<span class="c1">// status returns when leadership is lost
+</span><span class="c1"></span>    <span class="c1">// 在leader 状态失去时，channel内可读取
+</span><span class="c1"></span>	<span class="nf">Status</span><span class="p">()</span> <span class="kd">chan</span> <span class="kt">bool</span>
+<span class="p">}</span>
 </code></pre></td></tr></table>
 </div>
 </div>]]></description><category domain="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category><category domain="https://yusank.github.io/categories/microservice/">microservice</category></item><item><title>Go 面试总结</title><link>https://yusank.github.io/posts/go-interview/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-interview/</guid><pubDate>Mon, 31 May 2021 21:13:41 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<p>经历了2个月的面试折磨，拿到offer总算结束了这段时间。主要是想记录面试中遇到的问题，列出来的问题不一定有答案，有答案也不一定是最佳答案，所以还是看问题为主，答案自行解决。</p>
