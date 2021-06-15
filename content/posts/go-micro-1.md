@@ -2,9 +2,8 @@
 date: 2021-06-11T18:22:00+08:00
 title: "Go-Micro 的架构及其使用（一）"
 categories:
-- go
-- microservice
 - 技术
+- microservice
 tag:
 - go
 - go-micro
