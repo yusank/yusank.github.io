@@ -1,4 +1,89 @@
-<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.83.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Tue, 15 Jun 2021 11:42:47 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>Go-Micro 的架构及其使用（一）</title><link>https://yusank.github.io/posts/go-micro-1/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-micro-1/</guid><pubDate>Fri, 11 Jun 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<p>关于如何使用go的微服务框架 <code>go-micro/v3</code> 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。</p>
+<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.84.0 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Wed, 23 Jun 2021 15:02:17 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>Go-Micro 中使用Nacos</title><link>https://yusank.github.io/posts/use-nacos-with-go-micro/</link><guid isPermaLink="true">https://yusank.github.io/posts/use-nacos-with-go-micro/</guid><pubDate>Wed, 23 Jun 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<p><code>go-micro</code> 作为比较流行的微服务框架，其良好的接口设计为后期扩展使用带来了非常好的便利性。本文章主要讲在 <code>go-micro</code> 中用 <code>nacos</code> 作为服务注册中心和配置中心。</p>
+<h2 id="配置中心">配置中心</h2>
+<p>先看一下 <code>go-micro</code> 定义的服务注册接口。</p>
+<p>registry.go</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 服务注册接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Registry</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="c1">// 初始化
+</span><span class="c1"></span>	<span class="nf">Init</span><span class="p">(</span><span class="o">...</span><span class="nx">Option</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="c1">// 返回可选参数
+</span><span class="c1"></span>	<span class="nf">Options</span><span class="p">()</span> <span class="nx">Options</span>
+    <span class="c1">// 服务注册
+</span><span class="c1"></span>	<span class="nf">Register</span><span class="p">(</span><span class="o">*</span><span class="nx">Service</span><span class="p">,</span> <span class="o">...</span><span class="nx">RegisterOption</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="c1">// 服务注销
+</span><span class="c1"></span>	<span class="nf">Deregister</span><span class="p">(</span><span class="o">*</span><span class="nx">Service</span><span class="p">,</span> <span class="o">...</span><span class="nx">DeregisterOption</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="c1">// 查询服务
+</span><span class="c1"></span>	<span class="nf">GetService</span><span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="o">...</span><span class="nx">GetOption</span><span class="p">)</span> <span class="p">([]</span><span class="o">*</span><span class="nx">Service</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+    <span class="c1">// 列出服务
+</span><span class="c1"></span>	<span class="nf">ListServices</span><span class="p">(</span><span class="o">...</span><span class="nx">ListOption</span><span class="p">)</span> <span class="p">([]</span><span class="o">*</span><span class="nx">Service</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+    <span class="c1">// 监听服务
+</span><span class="c1"></span>	<span class="nf">Watch</span><span class="p">(</span><span class="o">...</span><span class="nx">WatchOption</span><span class="p">)</span> <span class="p">(</span><span class="nx">Watcher</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="nf">String</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>只要基于任意一个服务注册服务实现以上接口，即可在 <code>go-micro</code> 中作为注册中心使用。假如我用一个 <code>customRegistry</code> 实现接口后，在 <code>go-micro</code> 初始化的时候或服务启动时候通过启动参数指定实现接口的接口的 <code>String() string</code>方法的返回值接口。</p>
+<p>如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 假如该结构体已实现 Registry 接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">customRegistry</span> <span class="kd">struct</span> <span class="p">{}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">customRegistry</span><span class="p">)</span> <span class="nf">String</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="s">&#34;custom&#34;</span>
+<span class="p">}</span>
+
+<span class="c1">// 代码中指定
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">micro</span><span class="p">.</span><span class="nf">NewService</span><span class="p">(</span><span class="nx">micro</span><span class="p">.</span><span class="nf">Registry</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">customRegistry</span><span class="p">{}))</span>
+<span class="p">}</span>
+
+<span class="c1">// 启动参数指定
+</span><span class="c1"></span><span class="p">.</span><span class="o">/</span><span class="nx">myApp</span> <span class="o">--</span> <span class="nx">registry</span> <span class="nx">custom</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>如此一看，发现非常方便和好扩展，接下来贴出如何使用nacos 实现该 <code>Registry</code> 接口。</p>
+]]></description><category domain="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category><category domain="https://yusank.github.io/categories/microservice/">microservice</category></item><item><title>Go-Micro 的架构及其使用（一）</title><link>https://yusank.github.io/posts/go-micro-1/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-micro-1/</guid><pubDate>Fri, 11 Jun 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<p>关于如何使用go的微服务框架 <code>go-micro/v3</code> 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。</p>
 <h2 id="架构">架构</h2>
 <blockquote>
 <p>以 <code>v3.5.1</code> 分支为例</p>
