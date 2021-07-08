@@ -1,4 +1,319 @@
-<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.84.4 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Sun, 04 Jul 2021 08:33:26 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>如何编写自己的第一个命令行工具</title><link>https://yusank.github.io/posts/go-cobra/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-cobra/</guid><pubDate>Wed, 30 Jun 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<p>关于如何用 go 语言编写一个命令行工具。这里会基于 <code>cobra</code> 开源库进行开发。<code>cobra</code> 作为一个非常有名的命令行工具库，被很多开源项目引入使用，很多命令行工具都能看到 <code>cobra</code> 的身影。<code>cobra</code> 提供一个完整的命令行的工具的所需的功能，包括命令定义、命令扩展、读取参数等。下面我们以开发一个命令行工具的流程一步步学习如何使用 <code>cobra</code> 开发一个自己的命令行工具。</p>
+<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.85.0 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Thu, 08 Jul 2021 11:32:58 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>如何自定义 protoc 插件</title><link>https://yusank.github.io/posts/go-protoc-http/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-protoc-http/</guid><pubDate>Thu, 08 Jul 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<h2 id="前言">前言</h2>
+<p>如果大家接触过 grpc 和 protobuf ，那对 <code>protoc</code> 这个命令应该不陌生。</p>
+<p><code>protoc</code> 为基于 proto buffer 文件生成不同语言代码的工具，在日常业务开发中能经常用到。那先抛出一个问题，你有没有基于 pb 文件生成满足自己特殊要求的需求？比如生成对应的 http 代码或校验参数等。</p>
+<p>我个人需求为，除了生成正常的 <code>grpc</code> 代码外，需要生成一套对应的 <code>http</code> 代码，而且最好是能直接在 gin/iris 这种主流 web 框架内注册使用。</p>
+<p>其实 <code>golang/protobuf</code> 包支持自定义插件的，而且还提供很多好用的方法，方便我们读写 pb 文件。我们写好自己的插件安装到 <code>$GOPATH/bin</code> 下，然后在调用 <code>protoc</code> 命令时，指定我们自己的插件名和输出位置即可。</p>
+<h2 id="效果">效果</h2>
+<p>先看原始 pb 文件。</p>
+<p>test.proto</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-protobuf" data-lang="protobuf"><span class="n">syntax</span> <span class="o">=</span> <span class="s">&#34;proto3&#34;</span><span class="p">;</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="kn">package</span> <span class="nn">hello</span><span class="o">.</span><span class="n">service.v1</span><span class="p">;</span><span class="err">
+</span><span class="err"></span><span class="k">option</span> <span class="n">go_package</span> <span class="o">=</span> <span class="s">&#34;api/hello/service/v1;v1&#34;</span><span class="p">;</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="c1">// 下载 `github.com/googleapis/googleapis` 至`GOPATH`, 生成 http 代码需要。
+</span><span class="c1"></span><span class="k">import</span> <span class="s">&#34;google/api/annotations.proto&#34;</span><span class="p">;</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="kd">service</span> <span class="n">Hello</span> <span class="p">{</span><span class="err">
+</span><span class="err"></span>    <span class="k">rpc</span> <span class="n">Add</span><span class="p">(</span><span class="n">AddRequest</span><span class="p">)</span> <span class="k">returns</span> <span class="p">(</span><span class="n">AddResponse</span><span class="p">)</span> <span class="p">{</span><span class="err">
+</span><span class="err"></span>        <span class="k">option</span> <span class="p">(</span><span class="n">google.api.http</span><span class="p">)</span> <span class="o">=</span> <span class="p">{</span><span class="err">
+</span><span class="err"></span>            <span class="n">post</span><span class="o">:</span> <span class="s">&#34;/api/hello/service/v1/add&#34;</span><span class="err">
+</span><span class="err"></span>            <span class="n">body</span><span class="o">:</span> <span class="s">&#34;*&#34;</span><span class="err">
+</span><span class="err"></span>        <span class="p">};</span><span class="err">
+</span><span class="err"></span>    <span class="p">}</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span>    <span class="k">rpc</span> <span class="n">Get</span><span class="p">(</span><span class="n">GetRequest</span><span class="p">)</span> <span class="k">returns</span> <span class="p">(</span><span class="n">GetResponse</span><span class="p">)</span> <span class="p">{</span><span class="err">
+</span><span class="err"></span>        <span class="k">option</span> <span class="p">(</span><span class="n">google.api.http</span><span class="p">)</span> <span class="o">=</span> <span class="p">{</span><span class="err">
+</span><span class="err"></span>            <span class="n">get</span><span class="o">:</span> <span class="s">&#34;/api/hello/service/v1/get&#34;</span><span class="err">
+</span><span class="err"></span>        <span class="p">};</span><span class="err">
+</span><span class="err"></span>    <span class="p">}</span><span class="err">
+</span><span class="err"></span><span class="p">}</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="kd">message</span> <span class="nc">AddRequest</span> <span class="p">{</span><span class="err">
+</span><span class="err"></span>    <span class="kt">uint32</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span><span class="err">
+</span><span class="err"></span>    <span class="kt">string</span> <span class="n">name</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span><span class="err">
+</span><span class="err"></span><span class="p">}</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="kd">message</span> <span class="nc">AddResponse</span> <span class="p">{</span><span class="err">
+</span><span class="err"></span>    <span class="kt">uint32</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span><span class="err">
+</span><span class="err"></span>    <span class="kt">string</span> <span class="n">name</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span><span class="err">
+</span><span class="err"></span><span class="p">}</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="kd">message</span> <span class="nc">GetRequest</span> <span class="p">{</span><span class="err">
+</span><span class="err"></span>    <span class="kt">uint32</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span><span class="err">
+</span><span class="err"></span><span class="p">}</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="kd">message</span> <span class="nc">GetResponse</span> <span class="p">{</span><span class="err">
+</span><span class="err"></span>    <span class="kt">uint32</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span><span class="err">
+</span><span class="err"></span>    <span class="kt">string</span> <span class="n">name</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span><span class="err">
+</span><span class="err"></span>    <span class="kt">float</span> <span class="n">score</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span><span class="err">
+</span><span class="err"></span>    <span class="kt">bytes</span> <span class="n">bs</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span><span class="err">
+</span><span class="err"></span>    <span class="n">map</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">,</span> <span class="kt">string</span><span class="p">&gt;</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span><span class="err">
+</span><span class="err"></span><span class="p">}</span><span class="err">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>因为我需要生成 http 代码，所以定义 rpc 时，http 路由和method 需要在 pb 文件指定。</p>
+<p>我实现的插件起码叫 <code>protoc-gen-go-http</code>, 必须以 <code>protoc-gen</code> 开头否则 protoc 不认。</p>
+<p>执行命令：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># --go-http 为我自己的插件</span>
+<span class="c1"># 还可以 --go-http_opts=key=val 的方式传参给插件 这个我也用到了 后面详细介绍</span>
+protoc -I<span class="nv">$GOPATH</span>/src/github.com/googleapis/googleapis --proto_path<span class="o">=</span><span class="nv">$GOPATH</span>/src:. --go_out<span class="o">=</span>. --go-http_out<span class="o">=</span>. --micro_out<span class="o">=</span>. test.proto
+</code></pre></td></tr></table>
+</div>
+</div><p>执行完命令后，会生成三个文件分别为 <code>test.pb.go</code>,<code>test.pb.micro.go</code>和<code>test.http.pb.go</code>， 生成的文件名是可以自定义的。</p>
+<p><code>test.pb.micro.go</code> 文件是由 go-micro 提供的工具生成 grpc 代码文件。</p>
+<p>看一下 <code>test.http.pb.go</code> 文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Code generated by protoc-gen-go-http. DO NOT EDIT.
+</span><span class="c1">// versions:
+</span><span class="c1">// protoc-gen-go-http v0.0.9
+</span><span class="c1"></span>
+<span class="kn">package</span> <span class="nx">v1</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="nx">context</span> <span class="s">&#34;context&#34;</span>
+    <span class="nx">gin</span> <span class="s">&#34;github.com/gin-gonic/gin&#34;</span>
+<span class="p">)</span>
+
+<span class="c1">// This is a compile-time assertion to ensure that this generated file
+</span><span class="c1">// is compatible with the galaxy package it is being compiled against.
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">_</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span>
+<span class="kd">const</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">gin</span><span class="p">.</span><span class="nx">Version</span>
+
+<span class="kd">type</span> <span class="nx">HelloHTTPHandler</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="nf">Add</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="o">*</span><span class="nx">AddRequest</span><span class="p">,</span> <span class="o">*</span><span class="nx">AddResponse</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nf">Get</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="o">*</span><span class="nx">GetRequest</span><span class="p">,</span> <span class="o">*</span><span class="nx">GetResponse</span><span class="p">)</span> <span class="kt">error</span>
+<span class="p">}</span>
+
+<span class="c1">// RegisterHelloHTTPHandler define http router handle by gin.
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">RegisterHelloHTTPHandler</span><span class="p">(</span><span class="nx">g</span> <span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">RouterGroup</span><span class="p">,</span> <span class="nx">srv</span> <span class="nx">HelloHTTPHandler</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">g</span><span class="p">.</span><span class="nf">POST</span><span class="p">(</span><span class="s">&#34;/api/hello/service/v1/add&#34;</span><span class="p">,</span> <span class="nf">_Hello_Add0_HTTP_Handler</span><span class="p">(</span><span class="nx">srv</span><span class="p">))</span>
+    <span class="nx">g</span><span class="p">.</span><span class="nf">GET</span><span class="p">(</span><span class="s">&#34;/api/hello/service/v1/get&#34;</span><span class="p">,</span> <span class="nf">_Hello_Get0_HTTP_Handler</span><span class="p">(</span><span class="nx">srv</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">_Hello_Add0_HTTP_Handler</span><span class="p">(</span><span class="nx">srv</span> <span class="nx">HelloHTTPHandler</span><span class="p">)</span> <span class="kd">func</span><span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kd">func</span><span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="p">(</span>
+            <span class="nx">in</span>  <span class="nx">AddRequest</span>
+            <span class="nx">out</span> <span class="nx">AddResponse</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">ShouldBind</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">in</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+            <span class="nx">c</span><span class="p">.</span><span class="nf">AbortWithStatusJSON</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&#34;err&#34;</span><span class="p">:</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">()})</span>
+            <span class="k">return</span>
+        <span class="p">}</span>
+
+        <span class="nx">err</span> <span class="o">:=</span> <span class="nx">srv</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="o">&amp;</span><span class="nx">in</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+            <span class="nx">c</span><span class="p">.</span><span class="nf">AbortWithStatusJSON</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&#34;err&#34;</span><span class="p">:</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">()})</span>
+            <span class="k">return</span>
+        <span class="p">}</span>
+
+        <span class="nx">c</span><span class="p">.</span><span class="nf">JSON</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">out</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">_Hello_Get0_HTTP_Handler</span><span class="p">(</span><span class="nx">srv</span> <span class="nx">HelloHTTPHandler</span><span class="p">)</span> <span class="kd">func</span><span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kd">func</span><span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="p">(</span>
+            <span class="nx">in</span>  <span class="nx">GetRequest</span>
+            <span class="nx">out</span> <span class="nx">GetResponse</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">ShouldBind</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">in</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+            <span class="nx">c</span><span class="p">.</span><span class="nf">AbortWithStatusJSON</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&#34;err&#34;</span><span class="p">:</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">()})</span>
+            <span class="k">return</span>
+        <span class="p">}</span>
+
+        <span class="nx">err</span> <span class="o">:=</span> <span class="nx">srv</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="o">&amp;</span><span class="nx">in</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+            <span class="nx">c</span><span class="p">.</span><span class="nf">AbortWithStatusJSON</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&#34;err&#34;</span><span class="p">:</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">()})</span>
+            <span class="k">return</span>
+        <span class="p">}</span>
+
+        <span class="nx">c</span><span class="p">.</span><span class="nf">JSON</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">out</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>重点是 <code>RegisterHelloHTTPHandler</code> 方法，这样我就注册一个 gin.RouterGroup 和 HelloHTTPHandler 就可以直接提供一个 http 服务 <code>HelloHTTPHandler</code> 接口里方法的签名与<code>go-micro</code>生成的 grpc 方法保持了一致， 这样我只需要实现 grpc 的代码里对应的 Interface{} 接口，就可以服用，完全不会产生多余代码。</p>
+<p>go-micro 生成的 pb 代码片段：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">HelloHandler</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="nf">Add</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="o">*</span><span class="nx">AddRequest</span><span class="p">,</span> <span class="o">*</span><span class="nx">AddResponse</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nf">Get</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="o">*</span><span class="nx">GetRequest</span><span class="p">,</span> <span class="o">*</span><span class="nx">GetResponse</span><span class="p">)</span> <span class="kt">error</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">RegisterHelloHandler</span><span class="p">(</span><span class="nx">s</span> <span class="nx">server</span><span class="p">.</span><span class="nx">Server</span><span class="p">,</span> <span class="nx">hdlr</span> <span class="nx">HelloHandler</span><span class="p">,</span> <span class="nx">opts</span> <span class="o">...</span><span class="nx">server</span><span class="p">.</span><span class="nx">HandlerOption</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>我在 main 函数注册的时候也只需要多注册一次 http handler 即可，</p>
+<p>main.go</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go">
+<span class="c1">// 它实现了 HelloHandler
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">implHello</span> <span class="kd">struct</span><span class="p">{}</span>
+
+<span class="nf">RegisterHelloHandler</span><span class="p">(</span><span class="nx">micro</span><span class="p">.</span><span class="nx">Server</span><span class="err">，</span> <span class="o">&amp;</span><span class="nx">implHello</span><span class="p">)</span>
+<span class="nx">g</span> <span class="o">:=</span> <span class="nx">gin</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
+<span class="c1">// implHello 实现HelloHandler 那就是实现了HelloHTTPHandler
+</span><span class="c1"></span><span class="nf">RegisterHelloHTTPHandler</span><span class="p">(</span><span class="nx">g</span><span class="p">.</span><span class="nf">Group</span><span class="p">(</span><span class="err">&#34;</span><span class="o">/</span><span class="p">),</span> <span class="o">&amp;</span><span class="nx">implHello</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>所以我就很容易通过 http 接口调试 grpc 方法，甚至可以对外提供服务，一举两堵。</p>
+<h2 id="如何实现">如何实现</h2>
+<blockquote>
+<p>近期补充</p>
+</blockquote>
+]]></description><category domain="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category><category domain="https://yusank.github.io/categories/protobuf/">protobuf</category></item><item><title>如何编写自己的第一个命令行工具</title><link>https://yusank.github.io/posts/go-cobra/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-cobra/</guid><pubDate>Wed, 30 Jun 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<p>关于如何用 go 语言编写一个命令行工具。这里会基于 <code>cobra</code> 开源库进行开发。<code>cobra</code> 作为一个非常有名的命令行工具库，被很多开源项目引入使用，很多命令行工具都能看到 <code>cobra</code> 的身影。<code>cobra</code> 提供一个完整的命令行的工具的所需的功能，包括命令定义、命令扩展、读取参数等。下面我们以开发一个命令行工具的流程一步步学习如何使用 <code>cobra</code> 开发一个自己的命令行工具。</p>
 <h2 id="创建根命令">创建根命令</h2>
 <p>我们项目暂且就叫 <code>myCmd</code>, 我们本地创建一个go项目就叫 <code>myCmd</code>。</p>
 <div class="highlight"><div class="chroma">
