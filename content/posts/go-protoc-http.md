@@ -186,10 +186,10 @@ main.go
 // 它实现了 HelloHandler
 type implHello struct{}
 
-RegisterHelloHandler(micro.Server， &implHello)
+RegisterHelloHandler(micro.Server, &implHello)
 g := gin.New()
 // implHello 实现HelloHandler 那就是实现了HelloHTTPHandler
-RegisterHelloHTTPHandler(g.Group("/), &implHello)
+RegisterHelloHTTPHandler(g.Group("/"), &implHello)
 ```
 
 所以我就很容易通过 http 接口调试 grpc 方法，甚至可以对外提供服务，一举两堵。
