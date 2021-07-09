@@ -4,7 +4,7 @@ title: "Go-Micro 的架构及其使用（一）"
 categories:
 - 技术
 - microservice
-tag:
+tags:
 - go
 - go-micro
 ---
