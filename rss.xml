@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.85.0 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Fri, 09 Jul 2021 07:08:04 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>如何自定义 protoc 插件</title><link>https://yusank.github.io/posts/go-protoc-http/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-protoc-http/</guid><pubDate>Thu, 08 Jul 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<h2 id="前言">前言</h2>
+<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.85.0 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Fri, 09 Jul 2021 07:14:05 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>如何自定义 protoc 插件</title><link>https://yusank.github.io/posts/go-protoc-http/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-protoc-http/</guid><pubDate>Thu, 08 Jul 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description><![CDATA[<h2 id="前言">前言</h2>
 <p>如果大家接触过 grpc 和 protobuf ，那对 <code>protoc</code> 这个命令应该不陌生。</p>
 <p><code>protoc</code> 为基于 proto buffer 文件生成不同语言代码的工具，在日常业务开发中能经常用到。那先抛出一个问题，你有没有基于 pb 文件生成满足自己特殊要求的需求？比如生成对应的 http 代码或校验参数等。</p>
 <p>我个人需求为，除了生成正常的 <code>grpc</code> 代码外，需要生成一套对应的 <code>http</code> 代码，而且最好是能直接在 gin/iris 这种主流 web 框架内注册使用。</p>
@@ -429,10 +429,8 @@ protoc -I<span class="nv">$GOPATH</span>/src/github.com/googleapis/googleapis --
 
 </code></pre></td></tr></table>
 </div>
-</div><blockquote>
-<p>generateFile 方法
-http.go</p>
-</blockquote>
+</div><h3 id="读取-pb-文件定义">读取 pb 文件定义</h3>
+<p>http.go</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">  1
@@ -683,38 +681,6 @@ http.go</p>
 </span><span class="lnt">246
 </span><span class="lnt">247
 </span><span class="lnt">248
-</span><span class="lnt">249
-</span><span class="lnt">250
-</span><span class="lnt">251
-</span><span class="lnt">252
-</span><span class="lnt">253
-</span><span class="lnt">254
-</span><span class="lnt">255
-</span><span class="lnt">256
-</span><span class="lnt">257
-</span><span class="lnt">258
-</span><span class="lnt">259
-</span><span class="lnt">260
-</span><span class="lnt">261
-</span><span class="lnt">262
-</span><span class="lnt">263
-</span><span class="lnt">264
-</span><span class="lnt">265
-</span><span class="lnt">266
-</span><span class="lnt">267
-</span><span class="lnt">268
-</span><span class="lnt">269
-</span><span class="lnt">270
-</span><span class="lnt">271
-</span><span class="lnt">272
-</span><span class="lnt">273
-</span><span class="lnt">274
-</span><span class="lnt">275
-</span><span class="lnt">276
-</span><span class="lnt">277
-</span><span class="lnt">278
-</span><span class="lnt">279
-</span><span class="lnt">280
 </span></code></pre></td>
 <td class="lntd">
 <pre class="chroma"><code class="language-go" data-lang="go">
@@ -863,7 +829,7 @@ http.go</p>
 
     <span class="c1">// 拿到了 n 个 rpc 方法，开始生成了
 </span><span class="c1"></span>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">sd</span><span class="p">.</span><span class="nx">Methods</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">{</span>
-        <span class="c1">// execute 方法在最下面
+        <span class="c1">// 渲染
 </span><span class="c1"></span>        <span class="nx">g</span><span class="p">.</span><span class="nf">P</span><span class="p">(</span><span class="nx">sd</span><span class="p">.</span><span class="nf">execute</span><span class="p">(</span><span class="o">*</span><span class="nx">gp</span><span class="p">.</span><span class="nx">RouterEngine</span><span class="p">))</span>
     <span class="p">}</span>
 <span class="p">}</span>
@@ -965,8 +931,44 @@ http.go</p>
     <span class="p">}</span>
     <span class="k">return</span>
 <span class="p">}</span>
-
-<span class="c1">// execute 方法实现也其实不复杂，总起来就是 go 的 temple 包的使用
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="模板渲染">模板渲染</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// execute 方法实现也其实不复杂，总起来就是 go 的 temple 包的使用
 </span><span class="c1">// 提前写好模板文件，然后拿到所有需要的变量，进行模板渲染，写入文件
 </span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">serviceDesc</span><span class="p">)</span> <span class="nf">execute</span><span class="p">(</span><span class="nx">routerEngine</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="p">(</span>
@@ -996,10 +998,9 @@ http.go</p>
 
     <span class="k">return</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Trim</span><span class="p">(</span><span class="nx">buf</span><span class="p">.</span><span class="nf">String</span><span class="p">(),</span> <span class="s">&#34;\r\n&#34;</span><span class="p">)</span>
 <span class="p">}</span>
-
 </code></pre></td></tr></table>
 </div>
-</div><p>模板：</p>
+</div><h3 id="模板内容">模板内容</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt"> 1
