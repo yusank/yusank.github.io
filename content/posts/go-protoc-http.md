@@ -260,8 +260,9 @@ type GenParam struct {
 
 ```
 
-> generateFile 方法
-> http.go
+### 读取 pb 文件定义
+
+http.go
 
 ```go
 
@@ -410,7 +411,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 
     // 拿到了 n 个 rpc 方法，开始生成了
     if len(sd.Methods) != 0 {
-        // execute 方法在最下面
+        // 渲染
         g.P(sd.execute(*gp.RouterEngine))
     }
 }
@@ -512,7 +513,11 @@ func buildPathVars(method *protogen.Method, path string) (res []string) {
     }
     return
 }
+```
 
+### 模板渲染
+
+```go
 // execute 方法实现也其实不复杂，总起来就是 go 的 temple 包的使用
 // 提前写好模板文件，然后拿到所有需要的变量，进行模板渲染，写入文件
 func (s *serviceDesc) execute(routerEngine string) string {
@@ -543,10 +548,9 @@ func (s *serviceDesc) execute(routerEngine string) string {
 
     return strings.Trim(buf.String(), "\r\n")
 }
-
 ```
 
-模板：
+### 模板内容
 
 ```go
 
