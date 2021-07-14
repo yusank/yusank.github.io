@@ -859,7 +859,7 @@ uglyURLs = false
     # 品牌栏
     fontFamilySiteBrand = ""
     # 菜单栏
-    fontFamilyMenu = ""
+    fontFamilyMenu = "Monaco"
     # 文章标题、文章副标题、列表标题、列表的年份和月份标题、相关文章标题、文章上下篇标题、表格的表头、定义列表中的术语
     fontFamilyTitle = "Monaco"
     # 分节标题、目录标题
@@ -1010,7 +1010,7 @@ uglyURLs = false
     #      的优先级高于此处
 
     # 仓库地址
-    repoURL = "https://github.com/yusank/hugo.yusank.space"
+    repoURL = "https://github.com/yusank/yusank.github.io"
     # 编辑地址
     repoEditURL = ""
 
