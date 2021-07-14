@@ -2,7 +2,7 @@
 title: "About me"
 date: 2020-03-09T11:19:51+08:00
 updated: 2021-07-14T11:19:51+08:00
-draft: true
+draft: false
 ---
 
 技术忠实爱好者，喜欢运动，喜欢与大自然近距离接触。
