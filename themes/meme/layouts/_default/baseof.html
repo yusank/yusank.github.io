@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ .Site.LanguageCode }}"{{ if .Site.Params.enableDarkMode }}{{ with .Site.Params.defaultTheme | default "light" }} data-theme="{{ . }}"{{ end }}{{ end }}>
+<html lang="{{ .Site.LanguageCode }}"{{ if and .Site.Params.enableDarkMode .Site.Params.overrideSystemPreferences }}{{ with .Site.Params.defaultTheme | default "light" }} data-theme="{{ . }}"{{ end }}{{ end }}>
     {{ partial "head.html" . }}
     <body>
         <div class="container">
@@ -15,6 +15,7 @@
             {{ partial "components/back-to-top.html" . }}
             {{ partial "footer.html" . }}
         </div>
-        {{ partial "script.html" . }}
+        {{ partial "components/service-worker.html" . }}
+        {{ partial "third-party/script.html" . }}
     </body>
 </html>

@@ -25,6 +25,12 @@
     $headerLayoutFlex: false;
 {{ end }}
 
+{{ if .Site.Params.enableHeaderAutoHide }}
+    $enableHeaderAutoHide: true;
+{{ else }}
+    $enableHeaderAutoHide: false;
+{{ end }}
+
 {{ if .Site.Params.enableNavToggle }}
     $enableNavToggle: true;
 
@@ -34,6 +40,42 @@
 {{ else }}
     $enableNavToggle: false;
 {{ end }}
+
+{{ if .Site.Params.displayBackToTopOnMobile }}
+    $displayBackToTopOnMobile: true;
+{{ else }}
+    $displayBackToTopOnMobile: false;
+{{ end }}
+
+{{ if .Site.Params.enableOverflowY }}
+    $enableOverflowY: true;
+{{ else }}
+    $enableOverflowY: false;
+{{ end }}
+
+{{ with .Site.Params.maxHeight | default 20 }}
+    $maxHeight: {{ . }}em;
+{{ end }}
+
+{{ if .Site.Params.enableCopy }}
+    $enableCopy: true;
+{{ else }}
+    $enableCopy: false;
+{{ end }}
+
+{{ if .Site.Params.enableCopyAutoHide }}
+    $enableCopyAutoHide: true;
+{{ else }}
+    $enableCopyAutoHide: false;
+{{ end }}
+
+{{ if .Site.Params.enableSmoothScroll }}
+    $enableSmoothScroll: true;
+{{ else }}
+    $enableSmoothScroll: false;
+{{ end }}
+
+$baseRelURL: "{{ strings.TrimSuffix (.Site.BaseURL | relURL) "/" }}";
 
 
 // Utilities
@@ -134,6 +176,18 @@
     {{ end }}
 {{ end }}
 
+{{ if and .Site.Params.enableDarkMode (eq .Site.Params.defaultTheme "dark") }}
+    $defaultTheme: dark;
+{{ else }}
+    $defaultTheme: light;
+{{ end }}
+
+{{ if .Site.Params.enableHighlight }}
+    $enableHighlight: true;
+{{ else }}
+    $enableHighlight: false;
+{{ end }}
+
 @import "themes/light";
 
 // Dark Mode
@@ -155,11 +209,7 @@
     {{ end }}
 
     @import "themes/dark";
-    @import "components/dark-mode";
-
-    {{ if .Site.Params.enableHighlight }}
-        @import "themes/highlight/dark";
-    {{ end }}
+    @import "components/theme-switcher";
 {{ end }}
 
 
@@ -315,8 +365,11 @@
 {{ end }}
 
 {{ if .Site.Params.enableHighlight }}
-    @import "themes/highlight/light";
     @import "components/highlight";
+{{ end }}
+
+{{ if .Site.Params.enableSocials }}
+    @import "components/socials";
 {{ end }}
 
 
@@ -386,12 +439,6 @@ $fofPoster: url({{ $fofPoster }});
     @import "third-party/medium-zoom";
 {{ end }}
 
-// Service Worker
-
-{{ if and .Site.Params.enableServiceWorker (eq hugo.Environment "production") }}
-    @import "third-party/sw-notification";
-{{ end }}
-
 // Busuanzi Site UV And PV
 
 {{ if .Site.Params.enableFooter }}
@@ -400,16 +447,30 @@ $fofPoster: url({{ $fofPoster }});
     {{ end }}
 {{ end }}
 
+// Lunr search
+
+{{ if and (eq .Site.Params.headerLayout "flex") (or .Site.Params.enableLunrSearch .Site.Params.enableAlgoliaSearch) }}
+    $enableSearch: true;
+    @import "components/search";
+{{ else }}
+    $enableSearch: false;
+{{ end }}
+
 
 // Responsive
 
+$greaterWidth: null;
+
 @if ($postWidth > $listWidth) {
-    $greaterWidth: $postWidth !global;
+    $greaterWidth: $postWidth;
 } @else {
-    $greaterWidth: $listWidth !global;
+    $greaterWidth: $listWidth;
 }
 
 @import "base/max-width";
+:root {
+    --max-width: #{$maxWidth};
+}
 @import "base/responsive";
 
 

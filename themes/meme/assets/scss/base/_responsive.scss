@@ -7,8 +7,10 @@
         transform: none;
         float: right;
     }
-    #back-to-top {
-        display: none;
+    @if (not $displayBackToTopOnMobile) {
+        #back-to-top {
+            display: none;
+        }
     }
     @if ($headerLayoutFlex) {
         .header-inner {
@@ -125,6 +127,16 @@
             }
             #langs li {
                 width: auto;
+            }
+            @if ($enableSearch) {
+                .search-item {
+                    grid-column: 1 / -1;
+                }
+
+                .search .search-input {
+                    margin-left: 0.5em;
+                    flex: 1;
+                }
             }
         } @else {
             .nav {

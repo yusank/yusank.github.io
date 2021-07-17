@@ -1,35 +1,39 @@
-// Header Inner Width
+window.addEventListener(
+  'DOMContentLoaded',
+  (event) => {
+    /**
+     * Measure header height for the scrolling fix
+     */
+    const header = document.querySelector('.header');
 
-{{ with .Site.Params.headerFallbackWidth | default "32em" }}
-    const headerFallbackWidth = '{{ . }}';
-{{ end }}
+    if (header) {
+      const headerHeight = window
+        .getComputedStyle(header, null)
+        .getPropertyValue('height');
 
-const headerInner = document.querySelector('.header-inner');
-const mainInner = document.querySelector('.main-inner');
+      document.documentElement.style.setProperty(
+        '--header-height',
+        headerHeight
+      );
 
-if (mainInner !== null) {
-    const mainInnerWidth = window.getComputedStyle(mainInner, null).getPropertyValue('width');
+      {{ if and .Site.Params.enableHeaderAutoHide (eq .Site.Params.headerLayout "flex") }}
+      /**
+       * Auto hide header
+       */
+      let lastScrollY = 0;
 
-    headerInner.style.setProperty('--main-inner', mainInnerWidth);
-} else {
-    headerInner.style.setProperty('--main-inner', headerFallbackWidth);
-}
+      window.addEventListener(
+        'scroll',
+        throttle(() => {
+          window.scrollY > lastScrollY
+            ? header.classList.add('hide')
+            : header.classList.remove('hide');
 
-headerInner.style.setProperty('opacity', 1);
-
-
-// Hide switcher's parentNode if it has `data-hide`
-
-function addDisplayNone(e) {
-    const ele = document.getElementById(e);
-    if (ele !== null) {
-        const hide = ele.getAttribute('data-hide');
-        if (hide !== null) {
-            ele.parentNode.style = 'display: none';
-        }
+          lastScrollY = window.scrollY;
+        }, delayTime)
+      );
+      {{ end }}
     }
-}
-
-addDisplayNone('theme-switcher');
-
-addDisplayNone('lang-switcher');
+  },
+  { once: true }
+);

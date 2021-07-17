@@ -11,14 +11,17 @@
         padding: 1em 0;
         @include blur;
         background: $headerBackground;
+        transition: background $duration;
     }
     .header-inner {
-        opacity: 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        width: var(--main-inner);
         margin: 0 auto;
+        max-width: $postWidth;
+    }
+    .header-inner.list {
+        max-width: $listWidth;
     }
     .site-brand {
         margin-right: 1em;
@@ -33,12 +36,14 @@
     }
 }
 
+$brandHeight: null;
 @if ($siteBrandSVG) {
     .brand {
         width: $siteBrandSVGWidth;
         height: $siteBrandSVGHeight;
         fill: $siteBrandSVGFill;
     }
+    $brandHeight: $siteBrandSVGHeight;
 } @else {
     .brand {
         font-size: $siteBrandFontSize;
@@ -46,6 +51,40 @@
         text-decoration: none;
         &:hover {
             color: $siteBrandFontColor;
+        }
+    }
+    /* $siteBrandFontSize * {body line-height} */
+    $brandHeight: $fontSize * strip-unit($siteBrandFontSize) * 1.618;
+}
+
+@if ($headerLayoutFlex) {
+    :root {
+        /* This is an approximate calculation, it won't cover all scenarios */
+        --header-height: calc(
+            max(
+                /* brand */
+                #{$brandHeight},
+                /* menu */
+                #{$fontSize * 0.8 * 1.5} /* {.nav font-size} * {.menu line-height} */
+            )
+            /* .header-wrapper top+bottom margin */
+            + #{$fontSize * 2}
+        );
+    }
+
+    /* Scrolling fix for anchors being hidden below the header */
+    *[id] {
+        scroll-margin-top: var(--header-height);
+    }
+}
+
+@if ($enableHeaderAutoHide and $headerLayoutFlex) {
+    .header {
+        top: 0;
+        transition: top 0.3s ease-in-out;
+    
+        &.hide {
+            top: calc(var(--header-height) * -1);
         }
     }
 }

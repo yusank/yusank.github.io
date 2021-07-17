@@ -1,3 +1,207 @@
+# [4.5.0](https://github.com/reuixiy/hugo-theme-meme/compare/v4.4.0...v4.5.0) (2020-06-24)
+
+
+### Bug Fixes
+
+* Avoid double escaping when using post description ([#190](https://github.com/reuixiy/hugo-theme-meme/issues/190)) ([44d4198](https://github.com/reuixiy/hugo-theme-meme/commit/44d4198))
+* Do not load the script in 404 page ([#200](https://github.com/reuixiy/hugo-theme-meme/issues/200)) ([87e8586](https://github.com/reuixiy/hugo-theme-meme/commit/87e8586)), closes [#199](https://github.com/reuixiy/hugo-theme-meme/issues/199)
+* make dark theme brighter ([#195](https://github.com/reuixiy/hugo-theme-meme/issues/195)) ([4e9c8fe](https://github.com/reuixiy/hugo-theme-meme/commit/4e9c8fe))
+* mermaidConfig is not defined error ([f0b87b2](https://github.com/reuixiy/hugo-theme-meme/commit/f0b87b2))
+* missing read-more on home-posts page ([#198](https://github.com/reuixiy/hugo-theme-meme/issues/198)) ([831d8fb](https://github.com/reuixiy/hugo-theme-meme/commit/831d8fb))
+* Safari doesn't support addEventListener on media queries ([#184](https://github.com/reuixiy/hugo-theme-meme/issues/184)) ([0fccbcc](https://github.com/reuixiy/hugo-theme-meme/commit/0fccbcc))
+* Search index should include sections & co. if these have content ([#192](https://github.com/reuixiy/hugo-theme-meme/issues/192)) ([e2948b2](https://github.com/reuixiy/hugo-theme-meme/commit/e2948b2))
+* Unrelated localStorage changes would cause switch to light theme ([#194](https://github.com/reuixiy/hugo-theme-meme/issues/194)) ([db102eb](https://github.com/reuixiy/hugo-theme-meme/commit/db102eb))
+* wrong utterances theme ([9a041c1](https://github.com/reuixiy/hugo-theme-meme/commit/9a041c1))
+
+
+### Code Refactoring
+
+* Do not use inline scripts ([#173](https://github.com/reuixiy/hugo-theme-meme/issues/173)) ([f160158](https://github.com/reuixiy/hugo-theme-meme/commit/f160158)), closes [#145](https://github.com/reuixiy/hugo-theme-meme/issues/145)
+* Improve code highlighting ([#188](https://github.com/reuixiy/hugo-theme-meme/issues/188)) ([cf603f3](https://github.com/reuixiy/hugo-theme-meme/commit/cf603f3)), closes [#169](https://github.com/reuixiy/hugo-theme-meme/issues/169)
+* Make title.html partial more readable, fix title for taxonomy pages ([#187](https://github.com/reuixiy/hugo-theme-meme/issues/187)) ([ea09a86](https://github.com/reuixiy/hugo-theme-meme/commit/ea09a86))
+* Rename $Deliver into $ for clarity ([#177](https://github.com/reuixiy/hugo-theme-meme/issues/177)) ([81a773d](https://github.com/reuixiy/hugo-theme-meme/commit/81a773d))
+
+
+### Features
+
+* allow to limit the number of tree posts ([#196](https://github.com/reuixiy/hugo-theme-meme/issues/196)) ([6f3aeba](https://github.com/reuixiy/hugo-theme-meme/commit/6f3aeba)), closes [#97](https://github.com/reuixiy/hugo-theme-meme/issues/97)
+* apply `markdownify` to post title ([#183](https://github.com/reuixiy/hugo-theme-meme/issues/183)) ([1322fdd](https://github.com/reuixiy/hugo-theme-meme/commit/1322fdd)), closes [#179](https://github.com/reuixiy/hugo-theme-meme/issues/179)
+* support dark theme for mermaid ([066138a](https://github.com/reuixiy/hugo-theme-meme/commit/066138a)), closes [#205](https://github.com/reuixiy/hugo-theme-meme/issues/205)
+* support override system preferences for dark mode ([29bd11e](https://github.com/reuixiy/hugo-theme-meme/commit/29bd11e)), closes [#201](https://github.com/reuixiy/hugo-theme-meme/issues/201)
+* **i18n:** add Malaysian and Norwegian languages ([#202](https://github.com/reuixiy/hugo-theme-meme/issues/202)) ([f782a59](https://github.com/reuixiy/hugo-theme-meme/commit/f782a59))
+
+
+### BREAKING CHANGES
+
+* Highlighting customization now works by overriding CSS variables, no longer by overriding theme-specific files
+* Markdown in page titles will be processed now
+* `Deliver` parameter to various templates is now called `$`
+* custom.js is loaded at the top of the page now, before the page elements are available
+
+
+
+# [4.4.0](https://github.com/reuixiy/hugo-theme-meme/compare/v4.3.1...v4.4.0) (2020-05-23)
+
+MemE `v4.4.0` comes with some big code refactoring by @palant, which makes MemE even more faster. Big thanks!
+
+Also, make sure to follow [the instructions](https://github.com/reuixiy/hugo-theme-meme#update-meme) when you update MemE to the latest version!
+
+
+### Bug Fixes
+
+* allow `.Params.indent` to override global settings ([188fc17](https://github.com/reuixiy/hugo-theme-meme/commit/188fc17))
+* Do not rely on JavaScript to determine header width ([#168](https://github.com/reuixiy/hugo-theme-meme/issues/168)) ([820e0ab](https://github.com/reuixiy/hugo-theme-meme/commit/820e0ab))
+* generation failed error caused by `readFile` ([62f6934](https://github.com/reuixiy/hugo-theme-meme/commit/62f6934)), closes [#133](https://github.com/reuixiy/hugo-theme-meme/issues/133)
+* Get rid of unnecessary safeHTML usage ([#135](https://github.com/reuixiy/hugo-theme-meme/issues/135)) ([91e84a1](https://github.com/reuixiy/hugo-theme-meme/commit/91e84a1)), closes [#134](https://github.com/reuixiy/hugo-theme-meme/issues/134)
+* Improve accessibility of the theme switcher ([#160](https://github.com/reuixiy/hugo-theme-meme/issues/160)) ([e5e6230](https://github.com/reuixiy/hugo-theme-meme/commit/e5e6230))
+* Make sure to turn relative links absolute in feeds ([#170](https://github.com/reuixiy/hugo-theme-meme/issues/170)) ([4c6097a](https://github.com/reuixiy/hugo-theme-meme/commit/4c6097a)), closes [#141](https://github.com/reuixiy/hugo-theme-meme/issues/141)
+* pass `$Content` to custom/content.html ([df739fa](https://github.com/reuixiy/hugo-theme-meme/commit/df739fa))
+* Remove unnecessary safeJS/safeURL calls ([a94cc42](https://github.com/reuixiy/hugo-theme-meme/commit/a94cc42))
+* Respect user's preferred theme even when JavaScript isn't enabled ([#169](https://github.com/reuixiy/hugo-theme-meme/issues/169)) ([46522c6](https://github.com/reuixiy/hugo-theme-meme/commit/46522c6))
+* search on mobile and make url relative ([#172](https://github.com/reuixiy/hugo-theme-meme/issues/172)) ([5a3470a](https://github.com/reuixiy/hugo-theme-meme/commit/5a3470a)), closes [#171](https://github.com/reuixiy/hugo-theme-meme/issues/171)
+* Typos in README ([#161](https://github.com/reuixiy/hugo-theme-meme/issues/161)) ([0cd2733](https://github.com/reuixiy/hugo-theme-meme/commit/0cd2733))
+* When scrolling to an anchor, account for the header height ([#158](https://github.com/reuixiy/hugo-theme-meme/issues/158)) ([115914a](https://github.com/reuixiy/hugo-theme-meme/commit/115914a)), closes [#146](https://github.com/reuixiy/hugo-theme-meme/issues/146)
+* **a11y:** delete `maximum-scale` ([37632a7](https://github.com/reuixiy/hugo-theme-meme/commit/37632a7))
+* **json-ld:** missing `image` in non-mainSections page ([26baf9d](https://github.com/reuixiy/hugo-theme-meme/commit/26baf9d))
+* **post-copyright:** missing colon when `website` param is not set ([86bfc77](https://github.com/reuixiy/hugo-theme-meme/commit/86bfc77)), closes [#116](https://github.com/reuixiy/hugo-theme-meme/issues/116)
+* **style:** add tab-size support for firefox ([afb0b4a](https://github.com/reuixiy/hugo-theme-meme/commit/afb0b4a)), closes [#105](https://github.com/reuixiy/hugo-theme-meme/issues/105)
+* **style:** font-size bug in mobile safari ([4094ff7](https://github.com/reuixiy/hugo-theme-meme/commit/4094ff7)), closes [#109](https://github.com/reuixiy/hugo-theme-meme/issues/109)
+* **style:** make color in dark mode less dazzling ([9d35969](https://github.com/reuixiy/hugo-theme-meme/commit/9d35969))
+* **style:** make color in dark mode less dazzling ([e580a16](https://github.com/reuixiy/hugo-theme-meme/commit/e580a16))
+* **style:** margin issue of caption in layout "poetry" ([3754acc](https://github.com/reuixiy/hugo-theme-meme/commit/3754acc))
+* **style:** margin issues of layout "poetry" ([bbef0de](https://github.com/reuixiy/hugo-theme-meme/commit/bbef0de))
+* **style:** overflow and font-size bug in safari ([e2646e3](https://github.com/reuixiy/hugo-theme-meme/commit/e2646e3)), closes [#109](https://github.com/reuixiy/hugo-theme-meme/issues/109)
+* unescaped ampersand(&) in xml ([b1890ee](https://github.com/reuixiy/hugo-theme-meme/commit/b1890ee)), closes [#103](https://github.com/reuixiy/hugo-theme-meme/issues/103)
+
+
+### Code Refactoring
+
+* Make templates return results properly ([#153](https://github.com/reuixiy/hugo-theme-meme/issues/153)) ([418f72d](https://github.com/reuixiy/hugo-theme-meme/commit/418f72d)), closes [#137](https://github.com/reuixiy/hugo-theme-meme/issues/137)
+
+
+### Features
+
+* add hashtags to share URLs ([#100](https://github.com/reuixiy/hugo-theme-meme/issues/100)) ([a323e45](https://github.com/reuixiy/hugo-theme-meme/commit/a323e45))
+* Added search capability via lunr ([#165](https://github.com/reuixiy/hugo-theme-meme/issues/165)) ([fb54c61](https://github.com/reuixiy/hugo-theme-meme/commit/fb54c61)), closes [#163](https://github.com/reuixiy/hugo-theme-meme/issues/163)
+* Allow customization of post metadata ([#138](https://github.com/reuixiy/hugo-theme-meme/issues/138)) ([6cc1621](https://github.com/reuixiy/hugo-theme-meme/commit/6cc1621)), closes [#136](https://github.com/reuixiy/hugo-theme-meme/issues/136)
+* Allow extending header ([#142](https://github.com/reuixiy/hugo-theme-meme/issues/142)) ([5353fec](https://github.com/reuixiy/hugo-theme-meme/commit/5353fec))
+* Allow to limit the number of articles listed per taxonomy entry ([#148](https://github.com/reuixiy/hugo-theme-meme/issues/148)) ([f3d9ad0](https://github.com/reuixiy/hugo-theme-meme/commit/f3d9ad0)), closes [#147](https://github.com/reuixiy/hugo-theme-meme/issues/147)
+* support social media icons ([fd1546e](https://github.com/reuixiy/hugo-theme-meme/commit/fd1546e)), closes [#123](https://github.com/reuixiy/hugo-theme-meme/issues/123)
+* **i18n:** add Brazilian Portuguese translations ([#102](https://github.com/reuixiy/hugo-theme-meme/issues/102)) ([c4adfc5](https://github.com/reuixiy/hugo-theme-meme/commit/c4adfc5))
+
+
+### BREAKING CHANGES
+
+* Various templates under `utils/partials/` will return results directly rather than via `.Scratch` now.
+
+
+
+## [4.3.1](https://github.com/reuixiy/hugo-theme-meme/compare/v4.3.0...v4.3.1) (2020-04-03)
+
+
+### Bug Fixes
+
+* **style:** add transition, fix color contrast ([e9880d7](https://github.com/reuixiy/hugo-theme-meme/commit/e9880d7))
+* **style:** font-size of copy button ([ed015a9](https://github.com/reuixiy/hugo-theme-meme/commit/ed015a9))
+* **style:** make color in dark mode less dazzling ([c0e0927](https://github.com/reuixiy/hugo-theme-meme/commit/c0e0927))
+* **style:** make color in dark mode less dazzling ([cef984d](https://github.com/reuixiy/hugo-theme-meme/commit/cef984d))
+* **style:** make the bg-color of dark mode darker ([676fee1](https://github.com/reuixiy/hugo-theme-meme/commit/676fee1))
+* clipboard polyfill ([05a365b](https://github.com/reuixiy/hugo-theme-meme/commit/05a365b))
+* i18n of script and style ([e7871bb](https://github.com/reuixiy/hugo-theme-meme/commit/e7871bb))
+* make dark mode more gorgeous ([06f79af](https://github.com/reuixiy/hugo-theme-meme/commit/06f79af))
+* make dark mode respect system preferences ([10d6cca](https://github.com/reuixiy/hugo-theme-meme/commit/10d6cca))
+
+
+### Features
+
+* change default highlight theme ([e7e61d4](https://github.com/reuixiy/hugo-theme-meme/commit/e7e61d4))
+
+
+
+# [4.3.0](https://github.com/reuixiy/hugo-theme-meme/compare/v4.2.1...v4.3.0) (2020-03-20)
+
+
+MemE v4.3.0 makes some brand new features and *breaking changes*, so please be sure to check [the modification history of `config.toml`](https://github.com/reuixiy/hugo-theme-meme/commits/master/config-examples) and update the related items after the update!
+
+
+### Bug Fixes
+
+* add “contributors” to license ([f58f9aa](https://github.com/reuixiy/hugo-theme-meme/commit/f58f9aa))
+* add backdrop-filter support for safari ([fae1f2a](https://github.com/reuixiy/hugo-theme-meme/commit/fae1f2a))
+* add fallback for backdrop-filter ([60f611b](https://github.com/reuixiy/hugo-theme-meme/commit/60f611b))
+* correct favicon's MIME type ([f8ba8aa](https://github.com/reuixiy/hugo-theme-meme/commit/f8ba8aa))
+* correct zh-cn translation of license ([070b1d3](https://github.com/reuixiy/hugo-theme-meme/commit/070b1d3))
+* emphasis point position U+2022 `•` ([1cc02c3](https://github.com/reuixiy/hugo-theme-meme/commit/1cc02c3))
+* google fonts style loading fails on firefox ([e5ad6fe](https://github.com/reuixiy/hugo-theme-meme/commit/e5ad6fe))
+* header layout flex ([44b352e](https://github.com/reuixiy/hugo-theme-meme/commit/44b352e))
+* hide back-to-top on mobile ([4c670b5](https://github.com/reuixiy/hugo-theme-meme/commit/4c670b5))
+* improve post-copyright style ([a498cad](https://github.com/reuixiy/hugo-theme-meme/commit/a498cad))
+* increase the margin of toc-num ([8d9bad0](https://github.com/reuixiy/hugo-theme-meme/commit/8d9bad0))
+* missing div tag in dark mode's regex ([c1cda8b](https://github.com/reuixiy/hugo-theme-meme/commit/c1cda8b))
+* optimize header-inner's display experience ([fd95216](https://github.com/reuixiy/hugo-theme-meme/commit/fd95216))
+* optimize user experience ([e9f6d90](https://github.com/reuixiy/hugo-theme-meme/commit/e9f6d90))
+* remove `subset=chinese-simplified` ([de4def3](https://github.com/reuixiy/hugo-theme-meme/commit/de4def3))
+* remove crappy param `compatibleWithLaTeX` ([dc0c4ef](https://github.com/reuixiy/hugo-theme-meme/commit/dc0c4ef)), closes [#50](https://github.com/reuixiy/hugo-theme-meme/issues/50)
+* render links only if it exists ([fc0fae8](https://github.com/reuixiy/hugo-theme-meme/commit/fc0fae8))
+* style of header when `enableNavToggle = false` ([6c3356e](https://github.com/reuixiy/hugo-theme-meme/commit/6c3356e))
+* style of langs on mobile ([83f1046](https://github.com/reuixiy/hugo-theme-meme/commit/83f1046))
+* style of medium zoom ([5f49a0e](https://github.com/reuixiy/hugo-theme-meme/commit/5f49a0e))
+* style of menu bar ([0845e86](https://github.com/reuixiy/hugo-theme-meme/commit/0845e86))
+* use `em` tag for emphasis point ([a599634](https://github.com/reuixiy/hugo-theme-meme/commit/a599634))
+
+
+### Code Refactoring
+
+* remove i18n's region subtag ([9f5916a](https://github.com/reuixiy/hugo-theme-meme/commit/9f5916a))
+
+
+### Features
+
+* add autohide param for copy button ([bdb6077](https://github.com/reuixiy/hugo-theme-meme/commit/bdb6077))
+* add copy button and scroll for code blocks ([94d7e05](https://github.com/reuixiy/hugo-theme-meme/commit/94d7e05)), closes [#76](https://github.com/reuixiy/hugo-theme-meme/issues/76)
+* add mermaid support ([#75](https://github.com/reuixiy/hugo-theme-meme/issues/75)) ([431ef63](https://github.com/reuixiy/hugo-theme-meme/commit/431ef63))
+* added german translation ([#74](https://github.com/reuixiy/hugo-theme-meme/issues/74)) ([19892fc](https://github.com/reuixiy/hugo-theme-meme/commit/19892fc))
+* brand new header layout flex ([a11c06a](https://github.com/reuixiy/hugo-theme-meme/commit/a11c06a))
+* new param `displayFooterInHome` ([075c8d2](https://github.com/reuixiy/hugo-theme-meme/commit/075c8d2))
+* new param `tocNum` ([f30d684](https://github.com/reuixiy/hugo-theme-meme/commit/f30d684)), closes [#71](https://github.com/reuixiy/hugo-theme-meme/issues/71)
+* responsive table & set its width to 100% ([a995897](https://github.com/reuixiy/hugo-theme-meme/commit/a995897))
+* support instant page ([6a9876b](https://github.com/reuixiy/hugo-theme-meme/commit/6a9876b))
+* support unordered toc ([9093207](https://github.com/reuixiy/hugo-theme-meme/commit/9093207))
+* update google fonts css api to v2 ([67bb2c5](https://github.com/reuixiy/hugo-theme-meme/commit/67bb2c5))
+
+
+### Performance Improvements
+
+* add throttle for scroll and resize listener ([6945afd](https://github.com/reuixiy/hugo-theme-meme/commit/6945afd))
+* defer google fonts and add preconnect rel ([5ff821d](https://github.com/reuixiy/hugo-theme-meme/commit/5ff821d))
+* drop instantclick support ([b9cea3b](https://github.com/reuixiy/hugo-theme-meme/commit/b9cea3b))
+* remove outdated keywords meta ([fa5bf38](https://github.com/reuixiy/hugo-theme-meme/commit/fa5bf38))
+* replace `calc()` with `rem` ([acf1cae](https://github.com/reuixiy/hugo-theme-meme/commit/acf1cae))
+* use cilent side js selector for medium zoom ([4eb0408](https://github.com/reuixiy/hugo-theme-meme/commit/4eb0408))
+
+
+### BREAKING CHANGES
+
+* `compatibleWithLaTeX` is removed
+
+If you have enabled this param before, you can replace this feature with HTML `<div>` or `<span>` tag, e.g.
+
+```html
+<div>
+$$
+...
+$$
+</div>
+```
+
+inline math `<span>$...$</span>`
+
+...which prevents LaTeX code from being processed by the Markdown renderer.
+
+Sorry for the inconvenience *again* :(
+
+
+
 ## [4.2.1](https://github.com/reuixiy/hugo-theme-meme/compare/v4.2.0...v4.2.1) (2020-02-20)
 
 

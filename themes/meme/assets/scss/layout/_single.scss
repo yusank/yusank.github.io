@@ -32,7 +32,7 @@
 
 .post {
     p {
-        margin: 0 0 1em;
+        margin: 1em 0;
         line-height: $lineHeight;
     }
     img {
@@ -56,6 +56,7 @@
         }
     }
     ol, ul {
+        margin: 0;
         padding-left: 2em;
         line-height: $lineHeight;
     }
@@ -204,20 +205,52 @@ dd {
 
 code {
     padding: ($fontSize / 8) ($fontSize / 4);
-    background-color: var(--color-contrast-lower);
+    background-color: alpha(var(--color-contrast-lower), 0.5);
     font-size: 80%;
 }
 pre {
-    overflow: auto hidden;
+    overflow: auto;
+    overflow-wrap: normal;
+    word-wrap: normal;
     font-size: 0.8rem;
     margin: 2rem 0;
     padding: 1em;
     line-height: 1.618;
-    background-color: alpha(var(--color-contrast-lower), 0.75);
+    background-color: alpha(var(--color-contrast-lower), 0.5);
     code {
         background-color: unset;
-        font-size: inherit;
+        font-size: 0.8rem;
         padding: 0;
+    }
+}
+
+@if ($enableOverflowY) {
+    pre {
+        max-height: $maxHeight;
+    }
+}
+
+@if ($enableCopy) {
+    .copy-button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        border: 0;
+        font-size: inherit;
+        color: var(--color-bg);
+        background-color: alpha(var(--color-contrast-medium), 0.5);
+        transition: all $duration;
+        cursor: pointer;
+        &:hover {
+            background-color: alpha(var(--color-primary), 0.5);
+        }
+    }
+
+    @if ($enableCopyAutoHide) {
+        .copy-button {
+            visibility: hidden;
+            opacity: 0;
+        }
     }
 }
 

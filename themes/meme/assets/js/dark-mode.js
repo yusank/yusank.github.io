@@ -1,93 +1,81 @@
-// Back to Previous Mode & Respect System Preferences
-// `userPrefers`, `darkModeMediaQuery`, `lightModeMediaQuery` is defined in layouts/partials/head.html
-
-if (userPrefers === 'dark') {
-    changeMode('dark');
-} else if (userPrefers === 'light') {
-    changeMode('light');
-} else if (darkModeMediaQuery.matches) {
-    changeMode('dark');
-} else if (lightModeMediaQuery.matches) {
-    changeMode('light');
-}
-
 // Reactive Dark Mode
 // https://web.dev/prefers-color-scheme/#reacting-on-dark-mode-changes
 // https://twitter.com/ChromeDevTools/status/1197175265643745282
 
-darkModeMediaQuery.addListener((e) => {
-    const darkModeOn = e.matches;
-    if (darkModeOn) {
-        changeModeMeta('dark');
-        changeMode('dark');
-        setMode('dark');
-    }
+const userPrefers = localStorage.getItem('theme');
+if (userPrefers === 'dark') {
+    changeModeMeta('dark');
+} else if (userPrefers === 'light') {
+    changeModeMeta('light');
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addListener((e) => {
+    changeMode();
 });
 
-lightModeMediaQuery.addListener((e) => {
-    const lightModeOn = e.matches;
-    if (lightModeOn) {
-        changeModeMeta('light');
-        changeMode('light');
-        setMode('light');
+window.addEventListener("DOMContentLoaded", event => {
+    // Update meta tags and code highlighting
+    changeMode();
+
+    // Theme Switcher
+    // https://derekkedziora.com/blog/dark-mode
+
+    const themeSwitcher = document.getElementById('theme-switcher');
+
+    if (themeSwitcher) {
+        themeSwitcher.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (getCurrentTheme() == "dark") {
+                changeModeMeta('light');
+            } else {
+                changeModeMeta('dark');
+            }
+            changeMode();
+            storePrefers();
+        });
     }
-});
-
-// Theme Switcher
-// https://derekkedziora.com/blog/dark-mode
-
-const themeSwitcher = document.getElementById('theme-switcher');
-
-themeSwitcher.addEventListener('click', function() {
-    const currentMode = document.documentElement.getAttribute('data-theme');
-
-    if (currentMode === 'dark') {
-        changeModeMeta('light');
-        changeMode('light');
-        setMode('light');
-    } else {
-        changeModeMeta('dark');
-        changeMode('dark');
-        setMode('dark');
-    }
-});
+}, {once: true});
 
 // Sync Across Tabs
 // https://codepen.io/tevko/pen/GgWYpg
 
 window.addEventListener('storage', function (event) {
+    if (event.key !== 'theme') {
+      return;
+    }
+
     if (event.newValue === 'dark') {
         changeModeMeta('dark');
-        changeMode('dark');
     } else {
         changeModeMeta('light');
-        changeMode('light');
     }
+    changeMode();
 });
 
 // Functions
 
-function changeMode(theme) {
-    var isDark = theme === 'dark';
+function getCurrentTheme() {
+    return JSON.parse(window.getComputedStyle(document.documentElement, null).getPropertyValue("--theme-name"));
+}
 
-    // Change Theme Toggle Emoji
-    document.getElementById('theme-switcher').innerHTML = isDark ? '🌙' : '🌞';
+function changeModeMeta(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+}
 
-    // Change Chroma Code Highlight Theme
-    var oldChromaTheme = isDark ? 'chroma' : 'chroma-dark';
-    var newChromaTheme = isDark ? 'chroma-dark' : 'chroma';
+function changeMode() {
+    const isDark = getCurrentTheme() === 'dark';
 
-    [].slice.apply(document.getElementsByClassName(oldChromaTheme)).forEach((e) => {
-        e.className = newChromaTheme;
-    });
+    // Change theme color meta
+    const themeColor = isDark ? '{{ .Site.Params.themeColorDark }}' : '{{ .Site.Params.themeColor }}';
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', themeColor);
 
     {{ if and .Site.Params.enableUtterances (eq hugo.Environment "production") }}
         // Change Utterances Comments Theme
         // https://github.com/utterance/utterances/issues/229
         if (isDark) {
-            changeUtterancesTheme('{{ .Site.Params.utterancesThemeDark }}');
+            changeUtterancesTheme('{{ .Site.Params.utterancesThemeDark | default "photon-dark" }}');
         } else {
-            changeUtterancesTheme('{{ .Site.Params.utterancesTheme }}');
+            changeUtterancesTheme('{{ .Site.Params.utterancesTheme | default "github-light" }}');
         }
         function changeUtterancesTheme(theme) {
             const iframe = document.querySelector('.utterances-frame');
@@ -100,8 +88,36 @@ function changeMode(theme) {
             }
         }
     {{ end }}
+
+    // Mermaid
+    // https://github.com/reuixiy/hugo-theme-meme/issues/205
+    if (typeof mermaidConfig !== 'undefined') {
+        const mermaids = document.querySelectorAll('.mermaid');
+
+        mermaids.forEach(e => {
+            if (e.getAttribute('data-processed')) {
+                // Already rendered, clean the processed attributes
+                e.removeAttribute('data-processed');
+                // Replace the rendered HTML with the stored text
+                e.innerHTML = e.getAttribute('data-graph');
+            } else {
+                // First time, store the text
+                e.setAttribute('data-graph', e.textContent);
+            }
+        });
+
+        if (isDark) {
+            mermaidConfig.theme = '{{ .Site.Params.mermaidThemeDark | default "dark" }}';
+            mermaid.initialize(mermaidConfig);
+            mermaid.init();
+        } else {
+            mermaidConfig.theme = '{{ .Site.Params.mermaidTheme | default "default" }}';
+            mermaid.initialize(mermaidConfig);
+            mermaid.init();
+        }
+    }
 }
 
-function setMode(theme) {
-    window.localStorage.setItem('theme', theme);
+function storePrefers() {
+    window.localStorage.setItem('theme', getCurrentTheme());
 }

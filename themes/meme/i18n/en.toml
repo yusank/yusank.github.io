@@ -1,5 +1,5 @@
 [ellipsis]
-other = "..."
+other = "…"
 
 [colon]
 other = ": "
@@ -19,6 +19,12 @@ other = "Newer"
 
 [nextPage]
 other = "Older"
+
+[copy]
+other = "Copy"
+
+[copied]
+other = "Copied!"
 
 [copyrightAuthor]
 other = "Author"
@@ -44,14 +50,18 @@ other = "See Also:"
 [loadComments]
 other = "Load Comments?"
 
+[pageNotFound]
+other = "404 - Page not found"
+
 [fofLinkText]
 other = "Take Me Home"
 
-[serviceWorkerUpdatedText]
-other = "New Update Available"
+[searchResultsTitle]
+one = "Found one result for “{{ .Term }}”"
+other = "Found {{ .Count }} results for “{{ .Term }}”"
 
-[serviceWorkerUpdatedAction]
-other = "Refresh"
+[searchResultsNone]
+other = "No results found for “{{ .Term }}”"
 
 
 # Socials

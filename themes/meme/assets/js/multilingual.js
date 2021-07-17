@@ -1,10 +1,15 @@
-const langSwitcher = document.getElementById('lang-switcher');
-const langs = document.getElementById('langs');
+window.addEventListener("DOMContentLoaded", event => {
+    const langSwitcher = document.getElementById('lang-switcher');
 
-langSwitcher.addEventListener('mouseover', function() {
-    langs.style = 'display: block';
-});
+    if (langSwitcher) {
+        const langs = document.getElementById('langs');
 
-langSwitcher.addEventListener('mouseout', function() {
-    langs.style = 'display: none';
-});
+        langSwitcher.addEventListener('mouseover', function() {
+            langs.style = 'display: block';
+        });
+
+        langSwitcher.addEventListener('mouseout', function() {
+            langs.style = 'display: none';
+        });
+    }
+}, {once: true});
