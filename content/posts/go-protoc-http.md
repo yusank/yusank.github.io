@@ -6,8 +6,8 @@ categories:
 - protobuf
 tags:
 - go
-- proto
-- protobuf
+- grpc
+- protoc
 ---
 
 ## 前言
