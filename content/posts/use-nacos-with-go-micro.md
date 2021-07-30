@@ -3,7 +3,7 @@ date: 2021-06-23T18:22:00+08:00
 title: "Go-Micro 中使用Nacos"
 categories:
 - microservice
-tag:
+tags:
 - go
 - go-micro
 ---
