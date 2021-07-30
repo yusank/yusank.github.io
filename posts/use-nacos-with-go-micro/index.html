@@ -23,7 +23,7 @@
 <meta name=msapplication-TileImage content="../../icons/mstile-150x150.png">
 <link rel=manifest href=/manifest.json>
 <link rel=canonical href=https://yusank.github.io/posts/use-nacos-with-go-micro/>
-<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","datePublished":"2021-06-23T18:22:00+08:00","dateModified":"2021-07-30T08:51:02+00:00","url":"https://yusank.github.io/posts/use-nacos-with-go-micro/","headline":"Go-Micro 中使用Nacos","description":"go-micro 作为比较流行的微服务框架，其良好的接口设计为后期扩展使用带来了非常好的便利性。本文章主要讲在 go-micro 中用 nacos 作为服务注册中心和……","inLanguage":"zh-CN","articleSection":"posts","wordCount":2339,"image":"https://yusank.github.io/icons/apple-touch-icon.png","author":{"@type":"Person","description":"Stay with light's","email":"yusankurban@gmail.com","image":"https://yusank.github.io/icons/apple-touch-icon.png","url":"https://yusank.github.io/","name":"yusank"},"publisher":{"@type":"Organization","name":"Yusank`s Site","logo":{"@type":"ImageObject","url":"https://yusank.github.io/icons/apple-touch-icon.png"},"url":"https://yusank.github.io/"},"mainEntityOfPage":{"@type":"WebSite","@id":"https://yusank.github.io/"}}</script>
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","datePublished":"2021-06-23T18:22:00+08:00","dateModified":"2021-07-30T08:53:07+00:00","url":"https://yusank.github.io/posts/use-nacos-with-go-micro/","headline":"Go-Micro 中使用Nacos","description":"go-micro 作为比较流行的微服务框架，其良好的接口设计为后期扩展使用带来了非常好的便利性。本文章主要讲在 go-micro 中用 nacos 作为服务注册中心和……","inLanguage":"zh-CN","articleSection":"posts","wordCount":2339,"image":"https://yusank.github.io/icons/apple-touch-icon.png","author":{"@type":"Person","description":"Stay with light's","email":"yusankurban@gmail.com","image":"https://yusank.github.io/icons/apple-touch-icon.png","url":"https://yusank.github.io/","name":"yusank"},"publisher":{"@type":"Organization","name":"Yusank`s Site","logo":{"@type":"ImageObject","url":"https://yusank.github.io/icons/apple-touch-icon.png"},"url":"https://yusank.github.io/"},"mainEntityOfPage":{"@type":"WebSite","@id":"https://yusank.github.io/"}}</script>
 <meta name=twitter:card content="summary">
 <meta property="og:title" content="Go-Micro 中使用Nacos">
 <meta property="og:description" content="go-micro 作为比较流行的微服务框架，其良好的接口设计为后期扩展使用带来了非常好的便利性。本文章主要讲在 go-micro 中用 nacos 作为服务注册中心和……">
@@ -32,7 +32,7 @@
 <meta property="og:locale" content="zh"><meta property="og:image" content="https://yusank.github.io/icons/apple-touch-icon.png">
 <meta property="og:type" content="article">
 <meta property="article:published_time" content="2021-06-23T18:22:00+08:00">
-<meta property="article:modified_time" content="2021-07-30T08:51:02+00:00">
+<meta property="article:modified_time" content="2021-07-30T08:53:07+00:00">
 <meta property="article:section" content="posts">
 </head>
 <body>
@@ -1121,16 +1121,16 @@
 </ul>
 </article>
 <div class=updated-badge-container>
-<span title="Updated @ 2021-07-30 08:51:02 UTC" style=cursor:help><svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2021-07-30</text><text x="915" y="140" textLength="650" transform="scale(.1)">2021-07-30</text></g></svg>
+<span title="Updated @ 2021-07-30 08:53:07 UTC" style=cursor:help><svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2021-07-30</text><text x="915" y="140" textLength="650" transform="scale(.1)">2021-07-30</text></g></svg>
 </span></div>
 <div class=post-share>
 <div class=share-text>分享：</div>
 <div class=share-items>
 <div class="share-item twitter">
-<a href="https://twitter.com/share?url=https://yusank.github.io/posts/use-nacos-with-go-micro/&text=Go-Micro%20%e4%b8%ad%e4%bd%bf%e7%94%a8Nacos&hashtags=&via=" title=分享到「Twitter」 target=_blank rel=noopener><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon twitter-icon"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645.0 138.72-105.583 298.558-298.558 298.558-59.452.0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055.0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421.0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391.0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04.0-57.828 46.782-104.934 104.934-104.934 30.213.0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg></a>
+<a href="https://twitter.com/share?url=https://yusank.github.io/posts/use-nacos-with-go-micro/&text=Go-Micro%20%e4%b8%ad%e4%bd%bf%e7%94%a8Nacos&hashtags=go,go-micro,&via=" title=分享到「Twitter」 target=_blank rel=noopener><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon twitter-icon"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645.0 138.72-105.583 298.558-298.558 298.558-59.452.0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055.0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421.0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391.0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04.0-57.828 46.782-104.934 104.934-104.934 30.213.0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg></a>
 </div>
 <div class="share-item facebook">
-<a href="https://www.facebook.com/sharer/sharer.php?u=https://yusank.github.io/posts/use-nacos-with-go-micro/&hashtag=%23" title=分享到「Facebook」 target=_blank rel=noopener><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon facebook-icon"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14.0 55.52 4.84 55.52 4.84v61h-31.28c-30.8.0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z"/></svg></a>
+<a href="https://www.facebook.com/sharer/sharer.php?u=https://yusank.github.io/posts/use-nacos-with-go-micro/&hashtag=%23go" title=分享到「Facebook」 target=_blank rel=noopener><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon facebook-icon"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14.0 55.52 4.84 55.52 4.84v61h-31.28c-30.8.0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z"/></svg></a>
 </div>
 <div class="share-item linkedin">
 <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://yusank.github.io/posts/use-nacos-with-go-micro/&title=Go-Micro%20%e4%b8%ad%e4%bd%bf%e7%94%a8Nacos&summary=go-micro%20%e4%bd%9c%e4%b8%ba%e6%af%94%e8%be%83%e6%b5%81%e8%a1%8c%e7%9a%84%e5%be%ae%e6%9c%8d%e5%8a%a1%e6%a1%86%e6%9e%b6%ef%bc%8c%e5%85%b6%e8%89%af%e5%a5%bd%e7%9a%84%e6%8e%a5%e5%8f%a3%e8%ae%be%e8%ae%a1%e4%b8%ba%e5%90%8e%e6%9c%9f%e6%89%a9%e5%b1%95%e4%bd%bf%e7%94%a8%e5%b8%a6%e6%9d%a5%e4%ba%86%e9%9d%9e%e5%b8%b8%e5%a5%bd%e7%9a%84%e4%be%bf%e5%88%a9%e6%80%a7%e3%80%82%e6%9c%ac%e6%96%87%e7%ab%a0%e4%b8%bb%e8%a6%81%e8%ae%b2%e5%9c%a8%20go-micro%20%e4%b8%ad%e7%94%a8%20nacos%20%e4%bd%9c%e4%b8%ba%e6%9c%8d%e5%8a%a1%e6%b3%a8%e5%86%8c%e4%b8%ad%e5%bf%83%e5%92%8c%e2%80%a6%e2%80%a6&source=Yusank%60s%20Site" title=分享到「LinkedIn」 target=_blank rel=noopener><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon linkedin-icon"><path d="M416 32H31.9C14.3 32 0 46.5.0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6.0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3.0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2.0 38.5 17.3 38.5 38.5.0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6.0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2.0 79.7 44.3 79.7 101.9V416z"/></svg></a>
@@ -1164,7 +1164,23 @@
 <li class=related-item>
 <a href=/posts/go-micro-1/ class=related-link>Go-Micro 的架构及其使用（一）</a>
 </li>
+<li class=related-item>
+<a href=/posts/go-protoc-http/ class=related-link>如何自定义 protoc 插件</a>
+</li>
+<li class=related-item>
+<a href=/posts/go-cobra/ class=related-link>如何编写自己的第一个命令行工具</a>
+</li>
+<li class=related-item>
+<a href=/posts/go-standard/ class=related-link>Go 语言开发及常用库的使用规范(语言篇)</a>
+</li>
+<li class=related-item>
+<a href=/posts/go-map/ class=related-link>Go Map 源码解读</a>
+</li>
 </ul>
+</div>
+<div class=post-tags>
+<a href=/tags/go/ rel=tag class=post-tags-link><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon tag-icon"><path d="M0 252.118V48C0 21.49 21.49.0 48 0h204.118a48 48 0 0133.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137.0 67.882L293.823 497.941c-18.745 18.745-49.137 18.745-67.882.0L14.059 286.059A48 48 0 010 252.118zM112 64c-26.51.0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48z"/></svg>go</a>
+<a href=/tags/go-micro/ rel=tag class=post-tags-link><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon tag-icon"><path d="M0 252.118V48C0 21.49 21.49.0 48 0h204.118a48 48 0 0133.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137.0 67.882L293.823 497.941c-18.745 18.745-49.137 18.745-67.882.0L14.059 286.059A48 48 0 010 252.118zM112 64c-26.51.0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48z"/></svg>go-micro</a>
 </div>
 <ul class=post-nav>
 <li class=post-nav-prev>
