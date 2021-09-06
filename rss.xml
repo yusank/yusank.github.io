@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.86.0 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Fri, 30 Jul 2021 09:04:08 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>如何自定义 protoc 插件</title><link>https://yusank.github.io/posts/go-protoc-http/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-protoc-http/</guid><pubDate>Thu, 08 Jul 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;h2 id="前言">前言&lt;/h2>
+<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.88.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Mon, 06 Sep 2021 06:13:45 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>如何自定义 protoc 插件</title><link>https://yusank.github.io/posts/go-protoc-http/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-protoc-http/</guid><pubDate>Thu, 08 Jul 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;h2 id="前言">前言&lt;/h2>
 &lt;p>如果大家接触过 grpc 和 protobuf ，那对 &lt;code>protoc&lt;/code> 这个命令应该不陌生。&lt;/p>
 &lt;p>&lt;code>protoc&lt;/code> 为基于 proto buffer 文件生成不同语言代码的工具，在日常业务开发中能经常用到。那先抛出一个问题，你有没有基于 pb 文件生成满足自己特殊要求的需求？比如生成对应的 http 代码或校验参数等。&lt;/p>
 &lt;p>我个人需求为，除了生成正常的 &lt;code>grpc&lt;/code> 代码外，需要生成一套对应的 &lt;code>http&lt;/code> 代码，而且最好是能直接在 gin/iris 这种主流 web 框架内注册使用。&lt;/p>
@@ -5566,9 +5566,9 @@ P决定了同时可以并发任务的数量，可通过GOMAXPROCS限制同时执
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;tr>&lt;td>
-&lt;pre>&lt;code>failed to x: failed to y: failed to create new store: the error
+&lt;pre tabindex="0">&lt;code>failed to x: failed to y: failed to create new store: the error
 &lt;/code>&lt;/pre>&lt;/td>&lt;td>
-&lt;pre>&lt;code>x: y: new store: the error
+&lt;pre tabindex="0">&lt;code>x: y: new store: the error
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>
 &lt;/tbody>&lt;/table>
 &lt;p>但是，一旦将错误发送到另一个系统，就应该明确消息是错误消息（例如使用&lt;code>err&lt;/code>标记，或在日志中以”Failed”为前缀）。&lt;/p>
@@ -6391,9 +6391,9 @@ fine. -->
 &lt;/div>
 &lt;/div>&lt;/td>&lt;/tr>
 &lt;tr>&lt;td>
-&lt;pre>&lt;code>BenchmarkBad-4 100000000 2.48s
+&lt;pre tabindex="0">&lt;code>BenchmarkBad-4 100000000 2.48s
 &lt;/code>&lt;/pre>&lt;/td>&lt;td>
-&lt;pre>&lt;code>BenchmarkGood-4 100000000 0.21s
+&lt;pre tabindex="0">&lt;code>BenchmarkGood-4 100000000 0.21s
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>
 &lt;/tbody>&lt;/table>
 &lt;h2 id="性能">性能&lt;/h2>
@@ -6431,9 +6431,9 @@ fine. -->
 &lt;/div>
 &lt;/div>&lt;/td>&lt;/tr>
 &lt;tr>&lt;td>
-&lt;pre>&lt;code>BenchmarkFmtSprint-4 143 ns/op 2 allocs/op
+&lt;pre tabindex="0">&lt;code>BenchmarkFmtSprint-4 143 ns/op 2 allocs/op
 &lt;/code>&lt;/pre>&lt;/td>&lt;td>
-&lt;pre>&lt;code>BenchmarkStrconv-4 64.2 ns/op 1 allocs/op
+&lt;pre tabindex="0">&lt;code>BenchmarkStrconv-4 64.2 ns/op 1 allocs/op
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>
 &lt;/tbody>&lt;/table>
 &lt;h3 id="避免字符串到字节的转换">避免字符串到字节的转换&lt;/h3>
@@ -6471,9 +6471,9 @@ fine. -->
 &lt;/div>
 &lt;/div>&lt;/tr>
 &lt;tr>&lt;td>
-&lt;pre>&lt;code>BenchmarkBad-4 50000000 22.2 ns/op
+&lt;pre tabindex="0">&lt;code>BenchmarkBad-4 50000000 22.2 ns/op
 &lt;/code>&lt;/pre>&lt;/td>&lt;td>
-&lt;pre>&lt;code>BenchmarkGood-4 500000000 3.25 ns/op
+&lt;pre tabindex="0">&lt;code>BenchmarkGood-4 500000000 3.25 ns/op
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>
 &lt;/tbody>&lt;/table>
 &lt;h3 id="指定容器容量">指定容器容量&lt;/h3>
@@ -6594,9 +6594,9 @@ fine. -->
 &lt;/div>
 &lt;/div>&lt;/td>&lt;/tr>
 &lt;tr>&lt;td>
-&lt;pre>&lt;code>BenchmarkBad-4 100000000 2.48s
+&lt;pre tabindex="0">&lt;code>BenchmarkBad-4 100000000 2.48s
 &lt;/code>&lt;/pre>&lt;/td>&lt;td>
-&lt;pre>&lt;code>BenchmarkGood-4 100000000 0.21s
+&lt;pre tabindex="0">&lt;code>BenchmarkGood-4 100000000 0.21s
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>
 &lt;/tbody>&lt;/table>
 &lt;h2 id="规范">规范&lt;/h2>
@@ -10923,7 +10923,7 @@ client端：
 &lt;p>基于goroutine的网络架构模型，存在在不同goroutine间共享conn的情况，那么conn的读写是否是goroutine safe的呢？在深入这个问题之前，我们先从应用意义上来看read操作和write操作的goroutine-safe必要性。&lt;/p>
 &lt;p>对于read操作而言，由于TCP是面向字节流，conn.Read无法正确区分数据的业务边界，因此多个goroutine对同一个conn进行read的意义不大，goroutine读到不完整的业务包反倒是增加了业务处理的难度。对与Write操作而言，倒是有多个goroutine并发写的情况。不过conn读写是否goroutine-safe的测试不是很好做，我们先深入一下runtime代码，先从理论上给这个问题定个性：&lt;/p>
 &lt;p>net.conn只是*netFD的wrapper结构，最终Write和Read都会落在其中的fd上：&lt;/p>
-&lt;pre>&lt;code>type conn struct {
+&lt;pre tabindex="0">&lt;code>type conn struct {
 fd *netFD
 }
 &lt;/code>&lt;/pre>&lt;p>netFD在不同平台上有着不同的实现，我们以net/fd_unix.go中的netFD为例：&lt;/p>
@@ -13708,7 +13708,7 @@ FAIL gotest 0.012s
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>然后我们执行&lt;code>go test -v&lt;/code>，就显示如下信息，测试通过了：&lt;/p>
-&lt;pre>&lt;code>=== RUN Test_Division_1
+&lt;pre tabindex="0">&lt;code>=== RUN Test_Division_1
 --- PASS: Test_Division_1 (0.00 seconds)
 gotest_test.go:11: 第一个测试通过了
 === RUN Test_Division_2
@@ -13786,7 +13786,7 @@ ok gotest 0.013s
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>我们执行命令&lt;code>go test -file webbench_test.go -test.bench=&amp;quot;.*&amp;quot;&lt;/code>，可以看到如下结果：&lt;/p>
-&lt;pre>&lt;code>PASS
+&lt;pre tabindex="0">&lt;code>PASS
 Benchmark_Division 500000000 7.76 ns/op
 Benchmark_TimeConsumingFunction 500000000 7.80 ns/op
 ok gotest 9.364s

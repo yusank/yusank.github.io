@@ -1,7 +1,7 @@
 <!doctype html><html lang=zh-cn>
 <head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
 <meta charset=utf-8>
-<meta name=generator content="Hugo 0.86.0"><meta name=theme-color content="#fff">
+<meta name=generator content="Hugo 0.88.1"><meta name=theme-color content="#fff">
 <meta name=viewport content="width=device-width,initial-scale=1">
 <meta name=format-detection content="telephone=no, date=no, address=no, email=no">
 <meta http-equiv=cache-control content="no-transform">
@@ -23,7 +23,7 @@
 <meta name=msapplication-TileImage content="../../icons/mstile-150x150.png">
 <link rel=manifest href=/manifest.json>
 <link rel=canonical href=https://yusank.github.io/posts/go-interface/>
-<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","datePublished":"2017-06-08T15:07:00+08:00","dateModified":"2021-07-30T09:04:06+00:00","url":"https://yusank.github.io/posts/go-interface/","headline":"GO interface","description":"go 的 interface 的实现和原理。 Go interface interface 在 Golang 中 interface 是一个很重要的概念和特性。 什么是 interface？ In object-oriented programming, a protocol or interface is a common means for unrelated objects to communicate with……","inLanguage":"zh-CN","articleSection":"posts","wordCount":2681,"image":"https://yusank.github.io/icons/apple-touch-icon.png","author":{"@type":"Person","description":"Stay with light's","email":"yusankurban@gmail.com","image":"https://yusank.github.io/icons/apple-touch-icon.png","url":"https://yusank.github.io/","name":"yusank"},"publisher":{"@type":"Organization","name":"Yusank`s Site","logo":{"@type":"ImageObject","url":"https://yusank.github.io/icons/apple-touch-icon.png"},"url":"https://yusank.github.io/"},"mainEntityOfPage":{"@type":"WebSite","@id":"https://yusank.github.io/"}}</script>
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","datePublished":"2017-06-08T15:07:00+08:00","dateModified":"2021-09-06T06:13:41+00:00","url":"https://yusank.github.io/posts/go-interface/","headline":"GO interface","description":"go 的 interface 的实现和原理。 Go interface interface 在 Golang 中 interface 是一个很重要的概念和特性。 什么是 interface？ In object-oriented programming, a protocol or interface is a common means for unrelated objects to communicate with……","inLanguage":"zh-CN","articleSection":"posts","wordCount":2681,"image":"https://yusank.github.io/icons/apple-touch-icon.png","author":{"@type":"Person","description":"Stay with light's","email":"yusankurban@gmail.com","image":"https://yusank.github.io/icons/apple-touch-icon.png","url":"https://yusank.github.io/","name":"yusank"},"publisher":{"@type":"Organization","name":"Yusank`s Site","logo":{"@type":"ImageObject","url":"https://yusank.github.io/icons/apple-touch-icon.png"},"url":"https://yusank.github.io/"},"mainEntityOfPage":{"@type":"WebSite","@id":"https://yusank.github.io/"}}</script>
 <meta name=twitter:card content="summary">
 <meta property="og:title" content="GO interface">
 <meta property="og:description" content="go 的 interface 的实现和原理。 Go interface interface 在 Golang 中 interface 是一个很重要的概念和特性。 什么是 interface？ In object-oriented programming, a protocol or interface is a common means for unrelated objects to communicate with……">
@@ -32,7 +32,7 @@
 <meta property="og:locale" content="zh"><meta property="og:image" content="https://yusank.github.io/icons/apple-touch-icon.png">
 <meta property="og:type" content="article">
 <meta property="article:published_time" content="2017-06-08T15:07:00+08:00">
-<meta property="article:modified_time" content="2021-07-30T09:04:06+00:00">
+<meta property="article:modified_time" content="2021-09-06T06:13:41+00:00">
 <meta property="article:section" content="posts">
 </head>
 <body>
@@ -573,7 +573,7 @@
 </ul>
 </article>
 <div class=updated-badge-container>
-<span title="Updated @ 2021-07-30 09:04:06 UTC" style=cursor:help><svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2021-07-30</text><text x="915" y="140" textLength="650" transform="scale(.1)">2021-07-30</text></g></svg>
+<span title="Updated @ 2021-09-06 06:13:41 UTC" style=cursor:help><svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2021-09-06</text><text x="915" y="140" textLength="650" transform="scale(.1)">2021-09-06</text></g></svg>
 </span></div>
 <div class=post-share>
 <div class=share-text>分享：</div>

@@ -1,7 +1,7 @@
 <!doctype html><html lang=zh-cn>
 <head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
 <meta charset=utf-8>
-<meta name=generator content="Hugo 0.86.0"><meta name=theme-color content="#fff">
+<meta name=generator content="Hugo 0.88.1"><meta name=theme-color content="#fff">
 <meta name=viewport content="width=device-width,initial-scale=1">
 <meta name=format-detection content="telephone=no, date=no, address=no, email=no">
 <meta http-equiv=cache-control content="no-transform">
@@ -23,7 +23,7 @@
 <meta name=msapplication-TileImage content="../../icons/mstile-150x150.png">
 <link rel=manifest href=/manifest.json>
 <link rel=canonical href=https://yusank.github.io/posts/go-standard/>
-<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","datePublished":"2020-11-25T16:24:41+08:00","dateModified":"2021-07-30T09:04:06+00:00","url":"https://yusank.github.io/posts/go-standard/","headline":"Go 语言开发及常用库的使用规范(语言篇)","description":"语言篇，提出常见的开发上的不好的、不规范的写法，并给出更好的写法。 Uber 是一家美国硅谷的科技公司，也是 Go 语言的早期 adopt……","inLanguage":"zh-CN","articleSection":"posts","wordCount":14153,"image":"https://yusank.github.io/icons/apple-touch-icon.png","author":{"@type":"Person","description":"Stay with light's","email":"yusankurban@gmail.com","image":"https://yusank.github.io/icons/apple-touch-icon.png","url":"https://yusank.github.io/","name":"yusank"},"publisher":{"@type":"Organization","name":"Yusank`s Site","logo":{"@type":"ImageObject","url":"https://yusank.github.io/icons/apple-touch-icon.png"},"url":"https://yusank.github.io/"},"mainEntityOfPage":{"@type":"WebSite","@id":"https://yusank.github.io/"}}</script>
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","datePublished":"2020-11-25T16:24:41+08:00","dateModified":"2021-09-06T06:13:41+00:00","url":"https://yusank.github.io/posts/go-standard/","headline":"Go 语言开发及常用库的使用规范(语言篇)","description":"语言篇，提出常见的开发上的不好的、不规范的写法，并给出更好的写法。 Uber 是一家美国硅谷的科技公司，也是 Go 语言的早期 adopt……","inLanguage":"zh-CN","articleSection":"posts","wordCount":14153,"image":"https://yusank.github.io/icons/apple-touch-icon.png","author":{"@type":"Person","description":"Stay with light's","email":"yusankurban@gmail.com","image":"https://yusank.github.io/icons/apple-touch-icon.png","url":"https://yusank.github.io/","name":"yusank"},"publisher":{"@type":"Organization","name":"Yusank`s Site","logo":{"@type":"ImageObject","url":"https://yusank.github.io/icons/apple-touch-icon.png"},"url":"https://yusank.github.io/"},"mainEntityOfPage":{"@type":"WebSite","@id":"https://yusank.github.io/"}}</script>
 <meta name=twitter:card content="summary">
 <meta property="og:title" content="Go 语言开发及常用库的使用规范(语言篇)">
 <meta property="og:description" content="语言篇，提出常见的开发上的不好的、不规范的写法，并给出更好的写法。 Uber 是一家美国硅谷的科技公司，也是 Go 语言的早期 adopt……">
@@ -32,7 +32,7 @@
 <meta property="og:locale" content="zh"><meta property="og:image" content="https://yusank.github.io/icons/apple-touch-icon.png">
 <meta property="og:type" content="article">
 <meta property="article:published_time" content="2020-11-25T16:24:41+08:00">
-<meta property="article:modified_time" content="2021-07-30T09:04:06+00:00">
+<meta property="article:modified_time" content="2021-09-06T06:13:41+00:00">
 <meta property="article:section" content="posts">
 </head>
 <body>
@@ -1423,9 +1423,9 @@
 </code></pre></td></tr></table></div>
 </div>
 </div><tr><td>
-<pre><code>failed to x: failed to y: failed to create new store: the error
+<pre tabindex=0><code>failed to x: failed to y: failed to create new store: the error
 </code></pre></td><td>
-<pre><code>x: y: new store: the error
+<pre tabindex=0><code>x: y: new store: the error
 </code></pre></td></tr>
 </tbody></table></div>
 <p>但是，一旦将错误发送到另一个系统，就应该明确消息是错误消息（例如使用<code>err</code>标记，或在日志中以”Failed”为前缀）。</p>
@@ -2255,9 +2255,9 @@
 </div>
 </div></td></tr>
 <tr><td>
-<pre><code>BenchmarkBad-4    100000000    2.48s
+<pre tabindex=0><code>BenchmarkBad-4    100000000    2.48s
 </code></pre></td><td>
-<pre><code>BenchmarkGood-4   100000000    0.21s
+<pre tabindex=0><code>BenchmarkGood-4   100000000    0.21s
 </code></pre></td></tr>
 </tbody></table></div>
 <h2 id=性能><a href=#性能 class=anchor-link><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96.0-59.27-59.26-59.27-155.7.0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757.0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037.0 01-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482.0 0120.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96.0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454.0 0020.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037.0 00-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639.0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a><a href=#contents:性能 class=headings>性能</a></h2>
@@ -2295,9 +2295,9 @@
 </div>
 </div></td></tr>
 <tr><td>
-<pre><code>BenchmarkFmtSprint-4    143 ns/op    2 allocs/op
+<pre tabindex=0><code>BenchmarkFmtSprint-4    143 ns/op    2 allocs/op
 </code></pre></td><td>
-<pre><code>BenchmarkStrconv-4    64.2 ns/op    1 allocs/op
+<pre tabindex=0><code>BenchmarkStrconv-4    64.2 ns/op    1 allocs/op
 </code></pre></td></tr>
 </tbody></table></div>
 <h3 id=避免字符串到字节的转换><a href=#避免字符串到字节的转换 class=anchor-link><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96.0-59.27-59.26-59.27-155.7.0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757.0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037.0 01-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482.0 0120.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96.0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454.0 0020.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037.0 00-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639.0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a><a href=#contents:避免字符串到字节的转换 class=headings>避免字符串到字节的转换</a></h3>
@@ -2335,9 +2335,9 @@
 </div>
 </div></tr>
 <tr><td>
-<pre><code>BenchmarkBad-4   50000000   22.2 ns/op
+<pre tabindex=0><code>BenchmarkBad-4   50000000   22.2 ns/op
 </code></pre></td><td>
-<pre><code>BenchmarkGood-4  500000000   3.25 ns/op
+<pre tabindex=0><code>BenchmarkGood-4  500000000   3.25 ns/op
 </code></pre></td></tr>
 </tbody></table></div>
 <h3 id=指定容器容量><a href=#指定容器容量 class=anchor-link><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96.0-59.27-59.26-59.27-155.7.0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757.0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037.0 01-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482.0 0120.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96.0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454.0 0020.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037.0 00-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639.0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a><a href=#contents:指定容器容量 class=headings>指定容器容量</a></h3>
@@ -2460,9 +2460,9 @@
 </div>
 </div></td></tr>
 <tr><td>
-<pre><code>BenchmarkBad-4    100000000    2.48s
+<pre tabindex=0><code>BenchmarkBad-4    100000000    2.48s
 </code></pre></td><td>
-<pre><code>BenchmarkGood-4   100000000    0.21s
+<pre tabindex=0><code>BenchmarkGood-4   100000000    0.21s
 </code></pre></td></tr>
 </tbody></table></div>
 <h2 id=规范><a href=#规范 class=anchor-link><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96.0-59.27-59.26-59.27-155.7.0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757.0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037.0 01-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482.0 0120.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96.0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454.0 0020.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037.0 00-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639.0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a><a href=#contents:规范 class=headings>规范</a></h2>
@@ -4358,7 +4358,7 @@ struct.</p>
 </ul>
 </article>
 <div class=updated-badge-container>
-<span title="Updated @ 2021-07-30 09:04:06 UTC" style=cursor:help><svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2021-07-30</text><text x="915" y="140" textLength="650" transform="scale(.1)">2021-07-30</text></g></svg>
+<span title="Updated @ 2021-09-06 06:13:41 UTC" style=cursor:help><svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2021-09-06</text><text x="915" y="140" textLength="650" transform="scale(.1)">2021-09-06</text></g></svg>
 </span></div>
 <div class=post-share>
 <div class=share-text>分享：</div>
