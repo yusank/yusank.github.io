@@ -1,4 +1,80 @@
-<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.88.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Mon, 06 Sep 2021 06:17:55 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>如何自定义 protoc 插件</title><link>https://yusank.github.io/posts/go-protoc-http/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-protoc-http/</guid><pubDate>Thu, 08 Jul 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;h2 id="前言">前言&lt;/h2>
+<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.88.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Tue, 07 Sep 2021 02:36:21 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>如何在 docker 环境下进行远程 dlv 调试</title><link>https://yusank.github.io/posts/docker-dlv-debugging/</link><guid isPermaLink="true">https://yusank.github.io/posts/docker-dlv-debugging/</guid><pubDate>Mon, 06 Sep 2021 14:02:03 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;h1 id="如何在-docker-环境下进行远程-dlv-调试">如何在 docker 环境下进行远程 dlv 调试&lt;/h1>
+&lt;p>所需工具：&lt;/p>
+&lt;ul>
+&lt;li>docker&lt;/li>
+&lt;li>goland&lt;/li>
+&lt;li>dlv&lt;/li>
+&lt;/ul>
+&lt;h2 id="docker-file">docker file&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-dockerfile" data-lang="dockerfile">&lt;span class="c"># Compile stage&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="k">FROM&lt;/span>&lt;span class="s"> golang:1.13.8 AS build-env&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="c"># Build Delve&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> go get github.com/go-delve/delve/cmd/dlv&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="k">ADD&lt;/span> . /dockerdev&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="k">WORKDIR&lt;/span>&lt;span class="s"> /dockerdev&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="c"># 编译需要 debug 的程序&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> go build -gcflags&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;all=-N -l&amp;#34;&lt;/span> -o /server&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="c"># Final stage&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="k">FROM&lt;/span>&lt;span class="s"> debian:buster&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="c"># 分别暴露 server 和 dlv 端口&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="k">EXPOSE&lt;/span>&lt;span class="s"> 8000 40000&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="k">WORKDIR&lt;/span>&lt;span class="s"> /&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="k">COPY&lt;/span> --from&lt;span class="o">=&lt;/span>build-env /go/bin/dlv /&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="k">COPY&lt;/span> --from&lt;span class="o">=&lt;/span>build-env /server /&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="k">CMD&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;/dlv&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;--listen=:40000&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;--headless=true&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;--api-version=2&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;--accept-multiclient&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;exec&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;/server&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="启动-docker-镜像">启动 docker 镜像&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ docker run -d -p 8000:8000 -p 40000:40000 --privileged --name&lt;span class="o">=&lt;/span>dlv-debug &lt;span class="k">$(&lt;/span>ImageName&lt;span class="k">)&lt;/span>:&lt;span class="k">$(&lt;/span>ImageVersion&lt;span class="k">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="goland-配置">goland 配置&lt;/h2>
+&lt;p>在 &lt;code>Goland -&amp;gt; Run -&amp;gt; Edit Configuration&lt;/code> 添加 &lt;code>Go Remote&lt;/code> 配置 docker 镜像的 ip:port, 本地的 docker 环境则 &lt;code>localhost:40000&lt;/code> 即可。&lt;/p>
+&lt;p>现在就可以在本地 Goland 环境下启动配置 debug 就可以，本地 debug 远程程序，与本地 debug 毫无区别。&lt;/p>
+&lt;p>这种方式在一些特定环境（test 环境、远程办公等）非常方便。&lt;/p>
+&lt;p>&lt;strong>参考文献：&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://blog.jetbrains.com/go/2020/05/06/debugging-a-go-application-inside-a-docker-container/">https://blog.jetbrains.com/go/2020/05/06/debugging-a-go-application-inside-a-docker-container/&lt;/a>&lt;/li>
+&lt;/ul></description><category domain="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category><category domain="https://yusank.github.io/tags/go/">go</category><category domain="https://yusank.github.io/tags/docker/">docker</category></item><item><title>如何自定义 protoc 插件</title><link>https://yusank.github.io/posts/go-protoc-http/</link><guid isPermaLink="true">https://yusank.github.io/posts/go-protoc-http/</guid><pubDate>Thu, 08 Jul 2021 18:22:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;h2 id="前言">前言&lt;/h2>
 &lt;p>如果大家接触过 grpc 和 protobuf ，那对 &lt;code>protoc&lt;/code> 这个命令应该不陌生。&lt;/p>
 &lt;p>&lt;code>protoc&lt;/code> 为基于 proto buffer 文件生成不同语言代码的工具，在日常业务开发中能经常用到。那先抛出一个问题，你有没有基于 pb 文件生成满足自己特殊要求的需求？比如生成对应的 http 代码或校验参数等。&lt;/p>
 &lt;p>我个人需求为，除了生成正常的 &lt;code>grpc&lt;/code> 代码外，需要生成一套对应的 &lt;code>http&lt;/code> 代码，而且最好是能直接在 gin/iris 这种主流 web 框架内注册使用。&lt;/p>
