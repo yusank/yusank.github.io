@@ -1,4 +1,212 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN"><title type="text">Yusank`s Site</title><subtitle type="html">分享技术文章和个人博客。</subtitle><updated>2021-09-09T10:07:32+00:00</updated><id>https://yusank.github.io/</id><link rel="alternate" type="text/html" href="https://yusank.github.io/"/><link rel="self" type="application/atom+xml" href="https://yusank.github.io/atom.xml"/><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><generator uri="https://gohugo.io/" version="0.88.1">Hugo</generator><entry><title type="text">如何在 docker 环境下进行远程 dlv 调试</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/docker-dlv-debugging/"/><id>https://yusank.github.io/posts/docker-dlv-debugging/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2021-09-06T14:02:03+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">dlv 作为程序调试工具功能非常强大，日常开发和测试中几乎离不开 debug 调试。但是有的时候由于本地环境与线上环境不一致或有些问题在本……</summary><content type="html">&lt;p>&lt;code>dlv&lt;/code> 作为程序调试工具功能非常强大，日常开发和测试中几乎离不开 debug 调试。但是有的时候由于本地环境与线上环境不一致或有些问题在本地无法复现的时候，我们需要在线上/测试环境做 debug，同时希望 debug 体验能与本地 debug 体验一致。&lt;code>dlv&lt;/code> 其实是支持这种需求的，线上运行线本地 debug。以下是基于 docker 环境的远程调试步骤，希望能对遇到这种情况的码友们友帮助。&lt;/p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN"><title type="text">Yusank`s Site</title><subtitle type="html">分享技术文章和个人博客。</subtitle><updated>2021-09-09T10:10:34+00:00</updated><id>https://yusank.github.io/</id><link rel="alternate" type="text/html" href="https://yusank.github.io/"/><link rel="self" type="application/atom+xml" href="https://yusank.github.io/atom.xml"/><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><generator uri="https://gohugo.io/" version="0.88.1">Hugo</generator><entry><title type="text">部署单机 k8s 集群</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/deploy-k8s-cluster/"/><id>https://yusank.github.io/posts/deploy-k8s-cluster/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2021-09-07T12:22:33+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">本文介绍本地或服务器上搭建单节点的 k8s 集群和 webUI 以及启用ingress，可以用作开发和测试环境。 准备工作 所需工具： docker minkube kubectl 如何……</summary><content type="html">&lt;p>本文介绍本地或服务器上搭建单节点的 k8s 集群和 webUI 以及启用ingress，可以用作开发和测试环境。&lt;/p>
+&lt;h2 id="准备工作">准备工作&lt;/h2>
+&lt;p>所需工具：&lt;/p>
+&lt;ul>
+&lt;li>docker&lt;/li>
+&lt;li>minkube&lt;/li>
+&lt;li>kubectl&lt;/li>
+&lt;/ul>
+&lt;p>如何安装 docker 就不再这里撰述。&lt;/p>
+&lt;h3 id="安装-minikube">安装 minikube&lt;/h3>
+&lt;p>&lt;a href="https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-minikube/">官方文档&lt;/a>&lt;/p>
+&lt;p>&lt;strong>Mac&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ brew install minkube
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>linux&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 &lt;span class="se">\
+&lt;/span>&lt;span class="se">&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> chmod +x minikube
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>将 Minikube 可执行文件添加至 PATH：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">sudo mkdir -p /usr/local/bin/
+sudo install minikube /usr/local/bin/
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>也可以在 &lt;a href="https://github.com/kubernetes/minikube">GitHub&lt;/a> 上下载系统对应的二级制文件&lt;/p>
+&lt;h3 id="安装-kubectl">安装 kubectl&lt;/h3>
+&lt;p>&lt;a href="https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-kubectl/#install-kubectl-on-linux">官方文档&lt;/a>&lt;/p>
+&lt;p>&lt;strong>Mac&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ brew install kubernetes-cli
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>Linux&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ sudo apt-get update &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> sudo apt-get install -y apt-transport-https
+$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg &lt;span class="p">|&lt;/span> sudo apt-key add -
+$ &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;deb https://apt.kubernetes.io/ kubernetes-xenial main&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+$ sudo apt-get update
+$ sudo apt-get install -y kubectl
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="启动检查">启动&amp;amp;检查&lt;/h2>
+&lt;p>&lt;strong>启动&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube start --vm-driver&lt;span class="o">=&lt;/span>docker
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>检查&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube status
+minikube
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>至此集群已经部署成功，可以通过 &lt;code>kubectl&lt;/code> 命令查看状态&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ kubectl cluster-info
+Kubernetes control plane is running at https://xxx.xxx.xx.xx:8443
+CoreDNS is running at https://xxx.xxx.xx.xx:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="停止清理">停止&amp;amp;清理&lt;/h2>
+&lt;p>&lt;strong>停止&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minkube stop
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>清理&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube delete
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="webui">webUI&lt;/h2>
+&lt;p>安装 k8s 管理 dashboard。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube dashboard --url
+🤔 Verifying dashboard health ...
+🚀 Launching proxy ...
+🤔 Verifying proxy health ...
+http://127.0.0.1:35983/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;code>minikube&lt;/code> 会安装 dashboard 并返回可访问的 url, 如果是本地则直接访问即可。&lt;/p>
+&lt;p>如果是服务器上，则需要执行以下命令：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ kubectl proxy --address&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;0.0.0.0&amp;#39;&lt;/span> --disable-filter&lt;span class="o">=&lt;/span>&lt;span class="nb">true&lt;/span>
+W0907 17:47:12.246841 &lt;span class="m">591818&lt;/span> proxy.go:162&lt;span class="o">]&lt;/span> Request filter disabled, your proxy is vulnerable to XSRF attacks, please be cautious
+Starting to serve on &lt;span class="o">[&lt;/span>::&lt;span class="o">]&lt;/span>:8001
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>并通过&lt;code>http://serverIP:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/&lt;/code>访问 dashboard 。&lt;/p>
+&lt;h2 id="ingress">Ingress&lt;/h2>
+&lt;p>启动 ingress 也是需要通过 &lt;code>minikube&lt;/code> 命令执行。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube addons &lt;span class="nb">enable&lt;/span> ingress
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;code>minikube&lt;/code> 会开启 ingress 并安装 &lt;code>ingress-nginx&lt;/code>, 我们只需要写 &lt;code>ingress&lt;/code> 规则即可。然后通过 &lt;code>kubectl&lt;/code> 命令查看可访问的虚拟 ip。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ kubectl get ingress
+NAME CLASS HOSTS ADDRESS PORTS AGE
+goapp-ingress &amp;lt;none&amp;gt; * 192.168.49.2 &lt;span class="m">80&lt;/span> 2d
+$ curl 192.168.49.2/ping
+&lt;span class="s2">&amp;#34;pong&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>可以访问的通的。&lt;/p>
+&lt;blockquote>
+&lt;p>相关连接:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a href="https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-minikube/">https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-minikube/&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://kubernetes.io/zh/docs/tasks/access-application-cluster/ingress-minikube/">https://kubernetes.io/zh/docs/tasks/access-application-cluster/ingress-minikube/&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://stackoverflow.com/questions/47173463/how-to-access-local-kubernetes-minikube-dashboard-remotely">https://stackoverflow.com/questions/47173463/how-to-access-local-kubernetes-minikube-dashboard-remotely&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/blockquote></content><category scheme="https://yusank.github.io/categories/k8s/" term="k8s" label="k8s"/><category scheme="https://yusank.github.io/tags/k8s/" term="k8s" label="k8s"/><category scheme="https://yusank.github.io/tags/docker/" term="docker" label="docker"/></entry><entry><title type="text">如何在 docker 环境下进行远程 dlv 调试</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/docker-dlv-debugging/"/><id>https://yusank.github.io/posts/docker-dlv-debugging/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2021-09-06T14:02:03+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">dlv 作为程序调试工具功能非常强大，日常开发和测试中几乎离不开 debug 调试。但是有的时候由于本地环境与线上环境不一致或有些问题在本……</summary><content type="html">&lt;p>&lt;code>dlv&lt;/code> 作为程序调试工具功能非常强大，日常开发和测试中几乎离不开 debug 调试。但是有的时候由于本地环境与线上环境不一致或有些问题在本地无法复现的时候，我们需要在线上/测试环境做 debug，同时希望 debug 体验能与本地 debug 体验一致。&lt;code>dlv&lt;/code> 其实是支持这种需求的，线上运行线本地 debug。以下是基于 docker 环境的远程调试步骤，希望能对遇到这种情况的码友们友帮助。&lt;/p>
 &lt;p>所需工具：&lt;/p>
 &lt;ul>
 &lt;li>docker&lt;/li>
@@ -74,7 +282,7 @@
 &lt;p>&lt;strong>参考文献：&lt;/strong>&lt;/p>
 &lt;ul>
 &lt;li>&lt;a href="https://blog.jetbrains.com/go/2020/05/06/debugging-a-go-application-inside-a-docker-container/">https://blog.jetbrains.com/go/2020/05/06/debugging-a-go-application-inside-a-docker-container/&lt;/a>&lt;/li>
-&lt;/ul></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/docker/" term="docker" label="docker"/></entry><entry><title type="text">如何自定义 protoc 插件</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-protoc-http/"/><id>https://yusank.github.io/posts/go-protoc-http/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2021-07-08T18:22:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">前言 如果大家接触过 grpc 和 protobuf ，那对 protoc 这个命令应该不陌生。 protoc 为基于 proto buffer 文件生成不同语言代码的工具，在日常业务开发中能经常用到。……</summary><content type="html">&lt;h2 id="前言">前言&lt;/h2>
+&lt;/ul></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/docker/" term="docker" label="docker"/></entry><entry><title type="text">如何自定义 protoc 插件</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-protoc-http/"/><id>https://yusank.github.io/posts/go-protoc-http/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2021-07-08T18:22:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">前言 如果大家接触过 grpc 和 protobuf ，那对 protoc 这个命令应该不陌生。 protoc 为基于 proto buffer 文件生成不同语言代码的工具，在日常业务开发中能经常用到。……</summary><content type="html">&lt;h2 id="前言">前言&lt;/h2>
 &lt;p>如果大家接触过 grpc 和 protobuf ，那对 &lt;code>protoc&lt;/code> 这个命令应该不陌生。&lt;/p>
 &lt;p>&lt;code>protoc&lt;/code> 为基于 proto buffer 文件生成不同语言代码的工具，在日常业务开发中能经常用到。那先抛出一个问题，你有没有基于 pb 文件生成满足自己特殊要求的需求？比如生成对应的 http 代码或校验参数等。&lt;/p>
 &lt;p>我个人需求为，除了生成正常的 &lt;code>grpc&lt;/code> 代码外，需要生成一套对应的 &lt;code>http&lt;/code> 代码，而且最好是能直接在 gin/iris 这种主流 web 框架内注册使用。&lt;/p>
@@ -1182,7 +1390,7 @@ protoc -I&lt;span class="nv">$GOPATH&lt;/span>/src/github.com/googleapis/googlea
 &lt;p>程序入口到渲染文件前这段代码，基本都用 &lt;code>protogen&lt;/code> 包提供的方法，可以对这个包做一些调研阅读文档，看看它都提供什么能力, 说不定可以少走很多弯路。&lt;/p>
 &lt;/li>
 &lt;/ol>
-&lt;p>基本就这些了，我也是各种琢磨琢磨出来的，建议大家多动手，只要不写永远学不到精髓。&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/categories/protobuf/" term="protobuf" label="protobuf"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/grpc/" term="grpc" label="grpc"/><category scheme="https://yusank.github.io/tags/protoc/" term="protoc" label="protoc"/></entry><entry><title type="text">如何编写自己的第一个命令行工具</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-cobra/"/><id>https://yusank.github.io/posts/go-cobra/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2021-06-30T18:22:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">关于如何用 go 语言编写一个命令行工具。这里会基于 cobra 开源库进行开发。cobra 作为一个非常有名的命令行工具库，被很多开源项目……</summary><content type="html">&lt;p>关于如何用 go 语言编写一个命令行工具。这里会基于 &lt;code>cobra&lt;/code> 开源库进行开发。&lt;code>cobra&lt;/code> 作为一个非常有名的命令行工具库，被很多开源项目引入使用，很多命令行工具都能看到 &lt;code>cobra&lt;/code> 的身影。&lt;code>cobra&lt;/code> 提供一个完整的命令行的工具的所需的功能，包括命令定义、命令扩展、读取参数等。下面我们以开发一个命令行工具的流程一步步学习如何使用 &lt;code>cobra&lt;/code> 开发一个自己的命令行工具。&lt;/p>
+&lt;p>基本就这些了，我也是各种琢磨琢磨出来的，建议大家多动手，只要不写永远学不到精髓。&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/categories/protobuf/" term="protobuf" label="protobuf"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/grpc/" term="grpc" label="grpc"/><category scheme="https://yusank.github.io/tags/protoc/" term="protoc" label="protoc"/></entry><entry><title type="text">如何编写自己的第一个命令行工具</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-cobra/"/><id>https://yusank.github.io/posts/go-cobra/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2021-06-30T18:22:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">关于如何用 go 语言编写一个命令行工具。这里会基于 cobra 开源库进行开发。cobra 作为一个非常有名的命令行工具库，被很多开源项目……</summary><content type="html">&lt;p>关于如何用 go 语言编写一个命令行工具。这里会基于 &lt;code>cobra&lt;/code> 开源库进行开发。&lt;code>cobra&lt;/code> 作为一个非常有名的命令行工具库，被很多开源项目引入使用，很多命令行工具都能看到 &lt;code>cobra&lt;/code> 的身影。&lt;code>cobra&lt;/code> 提供一个完整的命令行的工具的所需的功能，包括命令定义、命令扩展、读取参数等。下面我们以开发一个命令行工具的流程一步步学习如何使用 &lt;code>cobra&lt;/code> 开发一个自己的命令行工具。&lt;/p>
 &lt;h2 id="创建根命令">创建根命令&lt;/h2>
 &lt;p>我们项目暂且就叫 &lt;code>myCmd&lt;/code>, 我们本地创建一个go项目就叫 &lt;code>myCmd&lt;/code>。&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -1785,7 +1993,7 @@ __ __ __ __ _____ __ __ _____
 name:main.go, size:1320 modTime:2021-07-04 16:28:51.339520282 +0800 CST
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;p>暂且就这么多，感谢 &lt;code>spf13/cobra&lt;/code> 的作者，提供这么高质量的开源库。&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/cobra/" term="cobra" label="cobra"/></entry><entry><title type="text">Go-Micro 中使用Nacos</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/use-nacos-with-go-micro/"/><id>https://yusank.github.io/posts/use-nacos-with-go-micro/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2021-06-23T18:22:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">go-micro 作为比较流行的微服务框架，其良好的接口设计为后期扩展使用带来了非常好的便利性。本文章主要讲在 go-micro 中用 nacos 作为服务注册中心和……</summary><content type="html">&lt;p>&lt;code>go-micro&lt;/code> 作为比较流行的微服务框架，其良好的接口设计为后期扩展使用带来了非常好的便利性。本文章主要讲在 &lt;code>go-micro&lt;/code> 中用 &lt;code>nacos&lt;/code> 作为服务注册中心和配置中心。&lt;/p>
+&lt;/div>&lt;p>暂且就这么多，感谢 &lt;code>spf13/cobra&lt;/code> 的作者，提供这么高质量的开源库。&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/cobra/" term="cobra" label="cobra"/></entry><entry><title type="text">Go-Micro 中使用Nacos</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/use-nacos-with-go-micro/"/><id>https://yusank.github.io/posts/use-nacos-with-go-micro/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2021-06-23T18:22:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">go-micro 作为比较流行的微服务框架，其良好的接口设计为后期扩展使用带来了非常好的便利性。本文章主要讲在 go-micro 中用 nacos 作为服务注册中心和……</summary><content type="html">&lt;p>&lt;code>go-micro&lt;/code> 作为比较流行的微服务框架，其良好的接口设计为后期扩展使用带来了非常好的便利性。本文章主要讲在 &lt;code>go-micro&lt;/code> 中用 &lt;code>nacos&lt;/code> 作为服务注册中心和配置中心。&lt;/p>
 &lt;h2 id="注册中心">注册中心&lt;/h2>
 &lt;p>先看一下 &lt;code>go-micro&lt;/code> 定义的服务注册接口。&lt;/p>
 &lt;p>registry.go&lt;/p>
@@ -2768,7 +2976,7 @@ name:main.go, size:1320 modTime:2021-07-04 16:28:51.339520282 +0800 CST
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>不难发现，其实在接口定义好的情况下，写其实现方法不难，只要按照接口定义和含义，正常逻辑逻辑即可。
-这段代码我已经 PR 到 &lt;code>go-micro&lt;/code> 项目 ，可以在GitHub上直接查看源码。&lt;a href="https://github.com/asim/go-micro/tree/master/plugins/registry/nacos">传送门&lt;/a>。&lt;/p></content><category scheme="https://yusank.github.io/categories/microservice/" term="microservice" label="microservice"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/go-micro/" term="go-micro" label="go-micro"/></entry><entry><title type="text">Go-Micro 的架构及其使用（一）</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-micro-1/"/><id>https://yusank.github.io/posts/go-micro-1/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2021-06-11T18:22:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">关于如何使用go的微服务框架 go-micro/v3 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。 架构 以 v3.5.1 分支为例 go-micor 项目的目录结构……</summary><content type="html">&lt;p>关于如何使用go的微服务框架 &lt;code>go-micro/v3&lt;/code> 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。&lt;/p>
+这段代码我已经 PR 到 &lt;code>go-micro&lt;/code> 项目 ，可以在GitHub上直接查看源码。&lt;a href="https://github.com/asim/go-micro/tree/master/plugins/registry/nacos">传送门&lt;/a>。&lt;/p></content><category scheme="https://yusank.github.io/categories/microservice/" term="microservice" label="microservice"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/go-micro/" term="go-micro" label="go-micro"/></entry><entry><title type="text">Go-Micro 的架构及其使用（一）</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-micro-1/"/><id>https://yusank.github.io/posts/go-micro-1/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2021-06-11T18:22:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">关于如何使用go的微服务框架 go-micro/v3 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。 架构 以 v3.5.1 分支为例 go-micor 项目的目录结构……</summary><content type="html">&lt;p>关于如何使用go的微服务框架 &lt;code>go-micro/v3&lt;/code> 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。&lt;/p>
 &lt;h2 id="架构">架构&lt;/h2>
 &lt;blockquote>
 &lt;p>以 &lt;code>v3.5.1&lt;/code> 分支为例&lt;/p>
@@ -3812,7 +4020,7 @@ plugins
 &lt;span class="p">}&lt;/span>
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div></content><category scheme="https://yusank.github.io/categories/microservice/" term="microservice" label="microservice"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/go-micro/" term="go-micro" label="go-micro"/></entry><entry><title type="text">Go 面试总结</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-interview/"/><id>https://yusank.github.io/posts/go-interview/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2021-05-31T21:13:41+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">经历了2个月的面试折磨，拿到offer总算结束了这段时间。主要是想记录面试中遇到的问题，列出来的问题不一定有答案，有答案……</summary><content type="html">&lt;p>经历了2个月的面试折磨，拿到offer总算结束了这段时间。主要是想记录面试中遇到的问题，列出来的问题不一定有答案，有答案也不一定是最佳答案，所以还是看问题为主，答案自行解决。&lt;/p>
+&lt;/div></content><category scheme="https://yusank.github.io/categories/microservice/" term="microservice" label="microservice"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/go-micro/" term="go-micro" label="go-micro"/></entry><entry><title type="text">Go 面试总结</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-interview/"/><id>https://yusank.github.io/posts/go-interview/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2021-05-31T21:13:41+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">经历了2个月的面试折磨，拿到offer总算结束了这段时间。主要是想记录面试中遇到的问题，列出来的问题不一定有答案，有答案……</summary><content type="html">&lt;p>经历了2个月的面试折磨，拿到offer总算结束了这段时间。主要是想记录面试中遇到的问题，列出来的问题不一定有答案，有答案也不一定是最佳答案，所以还是看问题为主，答案自行解决。&lt;/p>
 &lt;h1 id="知识架构">知识架构&lt;/h1>
 &lt;p>&lt;img src="https://raw.githubusercontent.com/yusank/hugo.yusank.space/master/xmind.png" alt="xmind">&lt;/p>
 &lt;h2 id="数据库">数据库&lt;/h2>
@@ -4435,7 +4643,7 @@ P决定了同时可以并发任务的数量，可通过GOMAXPROCS限制同时执
 &lt;ul>
 &lt;li>Q: 解释graceful 平滑重启？&lt;/li>
 &lt;li>Q：&lt;/li>
-&lt;/ul></content><category scheme="https://yusank.github.io/categories/%E7%BB%8F%E9%AA%8C/" term="经验" label="经验"/><category scheme="https://yusank.github.io/categories/%E9%9D%A2%E8%AF%95/" term="面试" label="面试"/><category scheme="https://yusank.github.io/tags/%E9%9D%A2%E8%AF%95/" term="面试" label="面试"/></entry><entry><title type="text">Go 语言开发及常用库的使用规范(语言篇)</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-standard/"/><id>https://yusank.github.io/posts/go-standard/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2020-11-25T16:24:41+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">语言篇，提出常见的开发上的不好的、不规范的写法，并给出更好的写法。 Uber 是一家美国硅谷的科技公司，也是 Go 语言的早期 adopt……</summary><content type="html">&lt;p>语言篇，提出常见的开发上的不好的、不规范的写法，并给出更好的写法。
+&lt;/ul></content><category scheme="https://yusank.github.io/categories/%E7%BB%8F%E9%AA%8C/" term="经验" label="经验"/><category scheme="https://yusank.github.io/categories/%E9%9D%A2%E8%AF%95/" term="面试" label="面试"/><category scheme="https://yusank.github.io/tags/%E9%9D%A2%E8%AF%95/" term="面试" label="面试"/></entry><entry><title type="text">Go 语言开发及常用库的使用规范(语言篇)</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-standard/"/><id>https://yusank.github.io/posts/go-standard/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2020-11-25T16:24:41+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">语言篇，提出常见的开发上的不好的、不规范的写法，并给出更好的写法。 Uber 是一家美国硅谷的科技公司，也是 Go 语言的早期 adopt……</summary><content type="html">&lt;p>语言篇，提出常见的开发上的不好的、不规范的写法，并给出更好的写法。
 &lt;a href="https://www.uber.com/">Uber&lt;/a> 是一家美国硅谷的科技公司，也是 Go 语言的早期 adopter。其开源了很多 golang 项目，诸如被 Gopher 圈熟知的 &lt;a href="https://github.com/uber-go/zap">zap&lt;/a>、&lt;a href="https://github.com/jaegertracing/jaeger">jaeger&lt;/a> 等。2018 年年末 Uber 将内部的 &lt;a href="https://github.com/uber-go/guide">Go 风格规范&lt;/a> 开源到 GitHub，经过一年的积累和更新，该规范已经初具规模，并受到广大 Gopher 的关注。本文是该规范的中文版本，并加以作者个人的一些看法，非 &lt;code>uber&lt;/code> 官方的建议和看法 本人会加以标注。&lt;/p>
 &lt;h2 id="介绍">介绍&lt;/h2>
 &lt;p>样式 (style) 是支配我们代码的惯例。术语&lt;code>样式&lt;/code>有点用词不当，因为这些约定涵盖的范围不限于由 gofmt 替我们处理的源文件格式。&lt;/p>
@@ -8500,7 +8708,7 @@ struct.&lt;/p>
 &lt;li>
 &lt;p>&lt;a href="https://staticcheck.io/">staticcheck&lt;/a> 各种静态分析检查&lt;/p>
 &lt;/li>
-&lt;/ul></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/categories/%E8%A7%84%E8%8C%83/" term="规范" label="规范"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/></entry><entry><title type="text">Go Map 源码解读</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-map/"/><id>https://yusank.github.io/posts/go-map/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2020-06-14T16:24:41+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">Go 的 map 作为该语言最常见的基础数据结构之一。 源码解读 Go 语言实现的 map 并非是完全的哈希 map ，是一种类似两层树状的结构，根据 key 的哈……</summary><content type="html">&lt;p>Go 的 &lt;code>map&lt;/code> 作为该语言最常见的基础数据结构之一。&lt;/p>
+&lt;/ul></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/categories/%E8%A7%84%E8%8C%83/" term="规范" label="规范"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/></entry><entry><title type="text">Go Map 源码解读</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-map/"/><id>https://yusank.github.io/posts/go-map/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2020-06-14T16:24:41+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">Go 的 map 作为该语言最常见的基础数据结构之一。 源码解读 Go 语言实现的 map 并非是完全的哈希 map ，是一种类似两层树状的结构，根据 key 的哈……</summary><content type="html">&lt;p>Go 的 &lt;code>map&lt;/code> 作为该语言最常见的基础数据结构之一。&lt;/p>
 &lt;h2 id="源码解读">源码解读&lt;/h2>
 &lt;p>Go 语言实现的 map 并非是完全的哈希 map ，是一种类似两层树状的结构，根据 key 的哈希值的低八位 决定第一层的位置，根据高八位决定第二层，如果第二层所在冲突了则会有一个额外的位置 用于存储哈希碰撞的 kv。看图会帮助理解：&lt;/p>
 &lt;h3 id="图解">图解：&lt;/h3>
@@ -8580,7 +8788,7 @@ struct.&lt;/p>
 &lt;h3 id="删除">删除&lt;/h3>
 &lt;blockquote>
 &lt;p>coming soon&lt;/p>
-&lt;/blockquote></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/></entry><entry><title type="text">Go Channel 源码解读</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-channel/"/><id>https://yusank.github.io/posts/go-channel/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2020-03-06T17:24:41+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">Go 的 channel 作为该语言很重要的特性，作为一个 gopher 有必要详细了解其实现原理。 原理解读 Go 语言的 channel 实现源码在go/src/runtim……</summary><content type="html">&lt;p>Go 的 &lt;code>channel&lt;/code> 作为该语言很重要的特性，作为一个 gopher 有必要详细了解其实现原理。&lt;/p>
+&lt;/blockquote></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/></entry><entry><title type="text">Go Channel 源码解读</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-channel/"/><id>https://yusank.github.io/posts/go-channel/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2020-03-06T17:24:41+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">Go 的 channel 作为该语言很重要的特性，作为一个 gopher 有必要详细了解其实现原理。 原理解读 Go 语言的 channel 实现源码在go/src/runtim……</summary><content type="html">&lt;p>Go 的 &lt;code>channel&lt;/code> 作为该语言很重要的特性，作为一个 gopher 有必要详细了解其实现原理。&lt;/p>
 &lt;h1 id="原理解读">原理解读&lt;/h1>
 &lt;p>Go 语言的 &lt;code>channel&lt;/code> 实现源码在&lt;code>go/src/runtime/chan.go&lt;/code> 文件里。（go version ：1.13.4）&lt;/p>
 &lt;h2 id="数据结构">数据结构&lt;/h2>
@@ -9546,8 +9754,8 @@ timer是一个定时器，代表未来的一个单一事件，你可以告诉tim
 &lt;li>&lt;a href="https://golang.org/ref/spec#Select_statements">https://golang.org/ref/spec#Select_statements&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://github.com/a8m/go-lang-cheat-sheet">https://github.com/a8m/go-lang-cheat-sheet&lt;/a>&lt;/li>
 &lt;li>&lt;a href="http://devs.cloudimmunity.com/gotchas-and-common-mistakes-in-go-golang/">http://devs.cloudimmunity.com/gotchas-and-common-mistakes-in-go-golang/&lt;/a>&lt;/li>
-&lt;/ol></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/channel/" term="channel" label="channel"/></entry><entry><title type="text">新的篇章</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/my-first-post/"/><id>https://yusank.github.io/posts/my-first-post/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2020-03-06T16:14:29+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">由于上一个博客项目的原文件丢失，无法继续更新，只会重新开启新的博客项目，重新做起~ 技术原因原博客已下线，原博客技术文档会……</summary><content type="html">&lt;p>由于上一个博客项目的原文件丢失，无法继续更新，只会重新开启新的博客项目，重新做起~&lt;/p>
-&lt;p>技术原因原博客已下线，原博客技术文档会逐步同步到新博客上。&lt;/p></content></entry><entry><title type="text">Go Image</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-image/"/><id>https://yusank.github.io/posts/go-image/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2017-08-22T12:20:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">用 GO 实现图片处理和文字合成 Go 的图片处理 最近需要一个合成明信片的工具，即往背景图的固定位置上添加一个图片和一段文字， 最后合……</summary><content type="html">&lt;p>用 GO 实现图片处理和文字合成&lt;/p>
+&lt;/ol></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/channel/" term="channel" label="channel"/></entry><entry><title type="text">新的篇章</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/my-first-post/"/><id>https://yusank.github.io/posts/my-first-post/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2020-03-06T16:14:29+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">由于上一个博客项目的原文件丢失，无法继续更新，只会重新开启新的博客项目，重新做起~ 技术原因原博客已下线，原博客技术文档会……</summary><content type="html">&lt;p>由于上一个博客项目的原文件丢失，无法继续更新，只会重新开启新的博客项目，重新做起~&lt;/p>
+&lt;p>技术原因原博客已下线，原博客技术文档会逐步同步到新博客上。&lt;/p></content></entry><entry><title type="text">Go Image</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-image/"/><id>https://yusank.github.io/posts/go-image/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2017-08-22T12:20:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">用 GO 实现图片处理和文字合成 Go 的图片处理 最近需要一个合成明信片的工具，即往背景图的固定位置上添加一个图片和一段文字， 最后合……</summary><content type="html">&lt;p>用 GO 实现图片处理和文字合成&lt;/p>
 &lt;h1 id="go-的图片处理">Go 的图片处理&lt;/h1>
 &lt;p>最近需要一个合成明信片的工具，即往背景图的固定位置上添加一个图片和一段文字， 最后合成一张图片。由于是 go 程序的一个子功能，所以我想我只加拿 go 写好了，正好有 go 的 &lt;code>image&lt;/code> 库，拿来练练。&lt;/p>
 &lt;h2 id="图片合成">图片合成&lt;/h2>
@@ -9788,7 +9996,7 @@ timer是一个定时器，代表未来的一个单一事件，你可以告诉tim
 &lt;/div>&lt;p>最后来一张效果图
 &lt;img src="http://oid1xlj7h.bkt.clouddn.com/image/jpg/1234.jpg" alt="">&lt;/p>
 &lt;h2 id="总结">总结&lt;/h2>
-&lt;p>做的过程中，合作这一块比较好做，但是图片上写文字，相对比较麻烦，而且 &lt;code>freetype&lt;/code> 库并没有默认的中英文字体，如果不指定字体会报错，而且字体格式只限制于 &lt;code>ttf&lt;/code> 和 &lt;code>ttc&lt;/code> 两种。&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/%E5%9B%BE%E7%89%87%E5%A4%84%E7%90%86/" term="图片处理" label="图片处理"/></entry><entry><title type="text">Go UDP Socket</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-udp/"/><id>https://yusank.github.io/posts/go-udp/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2017-08-02T19:00:01+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ...... 用 go 实现简单的 udp 用户数据包协议（英语：User Datagram Protocol，缩……</summary><content type="html">&lt;p>udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ......&lt;/p>
+&lt;p>做的过程中，合作这一块比较好做，但是图片上写文字，相对比较麻烦，而且 &lt;code>freetype&lt;/code> 库并没有默认的中英文字体，如果不指定字体会报错，而且字体格式只限制于 &lt;code>ttf&lt;/code> 和 &lt;code>ttc&lt;/code> 两种。&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/%E5%9B%BE%E7%89%87%E5%A4%84%E7%90%86/" term="图片处理" label="图片处理"/></entry><entry><title type="text">Go UDP Socket</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-udp/"/><id>https://yusank.github.io/posts/go-udp/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2017-08-02T19:00:01+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ...... 用 go 实现简单的 udp 用户数据包协议（英语：User Datagram Protocol，缩……</summary><content type="html">&lt;p>udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ......&lt;/p>
 &lt;h1 id="用-go-实现简单的-udp">用 go 实现简单的 udp&lt;/h1>
 &lt;p>用户数据包协议（英语：User Datagram Protocol，缩写为UDP），又称用户数据报文协议，是一个简单的面向数据报的传输层协议，正式规范为RFC 768。
 在TCP/IP模型中，UDP为网络层以上和应用层以下提供了一个简单的接口。UDP只提供数据的不可靠传递，它一旦把应用程序发给网络层的数据发送出去，就不保留数据备份（所以UDP有时候也被认为是不可靠的数据报协议）。UDP在IP数据报的头部仅仅加入了复用和数据校验（字段）。&lt;/p>
@@ -10009,7 +10217,7 @@ timer是一个定时器，代表未来的一个单一事件，你可以告诉tim
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h2 id="总结">总结&lt;/h2>
-&lt;p>以上是一个最简单的 UDP 客户端服务器的代码，只有启动服务和收发消息的功能，但实际应用 UDP 协议到具体需求的时候，需要考虑的问题很多，比如包的设计，包头的设计，错误处理，丢包处理，包顺序调换处理等。所以需要用到传输数据协议的时候，请考虑好需求和可能遇到的问题，以及对问题的处理方案。&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/udp/" term="udp" label="udp"/><category scheme="https://yusank.github.io/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" term="网络编程" label="网络编程"/></entry><entry><title type="text">Go TCP Socket</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-tcp/"/><id>https://yusank.github.io/posts/go-tcp/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2017-07-31T10:00:01+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">转载文章 Go语言TCP Socket编程 文章原始地址: http://tonybai.com/2015/11/17/tcp-programming-in-golang/ Golang的主要 设计目标之一就是面向大规模后端服务程序，网络通信……</summary><content type="html">&lt;p>&lt;code>转载文章&lt;/code>&lt;/p>
+&lt;p>以上是一个最简单的 UDP 客户端服务器的代码，只有启动服务和收发消息的功能，但实际应用 UDP 协议到具体需求的时候，需要考虑的问题很多，比如包的设计，包头的设计，错误处理，丢包处理，包顺序调换处理等。所以需要用到传输数据协议的时候，请考虑好需求和可能遇到的问题，以及对问题的处理方案。&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/udp/" term="udp" label="udp"/><category scheme="https://yusank.github.io/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" term="网络编程" label="网络编程"/></entry><entry><title type="text">Go TCP Socket</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-tcp/"/><id>https://yusank.github.io/posts/go-tcp/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2017-07-31T10:00:01+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">转载文章 Go语言TCP Socket编程 文章原始地址: http://tonybai.com/2015/11/17/tcp-programming-in-golang/ Golang的主要 设计目标之一就是面向大规模后端服务程序，网络通信……</summary><content type="html">&lt;p>&lt;code>转载文章&lt;/code>&lt;/p>
 &lt;h1 id="go语言tcp-socket编程">Go语言TCP Socket编程&lt;/h1>
 &lt;p>&lt;strong>文章原始地址:&lt;/strong> &lt;a href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/">http://tonybai.com/2015/11/17/tcp-programming-in-golang/&lt;/a>&lt;/p>
 &lt;p>&lt;a href="http://tonybai.com/tag/go">Golang&lt;/a>的主要 设计目标之一就是面向大规模后端服务程序，网络通信这块是服务端 程序必不可少也是至关重要的一部分。在日常应用中，我们也可以看到Go中的net以及其subdirectories下的包均是“高频+刚需”，而TCP socket则是网络编程的主流，即便您没有直接使用到net中有关TCP Socket方面的接口，但net/http总是用到了吧，http底层依旧是用tcp socket实现的。&lt;/p>
@@ -11346,7 +11554,7 @@ fd *netFD
 &lt;p>本文比较基础，但却很重要，毕竟golang是面向大规模服务后端的，对通信环节的细节的深入理解会大有裨益。另外Go的goroutine+阻塞通信的网络通信模型降低了开发者心智负担，简化了通信的复杂性，这点尤为重要。&lt;/p>
 &lt;p>本文代码实验环境：go 1.5.1 on Darwin amd64以及部分在ubuntu 14.04 amd64。&lt;/p>
 &lt;p>本文demo代码在&lt;a href="https://github.com/bigwhite/experiments/tree/master/go-tcpsock">这里&lt;/a>可以找到。&lt;/p>
-&lt;p>© 2015, &lt;a href="http://tonybai.com/">bigwhite&lt;/a>. 版权所有.&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/tcp/" term="tcp" label="tcp"/><category scheme="https://yusank.github.io/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" term="网络编程" label="网络编程"/></entry><entry><title type="text">Docker 基础知识和基本操作</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/docker/"/><id>https://yusank.github.io/posts/docker/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2017-07-17T15:52:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">关于 容器、Docker 的基础知识、基础操作和常用的命令。 Docker 基础知识和使用 关于Docker 容器技术 对于容器，目前并没有一个……</summary><content type="html">&lt;p>关于 容器、Docker 的基础知识、基础操作和常用的命令。&lt;/p>
+&lt;p>© 2015, &lt;a href="http://tonybai.com/">bigwhite&lt;/a>. 版权所有.&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/tcp/" term="tcp" label="tcp"/><category scheme="https://yusank.github.io/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" term="网络编程" label="网络编程"/></entry><entry><title type="text">Docker 基础知识和基本操作</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/docker/"/><id>https://yusank.github.io/posts/docker/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2017-07-17T15:52:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">关于 容器、Docker 的基础知识、基础操作和常用的命令。 Docker 基础知识和使用 关于Docker 容器技术 对于容器，目前并没有一个……</summary><content type="html">&lt;p>关于 容器、Docker 的基础知识、基础操作和常用的命令。&lt;/p>
 &lt;h1 id="docker-基础知识和使用">Docker 基础知识和使用&lt;/h1>
 &lt;h2 id="关于docker">关于Docker&lt;/h2>
 &lt;h3 id="容器技术">容器技术&lt;/h3>
@@ -12532,7 +12740,7 @@ valid_lft forever preferred_lft forever
 &lt;ul>
 &lt;li>&lt;code>-h HOSTNAME or --hostname=HOSTNAME&lt;/code> --配置容器主机名&lt;/li>
 &lt;li>&lt;code>--link=CONRATAINER_NAME:ALIAS&lt;/code> —添加到另一个容器的连接&lt;/li>
-&lt;/ul></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/docker/" term="docker" label="docker"/></entry><entry><title type="text">GO interface</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-interface/"/><id>https://yusank.github.io/posts/go-interface/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2017-06-08T15:07:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">go 的 interface 的实现和原理。 Go interface interface 在 Golang 中 interface 是一个很重要的概念和特性。 什么是 interface？ In object-oriented programming, a protocol or interface is a common means for unrelated objects to communicate with……</summary><content type="html">&lt;p>go 的 interface 的实现和原理。&lt;/p>
+&lt;/ul></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/docker/" term="docker" label="docker"/></entry><entry><title type="text">GO interface</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-interface/"/><id>https://yusank.github.io/posts/go-interface/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2017-06-08T15:07:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">go 的 interface 的实现和原理。 Go interface interface 在 Golang 中 interface 是一个很重要的概念和特性。 什么是 interface？ In object-oriented programming, a protocol or interface is a common means for unrelated objects to communicate with……</summary><content type="html">&lt;p>go 的 interface 的实现和原理。&lt;/p>
 &lt;h1 id="go-interface">Go interface&lt;/h1>
 &lt;h2 id="interface">interface&lt;/h2>
 &lt;p>在 Golang 中 interface 是一个很重要的概念和特性。&lt;/p>
@@ -12983,7 +13191,7 @@ valid_lft forever preferred_lft forever
 &lt;li>&lt;a href="http://legendtkl.com/2015/11/28/go-interface-reflect/">谈一谈 Golang 的 interface 和 reflect&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://www.youtube.com/watch?v=F4wUrj6pmSI&amp;amp;t=2319s">understanding golang interface(Gopher China) — youtube&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://github.com/gopherchina/conference/blob/master/2017/1.4%20interface.presented.pdf">understanding golang interface(Gopher China) — slide&lt;/a>&lt;/li>
-&lt;/ol></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/></entry><entry><title type="text">Go Format</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-format/"/><id>https://yusank.github.io/posts/go-format/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2017-06-04T17:59:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">go 代码的一些规范和命名规则...... Golang 代码规范 项目目录结构 1 2 3 4 5 6 7 8 9 10 11 12 13 14 PROJECT_NAME ├── README.md 介绍软件及文档入口 ├─……</summary><content type="html">&lt;p>go 代码的一些规范和命名规则......&lt;/p>
+&lt;/ol></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/></entry><entry><title type="text">Go Format</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-format/"/><id>https://yusank.github.io/posts/go-format/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2017-06-04T17:59:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">go 代码的一些规范和命名规则...... Golang 代码规范 项目目录结构 1 2 3 4 5 6 7 8 9 10 11 12 13 14 PROJECT_NAME ├── README.md 介绍软件及文档入口 ├─……</summary><content type="html">&lt;p>go 代码的一些规范和命名规则......&lt;/p>
 &lt;h1 id="golang-代码规范">Golang 代码规范&lt;/h1>
 &lt;h2 id="项目目录结构">项目目录结构&lt;/h2>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -13622,7 +13830,7 @@ valid_lft forever preferred_lft forever
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h2 id="总结">总结&lt;/h2>
-&lt;p>代码风格和代码规范是体现一个程序员的基本素质的一项指标，也是对自己的代码和他人的一个最基本的尊重。&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/%E4%BB%A3%E7%A0%81%E8%A7%84%E8%8C%83/" term="代码规范" label="代码规范"/></entry><entry><title type="text">GO test</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-test/"/><id>https://yusank.github.io/posts/go-test/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2017-06-01T15:07:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">Go 测试用例 开发程序其中很重要的一点是测试，我们如何保证代码的质量，如何保证每个函数是可运行，运行结果是正确的，又如何保证……</summary><content type="html">&lt;h1 id="go-测试用例">Go 测试用例&lt;/h1>
+&lt;p>代码风格和代码规范是体现一个程序员的基本素质的一项指标，也是对自己的代码和他人的一个最基本的尊重。&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/%E4%BB%A3%E7%A0%81%E8%A7%84%E8%8C%83/" term="代码规范" label="代码规范"/></entry><entry><title type="text">GO test</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-test/"/><id>https://yusank.github.io/posts/go-test/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2017-06-01T15:07:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">Go 测试用例 开发程序其中很重要的一点是测试，我们如何保证代码的质量，如何保证每个函数是可运行，运行结果是正确的，又如何保证……</summary><content type="html">&lt;h1 id="go-测试用例">Go 测试用例&lt;/h1>
 &lt;p>开发程序其中很重要的一点是测试，我们如何保证代码的质量，如何保证每个函数是可运行，运行结果是正确的，又如何保证写出来的代码性能是好的，我们知道单元测试的重点在于发现程序设计或实现的逻辑错误，使问题及早暴露，便于问题的定位解决，而性能测试的重点在于发现程序设计上的一些问题，让线上的程序能够在高并发的情况下还能保持稳定。本小节将带着这一连串的问题来讲解Go语言中如何来实现单元测试和性能测试。&lt;/p>
 &lt;p>Go语言中自带有一个轻量级的测试框架&lt;code>testing&lt;/code>和自带的&lt;code>go test&lt;/code>命令来实现单元测试和性能测试，&lt;code>testing&lt;/code>框架和其他语言中的测试框架类似，你可以基于这个框架写针对相应函数的测试用例，也可以基于该框架写相应的压力测试用例，那么接下来让我们一一来看一下怎么写。&lt;/p>
 &lt;p>另外建议安装&lt;a href="https://github.com/cweill/gotests">gotests&lt;/a>插件自动生成测试代码:&lt;/p>
@@ -13868,7 +14076,7 @@ Benchmark_TimeConsumingFunction 500000000 7.80 ns/op
 ok gotest 9.364s
 &lt;/code>&lt;/pre>&lt;p>上面的结果显示我们没有执行任何&lt;code>TestXXX&lt;/code>的单元测试函数，显示的结果只执行了压力测试函数，第一条显示了&lt;code>Benchmark_Division&lt;/code>执行了500000000次，每次的执行平均时间是7.76纳秒，第二条显示了&lt;code>Benchmark_TimeConsumingFunction&lt;/code>执行了500000000，每次的平均执行时间是7.80纳秒。最后一条显示总共的执行时间。&lt;/p>
 &lt;h2 id="小结">小结&lt;/h2>
-&lt;p>通过上面对单元测试和压力测试的学习，我们可以看到&lt;code>testing&lt;/code>包很轻量，编写单元测试和压力测试用例非常简单，配合内置的&lt;code>go test&lt;/code>命令就可以非常方便的进行测试，这样在我们每次修改完代码,执行一下go test就可以简单的完成回归测试了。&lt;/p></content><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/></entry><entry><title type="text">Go 文件操作</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-file/"/><id>https://yusank.github.io/posts/go-file/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2017-05-22T12:20:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">GO 文件操作 在任何计算机设备中，文件是都是必须的对象，而在Web编程中,文件的操作一直是Web程序员经常遇到的问题,文件操……</summary><content type="html">&lt;h1 id="go-文件操作">GO 文件操作&lt;/h1>
+&lt;p>通过上面对单元测试和压力测试的学习，我们可以看到&lt;code>testing&lt;/code>包很轻量，编写单元测试和压力测试用例非常简单，配合内置的&lt;code>go test&lt;/code>命令就可以非常方便的进行测试，这样在我们每次修改完代码,执行一下go test就可以简单的完成回归测试了。&lt;/p></content><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/></entry><entry><title type="text">Go 文件操作</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/go-file/"/><id>https://yusank.github.io/posts/go-file/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2017-05-22T12:20:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">GO 文件操作 在任何计算机设备中，文件是都是必须的对象，而在Web编程中,文件的操作一直是Web程序员经常遇到的问题,文件操……</summary><content type="html">&lt;h1 id="go-文件操作">GO 文件操作&lt;/h1>
 &lt;p>在任何计算机设备中，文件是都是必须的对象，而在Web编程中,文件的操作一直是Web程序员经常遇到的问题,文件操作在Web应用中是必须的,非常有用的,我们经常遇到生成文件目录,文件(夹)编辑等操作,现在我们来看看 go 对文件是怎么操作的。&lt;/p>
 &lt;h2 id="目录操作">目录操作&lt;/h2>
 &lt;p>文件操作的大多数函数都是在os包里面，下面列举了几个目录操作的：&lt;/p>
@@ -14208,7 +14416,7 @@ ok gotest 9.364s
 &lt;span class="p">}&lt;/span>
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;p>代码内容是打开本地文件分块读取进行哈希计算，在网络传输中，可以每次传入一包的文件，先用 io.WriteString() 方法添加到哈希并在最后进行 hash.Sum() 操作&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/></entry><entry><title type="text">Unix 网络编程</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/unix-network/"/><id>https://yusank.github.io/posts/unix-network/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2017-04-22T16:52:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">Unix 网络编程 ​ 卷II - 进程间通信 IPC是进程间通信（interprocess communication）的简称。传统上该术……</summary><content type="html">&lt;h1 id="unix-网络编程">Unix 网络编程&lt;/h1>
+&lt;/div>&lt;p>代码内容是打开本地文件分块读取进行哈希计算，在网络传输中，可以每次传入一包的文件，先用 io.WriteString() 方法添加到哈希并在最后进行 hash.Sum() 操作&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/></entry><entry><title type="text">Unix 网络编程</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/unix-network/"/><id>https://yusank.github.io/posts/unix-network/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2017-04-22T16:52:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">Unix 网络编程 ​ 卷II - 进程间通信 IPC是进程间通信（interprocess communication）的简称。传统上该术……</summary><content type="html">&lt;h1 id="unix-网络编程">Unix 网络编程&lt;/h1>
 &lt;p>​ &lt;strong>卷II - 进程间通信&lt;/strong>&lt;/p>
 &lt;p>IPC是进程间通信（interprocess communication）的简称。传统上该术语描述的是运行在某个操作系统之上的不同进程间各种消息传递（&lt;em>message passing&lt;/em>）的方式。&lt;/p>
 &lt;p>进程间的通信一般是一下四种形式：&lt;/p>
@@ -14817,7 +15025,7 @@ mq_recevie error: Resource temporarily unavalibale
 &lt;li>具备存放新消息的空间；&lt;/li>
 &lt;li>由 msqgid 标识的消息队列从系统中删除（这个情况下回返回一个EIDRM 错误）；&lt;/li>
 &lt;li>调用线程被某个捕获的信息所中断。&lt;/li>
-&lt;/ul></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/unix/" term="Unix" label="Unix"/><category scheme="https://yusank.github.io/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" term="网络编程" label="网络编程"/></entry><entry><title type="text">跨域资源共享 CORS 详解</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/cors/"/><id>https://yusank.github.io/posts/cors/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2017-01-30T15:07:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">跨域资源共享 CORS 详解 CORS是一个W3C标准，全称是&amp;quot;跨域资源共享&amp;quot;（Cross-origin resource sha……</summary><content type="html">&lt;h1 id="跨域资源共享-cors-详解">跨域资源共享 CORS 详解&lt;/h1>
+&lt;/ul></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/unix/" term="Unix" label="Unix"/><category scheme="https://yusank.github.io/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" term="网络编程" label="网络编程"/></entry><entry><title type="text">跨域资源共享 CORS 详解</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/cors/"/><id>https://yusank.github.io/posts/cors/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2017-01-30T15:07:00+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">跨域资源共享 CORS 详解 CORS是一个W3C标准，全称是&amp;quot;跨域资源共享&amp;quot;（Cross-origin resource sha……</summary><content type="html">&lt;h1 id="跨域资源共享-cors-详解">跨域资源共享 CORS 详解&lt;/h1>
 &lt;p>CORS是一个W3C标准，全称是&amp;quot;跨域资源共享&amp;quot;（Cross-origin resource sharing）。
 它允许浏览器向跨源服务器，发出&lt;code>XMLHttpRequest&lt;/code>请求，从而克服了AJAX只能&lt;strong>同源&lt;/strong>使用的限制。
 本文详细介绍CORS的内部机制。&lt;/p>
@@ -15092,7 +15300,7 @@ mq_recevie error: Resource temporarily unavalibale
 &lt;h2 id="五与jsonp的比较">五、与JSONP的比较&lt;/h2>
 &lt;p>CORS与JSONP的使用目的相同，但是比JSONP更强大。&lt;/p>
 &lt;p>JSONP只支持&lt;code>GET&lt;/code>请求，CORS支持所有类型的HTTP请求。JSONP的优势在于支持老式浏览器，以及可以向不支持CORS的网站请求数据。&lt;/p>
-&lt;p>（完）&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/cors/" term="cors" label="cors"/></entry><entry><title type="text">linux命令</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/linux-cmd/"/><id>https://yusank.github.io/posts/linux-cmd/</id><updated>2021-09-09T10:07:29+00:00</updated><published>2016-12-28T13:13:13+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">welcome to learn terminal command!!! linux命令 永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！ 实用性 1 $ ls -l | sed &amp;#39;1d&amp;#39; | sort -n -k5 | awk……</summary><content type="html">&lt;p>welcome to learn terminal command!!!&lt;/p>
+&lt;p>（完）&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/go/" term="go" label="go"/><category scheme="https://yusank.github.io/tags/cors/" term="cors" label="cors"/></entry><entry><title type="text">linux命令</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/linux-cmd/"/><id>https://yusank.github.io/posts/linux-cmd/</id><updated>2021-09-09T10:10:32+00:00</updated><published>2016-12-28T13:13:13+08:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">welcome to learn terminal command!!! linux命令 永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！ 实用性 1 $ ls -l | sed &amp;#39;1d&amp;#39; | sort -n -k5 | awk……</summary><content type="html">&lt;p>welcome to learn terminal command!!!&lt;/p>
 &lt;h1 id="linux命令">linux命令&lt;/h1>
 &lt;h3 id="永远不要执行你不清楚在干啥的命令">永！远！不！要！执！行！你！不！清！楚！在！干！啥！的！命！令！&lt;/h3>
 &lt;h2 id="实用性">实用性&lt;/h2>
@@ -15427,212 +15635,4 @@ $ touch
 &lt;p>还有很多，有兴趣的可以通过这个链接去看：&lt;a href="https://www.zhihu.com/question/20273259">知乎&lt;/a>&lt;/p>
 &lt;p>个人博客 &lt;a href="http://aa.yusank.space/2016/12/28/linux%E5%91%BD%E4%BB%A4/">yusank&lt;/a>&lt;/p>
 &lt;p>比较牛逼的一个查找命令的网站：http://www.commandlinefu.com/commands/browse/sort-by-votes&lt;/p>
-&lt;p>每天都有更新各种命令组合&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/linux/" term="Linux" label="Linux"/></entry><entry><title type="text">部署单机 k8s 集群</title><link rel="alternate" type="text/html" href="https://yusank.github.io/posts/deploy-k8s-cluster/"/><id>https://yusank.github.io/posts/deploy-k8s-cluster/</id><updated>2021-09-09T10:07:29+00:00</updated><published>0001-01-01T00:00:00+00:00</published><author><name>yusank</name><uri>https://yusank.github.io/</uri><email>yusankurban@gmail.com</email></author><summary type="html">本文介绍本地或服务器上搭建单节点的 k8s 集群和 webUI 以及启用ingress，可以用作开发和测试环境。 准备工作 所需工具： docker minkube kubectl 如何……</summary><content type="html">&lt;p>本文介绍本地或服务器上搭建单节点的 k8s 集群和 webUI 以及启用ingress，可以用作开发和测试环境。&lt;/p>
-&lt;h2 id="准备工作">准备工作&lt;/h2>
-&lt;p>所需工具：&lt;/p>
-&lt;ul>
-&lt;li>docker&lt;/li>
-&lt;li>minkube&lt;/li>
-&lt;li>kubectl&lt;/li>
-&lt;/ul>
-&lt;p>如何安装 docker 就不再这里撰述。&lt;/p>
-&lt;h3 id="安装-minikube">安装 minikube&lt;/h3>
-&lt;p>&lt;a href="https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-minikube/">官方文档&lt;/a>&lt;/p>
-&lt;p>&lt;strong>Mac&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ brew install minkube
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;strong>linux&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> chmod +x minikube
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>将 Minikube 可执行文件添加至 PATH：&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">sudo mkdir -p /usr/local/bin/
-sudo install minikube /usr/local/bin/
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>也可以在 &lt;a href="https://github.com/kubernetes/minikube">GitHub&lt;/a> 上下载系统对应的二级制文件&lt;/p>
-&lt;h3 id="安装-kubectl">安装 kubectl&lt;/h3>
-&lt;p>&lt;a href="https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-kubectl/#install-kubectl-on-linux">官方文档&lt;/a>&lt;/p>
-&lt;p>&lt;strong>Mac&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ brew install kubernetes-cli
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;strong>Linux&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ sudo apt-get update &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> sudo apt-get install -y apt-transport-https
-$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg &lt;span class="p">|&lt;/span> sudo apt-key add -
-$ &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;deb https://apt.kubernetes.io/ kubernetes-xenial main&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> sudo tee -a /etc/apt/sources.list.d/kubernetes.list
-$ sudo apt-get update
-$ sudo apt-get install -y kubectl
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h2 id="启动检查">启动&amp;amp;检查&lt;/h2>
-&lt;p>&lt;strong>启动&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube start --vm-driver&lt;span class="o">=&lt;/span>docker
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;strong>检查&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;span class="lnt">6
-&lt;/span>&lt;span class="lnt">7
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube status
-minikube
-type: Control Plane
-host: Running
-kubelet: Running
-apiserver: Running
-kubeconfig: Configured
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>至此集群已经部署成功，可以通过 &lt;code>kubectl&lt;/code> 命令查看状态&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ kubectl cluster-info
-Kubernetes control plane is running at https://xxx.xxx.xx.xx:8443
-CoreDNS is running at https://xxx.xxx.xx.xx:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h2 id="停止清理">停止&amp;amp;清理&lt;/h2>
-&lt;p>&lt;strong>停止&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minkube stop
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;strong>清理&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube delete
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h2 id="webui">webUI&lt;/h2>
-&lt;p>安装 k8s 管理 dashboard。&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube dashboard --url
-🤔 Verifying dashboard health ...
-🚀 Launching proxy ...
-🤔 Verifying proxy health ...
-http://127.0.0.1:35983/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;code>minikube&lt;/code> 会安装 dashboard 并返回可访问的 url, 如果是本地则直接访问即可。&lt;/p>
-&lt;p>如果是服务器上，则需要执行以下命令：&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ kubectl proxy --address&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;0.0.0.0&amp;#39;&lt;/span> --disable-filter&lt;span class="o">=&lt;/span>&lt;span class="nb">true&lt;/span>
-W0907 17:47:12.246841 &lt;span class="m">591818&lt;/span> proxy.go:162&lt;span class="o">]&lt;/span> Request filter disabled, your proxy is vulnerable to XSRF attacks, please be cautious
-Starting to serve on &lt;span class="o">[&lt;/span>::&lt;span class="o">]&lt;/span>:8001
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>并通过&lt;code>http://serverIP:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/&lt;/code>访问 dashboard 。&lt;/p>
-&lt;h2 id="ingress">Ingress&lt;/h2>
-&lt;p>启动 ingress 也是需要通过 &lt;code>minikube&lt;/code> 命令执行。&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube addons &lt;span class="nb">enable&lt;/span> ingress
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;code>minikube&lt;/code> 会开启 ingress 并安装 &lt;code>ingress-nginx&lt;/code>, 我们只需要写 &lt;code>ingress&lt;/code> 规则即可。然后通过 &lt;code>kubectl&lt;/code> 命令查看可访问的虚拟 ip。&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ kubectl get ingress
-NAME CLASS HOSTS ADDRESS PORTS AGE
-goapp-ingress &amp;lt;none&amp;gt; * 192.168.49.2 &lt;span class="m">80&lt;/span> 2d
-$ curl 192.168.49.2/ping
-&lt;span class="s2">&amp;#34;pong&amp;#34;&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>可以访问的通的。&lt;/p>
-&lt;blockquote>
-&lt;p>相关连接:&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>&lt;a href="https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-minikube/">https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-minikube/&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;a href="https://kubernetes.io/zh/docs/tasks/access-application-cluster/ingress-minikube/">https://kubernetes.io/zh/docs/tasks/access-application-cluster/ingress-minikube/&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;a href="https://stackoverflow.com/questions/47173463/how-to-access-local-kubernetes-minikube-dashboard-remotely">https://stackoverflow.com/questions/47173463/how-to-access-local-kubernetes-minikube-dashboard-remotely&lt;/a>&lt;/p>
-&lt;/li>
-&lt;/ul>
-&lt;/blockquote></content><category scheme="https://yusank.github.io/categories/k8s/" term="k8s" label="k8s"/><category scheme="https://yusank.github.io/tags/k8s/" term="k8s" label="k8s"/><category scheme="https://yusank.github.io/tags/docker/" term="docker" label="docker"/></entry></feed>
+&lt;p>每天都有更新各种命令组合&lt;/p></content><category scheme="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/" term="技术" label="技术"/><category scheme="https://yusank.github.io/tags/linux/" term="Linux" label="Linux"/></entry></feed>

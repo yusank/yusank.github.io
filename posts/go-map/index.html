@@ -23,7 +23,7 @@
 <meta name=msapplication-TileImage content="../../icons/mstile-150x150.png">
 <link rel=manifest href=/manifest.json>
 <link rel=canonical href=https://yusank.github.io/posts/go-map/>
-<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","datePublished":"2020-06-14T16:24:41+08:00","dateModified":"2021-09-09T10:07:29+00:00","url":"https://yusank.github.io/posts/go-map/","headline":"Go Map 源码解读","description":"Go 的 map 作为该语言最常见的基础数据结构之一。 源码解读 Go 语言实现的 map 并非是完全的哈希 map ，是一种类似两层树状的结构，根据 key 的哈……","inLanguage":"zh-CN","articleSection":"posts","wordCount":520,"image":["http://blog.linkinstars.com/mweb/15593603213325.jpg"],"author":{"@type":"Person","description":"Stay with light's","email":"yusankurban@gmail.com","image":"https://yusank.github.io/icons/apple-touch-icon.png","url":"https://yusank.github.io/","name":"yusank"},"publisher":{"@type":"Organization","name":"Yusank`s Site","logo":{"@type":"ImageObject","url":"https://yusank.github.io/icons/apple-touch-icon.png"},"url":"https://yusank.github.io/"},"mainEntityOfPage":{"@type":"WebSite","@id":"https://yusank.github.io/"}}</script>
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","datePublished":"2020-06-14T16:24:41+08:00","dateModified":"2021-09-09T10:10:32+00:00","url":"https://yusank.github.io/posts/go-map/","headline":"Go Map 源码解读","description":"Go 的 map 作为该语言最常见的基础数据结构之一。 源码解读 Go 语言实现的 map 并非是完全的哈希 map ，是一种类似两层树状的结构，根据 key 的哈……","inLanguage":"zh-CN","articleSection":"posts","wordCount":520,"image":["http://blog.linkinstars.com/mweb/15593603213325.jpg"],"author":{"@type":"Person","description":"Stay with light's","email":"yusankurban@gmail.com","image":"https://yusank.github.io/icons/apple-touch-icon.png","url":"https://yusank.github.io/","name":"yusank"},"publisher":{"@type":"Organization","name":"Yusank`s Site","logo":{"@type":"ImageObject","url":"https://yusank.github.io/icons/apple-touch-icon.png"},"url":"https://yusank.github.io/"},"mainEntityOfPage":{"@type":"WebSite","@id":"https://yusank.github.io/"}}</script>
 <meta name=twitter:card content="summary_large_image">
 <meta property="og:title" content="Go Map 源码解读">
 <meta property="og:description" content="Go 的 map 作为该语言最常见的基础数据结构之一。 源码解读 Go 语言实现的 map 并非是完全的哈希 map ，是一种类似两层树状的结构，根据 key 的哈……">
@@ -32,7 +32,7 @@
 <meta property="og:locale" content="zh"><meta property="og:image" content="http://blog.linkinstars.com/mweb/15593603213325.jpg">
 <meta property="og:type" content="article">
 <meta property="article:published_time" content="2020-06-14T16:24:41+08:00">
-<meta property="article:modified_time" content="2021-09-09T10:07:29+00:00">
+<meta property="article:modified_time" content="2021-09-09T10:10:32+00:00">
 <meta property="article:section" content="posts">
 </head>
 <body>
@@ -183,7 +183,7 @@
 </ul>
 </article>
 <div class=updated-badge-container>
-<span title="Updated @ 2021-09-09 10:07:29 UTC" style=cursor:help><svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2021-09-09</text><text x="915" y="140" textLength="650" transform="scale(.1)">2021-09-09</text></g></svg>
+<span title="Updated @ 2021-09-09 10:10:32 UTC" style=cursor:help><svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2021-09-09</text><text x="915" y="140" textLength="650" transform="scale(.1)">2021-09-09</text></g></svg>
 </span></div>
 <div class=post-share>
 <div class=share-text>分享：</div>

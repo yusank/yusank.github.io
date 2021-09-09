@@ -1,4 +1,212 @@
-<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.88.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Thu, 09 Sep 2021 10:07:32 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>如何在 docker 环境下进行远程 dlv 调试</title><link>https://yusank.github.io/posts/docker-dlv-debugging/</link><guid isPermaLink="true">https://yusank.github.io/posts/docker-dlv-debugging/</guid><pubDate>Mon, 06 Sep 2021 14:02:03 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;p>&lt;code>dlv&lt;/code> 作为程序调试工具功能非常强大，日常开发和测试中几乎离不开 debug 调试。但是有的时候由于本地环境与线上环境不一致或有些问题在本地无法复现的时候，我们需要在线上/测试环境做 debug，同时希望 debug 体验能与本地 debug 体验一致。&lt;code>dlv&lt;/code> 其实是支持这种需求的，线上运行线本地 debug。以下是基于 docker 环境的远程调试步骤，希望能对遇到这种情况的码友们友帮助。&lt;/p>
+<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.88.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Thu, 09 Sep 2021 10:10:35 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>部署单机 k8s 集群</title><link>https://yusank.github.io/posts/deploy-k8s-cluster/</link><guid isPermaLink="true">https://yusank.github.io/posts/deploy-k8s-cluster/</guid><pubDate>Tue, 07 Sep 2021 12:22:33 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;p>本文介绍本地或服务器上搭建单节点的 k8s 集群和 webUI 以及启用ingress，可以用作开发和测试环境。&lt;/p>
+&lt;h2 id="准备工作">准备工作&lt;/h2>
+&lt;p>所需工具：&lt;/p>
+&lt;ul>
+&lt;li>docker&lt;/li>
+&lt;li>minkube&lt;/li>
+&lt;li>kubectl&lt;/li>
+&lt;/ul>
+&lt;p>如何安装 docker 就不再这里撰述。&lt;/p>
+&lt;h3 id="安装-minikube">安装 minikube&lt;/h3>
+&lt;p>&lt;a href="https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-minikube/">官方文档&lt;/a>&lt;/p>
+&lt;p>&lt;strong>Mac&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ brew install minkube
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>linux&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 &lt;span class="se">\
+&lt;/span>&lt;span class="se">&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> chmod +x minikube
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>将 Minikube 可执行文件添加至 PATH：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">sudo mkdir -p /usr/local/bin/
+sudo install minikube /usr/local/bin/
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>也可以在 &lt;a href="https://github.com/kubernetes/minikube">GitHub&lt;/a> 上下载系统对应的二级制文件&lt;/p>
+&lt;h3 id="安装-kubectl">安装 kubectl&lt;/h3>
+&lt;p>&lt;a href="https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-kubectl/#install-kubectl-on-linux">官方文档&lt;/a>&lt;/p>
+&lt;p>&lt;strong>Mac&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ brew install kubernetes-cli
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>Linux&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ sudo apt-get update &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> sudo apt-get install -y apt-transport-https
+$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg &lt;span class="p">|&lt;/span> sudo apt-key add -
+$ &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;deb https://apt.kubernetes.io/ kubernetes-xenial main&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+$ sudo apt-get update
+$ sudo apt-get install -y kubectl
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="启动检查">启动&amp;amp;检查&lt;/h2>
+&lt;p>&lt;strong>启动&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube start --vm-driver&lt;span class="o">=&lt;/span>docker
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>检查&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube status
+minikube
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>至此集群已经部署成功，可以通过 &lt;code>kubectl&lt;/code> 命令查看状态&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ kubectl cluster-info
+Kubernetes control plane is running at https://xxx.xxx.xx.xx:8443
+CoreDNS is running at https://xxx.xxx.xx.xx:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="停止清理">停止&amp;amp;清理&lt;/h2>
+&lt;p>&lt;strong>停止&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minkube stop
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>清理&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube delete
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="webui">webUI&lt;/h2>
+&lt;p>安装 k8s 管理 dashboard。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube dashboard --url
+🤔 Verifying dashboard health ...
+🚀 Launching proxy ...
+🤔 Verifying proxy health ...
+http://127.0.0.1:35983/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;code>minikube&lt;/code> 会安装 dashboard 并返回可访问的 url, 如果是本地则直接访问即可。&lt;/p>
+&lt;p>如果是服务器上，则需要执行以下命令：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ kubectl proxy --address&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;0.0.0.0&amp;#39;&lt;/span> --disable-filter&lt;span class="o">=&lt;/span>&lt;span class="nb">true&lt;/span>
+W0907 17:47:12.246841 &lt;span class="m">591818&lt;/span> proxy.go:162&lt;span class="o">]&lt;/span> Request filter disabled, your proxy is vulnerable to XSRF attacks, please be cautious
+Starting to serve on &lt;span class="o">[&lt;/span>::&lt;span class="o">]&lt;/span>:8001
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>并通过&lt;code>http://serverIP:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/&lt;/code>访问 dashboard 。&lt;/p>
+&lt;h2 id="ingress">Ingress&lt;/h2>
+&lt;p>启动 ingress 也是需要通过 &lt;code>minikube&lt;/code> 命令执行。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube addons &lt;span class="nb">enable&lt;/span> ingress
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;code>minikube&lt;/code> 会开启 ingress 并安装 &lt;code>ingress-nginx&lt;/code>, 我们只需要写 &lt;code>ingress&lt;/code> 规则即可。然后通过 &lt;code>kubectl&lt;/code> 命令查看可访问的虚拟 ip。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ kubectl get ingress
+NAME CLASS HOSTS ADDRESS PORTS AGE
+goapp-ingress &amp;lt;none&amp;gt; * 192.168.49.2 &lt;span class="m">80&lt;/span> 2d
+$ curl 192.168.49.2/ping
+&lt;span class="s2">&amp;#34;pong&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>可以访问的通的。&lt;/p>
+&lt;blockquote>
+&lt;p>相关连接:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a href="https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-minikube/">https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-minikube/&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://kubernetes.io/zh/docs/tasks/access-application-cluster/ingress-minikube/">https://kubernetes.io/zh/docs/tasks/access-application-cluster/ingress-minikube/&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://stackoverflow.com/questions/47173463/how-to-access-local-kubernetes-minikube-dashboard-remotely">https://stackoverflow.com/questions/47173463/how-to-access-local-kubernetes-minikube-dashboard-remotely&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/blockquote></description><category domain="https://yusank.github.io/categories/k8s/">k8s</category><category domain="https://yusank.github.io/tags/k8s/">k8s</category><category domain="https://yusank.github.io/tags/docker/">docker</category></item><item><title>如何在 docker 环境下进行远程 dlv 调试</title><link>https://yusank.github.io/posts/docker-dlv-debugging/</link><guid isPermaLink="true">https://yusank.github.io/posts/docker-dlv-debugging/</guid><pubDate>Mon, 06 Sep 2021 14:02:03 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;p>&lt;code>dlv&lt;/code> 作为程序调试工具功能非常强大，日常开发和测试中几乎离不开 debug 调试。但是有的时候由于本地环境与线上环境不一致或有些问题在本地无法复现的时候，我们需要在线上/测试环境做 debug，同时希望 debug 体验能与本地 debug 体验一致。&lt;code>dlv&lt;/code> 其实是支持这种需求的，线上运行线本地 debug。以下是基于 docker 环境的远程调试步骤，希望能对遇到这种情况的码友们友帮助。&lt;/p>
 &lt;p>所需工具：&lt;/p>
 &lt;ul>
 &lt;li>docker&lt;/li>
@@ -15427,212 +15635,4 @@ $ touch
 &lt;p>还有很多，有兴趣的可以通过这个链接去看：&lt;a href="https://www.zhihu.com/question/20273259">知乎&lt;/a>&lt;/p>
 &lt;p>个人博客 &lt;a href="http://aa.yusank.space/2016/12/28/linux%E5%91%BD%E4%BB%A4/">yusank&lt;/a>&lt;/p>
 &lt;p>比较牛逼的一个查找命令的网站：http://www.commandlinefu.com/commands/browse/sort-by-votes&lt;/p>
-&lt;p>每天都有更新各种命令组合&lt;/p></description><category domain="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category><category domain="https://yusank.github.io/tags/linux/">Linux</category></item><item><title>部署单机 k8s 集群</title><link>https://yusank.github.io/posts/deploy-k8s-cluster/</link><guid isPermaLink="true">https://yusank.github.io/posts/deploy-k8s-cluster/</guid><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;p>本文介绍本地或服务器上搭建单节点的 k8s 集群和 webUI 以及启用ingress，可以用作开发和测试环境。&lt;/p>
-&lt;h2 id="准备工作">准备工作&lt;/h2>
-&lt;p>所需工具：&lt;/p>
-&lt;ul>
-&lt;li>docker&lt;/li>
-&lt;li>minkube&lt;/li>
-&lt;li>kubectl&lt;/li>
-&lt;/ul>
-&lt;p>如何安装 docker 就不再这里撰述。&lt;/p>
-&lt;h3 id="安装-minikube">安装 minikube&lt;/h3>
-&lt;p>&lt;a href="https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-minikube/">官方文档&lt;/a>&lt;/p>
-&lt;p>&lt;strong>Mac&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ brew install minkube
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;strong>linux&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> chmod +x minikube
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>将 Minikube 可执行文件添加至 PATH：&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">sudo mkdir -p /usr/local/bin/
-sudo install minikube /usr/local/bin/
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>也可以在 &lt;a href="https://github.com/kubernetes/minikube">GitHub&lt;/a> 上下载系统对应的二级制文件&lt;/p>
-&lt;h3 id="安装-kubectl">安装 kubectl&lt;/h3>
-&lt;p>&lt;a href="https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-kubectl/#install-kubectl-on-linux">官方文档&lt;/a>&lt;/p>
-&lt;p>&lt;strong>Mac&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ brew install kubernetes-cli
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;strong>Linux&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ sudo apt-get update &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> sudo apt-get install -y apt-transport-https
-$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg &lt;span class="p">|&lt;/span> sudo apt-key add -
-$ &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;deb https://apt.kubernetes.io/ kubernetes-xenial main&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> sudo tee -a /etc/apt/sources.list.d/kubernetes.list
-$ sudo apt-get update
-$ sudo apt-get install -y kubectl
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h2 id="启动检查">启动&amp;amp;检查&lt;/h2>
-&lt;p>&lt;strong>启动&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube start --vm-driver&lt;span class="o">=&lt;/span>docker
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;strong>检查&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;span class="lnt">6
-&lt;/span>&lt;span class="lnt">7
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube status
-minikube
-type: Control Plane
-host: Running
-kubelet: Running
-apiserver: Running
-kubeconfig: Configured
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>至此集群已经部署成功，可以通过 &lt;code>kubectl&lt;/code> 命令查看状态&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ kubectl cluster-info
-Kubernetes control plane is running at https://xxx.xxx.xx.xx:8443
-CoreDNS is running at https://xxx.xxx.xx.xx:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h2 id="停止清理">停止&amp;amp;清理&lt;/h2>
-&lt;p>&lt;strong>停止&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minkube stop
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;strong>清理&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube delete
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h2 id="webui">webUI&lt;/h2>
-&lt;p>安装 k8s 管理 dashboard。&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube dashboard --url
-🤔 Verifying dashboard health ...
-🚀 Launching proxy ...
-🤔 Verifying proxy health ...
-http://127.0.0.1:35983/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;code>minikube&lt;/code> 会安装 dashboard 并返回可访问的 url, 如果是本地则直接访问即可。&lt;/p>
-&lt;p>如果是服务器上，则需要执行以下命令：&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ kubectl proxy --address&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;0.0.0.0&amp;#39;&lt;/span> --disable-filter&lt;span class="o">=&lt;/span>&lt;span class="nb">true&lt;/span>
-W0907 17:47:12.246841 &lt;span class="m">591818&lt;/span> proxy.go:162&lt;span class="o">]&lt;/span> Request filter disabled, your proxy is vulnerable to XSRF attacks, please be cautious
-Starting to serve on &lt;span class="o">[&lt;/span>::&lt;span class="o">]&lt;/span>:8001
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>并通过&lt;code>http://serverIP:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/&lt;/code>访问 dashboard 。&lt;/p>
-&lt;h2 id="ingress">Ingress&lt;/h2>
-&lt;p>启动 ingress 也是需要通过 &lt;code>minikube&lt;/code> 命令执行。&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ minikube addons &lt;span class="nb">enable&lt;/span> ingress
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;code>minikube&lt;/code> 会开启 ingress 并安装 &lt;code>ingress-nginx&lt;/code>, 我们只需要写 &lt;code>ingress&lt;/code> 规则即可。然后通过 &lt;code>kubectl&lt;/code> 命令查看可访问的虚拟 ip。&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ kubectl get ingress
-NAME CLASS HOSTS ADDRESS PORTS AGE
-goapp-ingress &amp;lt;none&amp;gt; * 192.168.49.2 &lt;span class="m">80&lt;/span> 2d
-$ curl 192.168.49.2/ping
-&lt;span class="s2">&amp;#34;pong&amp;#34;&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>可以访问的通的。&lt;/p>
-&lt;blockquote>
-&lt;p>相关连接:&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>&lt;a href="https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-minikube/">https://v1-18.docs.kubernetes.io/zh/docs/tasks/tools/install-minikube/&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;a href="https://kubernetes.io/zh/docs/tasks/access-application-cluster/ingress-minikube/">https://kubernetes.io/zh/docs/tasks/access-application-cluster/ingress-minikube/&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;a href="https://stackoverflow.com/questions/47173463/how-to-access-local-kubernetes-minikube-dashboard-remotely">https://stackoverflow.com/questions/47173463/how-to-access-local-kubernetes-minikube-dashboard-remotely&lt;/a>&lt;/p>
-&lt;/li>
-&lt;/ul>
-&lt;/blockquote></description><category domain="https://yusank.github.io/categories/k8s/">k8s</category><category domain="https://yusank.github.io/tags/k8s/">k8s</category><category domain="https://yusank.github.io/tags/docker/">docker</category></item></channel></rss>
+&lt;p>每天都有更新各种命令组合&lt;/p></description><category domain="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category><category domain="https://yusank.github.io/tags/linux/">Linux</category></item></channel></rss>
