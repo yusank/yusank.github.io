@@ -1048,15 +1048,15 @@ uglyURLs = false
     # 文章更新徽章
 
     # 是否开启
-    enablePostUpdatedBadge = true
+    enablePostUpdatedBadge = false
 
     # 是否显示（全局设置）
-    displayUpdatedBadge = true
+    displayUpdatedBadge = false
     # 说明：文章的 Front Matter 中的 `badge`
     #      的优先级高于此处
 
     # 是否添加 `title`
-    enableBadgeTitle = true
+    enableBadgeTitle = false
     # `title` 的前缀
     badgeTitlePrefix = "Updated @ "
 
