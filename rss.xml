@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.88.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Sat, 18 Sep 2021 06:51:46 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>nginx 中使用 lua 动态加载服务配置</title><link>https://yusank.github.io/posts/nginx-lua-plugins/</link><guid isPermaLink="true">https://yusank.github.io/posts/nginx-lua-plugins/</guid><pubDate>Fri, 17 Sep 2021 12:22:33 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;blockquote>
+<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.88.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Sat, 18 Sep 2021 06:59:54 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>nginx 中使用 lua 动态加载服务配置</title><link>https://yusank.github.io/posts/nginx-lua-plugins/</link><guid isPermaLink="true">https://yusank.github.io/posts/nginx-lua-plugins/</guid><pubDate>Fri, 17 Sep 2021 12:22:33 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;blockquote>
 &lt;p>本文简单介绍如何通过 lua 脚本和 ngx_shared_dict 在 nginx 中动态加载后端服务配置以及动态更新服务配置.&lt;/p>
 &lt;/blockquote>
 &lt;h2 id="nginx">nginx&lt;/h2>
@@ -31,28 +31,30 @@
 &lt;/span>&lt;span class="lnt">23
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">http {
-lua_shared_dict endpoints_data 5m; #定义upstream共享内存空间
-lua_shared_dict cache 1m; #定义计数共享空间
-access_log nginx_access.log;
-lua_package_path &amp;#34;/etc/nginx/lua/?.lua;;&amp;#34;;
-init_by_lua_block {
-collectgarbage(&amp;#34;collect&amp;#34;)
-local ok, res
-# 加载脚本 configuration.lua
-ok, res = pcall(require, &amp;#34;configuration&amp;#34;)
-if not ok then
-error(&amp;#34;require failed: &amp;#34; .. tostring(res))
-else
-configuration = res
-end
-}
-# 执行脚本内初始化方法，这里为可选项，如果没有可初始化的代码部分 这里可以不要
-init_worker_by_lua_block {
-configuration.prepare()
-}
-}
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-vim" data-lang="vim">&lt;span class="nx">http&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">lua_shared_dict&lt;/span> &lt;span class="nx">endpoints_data&lt;/span> &lt;span class="m">5&lt;/span>m; #&lt;span class="nx">定义upstream共享内存空间&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">lua_shared_dict&lt;/span> &lt;span class="nx">cache&lt;/span> &lt;span class="m">1&lt;/span>m; #&lt;span class="nx">定义计数共享空间&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">access_log&lt;/span> &lt;span class="nx">nginx_access&lt;/span>.&lt;span class="nx">log&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">lua_package_path&lt;/span> &lt;span class="s2">&amp;#34;/etc/nginx/lua/?.lua;;&amp;#34;&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">init_by_lua_block&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">collectgarbage&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;collect&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">local&lt;/span> &lt;span class="nx">ok&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">res&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">加载脚本&lt;/span> &lt;span class="nx">configuration&lt;/span>.&lt;span class="nx">lua&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">ok&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">res&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">pcall&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">require&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;configuration&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="nx">not&lt;/span> &lt;span class="nx">ok&lt;/span> &lt;span class="nx">then&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">error&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;require failed: &amp;#34;&lt;/span> .. &lt;span class="nx">tostring&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">res&lt;/span>&lt;span class="p">))&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="k">else&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">configuration&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">res&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">end&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">执行脚本内初始化方法&lt;/span>，&lt;span class="nx">这里为可选项&lt;/span>，&lt;span class="nx">如果没有可初始化的代码部分&lt;/span> &lt;span class="nx">这里可以不要&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">init_worker_by_lua_block&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">configuration&lt;/span>.&lt;span class="nx">prepare&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>}&lt;span class="err">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h3 id="执行-lua-脚本">执行 lua 脚本&lt;/h3>
 &lt;p>如何在 Nginx 配置中执行 lua 脚本，从而实现一些特殊逻辑？这里给出一个简单的示例:&lt;/p>
@@ -97,43 +99,44 @@ configuration.prepare()
 &lt;/span>&lt;span class="lnt">37
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">server {
-# 执行最简单的 lua 脚本
-location /hello {
-default_type &amp;#39;text/plain&amp;#39;;
-content_by_lua &amp;#39;ngx.say(&amp;#34;hello, lua&amp;#34;)&amp;#39;;
-}
-# 配置接口
-# 这里是执行加载的 lua 脚本中方法
-location /configuration {
-client_max_body_size 5m;
-client_body_buffer_size 1m;
-proxy_buffering off;
-content_by_lua_block {
-configuration.call() # 调用 call() 方法
-}
-}
-# 执行较为复杂的 lua 逻辑
-location /lua {
-default_type &amp;#39;text/plain&amp;#39;;
-# 读取请求中的 path 参数 并从共享 dict 中查询这个值，
-# 返回查询到的结果
-content_by_lua &amp;#39;
-local path = ngx.req.get_uri_args()[&amp;#34;path&amp;#34;]
-if path == nil then
-ngx.say(&amp;#34;path not found&amp;#34;)
-return
-end
-local data = ngx.shared.endpoints_data:get(&amp;#34;/&amp;#34;..path)
-if not data then
-ngx.say(&amp;#34;unkonw path&amp;#34;)
-return
-end
-ngx.say(&amp;#34;paths: &amp;#34;..data)
-&amp;#39;;
-}
-}
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-vim" data-lang="vim">&lt;span class="nx">server&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">执行最简单的&lt;/span> &lt;span class="nx">lua&lt;/span> &lt;span class="nx">脚本&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">location&lt;/span> /&lt;span class="nx">hello&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">default_type&lt;/span> &lt;span class="s1">&amp;#39;text/plain&amp;#39;&lt;/span>; &lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">content_by_lua&lt;/span> &lt;span class="s1">&amp;#39;ngx.say(&amp;#34;hello, lua&amp;#34;)&amp;#39;&lt;/span>; &lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">配置接口&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">这里是执行加载的&lt;/span> &lt;span class="nx">lua&lt;/span> &lt;span class="nx">脚本中方法&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">location&lt;/span> /&lt;span class="nx">configuration&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">client_max_body_size&lt;/span> &lt;span class="m">5&lt;/span>m;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">client_body_buffer_size&lt;/span> &lt;span class="m">1&lt;/span>m;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">proxy_buffering&lt;/span> &lt;span class="nx">off&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">content_by_lua_block&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">configuration&lt;/span>.&lt;span class="nx">call&lt;/span>&lt;span class="p">()&lt;/span> # &lt;span class="nx">调用&lt;/span> &lt;span class="nx">call&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="nx">方法&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">执行较为复杂的&lt;/span> &lt;span class="nx">lua&lt;/span> &lt;span class="nx">逻辑&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">location&lt;/span> /&lt;span class="nx">lua&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">default_type&lt;/span> &lt;span class="s1">&amp;#39;text/plain&amp;#39;&lt;/span>; &lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">读取请求中的&lt;/span> &lt;span class="nx">path&lt;/span> &lt;span class="nx">参数&lt;/span> &lt;span class="nx">并从共享&lt;/span> &lt;span class="nx">dict&lt;/span> &lt;span class="nx">中查询这个值&lt;/span>，&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">返回查询到的结果&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">content_by_lua&lt;/span> &amp;#39;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">local&lt;/span> &lt;span class="nx">path&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">req&lt;/span>.&lt;span class="nx">get_uri_args&lt;/span>&lt;span class="p">()&lt;/span>[&lt;span class="s2">&amp;#34;path&amp;#34;&lt;/span>]&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="nx">path&lt;/span> &lt;span class="p">==&lt;/span> &lt;span class="nx">nil&lt;/span> &lt;span class="nx">then&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">say&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;path not found&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">return&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">end&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">local&lt;/span> &lt;span class="nx">data&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">shared&lt;/span>.&lt;span class="nx">endpoints_data&lt;/span>:&lt;span class="nx">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;/&amp;#34;&lt;/span>..&lt;span class="nx">path&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="nx">not&lt;/span> &lt;span class="nx">data&lt;/span> &lt;span class="nx">then&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">say&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;unkonw path&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">return&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">end&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">say&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;paths: &amp;#34;&lt;/span>..&lt;span class="nx">data&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &amp;#39;;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>}&lt;span class="err">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>&lt;code>lua&lt;/code> 的语法相对简单好上手，实现一些简单的逻辑也很方便，非常值得学习。&lt;/p>
 &lt;h3 id="完整配置">完整配置&lt;/h3>
@@ -239,93 +242,104 @@ ngx.say(&amp;#34;paths: &amp;#34;..data)
 &lt;/span>&lt;span class="lnt">97
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">user nginx;
-worker_processes 1;
-pid /var/run/nginx.pid;
-error_log nginx_error.log;
-events {
-worker_connections 1024;
-}
-http {
-lua_shared_dict endpoints_data 5m; #定义upstream共享内存空间
-lua_shared_dict cache 1m; #定义计数共享空间
-access_log nginx_access.log;
-lua_package_path &amp;#34;/etc/nginx/lua/?.lua;;&amp;#34;;
-init_by_lua_block {
-collectgarbage(&amp;#34;collect&amp;#34;)
-local ok, res
-ok, res = pcall(require, &amp;#34;configuration&amp;#34;)
-if not ok then
-error(&amp;#34;require failed: &amp;#34; .. tostring(res))
-else
-configuration = res
-end
-}
-# 执行脚本内初始化方法，这里为可选项，如果没有可初始化的代码部分 这里可以不要
-init_worker_by_lua_block {
-configuration.prepare()
-}
-include /etc/nginx/mime.types;
-default_type application/octet-stream;
-sendfile on;
-#tcp_nopush on;
-keepalive_timeout 65;
-#gzip on;
-server {
-# 执行最简单的 lua 脚本
-location /hello {
-default_type &amp;#39;text/plain&amp;#39;;
-content_by_lua &amp;#39;ngx.say(&amp;#34;hello, lua&amp;#34;)&amp;#39;;
-}
-# 配置接口
-# 这里是执行加载的 lua 脚本中方法
-location /configuration {
-client_max_body_size 5m;
-client_body_buffer_size 1m;
-proxy_buffering off;
-content_by_lua_block {
-configuration.call() # 调用 call() 方法
-}
-}
-# 执行较为复杂的 lua 逻辑
-location /lua {
-default_type &amp;#39;text/plain&amp;#39;;
-# 读取请求中的 path 参数 并从共享 dict 中查询这个值，
-# 返回查询到的结果
-content_by_lua &amp;#39;
-local path = ngx.req.get_uri_args()[&amp;#34;path&amp;#34;]
-if path == nil then
-ngx.say(&amp;#34;path not found&amp;#34;)
-return
-end
-local data = ngx.shared.endpoints_data:get(&amp;#34;/&amp;#34;..path)
-if not data then
-ngx.say(&amp;#34;unkonw path&amp;#34;)
-return
-end
-ngx.say(&amp;#34;paths: &amp;#34;..data)
-&amp;#39;;
-}
-# other path
-location / {
-set $load_ups &amp;#34;&amp;#34;;
-# 动态设置当前 upstream, 未找到返回404
-rewrite_by_lua &amp;#39;
-local ups = configuration.getEndpoints()
-if ups ~= nil then
-ngx.log(ngx.ERR,&amp;#34;got upstream&amp;#34;, ups)
-ngx.var.load_ups = ups
-return
-end
-ngx.status = ngx.HTTP_NOT_FOUND
-ngx.exit(ngx.status)
-&amp;#39;;
-proxy_pass http://$load_ups$uri;
-add_header X-Upstream $upstream_addr always; # 添加 backend ip
-}
-}
-}
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-vim" data-lang="vim">&lt;span class="nx">user&lt;/span> &lt;span class="nx">nginx&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="nx">worker_processes&lt;/span> &lt;span class="m">1&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="nx">pid&lt;/span> &lt;span class="sr">/var/&lt;/span>&lt;span class="nx">run&lt;/span>/&lt;span class="nx">nginx&lt;/span>.&lt;span class="nx">pid&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="nx">error_log&lt;/span> &lt;span class="nx">nginx_error&lt;/span>.&lt;span class="nx">log&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="nx">events&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">worker_connections&lt;/span> &lt;span class="m">1024&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>}&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>&lt;span class="nx">http&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">lua_shared_dict&lt;/span> &lt;span class="nx">endpoints_data&lt;/span> &lt;span class="m">5&lt;/span>m; #&lt;span class="nx">定义upstream共享内存空间&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">lua_shared_dict&lt;/span> &lt;span class="nx">cache&lt;/span> &lt;span class="m">1&lt;/span>m; #&lt;span class="nx">定义计数共享空间&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">access_log&lt;/span> &lt;span class="nx">nginx_access&lt;/span>.&lt;span class="nx">log&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">lua_package_path&lt;/span> &lt;span class="s2">&amp;#34;/etc/nginx/lua/?.lua;;&amp;#34;&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">init_by_lua_block&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">collectgarbage&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;collect&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">local&lt;/span> &lt;span class="nx">ok&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">res&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">ok&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">res&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">pcall&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">require&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;configuration&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="nx">not&lt;/span> &lt;span class="nx">ok&lt;/span> &lt;span class="nx">then&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">error&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;require failed: &amp;#34;&lt;/span> .. &lt;span class="nx">tostring&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">res&lt;/span>&lt;span class="p">))&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="k">else&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">configuration&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">res&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">end&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">执行脚本内初始化方法&lt;/span>，&lt;span class="nx">这里为可选项&lt;/span>，&lt;span class="nx">如果没有可初始化的代码部分&lt;/span> &lt;span class="nx">这里可以不要&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">init_worker_by_lua_block&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">configuration&lt;/span>.&lt;span class="nx">prepare&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">include&lt;/span> &lt;span class="sr">/etc/&lt;/span>&lt;span class="nx">nginx&lt;/span>/&lt;span class="nx">mime&lt;/span>.&lt;span class="nx">types&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">default_type&lt;/span> &lt;span class="nx">application&lt;/span>/&lt;span class="nx">octet&lt;/span>&lt;span class="p">-&lt;/span>&lt;span class="nx">stream&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">sendfile&lt;/span> &lt;span class="nx">on&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> #&lt;span class="nx">tcp_nopush&lt;/span> &lt;span class="nx">on&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">keepalive_timeout&lt;/span> &lt;span class="m">65&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> #&lt;span class="nx">gzip&lt;/span> &lt;span class="nx">on&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">server&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">执行最简单的&lt;/span> &lt;span class="nx">lua&lt;/span> &lt;span class="nx">脚本&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">location&lt;/span> /&lt;span class="nx">hello&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">default_type&lt;/span> &lt;span class="s1">&amp;#39;text/plain&amp;#39;&lt;/span>; &lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">content_by_lua&lt;/span> &lt;span class="s1">&amp;#39;ngx.say(&amp;#34;hello, lua&amp;#34;)&amp;#39;&lt;/span>; &lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">配置接口&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">这里是执行加载的&lt;/span> &lt;span class="nx">lua&lt;/span> &lt;span class="nx">脚本中方法&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">location&lt;/span> /&lt;span class="nx">configuration&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">client_max_body_size&lt;/span> &lt;span class="m">5&lt;/span>m;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">client_body_buffer_size&lt;/span> &lt;span class="m">1&lt;/span>m;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">proxy_buffering&lt;/span> &lt;span class="nx">off&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">content_by_lua_block&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">configuration&lt;/span>.&lt;span class="nx">call&lt;/span>&lt;span class="p">()&lt;/span> # &lt;span class="nx">调用&lt;/span> &lt;span class="nx">call&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="nx">方法&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">执行较为复杂的&lt;/span> &lt;span class="nx">lua&lt;/span> &lt;span class="nx">逻辑&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">location&lt;/span> /&lt;span class="nx">lua&lt;/span> {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">default_type&lt;/span> &lt;span class="s1">&amp;#39;text/plain&amp;#39;&lt;/span>; &lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">读取请求中的&lt;/span> &lt;span class="nx">path&lt;/span> &lt;span class="nx">参数&lt;/span> &lt;span class="nx">并从共享&lt;/span> &lt;span class="nx">dict&lt;/span> &lt;span class="nx">中查询这个值&lt;/span>，&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">返回查询到的结果&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">content_by_lua&lt;/span> &amp;#39;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">local&lt;/span> &lt;span class="nx">path&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">req&lt;/span>.&lt;span class="nx">get_uri_args&lt;/span>&lt;span class="p">()&lt;/span>[&lt;span class="s2">&amp;#34;path&amp;#34;&lt;/span>]&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="nx">path&lt;/span> &lt;span class="p">==&lt;/span> &lt;span class="nx">nil&lt;/span> &lt;span class="nx">then&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">say&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;path not found&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">return&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">end&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">local&lt;/span> &lt;span class="nx">data&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">shared&lt;/span>.&lt;span class="nx">endpoints_data&lt;/span>:&lt;span class="nx">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;/&amp;#34;&lt;/span>..&lt;span class="nx">path&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="nx">not&lt;/span> &lt;span class="nx">data&lt;/span> &lt;span class="nx">then&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">say&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;unkonw path&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">return&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">end&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">say&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;paths: &amp;#34;&lt;/span>..&lt;span class="nx">data&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &amp;#39;;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">other&lt;/span> &lt;span class="nx">path&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">location&lt;/span> / {&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">set&lt;/span> $&lt;span class="nx">load_ups&lt;/span> &lt;span class="s2">&amp;#34;&amp;#34;&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> # &lt;span class="nx">动态设置当前&lt;/span> &lt;span class="nx">upstream&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">未找到返回404&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">rewrite_by_lua&lt;/span> &amp;#39;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">local&lt;/span> &lt;span class="nx">ups&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">configuration&lt;/span>.&lt;span class="nx">getEndpoints&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="nx">ups&lt;/span> &lt;span class="p">~=&lt;/span> &lt;span class="nx">nil&lt;/span> &lt;span class="nx">then&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">ERR&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s2">&amp;#34;got upstream&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">ups&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">var&lt;/span>.&lt;span class="nx">load_ups&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">ups&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">return&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">end&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">status&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">HTTP_NOT_FOUND&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">ngx&lt;/span>.&lt;span class="nx">status&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &amp;#39;;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">proxy_pass&lt;/span> &lt;span class="nx">http&lt;/span>:&lt;span class="sr">//&lt;/span>$&lt;span class="nx">load_ups&lt;/span>$&lt;span class="nx">uri&lt;/span>;&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> &lt;span class="nx">add_header&lt;/span> &lt;span class="nx">X&lt;/span>&lt;span class="p">-&lt;/span>&lt;span class="nx">Upstream&lt;/span> $&lt;span class="nx">upstream_addr&lt;/span> &lt;span class="nx">always&lt;/span>; # &lt;span class="nx">添加&lt;/span> &lt;span class="nx">backend&lt;/span> &lt;span class="nx">ip&lt;/span>&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span> }&lt;span class="err">
+&lt;/span>&lt;span class="err">&lt;/span>}&lt;span class="err">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h2 id="lua">lua&lt;/h2>
 &lt;h3 id="定义变量">定义变量&lt;/h3>
