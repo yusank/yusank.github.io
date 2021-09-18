@@ -21,7 +21,7 @@ defaultContentLanguageInSubdir = false
 pluralizeListTitles = false
 
 # 摘要的字数限制
-summaryLength = 60
+summaryLength = 40
 
 # 是否开启 GitHub 风格的 Emoji 书写方式
 enableEmoji = false
@@ -36,7 +36,7 @@ enableGitInfo = false
 enableRobotsTXT = true
 
 # 每一分页的文章数（仅对「文章摘要」首页布局有效）
-paginate = 5
+paginate = 7
 
 # URL 相关
 disablePathToLower = false
@@ -79,7 +79,7 @@ uglyURLs = false
             xHTML = false
     [markup.highlight]
         codeFences = true
-        guessSyntax = false
+        guessSyntax = true
         lineNos = true
         lineNumbersInTable = true
         noClasses = false
@@ -471,9 +471,9 @@ uglyURLs = false
     # 说明：light（浅色模式）或 dark（深色模式）
 
     # 是否隐藏模式切换开关
-    hideThemeToggle = false
+    hideThemeToggle = true
     # 是否在首页隐藏模式切换开关
-    hideThemeToggleInHome = false
+    hideThemeToggleInHome = true
     # 说明：如果开启了深色模式，即使你隐藏了开关，
     #      你的读者依然可能以深色模式阅读你的博
     #      客，如果该读者的系统设置为深色模式的
