@@ -23,7 +23,7 @@
 <meta name=msapplication-TileImage content="../../icons/mstile-150x150.png">
 <link rel=manifest href=/manifest.json>
 <link rel=canonical href=https://yusank.github.io/posts/deploy-k8s-cluster/>
-<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","datePublished":"2021-09-07T12:22:33+08:00","dateModified":"2021-09-18T03:35:35+00:00","url":"https://yusank.github.io/posts/deploy-k8s-cluster/","headline":"部署单机 k8s 集群","description":"本文介绍本地或服务器上搭建单节点的 k8s 集群和 webUI 以及启用ingress，可以用作开发和测试环境。 准备工作 所需工具： docker minkube kubectl 如何……","inLanguage":"zh-CN","articleSection":"posts","wordCount":625,"image":"https://yusank.github.io/icons/apple-touch-icon.png","author":{"@type":"Person","description":"Stay with light's","email":"yusankurban@gmail.com","image":"https://yusank.github.io/icons/apple-touch-icon.png","url":"https://yusank.github.io/","name":"yusank"},"publisher":{"@type":"Organization","name":"Yusank`s Site","logo":{"@type":"ImageObject","url":"https://yusank.github.io/icons/apple-touch-icon.png"},"url":"https://yusank.github.io/"},"mainEntityOfPage":{"@type":"WebSite","@id":"https://yusank.github.io/"}}</script>
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","datePublished":"2021-09-07T12:22:33+08:00","dateModified":"2021-09-18T03:38:19+00:00","url":"https://yusank.github.io/posts/deploy-k8s-cluster/","headline":"部署单机 k8s 集群","description":"本文介绍本地或服务器上搭建单节点的 k8s 集群和 webUI 以及启用ingress，可以用作开发和测试环境。 准备工作 所需工具： docker minkube kubectl 如何……","inLanguage":"zh-CN","articleSection":"posts","wordCount":625,"image":"https://yusank.github.io/icons/apple-touch-icon.png","author":{"@type":"Person","description":"Stay with light's","email":"yusankurban@gmail.com","image":"https://yusank.github.io/icons/apple-touch-icon.png","url":"https://yusank.github.io/","name":"yusank"},"publisher":{"@type":"Organization","name":"Yusank`s Site","logo":{"@type":"ImageObject","url":"https://yusank.github.io/icons/apple-touch-icon.png"},"url":"https://yusank.github.io/"},"mainEntityOfPage":{"@type":"WebSite","@id":"https://yusank.github.io/"}}</script>
 <meta name=twitter:card content="summary">
 <meta property="og:title" content="部署单机 k8s 集群">
 <meta property="og:description" content="本文介绍本地或服务器上搭建单节点的 k8s 集群和 webUI 以及启用ingress，可以用作开发和测试环境。 准备工作 所需工具： docker minkube kubectl 如何……">
@@ -32,7 +32,7 @@
 <meta property="og:locale" content="zh"><meta property="og:image" content="https://yusank.github.io/icons/apple-touch-icon.png">
 <meta property="og:type" content="article">
 <meta property="article:published_time" content="2021-09-07T12:22:33+08:00">
-<meta property="article:modified_time" content="2021-09-18T03:35:35+00:00">
+<meta property="article:modified_time" content="2021-09-18T03:38:19+00:00">
 <meta property="article:section" content="posts">
 </head>
 <body>
@@ -305,7 +305,7 @@ $ curl 192.168.49.2/ping
 </ul>
 </article>
 <div class=updated-badge-container>
-<span title="Updated @ 2021-09-18 03:35:35 UTC" style=cursor:help><svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2021-09-18</text><text x="915" y="140" textLength="650" transform="scale(.1)">2021-09-18</text></g></svg>
+<span title="Updated @ 2021-09-18 03:38:19 UTC" style=cursor:help><svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2021-09-18</text><text x="915" y="140" textLength="650" transform="scale(.1)">2021-09-18</text></g></svg>
 </span></div>
 <div class=post-share>
 <div class=share-text>分享：</div>
@@ -358,6 +358,9 @@ $ curl 192.168.49.2/ping
 <a href=/tags/docker/ rel=tag class=post-tags-link><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon tag-icon"><path d="M0 252.118V48C0 21.49 21.49.0 48 0h204.118a48 48 0 0133.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137.0 67.882L293.823 497.941c-18.745 18.745-49.137 18.745-67.882.0L14.059 286.059A48 48 0 010 252.118zM112 64c-26.51.0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48z"/></svg>docker</a>
 </div>
 <ul class=post-nav>
+<li class=post-nav-prev>
+<a href=/posts/nginx-lua-plugins/ rel=prev>&lt; nginx 中使用 lua 动态加载服务配置</a>
+</li>
 <li class=post-nav-next>
 <a href=/posts/docker-dlv-debugging/ rel=next>如何在 docker 环境下进行远程 dlv 调试 ></a>
 </li>

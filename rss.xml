@@ -1,4 +1,415 @@
-<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.88.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Sat, 18 Sep 2021 03:35:38 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>部署单机 k8s 集群</title><link>https://yusank.github.io/posts/deploy-k8s-cluster/</link><guid isPermaLink="true">https://yusank.github.io/posts/deploy-k8s-cluster/</guid><pubDate>Tue, 07 Sep 2021 12:22:33 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;p>本文介绍本地或服务器上搭建单节点的 k8s 集群和 webUI 以及启用ingress，可以用作开发和测试环境。&lt;/p>
+<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.88.1 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Sat, 18 Sep 2021 03:38:22 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>nginx 中使用 lua 动态加载服务配置</title><link>https://yusank.github.io/posts/nginx-lua-plugins/</link><guid isPermaLink="true">https://yusank.github.io/posts/nginx-lua-plugins/</guid><pubDate>Fri, 17 Sep 2021 12:22:33 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;blockquote>
+&lt;p>本文简单介绍如何通过 lua 脚本和 ngx_shared_dict 在 nginx 中动态加载后端服务配置以及动态更新服务配置.&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="nginx">nginx&lt;/h2>
+&lt;h3 id="加载-lua-脚本">加载 lua 脚本&lt;/h3>
+&lt;p>在 Nginx 中需要引入和加载 lua 脚本，从而在路由转发时运行 lua 脚本进行我们的逻辑。初始化代码如下：&lt;/p>
+&lt;pre tabindex="0">&lt;code class="language-conf" data-lang="conf">http {
+lua_shared_dict endpoints_data 5m; #定义upstream共享内存空间
+lua_shared_dict cache 1m; #定义计数共享空间
+access_log nginx_access.log;
+lua_package_path &amp;quot;/etc/nginx/lua/?.lua;;&amp;quot;;
+init_by_lua_block {
+collectgarbage(&amp;quot;collect&amp;quot;)
+local ok, res
+# 加载脚本 configuration.lua
+ok, res = pcall(require, &amp;quot;configuration&amp;quot;)
+if not ok then
+error(&amp;quot;require failed: &amp;quot; .. tostring(res))
+else
+configuration = res
+end
+}
+# 执行脚本内初始化方法，这里为可选项，如果没有可初始化的代码部分 这里可以不要
+init_worker_by_lua_block {
+configuration.prepare()
+}
+}
+&lt;/code>&lt;/pre>&lt;h3 id="执行-lua-脚本">执行 lua 脚本&lt;/h3>
+&lt;p>如何在 Nginx 配置中执行 lua 脚本，从而实现一些特殊逻辑？这里给出一个简单的示例:&lt;/p>
+&lt;pre tabindex="0">&lt;code class="language-conf" data-lang="conf">server {
+# 执行最简单的 lua 脚本
+location /hello {
+default_type 'text/plain';
+content_by_lua 'ngx.say(&amp;quot;hello, lua&amp;quot;)';
+}
+# 配置接口
+# 这里是执行加载的 lua 脚本中方法
+location /configuration {
+client_max_body_size 5m;
+client_body_buffer_size 1m;
+proxy_buffering off;
+content_by_lua_block {
+configuration.call() # 调用 call() 方法
+}
+}
+# 执行较为复杂的 lua 逻辑
+location /lua {
+default_type 'text/plain';
+# 读取请求中的 path 参数 并从共享 dict 中查询这个值，
+# 返回查询到的结果
+content_by_lua '
+local path = ngx.req.get_uri_args()[&amp;quot;path&amp;quot;]
+if path == nil then
+ngx.say(&amp;quot;path not found&amp;quot;)
+return
+end
+local data = ngx.shared.endpoints_data:get(&amp;quot;/&amp;quot;..path)
+if not data then
+ngx.say(&amp;quot;unkonw path&amp;quot;)
+return
+end
+ngx.say(&amp;quot;paths: &amp;quot;..data)
+';
+}
+}
+&lt;/code>&lt;/pre>&lt;p>&lt;code>lua&lt;/code> 的语法相对简单好上手，实现一些简单的逻辑也很方便，非常值得学习。&lt;/p>
+&lt;h3 id="完整配置">完整配置&lt;/h3>
+&lt;p>先给出 Nginx 的完整配置，里面包括动态配置后端服务列表和动态加载服务转发的逻辑，然后再给出 lua 部分详细实现的代码。&lt;/p>
+&lt;pre tabindex="0">&lt;code class="language-conf" data-lang="conf">user nginx;
+worker_processes 1;
+pid /var/run/nginx.pid;
+error_log nginx_error.log;
+events {
+worker_connections 1024;
+}
+http {
+lua_shared_dict endpoints_data 5m; #定义upstream共享内存空间
+lua_shared_dict cache 1m; #定义计数共享空间
+access_log nginx_access.log;
+lua_package_path &amp;quot;/etc/nginx/lua/?.lua;;&amp;quot;;
+init_by_lua_block {
+collectgarbage(&amp;quot;collect&amp;quot;)
+local ok, res
+ok, res = pcall(require, &amp;quot;configuration&amp;quot;)
+if not ok then
+error(&amp;quot;require failed: &amp;quot; .. tostring(res))
+else
+configuration = res
+end
+}
+# 执行脚本内初始化方法，这里为可选项，如果没有可初始化的代码部分 这里可以不要
+init_worker_by_lua_block {
+configuration.prepare()
+}
+include /etc/nginx/mime.types;
+default_type application/octet-stream;
+sendfile on;
+#tcp_nopush on;
+keepalive_timeout 65;
+#gzip on;
+server {
+# 执行最简单的 lua 脚本
+location /hello {
+default_type 'text/plain';
+content_by_lua 'ngx.say(&amp;quot;hello, lua&amp;quot;)';
+}
+# 配置接口
+# 这里是执行加载的 lua 脚本中方法
+location /configuration {
+client_max_body_size 5m;
+client_body_buffer_size 1m;
+proxy_buffering off;
+content_by_lua_block {
+configuration.call() # 调用 call() 方法
+}
+}
+# 执行较为复杂的 lua 逻辑
+location /lua {
+default_type 'text/plain';
+# 读取请求中的 path 参数 并从共享 dict 中查询这个值，
+# 返回查询到的结果
+content_by_lua '
+local path = ngx.req.get_uri_args()[&amp;quot;path&amp;quot;]
+if path == nil then
+ngx.say(&amp;quot;path not found&amp;quot;)
+return
+end
+local data = ngx.shared.endpoints_data:get(&amp;quot;/&amp;quot;..path)
+if not data then
+ngx.say(&amp;quot;unkonw path&amp;quot;)
+return
+end
+ngx.say(&amp;quot;paths: &amp;quot;..data)
+';
+}
+# other path
+location / {
+set $load_ups &amp;quot;&amp;quot;;
+# 动态设置当前 upstream, 未找到返回404
+rewrite_by_lua '
+local ups = configuration.getEndpoints()
+if ups ~= nil then
+ngx.log(ngx.ERR,&amp;quot;got upstream&amp;quot;, ups)
+ngx.var.load_ups = ups
+return
+end
+ngx.status = ngx.HTTP_NOT_FOUND
+ngx.exit(ngx.status)
+';
+proxy_pass http://$load_ups$uri;
+add_header X-Upstream $upstream_addr always; # 添加 backend ip
+}
+}
+}
+&lt;/code>&lt;/pre>&lt;h2 id="lua">lua&lt;/h2>
+&lt;h3 id="定义变量">定义变量&lt;/h3>
+&lt;p>因为需要用到 shared_dict 特性，在 lua 和 Nginx 之间公用内存块 从而实现数据的同步共享，所以需要预定义一些变量。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-lua" data-lang="lua">&lt;span class="c1">-- 引入变量&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">io&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">io&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">ngx&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">table&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">table&lt;/span>
+&lt;span class="c1">-- 当前包的对象，类似 go 语言的定义结构体 让给这个结构体实现方法&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">_M&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{}&lt;/span>
+&lt;span class="c1">-- 与 Nginx 共享的空间 可读写&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">Endpoints&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.shared&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">endpoints_data&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="动态更新服务列表">动态更新服务列表&lt;/h3>
+&lt;p>服务列表是通过被调接口实现，即有别的服务区监听服务节点(endpoint)的变化,然后调用&lt;code>/configuration/backends&lt;/code> 接口，被 Nginx 配置的 &lt;code>/configuration&lt;/code> 规则命中后调用 &lt;code>configuration.call()&lt;/code> 方法，我们看一下这个 &lt;code>call&lt;/code> 方法的实现。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-lua" data-lang="lua">&lt;span class="c1">-- call called by ngx&lt;/span>
+&lt;span class="kr">function&lt;/span> &lt;span class="nc">_M&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">call&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">-- 只处理 GET 和 POST&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="n">ngx.var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">request_method&lt;/span> &lt;span class="o">~=&lt;/span> &lt;span class="s2">&amp;#34;POST&amp;#34;&lt;/span> &lt;span class="ow">and&lt;/span> &lt;span class="n">ngx.var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">request_method&lt;/span> &lt;span class="o">~=&lt;/span> &lt;span class="s2">&amp;#34;GET&amp;#34;&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="n">ngx.status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.HTTP_BAD_REQUEST&lt;/span>
+&lt;span class="n">ngx.print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Only POST and GET requests are allowed!&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">return&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="c1">-- 目前只处理后端服务的配置 所以判断路由&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="n">ngx.var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">request_uri&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s2">&amp;#34;/configuration/backends&amp;#34;&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="c1">-- 调用内部方法&lt;/span>
+&lt;span class="n">handle_backends&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="kr">return&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="c1">-- 非法请求 返回 404&lt;/span>
+&lt;span class="n">ngx.status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.HTTP_NOT_FOUND&lt;/span>
+&lt;span class="n">ngx.print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Not found!&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>多说一句，调用 &lt;code>/configuration/backends&lt;/code> 时传参是在请求 body 里，格式为 &lt;code>json&lt;/code> 所以需要引入第三方的 json 解析包。&lt;code>handle_backends&lt;/code> 方法的实现：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;span class="lnt">58
+&lt;/span>&lt;span class="lnt">59
+&lt;/span>&lt;span class="lnt">60
+&lt;/span>&lt;span class="lnt">61
+&lt;/span>&lt;span class="lnt">62
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-lua" data-lang="lua">&lt;span class="c1">-- handle_backends .&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="kr">function&lt;/span> &lt;span class="nf">handle_backends&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="n">ngx.var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">request_method&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s2">&amp;#34;GET&amp;#34;&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="n">ngx.status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.HTTP_OK&lt;/span>
+&lt;span class="c1">-- 返回查询的服务列表&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">path&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.req&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">get_uri_args&lt;/span>&lt;span class="p">()[&lt;/span>&lt;span class="s2">&amp;#34;path&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;span class="n">ngx.print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Endpoints&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;path&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="kr">return&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="c1">-- 读取请求 body&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">obj&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">fetch_request_body&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="n">obj&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="n">ngx.log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ngx.ERR&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;dynamic-configuration: unable to read valid request body&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">ngx.status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.HTTP_BAD_REQUEST&lt;/span>
+&lt;span class="kr">return&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="c1">-- 通过 第三方包 json 解析 body到 lua table&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">rule&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">err&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">json.decode&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">obj&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="n">rule&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="n">ngx.log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ngx.ERR&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;could not parse backends data: &amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">err&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">return&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="n">ngx.log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ngx.ERR&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;decoed rule&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">obj&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">-- 清空共享空间&lt;/span>
+&lt;span class="n">Endpoints&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">flush_all&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">-- 遍历并写入&lt;/span>
+&lt;span class="kr">for&lt;/span> &lt;span class="n">_&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">new_rule&lt;/span> &lt;span class="kr">in&lt;/span> &lt;span class="n">ipairs&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">rule.rules&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="kr">do&lt;/span>
+&lt;span class="c1">-- 更新&lt;/span>
+&lt;span class="c1">-- 将数组合并&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">succ&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">err1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">forcible&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Endpoints&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">set&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">new_rule.path&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">table.concat&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">new_rule.upstreams&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;,&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">ngx.log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ngx.ERR&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;set result&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">succ&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">err1&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">forcible&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="n">ngx.status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.HTTP_CREATED&lt;/span>
+&lt;span class="n">ngx.say&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;ok&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="c1">-- 读取请求 body 部分&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="kr">function&lt;/span> &lt;span class="nf">fetch_request_body&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="n">ngx.req&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">read_body&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">body&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.req&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">get_body_data&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="n">body&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="c1">-- request body might&amp;#39;ve been written to tmp file if body &amp;gt; client_body_buffer_size&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">file_name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.req&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">get_body_file&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">file&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">io.open&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">file_name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;rb&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="n">file&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="kc">nil&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="n">body&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">file&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;*all&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">file&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">close&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="n">body&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>请求 body 的 json 结构如下：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="kd">type&lt;/span> &lt;span class="nx">NginxRuleConf&lt;/span> &lt;span class="kd">struct&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nx">Rules&lt;/span> &lt;span class="p">[]&lt;/span>&lt;span class="kd">struct&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;span class="nx">Path&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="s">`json:&amp;#34;path&amp;#34;`&lt;/span>
+&lt;span class="nx">ServiceName&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="s">`json:&amp;#34;serviceName&amp;#34;`&lt;/span>
+&lt;span class="nx">Port&lt;/span> &lt;span class="kt">int32&lt;/span> &lt;span class="s">`json:&amp;#34;-&amp;#34;`&lt;/span>
+&lt;span class="nx">Upstreams&lt;/span> &lt;span class="p">[]&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="s">`json:&amp;#34;upstreams&amp;#34;`&lt;/span>
+&lt;span class="p">}&lt;/span> &lt;span class="s">`json:&amp;#34;rules&amp;#34;`&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="动态读取后端服务">动态读取后端服务&lt;/h3>
+&lt;p>上面已经通过接口的方式动态更新服务节点列表并写入到共享空间 &lt;code>endpoints_data&lt;/code> 内，我们现在实现读取服务列表并选择其中一个节点进行接口转发。&lt;/p>
+&lt;p>代码如下：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-lua" data-lang="lua">&lt;span class="c1">-- 轮顺的方式取节点&lt;/span>
+&lt;span class="kr">function&lt;/span> &lt;span class="nc">_M&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">getEndpoints&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">cache&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.shared&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">cache&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">path&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">request_uri&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">eps&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Endpoints&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">path&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="n">eps&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="kc">nil&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">tab&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">split&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">eps&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s2">&amp;#34;,&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">index&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">cache&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">path&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="n">index&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="kc">nil&lt;/span> &lt;span class="ow">or&lt;/span> &lt;span class="n">index&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="o">#&lt;/span>&lt;span class="n">tab&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="n">index&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="c1">-- 加一&lt;/span>
+&lt;span class="n">cache&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">set&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">path&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="n">tab&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="结论">结论&lt;/h2>
+&lt;p>至此实现的效果是，可以动态配置多个后端服务和后端服务节点列表，外部服务请求 Nginx 时，会尝试从已有的服务中匹配转发，如果服务有多个节点则轮顺的方法去转发。如有服务信息发生变化，则通过调用 Nginx 中配置的 &lt;code>configuration&lt;/code> 接口更新即可，无需修改 Nginx 配置。&lt;/p></description><category domain="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category><category domain="https://yusank.github.io/tags/nginx/">nginx</category><category domain="https://yusank.github.io/tags/lua/">lua</category></item><item><title>部署单机 k8s 集群</title><link>https://yusank.github.io/posts/deploy-k8s-cluster/</link><guid isPermaLink="true">https://yusank.github.io/posts/deploy-k8s-cluster/</guid><pubDate>Tue, 07 Sep 2021 12:22:33 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;p>本文介绍本地或服务器上搭建单节点的 k8s 集群和 webUI 以及启用ingress，可以用作开发和测试环境。&lt;/p>
 &lt;h2 id="准备工作">准备工作&lt;/h2>
 &lt;p>所需工具：&lt;/p>
 &lt;ul>
@@ -15635,415 +16046,4 @@ $ touch
 &lt;p>还有很多，有兴趣的可以通过这个链接去看：&lt;a href="https://www.zhihu.com/question/20273259">知乎&lt;/a>&lt;/p>
 &lt;p>个人博客 &lt;a href="http://aa.yusank.space/2016/12/28/linux%E5%91%BD%E4%BB%A4/">yusank&lt;/a>&lt;/p>
 &lt;p>比较牛逼的一个查找命令的网站：http://www.commandlinefu.com/commands/browse/sort-by-votes&lt;/p>
-&lt;p>每天都有更新各种命令组合&lt;/p></description><category domain="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category><category domain="https://yusank.github.io/tags/linux/">Linux</category></item><item><title>nginx 中使用 lua 动态加载服务配置</title><link>https://yusank.github.io/posts/nginx-lua-plugins/</link><guid isPermaLink="true">https://yusank.github.io/posts/nginx-lua-plugins/</guid><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;blockquote>
-&lt;p>本文简单介绍如何通过 lua 脚本和 ngx_shared_dict 在 nginx 中动态加载后端服务配置以及动态更新服务配置.&lt;/p>
-&lt;/blockquote>
-&lt;h2 id="nginx">nginx&lt;/h2>
-&lt;h3 id="加载-lua-脚本">加载 lua 脚本&lt;/h3>
-&lt;p>在 Nginx 中需要引入和加载 lua 脚本，从而在路由转发时运行 lua 脚本进行我们的逻辑。初始化代码如下：&lt;/p>
-&lt;pre tabindex="0">&lt;code class="language-conf" data-lang="conf">http {
-lua_shared_dict endpoints_data 5m; #定义upstream共享内存空间
-lua_shared_dict cache 1m; #定义计数共享空间
-access_log nginx_access.log;
-lua_package_path &amp;quot;/etc/nginx/lua/?.lua;;&amp;quot;;
-init_by_lua_block {
-collectgarbage(&amp;quot;collect&amp;quot;)
-local ok, res
-# 加载脚本 configuration.lua
-ok, res = pcall(require, &amp;quot;configuration&amp;quot;)
-if not ok then
-error(&amp;quot;require failed: &amp;quot; .. tostring(res))
-else
-configuration = res
-end
-}
-# 执行脚本内初始化方法，这里为可选项，如果没有可初始化的代码部分 这里可以不要
-init_worker_by_lua_block {
-configuration.prepare()
-}
-}
-&lt;/code>&lt;/pre>&lt;h3 id="执行-lua-脚本">执行 lua 脚本&lt;/h3>
-&lt;p>如何在 Nginx 配置中执行 lua 脚本，从而实现一些特殊逻辑？这里给出一个简单的示例:&lt;/p>
-&lt;pre tabindex="0">&lt;code class="language-conf" data-lang="conf">server {
-# 执行最简单的 lua 脚本
-location /hello {
-default_type 'text/plain';
-content_by_lua 'ngx.say(&amp;quot;hello, lua&amp;quot;)';
-}
-# 配置接口
-# 这里是执行加载的 lua 脚本中方法
-location /configuration {
-client_max_body_size 5m;
-client_body_buffer_size 1m;
-proxy_buffering off;
-content_by_lua_block {
-configuration.call() # 调用 call() 方法
-}
-}
-# 执行较为复杂的 lua 逻辑
-location /lua {
-default_type 'text/plain';
-# 读取请求中的 path 参数 并从共享 dict 中查询这个值，
-# 返回查询到的结果
-content_by_lua '
-local path = ngx.req.get_uri_args()[&amp;quot;path&amp;quot;]
-if path == nil then
-ngx.say(&amp;quot;path not found&amp;quot;)
-return
-end
-local data = ngx.shared.endpoints_data:get(&amp;quot;/&amp;quot;..path)
-if not data then
-ngx.say(&amp;quot;unkonw path&amp;quot;)
-return
-end
-ngx.say(&amp;quot;paths: &amp;quot;..data)
-';
-}
-}
-&lt;/code>&lt;/pre>&lt;p>&lt;code>lua&lt;/code> 的语法相对简单好上手，实现一些简单的逻辑也很方便，非常值得学习。&lt;/p>
-&lt;h3 id="完整配置">完整配置&lt;/h3>
-&lt;p>先给出 Nginx 的完整配置，里面包括动态配置后端服务列表和动态加载服务转发的逻辑，然后再给出 lua 部分详细实现的代码。&lt;/p>
-&lt;pre tabindex="0">&lt;code class="language-conf" data-lang="conf">user nginx;
-worker_processes 1;
-pid /var/run/nginx.pid;
-error_log nginx_error.log;
-events {
-worker_connections 1024;
-}
-http {
-lua_shared_dict endpoints_data 5m; #定义upstream共享内存空间
-lua_shared_dict cache 1m; #定义计数共享空间
-access_log nginx_access.log;
-lua_package_path &amp;quot;/etc/nginx/lua/?.lua;;&amp;quot;;
-init_by_lua_block {
-collectgarbage(&amp;quot;collect&amp;quot;)
-local ok, res
-ok, res = pcall(require, &amp;quot;configuration&amp;quot;)
-if not ok then
-error(&amp;quot;require failed: &amp;quot; .. tostring(res))
-else
-configuration = res
-end
-}
-# 执行脚本内初始化方法，这里为可选项，如果没有可初始化的代码部分 这里可以不要
-init_worker_by_lua_block {
-configuration.prepare()
-}
-include /etc/nginx/mime.types;
-default_type application/octet-stream;
-sendfile on;
-#tcp_nopush on;
-keepalive_timeout 65;
-#gzip on;
-server {
-# 执行最简单的 lua 脚本
-location /hello {
-default_type 'text/plain';
-content_by_lua 'ngx.say(&amp;quot;hello, lua&amp;quot;)';
-}
-# 配置接口
-# 这里是执行加载的 lua 脚本中方法
-location /configuration {
-client_max_body_size 5m;
-client_body_buffer_size 1m;
-proxy_buffering off;
-content_by_lua_block {
-configuration.call() # 调用 call() 方法
-}
-}
-# 执行较为复杂的 lua 逻辑
-location /lua {
-default_type 'text/plain';
-# 读取请求中的 path 参数 并从共享 dict 中查询这个值，
-# 返回查询到的结果
-content_by_lua '
-local path = ngx.req.get_uri_args()[&amp;quot;path&amp;quot;]
-if path == nil then
-ngx.say(&amp;quot;path not found&amp;quot;)
-return
-end
-local data = ngx.shared.endpoints_data:get(&amp;quot;/&amp;quot;..path)
-if not data then
-ngx.say(&amp;quot;unkonw path&amp;quot;)
-return
-end
-ngx.say(&amp;quot;paths: &amp;quot;..data)
-';
-}
-# other path
-location / {
-set $load_ups &amp;quot;&amp;quot;;
-# 动态设置当前 upstream, 未找到返回404
-rewrite_by_lua '
-local ups = configuration.getEndpoints()
-if ups ~= nil then
-ngx.log(ngx.ERR,&amp;quot;got upstream&amp;quot;, ups)
-ngx.var.load_ups = ups
-return
-end
-ngx.status = ngx.HTTP_NOT_FOUND
-ngx.exit(ngx.status)
-';
-proxy_pass http://$load_ups$uri;
-add_header X-Upstream $upstream_addr always; # 添加 backend ip
-}
-}
-}
-&lt;/code>&lt;/pre>&lt;h2 id="lua">lua&lt;/h2>
-&lt;h3 id="定义变量">定义变量&lt;/h3>
-&lt;p>因为需要用到 shared_dict 特性，在 lua 和 Nginx 之间公用内存块 从而实现数据的同步共享，所以需要预定义一些变量。&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;span class="lnt">6
-&lt;/span>&lt;span class="lnt">7
-&lt;/span>&lt;span class="lnt">8
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-lua" data-lang="lua">&lt;span class="c1">-- 引入变量&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">io&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">io&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">ngx&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">table&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">table&lt;/span>
-&lt;span class="c1">-- 当前包的对象，类似 go 语言的定义结构体 让给这个结构体实现方法&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">_M&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{}&lt;/span>
-&lt;span class="c1">-- 与 Nginx 共享的空间 可读写&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">Endpoints&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.shared&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">endpoints_data&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h3 id="动态更新服务列表">动态更新服务列表&lt;/h3>
-&lt;p>服务列表是通过被调接口实现，即有别的服务区监听服务节点(endpoint)的变化,然后调用&lt;code>/configuration/backends&lt;/code> 接口，被 Nginx 配置的 &lt;code>/configuration&lt;/code> 规则命中后调用 &lt;code>configuration.call()&lt;/code> 方法，我们看一下这个 &lt;code>call&lt;/code> 方法的实现。&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;span class="lnt">11
-&lt;/span>&lt;span class="lnt">12
-&lt;/span>&lt;span class="lnt">13
-&lt;/span>&lt;span class="lnt">14
-&lt;/span>&lt;span class="lnt">15
-&lt;/span>&lt;span class="lnt">16
-&lt;/span>&lt;span class="lnt">17
-&lt;/span>&lt;span class="lnt">18
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-lua" data-lang="lua">&lt;span class="c1">-- call called by ngx&lt;/span>
-&lt;span class="kr">function&lt;/span> &lt;span class="nc">_M&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">call&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;span class="c1">-- 只处理 GET 和 POST&lt;/span>
-&lt;span class="kr">if&lt;/span> &lt;span class="n">ngx.var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">request_method&lt;/span> &lt;span class="o">~=&lt;/span> &lt;span class="s2">&amp;#34;POST&amp;#34;&lt;/span> &lt;span class="ow">and&lt;/span> &lt;span class="n">ngx.var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">request_method&lt;/span> &lt;span class="o">~=&lt;/span> &lt;span class="s2">&amp;#34;GET&amp;#34;&lt;/span> &lt;span class="kr">then&lt;/span>
-&lt;span class="n">ngx.status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.HTTP_BAD_REQUEST&lt;/span>
-&lt;span class="n">ngx.print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Only POST and GET requests are allowed!&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="kr">return&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;span class="c1">-- 目前只处理后端服务的配置 所以判断路由&lt;/span>
-&lt;span class="kr">if&lt;/span> &lt;span class="n">ngx.var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">request_uri&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s2">&amp;#34;/configuration/backends&amp;#34;&lt;/span> &lt;span class="kr">then&lt;/span>
-&lt;span class="c1">-- 调用内部方法&lt;/span>
-&lt;span class="n">handle_backends&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;span class="kr">return&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;span class="c1">-- 非法请求 返回 404&lt;/span>
-&lt;span class="n">ngx.status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.HTTP_NOT_FOUND&lt;/span>
-&lt;span class="n">ngx.print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Not found!&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>多说一句，调用 &lt;code>/configuration/backends&lt;/code> 时传参是在请求 body 里，格式为 &lt;code>json&lt;/code> 所以需要引入第三方的 json 解析包。&lt;code>handle_backends&lt;/code> 方法的实现：&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;span class="lnt">11
-&lt;/span>&lt;span class="lnt">12
-&lt;/span>&lt;span class="lnt">13
-&lt;/span>&lt;span class="lnt">14
-&lt;/span>&lt;span class="lnt">15
-&lt;/span>&lt;span class="lnt">16
-&lt;/span>&lt;span class="lnt">17
-&lt;/span>&lt;span class="lnt">18
-&lt;/span>&lt;span class="lnt">19
-&lt;/span>&lt;span class="lnt">20
-&lt;/span>&lt;span class="lnt">21
-&lt;/span>&lt;span class="lnt">22
-&lt;/span>&lt;span class="lnt">23
-&lt;/span>&lt;span class="lnt">24
-&lt;/span>&lt;span class="lnt">25
-&lt;/span>&lt;span class="lnt">26
-&lt;/span>&lt;span class="lnt">27
-&lt;/span>&lt;span class="lnt">28
-&lt;/span>&lt;span class="lnt">29
-&lt;/span>&lt;span class="lnt">30
-&lt;/span>&lt;span class="lnt">31
-&lt;/span>&lt;span class="lnt">32
-&lt;/span>&lt;span class="lnt">33
-&lt;/span>&lt;span class="lnt">34
-&lt;/span>&lt;span class="lnt">35
-&lt;/span>&lt;span class="lnt">36
-&lt;/span>&lt;span class="lnt">37
-&lt;/span>&lt;span class="lnt">38
-&lt;/span>&lt;span class="lnt">39
-&lt;/span>&lt;span class="lnt">40
-&lt;/span>&lt;span class="lnt">41
-&lt;/span>&lt;span class="lnt">42
-&lt;/span>&lt;span class="lnt">43
-&lt;/span>&lt;span class="lnt">44
-&lt;/span>&lt;span class="lnt">45
-&lt;/span>&lt;span class="lnt">46
-&lt;/span>&lt;span class="lnt">47
-&lt;/span>&lt;span class="lnt">48
-&lt;/span>&lt;span class="lnt">49
-&lt;/span>&lt;span class="lnt">50
-&lt;/span>&lt;span class="lnt">51
-&lt;/span>&lt;span class="lnt">52
-&lt;/span>&lt;span class="lnt">53
-&lt;/span>&lt;span class="lnt">54
-&lt;/span>&lt;span class="lnt">55
-&lt;/span>&lt;span class="lnt">56
-&lt;/span>&lt;span class="lnt">57
-&lt;/span>&lt;span class="lnt">58
-&lt;/span>&lt;span class="lnt">59
-&lt;/span>&lt;span class="lnt">60
-&lt;/span>&lt;span class="lnt">61
-&lt;/span>&lt;span class="lnt">62
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-lua" data-lang="lua">&lt;span class="c1">-- handle_backends .&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="kr">function&lt;/span> &lt;span class="nf">handle_backends&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;span class="kr">if&lt;/span> &lt;span class="n">ngx.var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">request_method&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s2">&amp;#34;GET&amp;#34;&lt;/span> &lt;span class="kr">then&lt;/span>
-&lt;span class="n">ngx.status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.HTTP_OK&lt;/span>
-&lt;span class="c1">-- 返回查询的服务列表&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">path&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.req&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">get_uri_args&lt;/span>&lt;span class="p">()[&lt;/span>&lt;span class="s2">&amp;#34;path&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>
-&lt;span class="n">ngx.print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Endpoints&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;path&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
-&lt;span class="kr">return&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;span class="c1">-- 读取请求 body&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">obj&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">fetch_request_body&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;span class="kr">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="n">obj&lt;/span> &lt;span class="kr">then&lt;/span>
-&lt;span class="n">ngx.log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ngx.ERR&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;dynamic-configuration: unable to read valid request body&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="n">ngx.status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.HTTP_BAD_REQUEST&lt;/span>
-&lt;span class="kr">return&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;span class="c1">-- 通过 第三方包 json 解析 body到 lua table&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">rule&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">err&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">json.decode&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">obj&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="kr">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="n">rule&lt;/span> &lt;span class="kr">then&lt;/span>
-&lt;span class="n">ngx.log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ngx.ERR&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;could not parse backends data: &amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">err&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="kr">return&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;span class="n">ngx.log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ngx.ERR&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;decoed rule&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">obj&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="c1">-- 清空共享空间&lt;/span>
-&lt;span class="n">Endpoints&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">flush_all&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;span class="c1">-- 遍历并写入&lt;/span>
-&lt;span class="kr">for&lt;/span> &lt;span class="n">_&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">new_rule&lt;/span> &lt;span class="kr">in&lt;/span> &lt;span class="n">ipairs&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">rule.rules&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="kr">do&lt;/span>
-&lt;span class="c1">-- 更新&lt;/span>
-&lt;span class="c1">-- 将数组合并&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">succ&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">err1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">forcible&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Endpoints&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">set&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">new_rule.path&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">table.concat&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">new_rule.upstreams&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;,&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
-&lt;span class="n">ngx.log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ngx.ERR&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;set result&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">succ&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">err1&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">forcible&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;span class="n">ngx.status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.HTTP_CREATED&lt;/span>
-&lt;span class="n">ngx.say&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;ok&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;span class="c1">-- 读取请求 body 部分&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="kr">function&lt;/span> &lt;span class="nf">fetch_request_body&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;span class="n">ngx.req&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">read_body&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">body&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.req&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">get_body_data&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;span class="kr">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="n">body&lt;/span> &lt;span class="kr">then&lt;/span>
-&lt;span class="c1">-- request body might&amp;#39;ve been written to tmp file if body &amp;gt; client_body_buffer_size&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">file_name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.req&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">get_body_file&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">file&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">io.open&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">file_name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;rb&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="kr">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="n">file&lt;/span> &lt;span class="kr">then&lt;/span>
-&lt;span class="kr">return&lt;/span> &lt;span class="kc">nil&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;span class="n">body&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">file&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;*all&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="n">file&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">close&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;span class="kr">return&lt;/span> &lt;span class="n">body&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>请求 body 的 json 结构如下：&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;span class="lnt">6
-&lt;/span>&lt;span class="lnt">7
-&lt;/span>&lt;span class="lnt">8
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="kd">type&lt;/span> &lt;span class="nx">NginxRuleConf&lt;/span> &lt;span class="kd">struct&lt;/span> &lt;span class="p">{&lt;/span>
-&lt;span class="nx">Rules&lt;/span> &lt;span class="p">[]&lt;/span>&lt;span class="kd">struct&lt;/span>&lt;span class="p">{&lt;/span>
-&lt;span class="nx">Path&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="s">`json:&amp;#34;path&amp;#34;`&lt;/span>
-&lt;span class="nx">ServiceName&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="s">`json:&amp;#34;serviceName&amp;#34;`&lt;/span>
-&lt;span class="nx">Port&lt;/span> &lt;span class="kt">int32&lt;/span> &lt;span class="s">`json:&amp;#34;-&amp;#34;`&lt;/span>
-&lt;span class="nx">Upstreams&lt;/span> &lt;span class="p">[]&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="s">`json:&amp;#34;upstreams&amp;#34;`&lt;/span>
-&lt;span class="p">}&lt;/span> &lt;span class="s">`json:&amp;#34;rules&amp;#34;`&lt;/span>
-&lt;span class="p">}&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h3 id="动态读取后端服务">动态读取后端服务&lt;/h3>
-&lt;p>上面已经通过接口的方式动态更新服务节点列表并写入到共享空间 &lt;code>endpoints_data&lt;/code> 内，我们现在实现读取服务列表并选择其中一个节点进行接口转发。&lt;/p>
-&lt;p>代码如下：&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;span class="lnt">11
-&lt;/span>&lt;span class="lnt">12
-&lt;/span>&lt;span class="lnt">13
-&lt;/span>&lt;span class="lnt">14
-&lt;/span>&lt;span class="lnt">15
-&lt;/span>&lt;span class="lnt">16
-&lt;/span>&lt;span class="lnt">17
-&lt;/span>&lt;span class="lnt">18
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-lua" data-lang="lua">&lt;span class="c1">-- 轮顺的方式取节点&lt;/span>
-&lt;span class="kr">function&lt;/span> &lt;span class="nc">_M&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">getEndpoints&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">cache&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.shared&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">cache&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">path&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">request_uri&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">eps&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Endpoints&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">path&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="kr">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="n">eps&lt;/span> &lt;span class="kr">then&lt;/span>
-&lt;span class="kr">return&lt;/span> &lt;span class="kc">nil&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">tab&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">split&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">eps&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s2">&amp;#34;,&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="kd">local&lt;/span> &lt;span class="n">index&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">cache&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">path&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="kr">if&lt;/span> &lt;span class="n">index&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="kc">nil&lt;/span> &lt;span class="ow">or&lt;/span> &lt;span class="n">index&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="o">#&lt;/span>&lt;span class="n">tab&lt;/span> &lt;span class="kr">then&lt;/span>
-&lt;span class="n">index&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;span class="c1">-- 加一&lt;/span>
-&lt;span class="n">cache&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">set&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">path&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="kr">return&lt;/span> &lt;span class="n">tab&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="p">]&lt;/span>
-&lt;span class="kr">end&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h2 id="结论">结论&lt;/h2>
-&lt;p>至此实现的效果是，可以动态配置多个后端服务和后端服务节点列表，外部服务请求 Nginx 时，会尝试从已有的服务中匹配转发，如果服务有多个节点则轮顺的方法去转发。如有服务信息发生变化，则通过调用 Nginx 中配置的 &lt;code>configuration&lt;/code> 接口更新即可，无需修改 Nginx 配置。&lt;/p></description><category domain="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category><category domain="https://yusank.github.io/tags/nginx/">nginx</category><category domain="https://yusank.github.io/tags/lua/">lua</category></item></channel></rss>
+&lt;p>每天都有更新各种命令组合&lt;/p></description><category domain="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category><category domain="https://yusank.github.io/tags/linux/">Linux</category></item></channel></rss>
