@@ -16,7 +16,7 @@ tags:
 
 在 Nginx 中需要引入和加载 lua 脚本，从而在路由转发时运行 lua 脚本进行我们的逻辑。初始化代码如下：
 
-```conf
+```vim
 http {
     lua_shared_dict endpoints_data 5m; #定义upstream共享内存空间
     lua_shared_dict cache 1m; #定义计数共享空间
@@ -46,7 +46,7 @@ http {
 
 如何在 Nginx 配置中执行 lua 脚本，从而实现一些特殊逻辑？这里给出一个简单的示例:
 
-```conf
+```vim
 server {
         # 执行最简单的 lua 脚本
         location /hello {
@@ -92,7 +92,7 @@ server {
 
 先给出 Nginx 的完整配置，里面包括动态配置后端服务列表和动态加载服务转发的逻辑，然后再给出 lua 部分详细实现的代码。
 
-```conf
+```vim
 user  nginx;
 worker_processes  1;
 
