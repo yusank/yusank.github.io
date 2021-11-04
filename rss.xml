@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.89.0 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Thu, 04 Nov 2021 08:13:09 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>haproxy 开发 lua 插件过程遇到的坑</title><link>https://yusank.github.io/posts/haproxy_lua_trouble/</link><guid isPermaLink="true">https://yusank.github.io/posts/haproxy_lua_trouble/</guid><pubDate>Wed, 03 Nov 2021 13:20:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;blockquote>
+<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.89.0 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Thu, 04 Nov 2021 08:26:11 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>haproxy 开发 lua 插件过程遇到的坑</title><link>https://yusank.github.io/posts/haproxy_lua_trouble/</link><guid isPermaLink="true">https://yusank.github.io/posts/haproxy_lua_trouble/</guid><pubDate>Wed, 03 Nov 2021 13:20:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;blockquote>
 &lt;p>总结在开发和调试以及压测 lua 插件 功能过程中遇到的坑
 该插件实现在 haproxy 中简单的蓝绿标记请求并转发到对应的服务。 &lt;strong>pfb 即为 pre feartue brach 特性分支。&lt;/strong>&lt;/p>
 &lt;/blockquote>
@@ -331,7 +331,103 @@ server server 0.0.0.0:0
 &lt;li>&lt;strong>日志问题&lt;/strong>&lt;/li>
 &lt;/ol>
 &lt;p>直接调用的 ha 的 core 库提供的日志，但是我们最开始日志打的比较多，导致压测时西能下降很严重，这块去了大部分日志后，性能提升最高&lt;/p>
-&lt;h2 id="遇到的第四个问题">遇到的第四个问题&lt;/h2>
+&lt;h3 id="lua-的面向对象">lua 的面向对象&lt;/h3>
+&lt;p>由于 go 出身，开发 lua 插件的时候总是想往面向对象思想靠拢 但是对 lua 不是很熟悉，开发一段时间后才总结了一些小经验，以以下代码为例，讲解如何定义对象和其方法以及如何使用。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-lua" data-lang="lua">&lt;span class="c1">-- 实现简单的轮顺算法&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">round_robin&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{}&lt;/span>
+&lt;span class="c1">---new round robin class&lt;/span>
+&lt;span class="c1">---@param endpoints table&lt;/span>
+&lt;span class="c1">---@return table&lt;/span>
+&lt;span class="kr">function&lt;/span> &lt;span class="nc">round_robin&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">new&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">endpoints&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">o&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">endpoints&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">endpoints&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">index&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="n">setmetatable&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">o&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">self&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">self.__index&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">self&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="n">o&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="c1">---balance endpints&lt;/span>
+&lt;span class="c1">---@return string endpoint ip:port&lt;/span>
+&lt;span class="kr">function&lt;/span> &lt;span class="nc">round_robin&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Balance&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">self&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">ln&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="o">#&lt;/span>&lt;span class="n">self.endpoints&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="n">ln&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="kc">nil&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="c1">-- if self.index &amp;gt; #self.endpoints then 1 else self.index&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">endpoint&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">self.endpoints&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">self.index&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">ln&lt;/span> &lt;span class="ow">and&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="ow">or&lt;/span> &lt;span class="n">self.index&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;span class="c1">-- if self.index + 1 &amp;gt; #self.endpoints then 1 else self.index + 1&lt;/span>
+&lt;span class="n">self.index&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">self.index&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">ln&lt;/span> &lt;span class="ow">and&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="ow">or&lt;/span> &lt;span class="n">self.index&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="n">endpoint&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="c1">---check is there has any valid endpoints&lt;/span>
+&lt;span class="c1">---@return table&lt;/span>
+&lt;span class="kr">function&lt;/span> &lt;span class="nc">round_robin&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">self&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">endpoints&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">self.endpoints&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">index&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">self.index&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="n">round_robin&lt;/span>
+&lt;span class="c1">-- 其他包内引入使用&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">rr&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">round_robin&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">new&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">endpoints&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">endpoint&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">rr&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">Balance&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="遇到的第四个问题">遇到的第四个问题&lt;/h2>
 &lt;p>连接数比较高的情况下 ha 发生 crash 重启。&lt;/p>
 &lt;p>这个问题比较奇怪，前后花的时间也比较长，总体来说可以分几个阶段。&lt;/p>
 &lt;h3 id="发现问题">发现问题&lt;/h3>
