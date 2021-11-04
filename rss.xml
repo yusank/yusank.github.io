@@ -1,4 +1,557 @@
-<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.89.0 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Thu, 04 Nov 2021 07:42:34 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>nginx 中使用 lua 动态加载服务配置</title><link>https://yusank.github.io/posts/nginx-lua-plugins/</link><guid isPermaLink="true">https://yusank.github.io/posts/nginx-lua-plugins/</guid><pubDate>Fri, 17 Sep 2021 12:22:33 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;blockquote>
+<?xml version="1.0" encoding="utf-8"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Yusank`s Site</title><link>https://yusank.github.io/</link><description>分享技术文章和个人博客。</description><generator>Hugo 0.89.0 https://gohugo.io/</generator><language>zh-CN</language><managingEditor>yusankurban@gmail.com (yusank)</managingEditor><webMaster>yusankurban@gmail.com (yusank)</webMaster><lastBuildDate>Thu, 04 Nov 2021 07:49:15 +0000</lastBuildDate><atom:link rel="self" type="application/rss+xml" href="https://yusank.github.io/rss.xml"/><item><title>apisix 开发自定义插件</title><link>https://yusank.github.io/posts/apisix_plugins/</link><guid isPermaLink="true">https://yusank.github.io/posts/apisix_plugins/</guid><pubDate>Wed, 03 Nov 2021 12:20:00 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;h2 id="如何部署">如何部署&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="c1"># 1. 下载官方 docker compose 项目&lt;/span>
+$ git clone https://github.com/apache/apisix-docker.git
+$ &lt;span class="nb">cd&lt;/span> apisix-docker/example
+&lt;span class="c1"># 2. run docker compose&lt;/span>
+$ docker-compose -p docker-apisix up -d
+&lt;span class="c1"># check docker ps&lt;/span>
+$ docker ps
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+629eb9d85656 627d00c649fc &lt;span class="s2">&amp;#34;sh -c &amp;#39;/usr/bin/api…&amp;#34;&lt;/span> &lt;span class="m">24&lt;/span> seconds ago Up &lt;span class="m">20&lt;/span> seconds 0.0.0.0:9080-&amp;gt;9080/tcp, :::9080-&amp;gt;9080/tcp, 0.0.0.0:9091-9092-&amp;gt;9091-9092/tcp, :::9091-9092-&amp;gt;9091-9092/tcp, 0.0.0.0:9443-&amp;gt;9443/tcp, :::9443-&amp;gt;9443/tcp docker-apisix_apisix_1
+c3cbca636e65 13afb861111c &lt;span class="s2">&amp;#34;/run.sh&amp;#34;&lt;/span> &lt;span class="m">24&lt;/span> seconds ago Up &lt;span class="m">22&lt;/span> seconds 0.0.0.0:3000-&amp;gt;3000/tcp, :::3000-&amp;gt;3000/tcp docker-apisix_grafana_1
+4a5cb9ad6239 5b0292a5e821 &lt;span class="s2">&amp;#34;/usr/local/apisix-d…&amp;#34;&lt;/span> &lt;span class="m">24&lt;/span> seconds ago Up &lt;span class="m">22&lt;/span> seconds 0.0.0.0:9000-&amp;gt;9000/tcp, :::9000-&amp;gt;9000/tcp docker-apisix_apisix-dashboard_1
+6430826c4095 8c7e00e786b8 &lt;span class="s2">&amp;#34;/opt/bitnami/script…&amp;#34;&lt;/span> &lt;span class="m">24&lt;/span> seconds ago Up &lt;span class="m">21&lt;/span> seconds 0.0.0.0:2379-&amp;gt;2379/tcp, :::2379-&amp;gt;2379/tcp, 2380/tcp docker-apisix_etcd_1
+c086d6e4fbd9 a618f5685492 &lt;span class="s2">&amp;#34;/bin/prometheus --c…&amp;#34;&lt;/span> &lt;span class="m">24&lt;/span> seconds ago Up &lt;span class="m">22&lt;/span> seconds 0.0.0.0:9090-&amp;gt;9090/tcp, :::9090-&amp;gt;9090/tcp docker-apisix_prometheus_1
+1e6ea10c008f 7d0cdcc60a96 &lt;span class="s2">&amp;#34;/docker-entrypoint.…&amp;#34;&lt;/span> &lt;span class="m">24&lt;/span> seconds ago Up &lt;span class="m">21&lt;/span> seconds 0.0.0.0:9082-&amp;gt;80/tcp, :::9082-&amp;gt;80/tcp docker-apisix_web2_1
+d4891bd0744e 7d0cdcc60a96 &lt;span class="s2">&amp;#34;/docker-entrypoint.…&amp;#34;&lt;/span> &lt;span class="m">24&lt;/span> seconds ago Up &lt;span class="m">22&lt;/span> seconds 0.0.0.0:9081-&amp;gt;80/tcp, :::9081-&amp;gt;80/tcp docker-apisix_web1_1
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>部署完成，可以通过 &lt;code>localhost:9000&lt;/code> 访问 dashboard。&lt;/p>
+&lt;h2 id="配置">配置&lt;/h2>
+&lt;p>默认配置文件在 &lt;code>apisix-docker/example/apisix_conf&lt;/code> 目录下。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="nt">apisix&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">node_listen&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">9080&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># APISIX listening port&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">enable_ipv6&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">allow_admin&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># http://nginx.org/en/docs/http/ngx_http_access_module.html#allow&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>- &lt;span class="m">0.0.0.0&lt;/span>&lt;span class="l">/0 &lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># We need to restrict ip access rules for security. 0.0.0.0/0 is for test.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">admin_key&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;admin&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">key&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">edd1c9f034335f136f87ad84b625c8f1&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 这个值需要改的否则有安全隐患&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">role: admin # admin&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">manage all configuration data&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># viewer: only can view configuration data&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;viewer&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">key&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">4054f7cf07e344346cd3f287985e76a2&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">role&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">viewer&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">enable_control&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">control&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">ip&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;0.0.0.0&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">port&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">9092&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="nt">etcd&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">host&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># it&amp;#39;s possible to define multiple etcd hosts addresses of the same etcd cluster.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>- &lt;span class="s2">&amp;#34;http://etcd:2379&amp;#34;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># multiple etcd address&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">prefix&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;/apisix&amp;#34;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># apisix configurations prefix&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">timeout&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">30&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 30 seconds&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="nt">plugin_attr&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">prometheus&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">export_addr&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">ip&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;0.0.0.0&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">port&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">9091&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="插件">插件&lt;/h2>
+&lt;h3 id="lua">lua&lt;/h3>
+&lt;p>&lt;a href="https://apisix.apache.org/docs/apisix/plugin-develop">官方开发教程&lt;/a>&lt;/p>
+&lt;p>示例插件：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt"> 10
+&lt;/span>&lt;span class="lnt"> 11
+&lt;/span>&lt;span class="lnt"> 12
+&lt;/span>&lt;span class="lnt"> 13
+&lt;/span>&lt;span class="lnt"> 14
+&lt;/span>&lt;span class="lnt"> 15
+&lt;/span>&lt;span class="lnt"> 16
+&lt;/span>&lt;span class="lnt"> 17
+&lt;/span>&lt;span class="lnt"> 18
+&lt;/span>&lt;span class="lnt"> 19
+&lt;/span>&lt;span class="lnt"> 20
+&lt;/span>&lt;span class="lnt"> 21
+&lt;/span>&lt;span class="lnt"> 22
+&lt;/span>&lt;span class="lnt"> 23
+&lt;/span>&lt;span class="lnt"> 24
+&lt;/span>&lt;span class="lnt"> 25
+&lt;/span>&lt;span class="lnt"> 26
+&lt;/span>&lt;span class="lnt"> 27
+&lt;/span>&lt;span class="lnt"> 28
+&lt;/span>&lt;span class="lnt"> 29
+&lt;/span>&lt;span class="lnt"> 30
+&lt;/span>&lt;span class="lnt"> 31
+&lt;/span>&lt;span class="lnt"> 32
+&lt;/span>&lt;span class="lnt"> 33
+&lt;/span>&lt;span class="lnt"> 34
+&lt;/span>&lt;span class="lnt"> 35
+&lt;/span>&lt;span class="lnt"> 36
+&lt;/span>&lt;span class="lnt"> 37
+&lt;/span>&lt;span class="lnt"> 38
+&lt;/span>&lt;span class="lnt"> 39
+&lt;/span>&lt;span class="lnt"> 40
+&lt;/span>&lt;span class="lnt"> 41
+&lt;/span>&lt;span class="lnt"> 42
+&lt;/span>&lt;span class="lnt"> 43
+&lt;/span>&lt;span class="lnt"> 44
+&lt;/span>&lt;span class="lnt"> 45
+&lt;/span>&lt;span class="lnt"> 46
+&lt;/span>&lt;span class="lnt"> 47
+&lt;/span>&lt;span class="lnt"> 48
+&lt;/span>&lt;span class="lnt"> 49
+&lt;/span>&lt;span class="lnt"> 50
+&lt;/span>&lt;span class="lnt"> 51
+&lt;/span>&lt;span class="lnt"> 52
+&lt;/span>&lt;span class="lnt"> 53
+&lt;/span>&lt;span class="lnt"> 54
+&lt;/span>&lt;span class="lnt"> 55
+&lt;/span>&lt;span class="lnt"> 56
+&lt;/span>&lt;span class="lnt"> 57
+&lt;/span>&lt;span class="lnt"> 58
+&lt;/span>&lt;span class="lnt"> 59
+&lt;/span>&lt;span class="lnt"> 60
+&lt;/span>&lt;span class="lnt"> 61
+&lt;/span>&lt;span class="lnt"> 62
+&lt;/span>&lt;span class="lnt"> 63
+&lt;/span>&lt;span class="lnt"> 64
+&lt;/span>&lt;span class="lnt"> 65
+&lt;/span>&lt;span class="lnt"> 66
+&lt;/span>&lt;span class="lnt"> 67
+&lt;/span>&lt;span class="lnt"> 68
+&lt;/span>&lt;span class="lnt"> 69
+&lt;/span>&lt;span class="lnt"> 70
+&lt;/span>&lt;span class="lnt"> 71
+&lt;/span>&lt;span class="lnt"> 72
+&lt;/span>&lt;span class="lnt"> 73
+&lt;/span>&lt;span class="lnt"> 74
+&lt;/span>&lt;span class="lnt"> 75
+&lt;/span>&lt;span class="lnt"> 76
+&lt;/span>&lt;span class="lnt"> 77
+&lt;/span>&lt;span class="lnt"> 78
+&lt;/span>&lt;span class="lnt"> 79
+&lt;/span>&lt;span class="lnt"> 80
+&lt;/span>&lt;span class="lnt"> 81
+&lt;/span>&lt;span class="lnt"> 82
+&lt;/span>&lt;span class="lnt"> 83
+&lt;/span>&lt;span class="lnt"> 84
+&lt;/span>&lt;span class="lnt"> 85
+&lt;/span>&lt;span class="lnt"> 86
+&lt;/span>&lt;span class="lnt"> 87
+&lt;/span>&lt;span class="lnt"> 88
+&lt;/span>&lt;span class="lnt"> 89
+&lt;/span>&lt;span class="lnt"> 90
+&lt;/span>&lt;span class="lnt"> 91
+&lt;/span>&lt;span class="lnt"> 92
+&lt;/span>&lt;span class="lnt"> 93
+&lt;/span>&lt;span class="lnt"> 94
+&lt;/span>&lt;span class="lnt"> 95
+&lt;/span>&lt;span class="lnt"> 96
+&lt;/span>&lt;span class="lnt"> 97
+&lt;/span>&lt;span class="lnt"> 98
+&lt;/span>&lt;span class="lnt"> 99
+&lt;/span>&lt;span class="lnt">100
+&lt;/span>&lt;span class="lnt">101
+&lt;/span>&lt;span class="lnt">102
+&lt;/span>&lt;span class="lnt">103
+&lt;/span>&lt;span class="lnt">104
+&lt;/span>&lt;span class="lnt">105
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-lua" data-lang="lua">&lt;span class="kd">local&lt;/span> &lt;span class="n">ngx&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">core&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;apisix.core&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">plugin&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;apisix.plugin&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">upstream&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;apisix.upstream&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">-- 定义配置，即使用插件时 配置一些自定义字段，如鉴权的 key，需要校验的 header 之类的&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">schema&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;object&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">properties&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">value&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="n">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;array&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">minItems&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;span class="p">},&lt;/span>
+&lt;span class="n">required&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="s2">&amp;#34;value&amp;#34;&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="c1">-- 这个需要了解一下干什么的&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">metadata_schema&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;object&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">properties&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">ikey&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="n">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;number&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">minimum&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">},&lt;/span>
+&lt;span class="n">skey&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="n">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;string&amp;#34;&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;span class="p">},&lt;/span>
+&lt;span class="n">required&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="s2">&amp;#34;ikey&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;skey&amp;#34;&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">plugin_name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;block_by_lua&amp;#34;&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">_M&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">version&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mf">0.1&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">priority&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">plugin_name&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">schema&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">schema&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">metadata_schema&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">metadata_schema&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="kr">function&lt;/span> &lt;span class="nc">_M&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">check_schema&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">conf&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">schema_type&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="n">schema_type&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">core.schema&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">TYPE_METADATA&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="n">core.schema&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">check&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">metadata_schema&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">conf&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="n">core.schema&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">check&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">schema&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">conf&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="kr">function&lt;/span> &lt;span class="nc">_M&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">init&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">-- call this function when plugin is loaded&lt;/span>
+&lt;span class="n">core.log&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">info&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">plugin_name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;loaded!&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="kr">function&lt;/span> &lt;span class="nc">_M&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">destroy&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">-- call this function when plugin is unloaded&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="c1">-- uri 重写阶段 如果不需要就不用定义这个方法&lt;/span>
+&lt;span class="cm">--[[
+&lt;/span>&lt;span class="cm">function _M.rewrite(conf, ctx)
+&lt;/span>&lt;span class="cm"> core.log.warn(&amp;#34;plugin rewrite phase, conf: &amp;#34;, core.json.encode(conf))
+&lt;/span>&lt;span class="cm"> core.log.warn(&amp;#34;conf_type: &amp;#34;, ctx.conf_type)
+&lt;/span>&lt;span class="cm"> core.log.warn(&amp;#34;conf_id: &amp;#34;, ctx.conf_id)
+&lt;/span>&lt;span class="cm"> core.log.warn(&amp;#34;conf_version: &amp;#34;, ctx.conf_version)
+&lt;/span>&lt;span class="cm">end
+&lt;/span>&lt;span class="cm">--]]&lt;/span>
+&lt;span class="c1">--命中服务 &amp;amp; 调服务前&lt;/span>
+&lt;span class="kr">function&lt;/span> &lt;span class="nc">_M&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">access&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">conf&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ctx&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">core.log&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">warn&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;plugin access phase, conf: &amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">core.json&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">encode&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">conf&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">core.log&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">warn&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;plugin access phase, ctx: &amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">core.json&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">encode&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ctx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">-- return 200, {message = &amp;#34;hit example plugin&amp;#34;}&lt;/span>
+&lt;span class="c1">-- 1. extract from header&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">pass&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">core.request&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">header&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ctx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;X-Block-Pass&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="n">pass&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="n">core.response&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">set_header&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;X-Block-Flag&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;Block By Lua Ext&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">-- 返回 http 状态码 则这次请求截止到当前插件，不会往下走&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="mi">403&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="n">message&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;Missing pass value in header&amp;#34;&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="kr">for&lt;/span> &lt;span class="n">_&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">val&lt;/span> &lt;span class="kr">in&lt;/span> &lt;span class="n">pairs&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">conf.value&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="kr">do&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="n">val&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">pass&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="c1">-- return 空表示通过 &lt;/span>
+&lt;span class="kr">return&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="n">core.response&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">set_header&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;X-Block-Flag&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;Block By Lua Ext&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="mi">403&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="n">message&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;Invalid pass value in header.&amp;#34;&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="kr">function&lt;/span> &lt;span class="nf">hello&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="kd">local&lt;/span> &lt;span class="n">args&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ngx.req&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">get_uri_args&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="kr">if&lt;/span> &lt;span class="n">args&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;json&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="kr">then&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="mi">200&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="n">msg&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;world&amp;#34;&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;span class="kr">else&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="mi">200&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;world&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="kr">function&lt;/span> &lt;span class="nc">_M&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">control_api&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="c1">-- 注册 controller api 用于探测插件是否插入成功，也可以用于内部一些返回 token 之类的用处&lt;/span>
+&lt;span class="n">methods&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="s2">&amp;#34;GET&amp;#34;&lt;/span>&lt;span class="p">},&lt;/span>
+&lt;span class="n">uris&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="s2">&amp;#34;/v1/plugin/example-plugin/hello&amp;#34;&lt;/span>&lt;span class="p">},&lt;/span>
+&lt;span class="n">handler&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">hello&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="kr">end&lt;/span>
+&lt;span class="kr">return&lt;/span> &lt;span class="n">_M&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>如何安装：&lt;/strong>&lt;/p>
+&lt;ol>
+&lt;li>创建目录&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">├── example
+│ └── apisix
+│ ├── plugins
+│ │ └── 3rd-party.lua
+│ └── stream
+│ └── plugins
+│ └── 3rd-party.lua
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="2">
+&lt;li>配置文件(config.yaml)添加插件目录&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="nt">apisix&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">...&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">extra_lua_path&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;/path/to/example/?.lua&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="3">
+&lt;li>开启插件(config.yaml)&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="nt">apisix&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="nn">...&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="nt">plugins&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 从 config-default.yaml 文件复制出来，然后加上自己的插件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">...&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>- &lt;span class="l">your-plugin &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Q:如何在dashboard 看到自己的插件？&lt;/p>
+&lt;p>A: 目前自定义插件不支持自动同步到 dashboard，需要手动添加，步骤如下：&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>在 apisix 机器上执行如下命令获取最新 json scheme：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ curl 127.0.0.1:9092/v1/schema &amp;gt; scheme.json
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol>
+&lt;pre>&lt;code>2. 将 `scheme.json` 复制到 dashboard 机器上 `conf` 目录下与原有的文件替换，重启 dashboard 服务。
+&lt;/code>&lt;/pre>
+&lt;h3 id="go">go&lt;/h3>
+&lt;p>&lt;a href="https://apisix.apache.org/docs/go-plugin-runner/getting-started/">官方开发教程&lt;/a>&lt;/p>
+&lt;p>示例代码：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="kn">package&lt;/span> &lt;span class="nx">plugins&lt;/span>
+&lt;span class="kn">import&lt;/span> &lt;span class="p">(&lt;/span>
+&lt;span class="s">&amp;#34;encoding/json&amp;#34;&lt;/span>
+&lt;span class="s">&amp;#34;net/http&amp;#34;&lt;/span>
+&lt;span class="nx">pkgHTTP&lt;/span> &lt;span class="s">&amp;#34;github.com/apache/apisix-go-plugin-runner/pkg/http&amp;#34;&lt;/span>
+&lt;span class="s">&amp;#34;github.com/apache/apisix-go-plugin-runner/pkg/log&amp;#34;&lt;/span>
+&lt;span class="s">&amp;#34;github.com/apache/apisix-go-plugin-runner/pkg/plugin&amp;#34;&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="c1">// 初始化
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kd">func&lt;/span> &lt;span class="nf">init&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="c1">// 注册插件
+&lt;/span>&lt;span class="c1">&lt;/span> &lt;span class="nx">err&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nx">plugin&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">RegisterPlugin&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="nx">BlockReq&lt;/span>&lt;span class="p">{})&lt;/span>
+&lt;span class="k">if&lt;/span> &lt;span class="nx">err&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="kc">nil&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nx">log&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Fatalf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;failed to register plugin block-req: %s&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">err&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="c1">// LimitReq is a demo for a real world plugin
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kd">type&lt;/span> &lt;span class="nx">BlockReq&lt;/span> &lt;span class="kd">struct&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="c1">// 与 lua 插件内 scheme 一样
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kd">type&lt;/span> &lt;span class="nx">BlockReqConf&lt;/span> &lt;span class="kd">struct&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nx">Key&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="s">`json:&amp;#34;key&amp;#34;`&lt;/span>
+&lt;span class="nx">Value&lt;/span> &lt;span class="p">[]&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="s">`json:&amp;#34;value&amp;#34;`&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="kd">func&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">p&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">BlockReq&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">Name&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="k">return&lt;/span> &lt;span class="s">&amp;#34;blcok-req&amp;#34;&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="c1">// ParseConf is called when the configuration is changed. And its output is unique per route.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kd">func&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">p&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">BlockReq&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">ParseConf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">in&lt;/span> &lt;span class="p">[]&lt;/span>&lt;span class="kt">byte&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kd">interface&lt;/span>&lt;span class="p">{},&lt;/span> &lt;span class="kt">error&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nx">conf&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nx">BlockReqConf&lt;/span>&lt;span class="p">{}&lt;/span>
+&lt;span class="nx">err&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nx">json&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Unmarshal&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">in&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="nx">conf&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="k">return&lt;/span> &lt;span class="nx">conf&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">err&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="c1">// Filter is called when a request hits the route
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kd">func&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">p&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">BlockReq&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">Filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">conf&lt;/span> &lt;span class="kd">interface&lt;/span>&lt;span class="p">{},&lt;/span> &lt;span class="nx">w&lt;/span> &lt;span class="nx">http&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">ResponseWriter&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">r&lt;/span> &lt;span class="nx">pkgHTTP&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Request&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nx">b&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nx">conf&lt;/span>&lt;span class="p">.(&lt;/span>&lt;span class="nx">BlockReqConf&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nx">val&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nx">r&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Header&lt;/span>&lt;span class="p">().&lt;/span>&lt;span class="nf">Get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">b&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Key&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="k">for&lt;/span> &lt;span class="nx">_&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">v&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="k">range&lt;/span> &lt;span class="nx">b&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Value&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="k">if&lt;/span> &lt;span class="nx">val&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="nx">v&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nx">r&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Header&lt;/span>&lt;span class="p">().&lt;/span>&lt;span class="nf">Set&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;X-Block-Value&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">v&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="k">return&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="c1">// block request
+&lt;/span>&lt;span class="c1">&lt;/span> &lt;span class="c1">// 只要写 response 的 header 或body，请求将停在这里不会往下传递，直接响应回去
+&lt;/span>&lt;span class="c1">&lt;/span> &lt;span class="nx">w&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Header&lt;/span>&lt;span class="p">().&lt;/span>&lt;span class="nf">Add&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;X-Block-Req&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Block by Go ext.&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nx">w&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">WriteHeader&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">http&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">StatusForbidden&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>编译部署&lt;/strong>&lt;/p>
+&lt;ol>
+&lt;li>用官方提供的 &lt;code>Makefile&lt;/code> 进行 build（注意编译环境和apisix 运行的环境，指定对应的 GOOS，GOARCH）&lt;/li>
+&lt;li>将编译好的二进制文件打包到 apisix 的容器内&lt;/li>
+&lt;li>修改配置文件&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="nt">ext-plugin&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nt">cmd&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;/path/to/apisix-go-plugin-runner/go-runner&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;run&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>注意：一个 go-runner 内可以注册多个插件，所以不需要拥有多个 go-runner ,所有的插件在一个项目里 然后统一编译部署即可&lt;/p>
+&lt;p>&lt;strong>使用&lt;/strong>&lt;/p>
+&lt;p>非 &lt;code>lua&lt;/code> 插件都运行在各自的 runner 内，所以使用的时候不能直接在 dashboard 中使用自定义的插件（lua 的自定义插件是可以的），需要在 &lt;code>ext-plugin-pre-req&lt;/code>, &lt;code>ext-plugin-post-req&lt;/code> 两个插件内配置使用，这两插件只有运行时间不一样，一个在所有插件之前 一个在所有插件之后。使用时配置如下:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="s2">&amp;#34;plugins&amp;#34;&lt;/span>&lt;span class="err">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nt">&amp;#34;ext-plugin-pre-req&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nt">&amp;#34;conf&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">[&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="nt">&amp;#34;name&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;blcok-req&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">// 注册的 go 插件名字
+&lt;/span>&lt;span class="c1">&lt;/span> &lt;span class="nt">&amp;#34;value&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;{\&amp;#34;key\&amp;#34;:\&amp;#34;pass\&amp;#34;, \&amp;#34;value\&amp;#34;:[\&amp;#34;word\&amp;#34;,\&amp;#34;port\&amp;#34;]}&amp;#34;&lt;/span> &lt;span class="c1">// 该插件的 conf，这里需要将 json 进行转义
+&lt;/span>&lt;span class="c1">&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;span class="p">],&lt;/span>
+&lt;span class="nt">&amp;#34;disable&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="kc">false&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="wasm">wasm&lt;/h3>
+&lt;p>apisix 开始支持 wasm 插件，但是官方给出的示例和文档还不够完善，这块还在研究中，之后会补齐。&lt;/p></description><category domain="https://yusank.github.io/categories/%E6%8A%80%E6%9C%AF/">技术</category><category domain="https://yusank.github.io/tags/lua/">lua</category><category domain="https://yusank.github.io/tags/go/">go</category><category domain="https://yusank.github.io/tags/apisix/">apisix</category></item><item><title>nginx 中使用 lua 动态加载服务配置</title><link>https://yusank.github.io/posts/nginx-lua-plugins/</link><guid isPermaLink="true">https://yusank.github.io/posts/nginx-lua-plugins/</guid><pubDate>Fri, 17 Sep 2021 12:22:33 +0800</pubDate><author>yusankurban@gmail.com (yusank)</author><description>&lt;blockquote>
 &lt;p>本文简单介绍如何通过 lua 脚本和 ngx_shared_dict 在 nginx 中动态加载后端服务配置以及动态更新服务配置.&lt;/p>
 &lt;/blockquote>
 &lt;h2 id="nginx">nginx&lt;/h2>
