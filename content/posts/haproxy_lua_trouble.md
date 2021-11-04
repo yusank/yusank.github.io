@@ -175,14 +175,14 @@ end
 修改后配置：
 
 ```diff
-    http-request set-var(req.flowType) lua.flowType()
+     http-request set-var(req.flowType) lua.flowType()
     
--   http-request use-service lua.pfbDispatch if { var(req.flowType) -m str 'pfb' }
+-    http-request use-service lua.pfbDispatch if { var(req.flowType) -m str 'pfb' }
 
-+ # pfb
-+	  http-request set-dst lua.getDstIP if { var(req.flowType) -m str 'pfb' }
-+   http-request set-dst-port lua.getDstPort if { var(req.flowType) -m str 'pfb' }
-+   use_backend %[lua.pfbDynamicBackend] if { var(req.flowType) -m str 'pfb' }
++   # pfb
++    http-request set-dst lua.getDstIP if { var(req.flowType) -m str 'pfb' }
++    http-request set-dst-port lua.getDstPort if { var(req.flowType) -m str 'pfb' }
++    use_backend %[lua.pfbDynamicBackend] if { var(req.flowType) -m str 'pfb' }
 ```
 
 直接删除 `pfbDispatch` 方法，在判断 pfb 流量后将进行负载均衡操作，并把选到的 `ip:port` 写入上下文。此时之后流量发到 pfb 节点的流程发生了比较大的变化：
