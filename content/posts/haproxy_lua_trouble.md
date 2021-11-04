@@ -223,6 +223,61 @@ lua 代码中我们用了大量的字符串拼接，这块对 lua 的性能影�
 
 直接调用的 ha 的 core 库提供的日志，但是我们最开始日志打的比较多，导致压测时西能下降很严重，这块去了大部分日志后，性能提升最高
 
+### lua 的面向对象
+
+由于 go 出身，开发 lua 插件的时候总是想往面向对象思想靠拢 但是对 lua 不是很熟悉，开发一段时间后才总结了一些小经验，以以下代码为例，讲解如何定义对象和其方法以及如何使用。
+
+```lua
+-- 实现简单的轮顺算法
+local round_robin = {}
+
+---new round robin class
+---@param endpoints table
+---@return table
+function round_robin.new(self, endpoints)
+	local o = {
+		endpoints = endpoints,
+		index = 1
+	}
+
+	setmetatable(o, self)
+	self.__index = self
+
+	return o
+end
+
+---balance endpints
+---@return string endpoint ip:port
+function round_robin.Balance(self)
+	local ln = #self.endpoints
+	if ln == 0 then
+		return nil
+	end
+
+	-- if self.index > #self.endpoints then 1 else self.index
+	local endpoint = self.endpoints[self.index > ln and 1 or self.index]
+	-- if self.index + 1 > #self.endpoints then 1 else self.index + 1
+	self.index = self.index + 1 > ln and 1 or self.index + 1
+
+	return endpoint
+end
+
+---check is there has any valid endpoints
+---@return table
+function round_robin.Get(self)
+	return {
+		endpoints = self.endpoints,
+		index = self.index
+	}
+end
+
+return round_robin
+
+-- 其他包内引入使用
+
+local rr = round_robin:new(endpoints)
+local endpoint = rr:Balance()
+```
 
 
 ## 遇到的第四个问题
