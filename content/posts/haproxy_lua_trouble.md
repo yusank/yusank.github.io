@@ -1,16 +1,15 @@
 ---
 title: "haproxy 开发 lua 插件过程遇到的坑"
-date: 2021-11-03T12:20:00+08:00
+date: 2021-11-03T13:20:00+08:00
 categories: 
 - 技术
 tags:
 - lua
 - haproxy
-draft: true
 ---
 
->  总结在开发和调试以及压测 lua 插件 功能过程中遇到的坑
-> 该插件实现在 haproxy 中简单的蓝绿标记请求并转发到对应的服务。 pfb 即为 pre feartue brach 特性分支。
+> 总结在开发和调试以及压测 lua 插件 功能过程中遇到的坑
+> 该插件实现在 haproxy 中简单的蓝绿标记请求并转发到对应的服务。 **pfb 即为 pre feartue brach 特性分支。**
 
 ## 遇到的第一个问题
 
