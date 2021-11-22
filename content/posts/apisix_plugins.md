@@ -1,12 +1,8 @@
 ---
 title: "apisix 开发自定义插件"
 date: 2021-11-03T12:20:00+08:00
-categories: 
-- 网关
-tags:
-- lua
-- go
-- apisix
+categories: ["网关"]
+tags: ["lua", "go", "apisix"]
 ---
 
 > 分享如何在 docker 环境部署 apisix 和如何开发 lua 和 go 语言的插件以及如何使用这些自定义插件的过程，希望能帮助到你。

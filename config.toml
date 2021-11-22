@@ -3,6 +3,7 @@
 
 baseURL = "https://yusank.github.io/"
 title = "Yusank`s Site"
+defaultContentLanguage = "zh-cn"
 languageCode = "zh-CN"
 hasCJKLanguage = true
 # 版权信息（支持 Markdown）
@@ -10,24 +11,14 @@ hasCJKLanguage = true
 # 主题选择
 theme = "LoveIt"
 
-# `hugo new` 新建文章自动打开的文本编辑器
-newContentEditor = ""
-
-# i18n
-defaultContentLanguage = "zh"
-defaultContentLanguageInSubdir = false
-
-# 是否复数化列表页面的标题
-pluralizeListTitles = false
-
 # 摘要的字数限制
 summaryLength = 40
 
 # 是否开启 GitHub 风格的 Emoji 书写方式
-enableEmoji = false
+enableEmoji = true
 
 # 是否启用 Git 版本信息
-enableGitInfo = false
+enableGitInfo = true
 
 # 是否生成 robots.txt 文件
 enableRobotsTXT = true
@@ -35,16 +26,11 @@ enableRobotsTXT = true
 # 每一分页的文章数（仅对「文章摘要」首页布局有效）
 paginate = 7
 
-# URL 相关
-disablePathToLower = false
-relativeURLs = false
-uglyURLs = false
-
 [menu]
   [[menu.main]]
     identifier = "posts"
     # 你可以在名称 (允许 HTML 格式) 之前添加其他信息, 例如图标
-    pre = "📚"
+    pre = ""
     # 你可以在名称 (允许 HTML 格式) 之后添加其他信息, 例如图标
     post = ""
     name = "文章"
@@ -54,7 +40,7 @@ uglyURLs = false
     weight = 1
   [[menu.main]]
     identifier = "tags"
-    pre = "🏷"
+    pre = ""
     post = ""
     name = "标签"
     url = "/tags/"
@@ -62,7 +48,7 @@ uglyURLs = false
     weight = 3
   [[menu.main]]
     identifier = "categories"
-    pre = "🗄"
+    pre = ""
     post = ""
     name = "分类"
     url = "/categories/"
@@ -70,12 +56,20 @@ uglyURLs = false
     weight = 2
   [[menu.main]]
     identifier = "about"
-    pre = "👨‍💻‍"
+    pre = ""
     post = ""
     name = "关于"
     url = "/about/"
     title = ""
     weight = 4
+  [[menu.main]]
+    identifier = "github"
+    pre = "<i class='fab fa-github fa-fw'></i>"
+    post = ""
+    name = ""
+    url = "https://github.com/yusank"
+    title = "GitHub"
+    weight = 6
 
 [params]
   #  LoveIt 主题版本
@@ -94,7 +88,7 @@ uglyURLs = false
   #  日期格式
   dateFormat = "2006-01-02"
   # 网站图片, 用于 Open Graph 和 Twitter Cards
-  images = ["/images/msite.png"]
+  images = ["/logo.png"]
 
   #  应用图标配置
   [params.app]
@@ -156,7 +150,7 @@ uglyURLs = false
   [params.footer]
     enable = true
     #  自定义内容 (支持 HTML 格式)
-    custom = 'Keep learning and stay with lights.<br>❤ yusank<br>Powerd by Hugo | Theme LoveIt<br>'
+    custom = 'Keep learning and stay with lights.<br>❤ yusank'
     #  是否显示 Hugo 和主题信息
     hugo = true
     #  是否显示版权信息
@@ -175,7 +169,7 @@ uglyURLs = false
     # section 页面每页显示文章数量
     paginate = 20
     # 日期格式 (月和日)
-    dateFormat = "2006-01-02"
+    dateFormat = "01-02"
     # RSS 文章数目
     rss = 10
 
@@ -184,7 +178,7 @@ uglyURLs = false
     # list 页面每页显示文章数量
     paginate = 20
     # 日期格式 (月和日)
-    dateFormat = "2006-01-02"
+    dateFormat = "01-02"
     # RSS 文章数目
     rss = 10
 
@@ -390,11 +384,11 @@ uglyURLs = false
       # Gitalk 评论系统设置
       [params.page.comment.gitalk]
         # 
-        enable = false
-        owner = ""
-        repo = ""
-        clientId = ""
-        clientSecret = ""
+        enable = true
+        owner = "yusank"
+        repo = "https://github.com/yusank/yusank.github.io"
+        clientId = "6f073db028a9eeb7d2de"
+        clientSecret = "e17e61d65568e45944de54d1e52910e7c99a4c18"
       # Valine 评论系统设置
       [params.page.comment.valine]
         enable = false
@@ -552,13 +546,20 @@ uglyURLs = false
       table = true
       taskList = true
       typographer = true
+    [markup.goldmark.parser]
+      attribute = true
+      autoHeadingID = true
+      autoHeadingIDType = "github"
     [markup.goldmark.renderer]
       # 是否在文档中直接使用 HTML 标签
       unsafe = true
+      hardWraps = false
+      xHTML = false
   # 目录设置
   [markup.tableOfContents]
     startLevel = 2
     endLevel = 6
+    ordered=true
 
 # 作者配置
 [author]

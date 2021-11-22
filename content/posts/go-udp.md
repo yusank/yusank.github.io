@@ -2,11 +2,8 @@
 title: "Go UDP Socket"
 date: 2017-08-02T19:00:01+08:00
 update: 2017-08-03T11:07:54+08:00
-categories:
-- 网络编程
-tags:
-- go
-- udp
+categories: ["网络编程"]
+tags: ["go", "udp"]
 ---
 
 udp 和 tcp 的简单比较和用 go 实现最简单的 udp 客户端和服务端 ......

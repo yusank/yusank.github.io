@@ -1,12 +1,9 @@
 ---
 title: "Go Channel 源码解读"
 date: 2020-03-06T17:24:41+08:00
-updated: 2020-04-06T17:24:41+08:00
-categories:
-- 源码解读
-tags:
-- go
-- channel
+lastmod: 2020-04-06T17:24:41+08:00
+categories: ["源码解读"]
+tags: ["go"]
 ---
 
 Go 的 `channel` 作为该语言很重要的特性，作为一个 gopher 有必要详细了解其实现原理。

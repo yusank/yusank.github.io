@@ -1,11 +1,9 @@
 ---
 title: "linux命令"
 date: 2016-12-28T13:13:13+08:00
-updated: 2016-12-28T13:13:13+08:00
-categories: 
-- 基础知识
-tags: 
-- linux
+lastmod: 2016-12-28T13:13:13+08:00
+categories: ["基础知识"]
+tags: ["linux"]
 ---
 welcome to learn terminal command!!!
 

@@ -2,10 +2,8 @@
 title: "Go 文件操作"
 date: 2017-05-22T12:20:00+08:00
 update: 2017-05-23T12:18:00+08:00
-categories: 
-- 基础知识
-tags:
-- go
+categories: ["基础知识"]
+tags: ["go"]
 ---
 
 # GO 文件操作

@@ -1,11 +1,8 @@
 ---
 date: 2021-06-11T18:22:00+08:00
 title: "Go-Micro 的架构及其使用（一）"
-categories:
-- 微服务
-tags:
-- go
-- go-micro
+categories: ["microservice"]
+tags: ["go", "go-micro"]
 ---
 
 关于如何使用go的微服务框架 `go-micro/v3` 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。

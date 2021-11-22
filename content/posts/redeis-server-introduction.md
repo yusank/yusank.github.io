@@ -2,11 +2,8 @@
 title: "[系列]Redis Server 实现·前言"
 date: 2021-11-22T10:50:00+08:00
 lastmod: 2021-11-22T10:50:00+08:00
-categories:
-- Redis
-tags:
-- redis
-- 系列篇
+categories: ["Redis"]
+tags: ["redis", "系列篇"]
 ---
 
 本文系列篇`Redis Server 实现`的开篇文章，将列出本系列篇讲述的内容和实现的功能做简单的描述。

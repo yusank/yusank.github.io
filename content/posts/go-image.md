@@ -2,11 +2,8 @@
 title: "Go Image"
 date: 2017-08-22T12:20:00+08:00
 update: 2017-08-23T12:18:00+08:00
-categories:
-- 基础知识
-tags:
-- go
-- 图片处理
+categories: ["基础知识"]
+tags: ["go", "图片处理"]
 ---
 
 用 GO 实现图片处理和文字合成

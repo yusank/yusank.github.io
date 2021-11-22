@@ -1,12 +1,8 @@
 ---
 date: 2021-07-08T18:22:00+08:00
 title: "如何自定义 protoc 插件"
-categories:
-- protobuf
-tags:
-- go
-- grpc
-- protoc
+categories: ["proto"]
+tags: ["go", "grpc", "protoc"]
 ---
 
 ## 前言

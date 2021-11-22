@@ -1,11 +1,9 @@
 ---
 title: "GO interface"
 date: 2017-06-08T15:07:00+08:00
-updated: 2017-06-08T15:07:01+08:00
-categories:
-- 源码解读
-tags:
-- go
+lastmod: 2017-06-08T15:07:01+08:00
+categories: ["源码解读"]
+tags: ["go"]
 ---
 
 go 的 interface 的实现和原理。

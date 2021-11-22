@@ -1,11 +1,8 @@
 ---
 title: "nginx 中使用 lua 动态加载服务配置"
 date: 2021-09-17 12:22:33+08:00
-categories:
-- 网关
-tags:
-- nginx
-- lua
+categories: ["网关"]
+tags: ["nginx", "lua"]
 ---
 
 > 本文简单介绍如何通过 lua 脚本和 ngx_shared_dict 在 nginx 中动态加载后端服务配置以及动态更新服务配置.

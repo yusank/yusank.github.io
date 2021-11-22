@@ -1,11 +1,9 @@
 ---
 title: "Go Map 源码解读"
 date: 2020-06-14T16:24:41+08:00
-updated: 2020-07-14T16:24:41+08:00
-categories:
-- 源码解读
-tags:
-- go
+lastmod: 2020-07-14T16:24:41+08:00
+categories: ["源码解读"]
+tags: ["go"]
 ---
 
 Go 的 `map` 作为该语言最常见的基础数据结构之一。

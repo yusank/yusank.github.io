@@ -1,12 +1,9 @@
 ---
 title: "跨域资源共享 CORS 详解"
 date: 2017-01-30T15:07:00+08:00
-updated: 2017-01-30T15:07:01+08:00
-categories:
-- 技术
-tags:
-- go
-- cors
+lastmod: 2017-01-30T15:07:01+08:00
+categories: ["技术"]
+tags: ["go", "cors"]
 ---
 
 # 跨域资源共享 CORS 详解

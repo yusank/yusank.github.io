@@ -2,11 +2,8 @@
 title: "Go TCP Socket"
 date: 2017-07-31T10:00:01+08:00
 update: 2017-07-31T13:21:47+08:00
-categories:
-- 网络编程
-tags:
-- go
-- tcp
+categories: ["网络编程"]
+tags: ["go", "tcp"]
 ---
 
 `转载文章`

@@ -2,11 +2,8 @@
 title: "Go Format"
 date: 2017-06-04T17:59:00+08:00
 update: 2017-06-05T09:18:24+08:00
-categories:
-- 代码规范
-tags:
-- go 
-- 代码规范
+categories: ["代码规范"]
+tags: ["go"]
 ---
 go 代码的一些规范和命名规则......
 

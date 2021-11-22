@@ -1,12 +1,9 @@
 ---
 title: "Docker 基础知识和基本操作"
 date: 2017-07-17T15:52:00+08:00
-updated: 2017-07-17T15:52:01+08:00
-categories:
-- 技术环境
-tags:
-- go
-- docker
+lastmod: 2017-07-17T15:52:01+08:00
+categories: ["技术环境"]
+tags: ["go", "docker"]
 ---
 
 关于 容器、Docker 的基础知识、基础操作和常用的命令。
@@ -325,7 +322,7 @@ mongo                          MongoDB document databases provide high av...   3
 mongo-express                  Web-based MongoDB admin interface, written...   168       [OK]
 mvertes/alpine-mongo           light MongoDB container                         51                   			[OK]
 mongoclient/mongoclient        Official docker image for Mongoclient, fea...   29                   			[OK]
-torusware/speedus-mongo        Always updated official MongoDB docker ima...   9                    			[OK]
+torusware/speedus-mongo        Always lastmod official MongoDB docker ima...   9                    			[OK]
 mongooseim/mongooseim-docker   MongooseIM server the latest stable version     9                    			[OK]
 ```
 

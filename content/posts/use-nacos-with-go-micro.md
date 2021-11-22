@@ -1,11 +1,8 @@
 ---
 date: 2021-06-23T18:22:00+08:00
 title: "Go-Micro 中使用Nacos"
-categories:
-- microservice
-tags:
-- go
-- go-micro
+categories: ["microservice"]
+tags: ["go", "go-micro"]
 ---
 
 `go-micro` 作为比较流行的微服务框架，其良好的接口设计为后期扩展使用带来了非常好的便利性。本文章主要讲在 `go-micro` 中用 `nacos` 作为服务注册中心和配置中心。

@@ -1,11 +1,8 @@
 ---
 title: "部署单机 k8s 集群"
 date: 2021-09-07T12:22:33+08:00
-categories:
-- k8s
-tags:
-- k8s
-- docker
+categories: ["k8s"]
+tags: ["k8s", "docker"]
 ---
 
 本文介绍本地或服务器上搭建单节点的 k8s 集群和 webUI 以及启用ingress，可以用作开发和测试环境。
