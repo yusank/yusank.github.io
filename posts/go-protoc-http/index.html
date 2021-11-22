@@ -1,0 +1,1297 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=robots content="noodp">
+<meta http-equiv=x-ua-compatible content="IE=edge, chrome=1">
+<title>如何自定义 protoc 插件 - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="如何自定义 protoc 插件">
+<meta property="og:description" content="前言 如果大家接触过 grpc 和 protobuf ，那对 protoc 这个命令应该不陌生。 protoc 为基于 proto buffer 文件生成不同语言">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://yusank.github.io/posts/go-protoc-http/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2021-07-08T18:22:00+08:00">
+<meta property="article:modified_time" content="2021-11-22T15:22:33+08:00">
+<meta name=twitter:card content="summary_large_image">
+<meta name=twitter:image content="https://yusank.github.io/logo.png">
+<meta name=twitter:title content="如何自定义 protoc 插件">
+<meta name=twitter:description content="前言 如果大家接触过 grpc 和 protobuf ，那对 protoc 这个命令应该不陌生。 protoc 为基于 proto buffer 文件生成不同语言">
+<meta name=application-name content="LoveIt">
+<meta name=apple-mobile-web-app-title content="LoveIt"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/go-protoc-http/><link rel=prev href=https://yusank.github.io/posts/go-cobra/><link rel=next href=https://yusank.github.io/posts/docker-dlv-debugging/><link rel=stylesheet href=/lib/normalize/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/lib/fontawesome-free/all.min.css><link rel=stylesheet href=/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"如何自定义 protoc 插件","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/go-protoc-http\/"},"genre":"posts","keywords":"go, grpc, protoc","wordcount":3881,"url":"https:\/\/yusank.github.io\/posts\/go-protoc-http\/","datePublished":"2021-07-08T18:22:00+08:00","dateModified":"2021-11-22T15:22:33+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head>
+<body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':'auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark')&&document.body.setAttribute('theme','dark')</script>
+<div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
+<div class=header-wrapper>
+<div class=header-title>
+<a href=/ title="Yusank`s Site">Yusank`s Site</a>
+</div>
+<div class=menu>
+<div class=menu-inner><a class=menu-item href=/posts/> 文章 </a><a class=menu-item href=/categories/> 分类 </a><a class=menu-item href=/tags/> 标签 </a><a class=menu-item href=/about/> 关于 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><span class="menu-item search" id=search-desktop>
+<input type=text placeholder=搜索文章标题或内容... id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=搜索>
+<i class="fas fa-search fa-fw"></i>
+</a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=清空>
+<i class="fas fa-times-circle fa-fw"></i>
+</a>
+<span class="search-button search-loading" id=search-loading-desktop>
+<i class="fas fa-spinner fa-fw fa-spin"></i>
+</span>
+</span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i>
+</a>
+</div>
+</div>
+</div>
+</header><header class=mobile id=header-mobile>
+<div class=header-container>
+<div class=header-wrapper>
+<div class=header-title>
+<a href=/ title="Yusank`s Site">Yusank`s Site</a>
+</div>
+<div class=menu-toggle id=menu-toggle-mobile>
+<span></span><span></span><span></span>
+</div>
+</div>
+<div class=menu id=menu-mobile><div class=search-wrapper>
+<div class="search mobile" id=search-mobile>
+<input type=text placeholder=搜索文章标题或内容... id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=搜索>
+<i class="fas fa-search fa-fw"></i>
+</a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=清空>
+<i class="fas fa-times-circle fa-fw"></i>
+</a>
+<span class="search-button search-loading" id=search-loading-mobile>
+<i class="fas fa-spinner fa-fw fa-spin"></i>
+</span>
+</div>
+<a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>
+取消
+</a>
+</div><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i>
+</a></div>
+</div>
+</header>
+<div class="search-dropdown desktop">
+<div id=search-dropdown-desktop></div>
+</div>
+<div class="search-dropdown mobile">
+<div id=search-dropdown-mobile></div>
+</div>
+<main class=main>
+<div class=container><div class=toc id=toc-auto>
+<h2 class=toc-title>目录</h2>
+<div class="toc-content always-active" id=toc-content-auto></div>
+</div><article class="page single"><h1 class="single-title animated flipInX">如何自定义 protoc 插件</h1><div class=post-meta>
+<div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/proto/><i class="far fa-folder fa-fw"></i>proto</a></span></div>
+<div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2021-07-08>2021-07-08</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 3881 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 8 分钟&nbsp;</div>
+</div><div class="details toc" id=toc-static kept>
+<div class="details-summary toc-title">
+<span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span>
+</div>
+<div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
+<ol>
+<li><a href=#前言>前言</a></li>
+<li><a href=#效果>效果</a></li>
+<li><a href=#如何实现>如何实现</a>
+<ol>
+<li><a href=#程序入口>程序入口</a></li>
+<li><a href=#读取-pb-文件定义>读取 pb 文件定义</a></li>
+<li><a href=#模板渲染>模板渲染</a></li>
+<li><a href=#模板内容>模板内容</a></li>
+</ol>
+</li>
+</ol>
+</nav></div>
+</div><div class=content id=content><h2 id=前言>前言</h2>
+<p>如果大家接触过 grpc 和 protobuf ，那对 <code>protoc</code> 这个命令应该不陌生。</p>
+<p><code>protoc</code> 为基于 proto buffer 文件生成不同语言代码的工具，在日常业务开发中能经常用到。那先抛出一个问题，你有没有基于 pb 文件生成满足自己特殊要求的需求？比如生成对应的 http 代码或校验参数等。</p>
+<p>我个人需求为，除了生成正常的 <code>grpc</code> 代码外，需要生成一套对应的 <code>http</code> 代码，而且最好是能直接在 gin/iris 这种主流 web 框架内注册使用。</p>
+<p>其实 <code>golang/protobuf</code> 包支持自定义插件的，而且还提供很多好用的方法，方便我们读写 pb 文件。我们写好自己的插件安装到 <code>$GOPATH/bin</code> 下，然后在调用 <code>protoc</code> 命令时，指定我们自己的插件名和输出位置即可。</p>
+<p><strong>关于这个插件：我现有的需求然后一直找不到比较好的解决方案，直到看到 <a href=https://github.com/go-kratos/kratos target=_blank rel="noopener noreffer">kratos</a> 项目的 http 代码生成插件后豁然开朗，基于 <code>kratos</code> 的逻辑实现的自己需求，感谢 <code>kratos</code> 作者们。</strong></p>
+<h2 id=效果>效果</h2>
+<p>先看原始 pb 文件。</p>
+<p>test.proto</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-protobuf data-lang=protobuf><span class=n>syntax</span> <span class=o>=</span> <span class=s>&#34;proto3&#34;</span><span class=p>;</span><span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=kn>package</span> <span class=nn>hello</span><span class=o>.</span><span class=n>service.v1</span><span class=p>;</span><span class=err>
+</span><span class=err></span><span class=k>option</span> <span class=n>go_package</span> <span class=o>=</span> <span class=s>&#34;api/hello/service/v1;v1&#34;</span><span class=p>;</span><span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=c1>// 下载 `github.com/googleapis/googleapis` 至`GOPATH`, 生成 http 代码需要。
+</span><span class=c1></span><span class=k>import</span> <span class=s>&#34;google/api/annotations.proto&#34;</span><span class=p>;</span><span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=kd>service</span> <span class=n>Hello</span> <span class=p>{</span><span class=err>
+</span><span class=err></span>    <span class=k>rpc</span> <span class=n>Add</span><span class=p>(</span><span class=n>AddRequest</span><span class=p>)</span> <span class=k>returns</span> <span class=p>(</span><span class=n>AddResponse</span><span class=p>)</span> <span class=p>{</span><span class=err>
+</span><span class=err></span>        <span class=k>option</span> <span class=p>(</span><span class=n>google.api.http</span><span class=p>)</span> <span class=o>=</span> <span class=p>{</span><span class=err>
+</span><span class=err></span>            <span class=n>post</span><span class=o>:</span> <span class=s>&#34;/api/hello/service/v1/add&#34;</span><span class=err>
+</span><span class=err></span>            <span class=n>body</span><span class=o>:</span> <span class=s>&#34;*&#34;</span><span class=err>
+</span><span class=err></span>        <span class=p>};</span><span class=err>
+</span><span class=err></span>    <span class=p>}</span><span class=err>
+</span><span class=err>
+</span><span class=err></span>    <span class=k>rpc</span> <span class=n>Get</span><span class=p>(</span><span class=n>GetRequest</span><span class=p>)</span> <span class=k>returns</span> <span class=p>(</span><span class=n>GetResponse</span><span class=p>)</span> <span class=p>{</span><span class=err>
+</span><span class=err></span>        <span class=k>option</span> <span class=p>(</span><span class=n>google.api.http</span><span class=p>)</span> <span class=o>=</span> <span class=p>{</span><span class=err>
+</span><span class=err></span>            <span class=n>get</span><span class=o>:</span> <span class=s>&#34;/api/hello/service/v1/get&#34;</span><span class=err>
+</span><span class=err></span>        <span class=p>};</span><span class=err>
+</span><span class=err></span>    <span class=p>}</span><span class=err>
+</span><span class=err></span><span class=p>}</span><span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=kd>message</span> <span class=nc>AddRequest</span> <span class=p>{</span><span class=err>
+</span><span class=err></span>    <span class=kt>uint32</span> <span class=n>id</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span><span class=err></span>    <span class=kt>string</span> <span class=n>name</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span><span class=err>
+</span><span class=err></span><span class=p>}</span><span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=kd>message</span> <span class=nc>AddResponse</span> <span class=p>{</span><span class=err>
+</span><span class=err></span>    <span class=kt>uint32</span> <span class=n>id</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span><span class=err></span>    <span class=kt>string</span> <span class=n>name</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span><span class=err>
+</span><span class=err></span><span class=p>}</span><span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=kd>message</span> <span class=nc>GetRequest</span> <span class=p>{</span><span class=err>
+</span><span class=err></span>    <span class=kt>uint32</span> <span class=n>id</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span><span class=err></span><span class=p>}</span><span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=kd>message</span> <span class=nc>GetResponse</span> <span class=p>{</span><span class=err>
+</span><span class=err></span>    <span class=kt>uint32</span> <span class=n>id</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span><span class=err></span>    <span class=kt>string</span> <span class=n>name</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span><span class=err>
+</span><span class=err></span>    <span class=kt>float</span> <span class=n>score</span> <span class=o>=</span> <span class=mi>3</span><span class=p>;</span><span class=err>
+</span><span class=err></span>    <span class=kt>bytes</span> <span class=n>bs</span> <span class=o>=</span> <span class=mi>4</span><span class=p>;</span><span class=err>
+</span><span class=err></span>    <span class=n>map</span><span class=p>&lt;</span><span class=kt>string</span><span class=p>,</span> <span class=kt>string</span><span class=p>&gt;</span> <span class=n>m</span> <span class=o>=</span> <span class=mi>5</span><span class=p>;</span><span class=err>
+</span><span class=err></span><span class=p>}</span><span class=err>
+</span></code></pre></td></tr></table>
+</div>
+</div><p>因为我需要生成 http 代码，所以定义 rpc 时，http 路由和method 需要在 pb 文件指定。</p>
+<p>我实现的插件起码叫 <code>protoc-gen-go-http</code>, 必须以 <code>protoc-gen</code> 开头否则 protoc 不认。</p>
+<p>执行命令：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=c1># --go-http 为我自己的插件</span>
+<span class=c1># 其中参数是 key=v,key2=v2 方式传，最后冒号后面写输出目录</span>
+protoc -I<span class=nv>$GOPATH</span>/src/github.com/googleapis/googleapis --proto_path<span class=o>=</span><span class=nv>$GOPATH</span>/src:. --go_out<span class=o>=</span>. --go-http_out<span class=o>=</span><span class=nv>router</span><span class=o>=</span>gin:. --micro_out<span class=o>=</span>. test.proto
+</code></pre></td></tr></table>
+</div>
+</div><p>执行完命令后，会生成三个文件分别为 <code>test.pb.go</code>,<code>test.pb.micro.go</code>和<code>test.http.pb.go</code>， 生成的文件名是可以自定义的。</p>
+<p><code>test.pb.micro.go</code> 文件是由 go-micro 提供的工具生成 grpc 代码文件。</p>
+<p>看一下 <code>test.http.pb.go</code> 文件</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// Code generated by protoc-gen-go-http. DO NOT EDIT.
+</span><span class=c1>// versions:
+</span><span class=c1>// protoc-gen-go-http v0.0.9
+</span><span class=c1></span>
+<span class=kn>package</span> <span class=nx>v1</span>
+
+<span class=kn>import</span> <span class=p>(</span>
+    <span class=nx>context</span> <span class=s>&#34;context&#34;</span>
+    <span class=nx>gin</span> <span class=s>&#34;github.com/gin-gonic/gin&#34;</span>
+<span class=p>)</span>
+
+<span class=c1>// This is a compile-time assertion to ensure that this generated file
+</span><span class=c1>// is compatible with the galaxy package it is being compiled against.
+</span><span class=c1></span><span class=kd>var</span> <span class=nx>_</span> <span class=nx>context</span><span class=p>.</span><span class=nx>Context</span>
+<span class=kd>const</span> <span class=nx>_</span> <span class=p>=</span> <span class=nx>gin</span><span class=p>.</span><span class=nx>Version</span>
+
+<span class=kd>type</span> <span class=nx>HelloHTTPHandler</span> <span class=kd>interface</span> <span class=p>{</span>
+    <span class=nf>Add</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=o>*</span><span class=nx>AddRequest</span><span class=p>,</span> <span class=o>*</span><span class=nx>AddResponse</span><span class=p>)</span> <span class=kt>error</span>
+    <span class=nf>Get</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=o>*</span><span class=nx>GetRequest</span><span class=p>,</span> <span class=o>*</span><span class=nx>GetResponse</span><span class=p>)</span> <span class=kt>error</span>
+<span class=p>}</span>
+
+<span class=c1>// RegisterHelloHTTPHandler define http router handle by gin.
+</span><span class=c1></span><span class=kd>func</span> <span class=nf>RegisterHelloHTTPHandler</span><span class=p>(</span><span class=nx>g</span> <span class=o>*</span><span class=nx>gin</span><span class=p>.</span><span class=nx>RouterGroup</span><span class=p>,</span> <span class=nx>srv</span> <span class=nx>HelloHTTPHandler</span><span class=p>)</span> <span class=p>{</span>
+    <span class=nx>g</span><span class=p>.</span><span class=nf>POST</span><span class=p>(</span><span class=s>&#34;/api/hello/service/v1/add&#34;</span><span class=p>,</span> <span class=nf>_Hello_Add0_HTTP_Handler</span><span class=p>(</span><span class=nx>srv</span><span class=p>))</span>
+    <span class=nx>g</span><span class=p>.</span><span class=nf>GET</span><span class=p>(</span><span class=s>&#34;/api/hello/service/v1/get&#34;</span><span class=p>,</span> <span class=nf>_Hello_Get0_HTTP_Handler</span><span class=p>(</span><span class=nx>srv</span><span class=p>))</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=nf>_Hello_Add0_HTTP_Handler</span><span class=p>(</span><span class=nx>srv</span> <span class=nx>HelloHTTPHandler</span><span class=p>)</span> <span class=kd>func</span><span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>gin</span><span class=p>.</span><span class=nx>Context</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>return</span> <span class=kd>func</span><span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>gin</span><span class=p>.</span><span class=nx>Context</span><span class=p>)</span> <span class=p>{</span>
+        <span class=kd>var</span> <span class=p>(</span>
+            <span class=nx>in</span>  <span class=nx>AddRequest</span>
+            <span class=nx>out</span> <span class=nx>AddResponse</span>
+        <span class=p>)</span>
+
+        <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>c</span><span class=p>.</span><span class=nf>ShouldBind</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>in</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+            <span class=nx>c</span><span class=p>.</span><span class=nf>AbortWithStatusJSON</span><span class=p>(</span><span class=mi>400</span><span class=p>,</span> <span class=nx>gin</span><span class=p>.</span><span class=nx>H</span><span class=p>{</span><span class=s>&#34;err&#34;</span><span class=p>:</span> <span class=nx>err</span><span class=p>.</span><span class=nf>Error</span><span class=p>()})</span>
+            <span class=k>return</span>
+        <span class=p>}</span>
+
+        <span class=nx>err</span> <span class=o>:=</span> <span class=nx>srv</span><span class=p>.</span><span class=nf>Add</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nf>Background</span><span class=p>(),</span> <span class=o>&amp;</span><span class=nx>in</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>out</span><span class=p>)</span>
+        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+            <span class=nx>c</span><span class=p>.</span><span class=nf>AbortWithStatusJSON</span><span class=p>(</span><span class=mi>500</span><span class=p>,</span> <span class=nx>gin</span><span class=p>.</span><span class=nx>H</span><span class=p>{</span><span class=s>&#34;err&#34;</span><span class=p>:</span> <span class=nx>err</span><span class=p>.</span><span class=nf>Error</span><span class=p>()})</span>
+            <span class=k>return</span>
+        <span class=p>}</span>
+
+        <span class=nx>c</span><span class=p>.</span><span class=nf>JSON</span><span class=p>(</span><span class=mi>200</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>out</span><span class=p>)</span>
+    <span class=p>}</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=nf>_Hello_Get0_HTTP_Handler</span><span class=p>(</span><span class=nx>srv</span> <span class=nx>HelloHTTPHandler</span><span class=p>)</span> <span class=kd>func</span><span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>gin</span><span class=p>.</span><span class=nx>Context</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>return</span> <span class=kd>func</span><span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>gin</span><span class=p>.</span><span class=nx>Context</span><span class=p>)</span> <span class=p>{</span>
+        <span class=kd>var</span> <span class=p>(</span>
+            <span class=nx>in</span>  <span class=nx>GetRequest</span>
+            <span class=nx>out</span> <span class=nx>GetResponse</span>
+        <span class=p>)</span>
+
+        <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>c</span><span class=p>.</span><span class=nf>ShouldBind</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>in</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+            <span class=nx>c</span><span class=p>.</span><span class=nf>AbortWithStatusJSON</span><span class=p>(</span><span class=mi>400</span><span class=p>,</span> <span class=nx>gin</span><span class=p>.</span><span class=nx>H</span><span class=p>{</span><span class=s>&#34;err&#34;</span><span class=p>:</span> <span class=nx>err</span><span class=p>.</span><span class=nf>Error</span><span class=p>()})</span>
+            <span class=k>return</span>
+        <span class=p>}</span>
+
+        <span class=nx>err</span> <span class=o>:=</span> <span class=nx>srv</span><span class=p>.</span><span class=nf>Get</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nf>Background</span><span class=p>(),</span> <span class=o>&amp;</span><span class=nx>in</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>out</span><span class=p>)</span>
+        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+            <span class=nx>c</span><span class=p>.</span><span class=nf>AbortWithStatusJSON</span><span class=p>(</span><span class=mi>500</span><span class=p>,</span> <span class=nx>gin</span><span class=p>.</span><span class=nx>H</span><span class=p>{</span><span class=s>&#34;err&#34;</span><span class=p>:</span> <span class=nx>err</span><span class=p>.</span><span class=nf>Error</span><span class=p>()})</span>
+            <span class=k>return</span>
+        <span class=p>}</span>
+
+        <span class=nx>c</span><span class=p>.</span><span class=nf>JSON</span><span class=p>(</span><span class=mi>200</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>out</span><span class=p>)</span>
+    <span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>重点是 <code>RegisterHelloHTTPHandler</code> 方法，这样我就注册一个 gin.RouterGroup 和 HelloHTTPHandler 就可以直接提供一个 http 服务 <code>HelloHTTPHandler</code> 接口里方法的签名与<code>go-micro</code>生成的 grpc 方法保持了一致， 这样我只需要实现 grpc 的代码里对应的 Interface{} 接口，就可以服用，完全不会产生多余代码。</p>
+<p>go-micro 生成的 pb 代码片段：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kd>type</span> <span class=nx>HelloHandler</span> <span class=kd>interface</span> <span class=p>{</span>
+    <span class=nf>Add</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=o>*</span><span class=nx>AddRequest</span><span class=p>,</span> <span class=o>*</span><span class=nx>AddResponse</span><span class=p>)</span> <span class=kt>error</span>
+    <span class=nf>Get</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=o>*</span><span class=nx>GetRequest</span><span class=p>,</span> <span class=o>*</span><span class=nx>GetResponse</span><span class=p>)</span> <span class=kt>error</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=nf>RegisterHelloHandler</span><span class=p>(</span><span class=nx>s</span> <span class=nx>server</span><span class=p>.</span><span class=nx>Server</span><span class=p>,</span> <span class=nx>hdlr</span> <span class=nx>HelloHandler</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>server</span><span class=p>.</span><span class=nx>HandlerOption</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>我在 main 函数注册的时候也只需要多注册一次 http handler 即可，</p>
+<p>main.go</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go>
+<span class=c1>// 它实现了 HelloHandler
+</span><span class=c1></span><span class=kd>type</span> <span class=nx>implHello</span> <span class=kd>struct</span><span class=p>{}</span>
+
+<span class=nf>RegisterHelloHandler</span><span class=p>(</span><span class=nx>micro</span><span class=p>.</span><span class=nx>Server</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>implHello</span><span class=p>)</span>
+<span class=nx>g</span> <span class=o>:=</span> <span class=nx>gin</span><span class=p>.</span><span class=nf>New</span><span class=p>()</span>
+<span class=c1>// implHello 实现HelloHandler 那就是实现了HelloHTTPHandler
+</span><span class=c1></span><span class=nf>RegisterHelloHTTPHandler</span><span class=p>(</span><span class=nx>g</span><span class=p>.</span><span class=nf>Group</span><span class=p>(</span><span class=s>&#34;/&#34;</span><span class=p>),</span> <span class=o>&amp;</span><span class=nx>implHello</span><span class=p>)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>所以我就很容易通过 http 接口调试 grpc 方法，甚至可以对外提供服务，一举两得。</p>
+<h2 id=如何实现>如何实现</h2>
+<h3 id=程序入口>程序入口</h3>
+<p>main.go</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kn>package</span> <span class=nx>main</span>
+
+<span class=kn>import</span> <span class=p>(</span>
+    <span class=s>&#34;flag&#34;</span>
+
+    <span class=s>&#34;google.golang.org/protobuf/compiler/protogen&#34;</span>
+    <span class=s>&#34;google.golang.org/protobuf/types/pluginpb&#34;</span>
+<span class=p>)</span>
+
+<span class=c1>// protoc-gen-go-http 工具版本
+</span><span class=c1>// 与 GalaxyMicroVersion 保持一致
+</span><span class=c1></span><span class=kd>const</span> <span class=nx>version</span> <span class=p>=</span> <span class=s>&#34;v0.0.12&#34;</span>
+
+<span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+    <span class=c1>// 1. 传参定义
+</span><span class=c1></span>    <span class=c1>// 即 插件是支持自定义参数的，这样我们可以更加灵活，针对不同的场景生成不同的代码
+</span><span class=c1></span>    <span class=kd>var</span> <span class=nx>flags</span> <span class=nx>flag</span><span class=p>.</span><span class=nx>FlagSet</span>
+    <span class=c1>// 是否忽略没有指定 google.api 的方法
+</span><span class=c1></span>    <span class=nx>omitempty</span> <span class=o>:=</span> <span class=nx>flags</span><span class=p>.</span><span class=nf>Bool</span><span class=p>(</span><span class=s>&#34;omitempty&#34;</span><span class=p>,</span> <span class=kc>true</span><span class=p>,</span> <span class=s>&#34;omit if google.api is empty&#34;</span><span class=p>)</span>
+    <span class=c1>// 我这里同时支持了 gin 和 iris 可以通过参数指定生成
+</span><span class=c1></span>    <span class=nx>routerEngine</span> <span class=o>:=</span> <span class=nx>flags</span><span class=p>.</span><span class=nf>String</span><span class=p>(</span><span class=s>&#34;router&#34;</span><span class=p>,</span> <span class=s>&#34;gin&#34;</span><span class=p>,</span> <span class=s>&#34;http router engine, choose between gin and iris&#34;</span><span class=p>)</span>
+    <span class=c1>// 是否生校验代码块
+</span><span class=c1></span>    <span class=c1>// 发现了一个很有用的插件 github.com/envoyproxy/protoc-gen-validate
+</span><span class=c1></span>    <span class=c1>// 可以在 pb 的 message 中设置参数规则，然后会生成一个 validate.go 的文件 针对每个 message 生成一个 Validate() 方法
+</span><span class=c1></span>    <span class=c1>// 我在每个 handler 处理业务前做了一次参数校验判断，通过这个 flag 控制是否生成这段校验代码
+</span><span class=c1></span>    <span class=nx>genValidateCode</span> <span class=o>:=</span> <span class=nx>flags</span><span class=p>.</span><span class=nf>Bool</span><span class=p>(</span><span class=s>&#34;validate&#34;</span><span class=p>,</span> <span class=kc>false</span><span class=p>,</span> <span class=s>&#34;add validate request params in handler&#34;</span><span class=p>)</span>
+    <span class=c1>// 生成代码时参数 这么传：--go-http_out=router=iris,validate=true:.
+</span><span class=c1></span>
+    <span class=nx>gp</span> <span class=o>:=</span> <span class=o>&amp;</span><span class=nx>GenParam</span><span class=p>{</span>
+        <span class=nx>Omitempty</span><span class=p>:</span>       <span class=nx>omitempty</span><span class=p>,</span>
+        <span class=nx>RouterEngine</span><span class=p>:</span>    <span class=nx>routerEngine</span><span class=p>,</span>
+        <span class=nx>GenValidateCode</span><span class=p>:</span> <span class=nx>genValidateCode</span><span class=p>,</span>
+    <span class=p>}</span>
+    <span class=c1>// 这里就是入口，指定 option 后执行 Run 方法 ，我们的主逻辑就是在 Run 方法
+</span><span class=c1></span>    <span class=nx>protogen</span><span class=p>.</span><span class=nx>Options</span><span class=p>{</span>
+        <span class=nx>ParamFunc</span><span class=p>:</span> <span class=nx>flags</span><span class=p>.</span><span class=nx>Set</span><span class=p>,</span>
+    <span class=p>}.</span><span class=nf>Run</span><span class=p>(</span><span class=kd>func</span><span class=p>(</span><span class=nx>gen</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>Plugin</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+        <span class=nx>gen</span><span class=p>.</span><span class=nx>SupportedFeatures</span> <span class=p>=</span> <span class=nb>uint64</span><span class=p>(</span><span class=nx>pluginpb</span><span class=p>.</span><span class=nx>CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL</span><span class=p>)</span>
+        <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>f</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>gen</span><span class=p>.</span><span class=nx>Files</span> <span class=p>{</span>
+            <span class=k>if</span> <span class=p>!</span><span class=nx>f</span><span class=p>.</span><span class=nx>Generate</span> <span class=p>{</span>
+                <span class=k>continue</span>
+            <span class=p>}</span>
+            <span class=c1>// 这里是我们的生成代码方法
+</span><span class=c1></span>            <span class=nf>generateFile</span><span class=p>(</span><span class=nx>gen</span><span class=p>,</span> <span class=nx>f</span><span class=p>,</span> <span class=nx>gp</span><span class=p>)</span>
+        <span class=p>}</span>
+        <span class=k>return</span> <span class=kc>nil</span>
+    <span class=p>})</span>
+<span class=p>}</span>
+
+<span class=kd>type</span> <span class=nx>GenParam</span> <span class=kd>struct</span> <span class=p>{</span>
+    <span class=nx>Omitempty</span>       <span class=o>*</span><span class=kt>bool</span>
+    <span class=nx>RouterEngine</span>    <span class=o>*</span><span class=kt>string</span>
+    <span class=nx>GenValidateCode</span> <span class=o>*</span><span class=kt>bool</span>
+<span class=p>}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=读取-pb-文件定义>读取 pb 文件定义</h3>
+<p>http.go</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span><span class=lnt>133
+</span><span class=lnt>134
+</span><span class=lnt>135
+</span><span class=lnt>136
+</span><span class=lnt>137
+</span><span class=lnt>138
+</span><span class=lnt>139
+</span><span class=lnt>140
+</span><span class=lnt>141
+</span><span class=lnt>142
+</span><span class=lnt>143
+</span><span class=lnt>144
+</span><span class=lnt>145
+</span><span class=lnt>146
+</span><span class=lnt>147
+</span><span class=lnt>148
+</span><span class=lnt>149
+</span><span class=lnt>150
+</span><span class=lnt>151
+</span><span class=lnt>152
+</span><span class=lnt>153
+</span><span class=lnt>154
+</span><span class=lnt>155
+</span><span class=lnt>156
+</span><span class=lnt>157
+</span><span class=lnt>158
+</span><span class=lnt>159
+</span><span class=lnt>160
+</span><span class=lnt>161
+</span><span class=lnt>162
+</span><span class=lnt>163
+</span><span class=lnt>164
+</span><span class=lnt>165
+</span><span class=lnt>166
+</span><span class=lnt>167
+</span><span class=lnt>168
+</span><span class=lnt>169
+</span><span class=lnt>170
+</span><span class=lnt>171
+</span><span class=lnt>172
+</span><span class=lnt>173
+</span><span class=lnt>174
+</span><span class=lnt>175
+</span><span class=lnt>176
+</span><span class=lnt>177
+</span><span class=lnt>178
+</span><span class=lnt>179
+</span><span class=lnt>180
+</span><span class=lnt>181
+</span><span class=lnt>182
+</span><span class=lnt>183
+</span><span class=lnt>184
+</span><span class=lnt>185
+</span><span class=lnt>186
+</span><span class=lnt>187
+</span><span class=lnt>188
+</span><span class=lnt>189
+</span><span class=lnt>190
+</span><span class=lnt>191
+</span><span class=lnt>192
+</span><span class=lnt>193
+</span><span class=lnt>194
+</span><span class=lnt>195
+</span><span class=lnt>196
+</span><span class=lnt>197
+</span><span class=lnt>198
+</span><span class=lnt>199
+</span><span class=lnt>200
+</span><span class=lnt>201
+</span><span class=lnt>202
+</span><span class=lnt>203
+</span><span class=lnt>204
+</span><span class=lnt>205
+</span><span class=lnt>206
+</span><span class=lnt>207
+</span><span class=lnt>208
+</span><span class=lnt>209
+</span><span class=lnt>210
+</span><span class=lnt>211
+</span><span class=lnt>212
+</span><span class=lnt>213
+</span><span class=lnt>214
+</span><span class=lnt>215
+</span><span class=lnt>216
+</span><span class=lnt>217
+</span><span class=lnt>218
+</span><span class=lnt>219
+</span><span class=lnt>220
+</span><span class=lnt>221
+</span><span class=lnt>222
+</span><span class=lnt>223
+</span><span class=lnt>224
+</span><span class=lnt>225
+</span><span class=lnt>226
+</span><span class=lnt>227
+</span><span class=lnt>228
+</span><span class=lnt>229
+</span><span class=lnt>230
+</span><span class=lnt>231
+</span><span class=lnt>232
+</span><span class=lnt>233
+</span><span class=lnt>234
+</span><span class=lnt>235
+</span><span class=lnt>236
+</span><span class=lnt>237
+</span><span class=lnt>238
+</span><span class=lnt>239
+</span><span class=lnt>240
+</span><span class=lnt>241
+</span><span class=lnt>242
+</span><span class=lnt>243
+</span><span class=lnt>244
+</span><span class=lnt>245
+</span><span class=lnt>246
+</span><span class=lnt>247
+</span><span class=lnt>248
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go>
+<span class=kn>import</span> <span class=p>(</span>
+    <span class=s>&#34;fmt&#34;</span>
+    <span class=s>&#34;strings&#34;</span>
+
+    <span class=s>&#34;google.golang.org/genproto/googleapis/api/annotations&#34;</span>
+    <span class=s>&#34;google.golang.org/protobuf/compiler/protogen&#34;</span>
+    <span class=s>&#34;google.golang.org/protobuf/proto&#34;</span>
+    <span class=s>&#34;google.golang.org/protobuf/types/descriptorpb&#34;</span>
+<span class=p>)</span>
+
+<span class=kd>const</span> <span class=p>(</span>
+    <span class=nx>contextPackage</span> <span class=p>=</span> <span class=nx>protogen</span><span class=p>.</span><span class=nf>GoImportPath</span><span class=p>(</span><span class=s>&#34;context&#34;</span><span class=p>)</span>
+    <span class=nx>ginPackage</span>     <span class=p>=</span> <span class=nx>protogen</span><span class=p>.</span><span class=nf>GoImportPath</span><span class=p>(</span><span class=s>&#34;github.com/gin-gonic/gin&#34;</span><span class=p>)</span>
+    <span class=nx>irisPackage</span>    <span class=p>=</span> <span class=nx>protogen</span><span class=p>.</span><span class=nf>GoImportPath</span><span class=p>(</span><span class=s>&#34;github.com/kataras/iris/v12&#34;</span><span class=p>)</span>
+<span class=p>)</span>
+
+<span class=kd>var</span> <span class=nx>methodSets</span> <span class=p>=</span> <span class=nb>make</span><span class=p>(</span><span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kt>int</span><span class=p>)</span>
+
+<span class=c1>// generateFile generates a _http.pb.go file containing gin/iris handler.
+</span><span class=c1></span><span class=kd>func</span> <span class=nf>generateFile</span><span class=p>(</span><span class=nx>gen</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>Plugin</span><span class=p>,</span> <span class=nx>file</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>File</span><span class=p>,</span> <span class=nx>gp</span> <span class=o>*</span><span class=nx>GenParam</span><span class=p>)</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>GeneratedFile</span> <span class=p>{</span>
+    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=nx>file</span><span class=p>.</span><span class=nx>Services</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span> <span class=o>||</span> <span class=p>(</span><span class=o>*</span><span class=nx>gp</span><span class=p>.</span><span class=nx>Omitempty</span> <span class=o>&amp;&amp;</span> <span class=p>!</span><span class=nf>hasHTTPRule</span><span class=p>(</span><span class=nx>file</span><span class=p>.</span><span class=nx>Services</span><span class=p>))</span> <span class=p>{</span>
+        <span class=k>return</span> <span class=kc>nil</span>
+    <span class=p>}</span>
+    <span class=c1>// 这里我们可以自定义文件名
+</span><span class=c1></span>    <span class=nx>filename</span> <span class=o>:=</span> <span class=nx>file</span><span class=p>.</span><span class=nx>GeneratedFilenamePrefix</span> <span class=o>+</span> <span class=s>&#34;.pb.http.go&#34;</span>
+    <span class=nx>g</span> <span class=o>:=</span> <span class=nx>gen</span><span class=p>.</span><span class=nf>NewGeneratedFile</span><span class=p>(</span><span class=nx>filename</span><span class=p>,</span> <span class=nx>file</span><span class=p>.</span><span class=nx>GoImportPath</span><span class=p>)</span>
+    <span class=c1>// 写入一些警告之类的 告诉用户不要修改
+</span><span class=c1></span>    <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;// Code generated by protoc-gen-go-http. DO NOT EDIT.&#34;</span><span class=p>)</span>
+    <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;// versions:&#34;</span><span class=p>)</span>
+    <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Sprintf</span><span class=p>(</span><span class=s>&#34;// protoc-gen-go-http %s&#34;</span><span class=p>,</span> <span class=nx>version</span><span class=p>))</span>
+    <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>()</span>
+    <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;package &#34;</span><span class=p>,</span> <span class=nx>file</span><span class=p>.</span><span class=nx>GoPackageName</span><span class=p>)</span>
+    <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>()</span>
+    <span class=nf>generateFileContent</span><span class=p>(</span><span class=nx>gen</span><span class=p>,</span> <span class=nx>file</span><span class=p>,</span> <span class=nx>g</span><span class=p>,</span> <span class=nx>gp</span><span class=p>)</span>
+    <span class=k>return</span> <span class=nx>g</span>
+<span class=p>}</span>
+
+<span class=c1>// generateFileContent generates the _http.pb.go file content, excluding the package statement.
+</span><span class=c1></span><span class=kd>func</span> <span class=nf>generateFileContent</span><span class=p>(</span><span class=nx>gen</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>Plugin</span><span class=p>,</span> <span class=nx>file</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>File</span><span class=p>,</span> <span class=nx>g</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>GeneratedFile</span><span class=p>,</span> <span class=nx>gp</span> <span class=o>*</span><span class=nx>GenParam</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=nx>file</span><span class=p>.</span><span class=nx>Services</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span> <span class=p>{</span>
+        <span class=k>return</span>
+    <span class=p>}</span>
+    <span class=c1>// import
+</span><span class=c1></span>    <span class=c1>// 这里有个插曲：其实 import 相关的代码我们这么不需要特殊指定，protogen 包会帮我们处理，
+</span><span class=c1></span>    <span class=c1>// 但是import 的 path 前的别名默认取 path 最后一个 `/` 之后的字符，
+</span><span class=c1></span>    <span class=c1>// 比如：github.com/kataras/iris/v12 被处理成 v12 &#34;github.com/kataras/iris/v12&#34;
+</span><span class=c1></span>    <span class=c1>// 这个我不太愿意接受 所以自己写入 import
+</span><span class=c1></span>    <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;// This imports are custom by galaxy micro framework.&#34;</span><span class=p>)</span>
+    <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;import (&#34;</span><span class=p>)</span>
+    <span class=k>switch</span> <span class=o>*</span><span class=nx>gp</span><span class=p>.</span><span class=nx>RouterEngine</span> <span class=p>{</span>
+    <span class=k>case</span> <span class=s>&#34;gin&#34;</span><span class=p>:</span>
+        <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;gin&#34;</span><span class=p>,</span> <span class=s>&#34; &#34;</span><span class=p>,</span> <span class=nx>ginPackage</span><span class=p>)</span>
+    <span class=k>case</span> <span class=s>&#34;iris&#34;</span><span class=p>:</span>
+        <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;iris&#34;</span><span class=p>,</span> <span class=s>&#34; &#34;</span><span class=p>,</span> <span class=nx>irisPackage</span><span class=p>)</span>
+    <span class=p>}</span>
+    <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;)&#34;</span><span class=p>)</span>
+    
+    <span class=c1>// 注： 我们难免有一些 _ &#34;my/package&#34; 这种需求，这其实不用自己写 直接调 g.Import(&#34;my/package&#34;) 就可以
+</span><span class=c1></span>
+    <span class=c1>// 这里定义一堆变量是为了程序编译的时候确保这些包是正确的，如果包不存在或者这些定义的包变量不存在都会编译失败
+</span><span class=c1></span>    <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;// This is a compile-time assertion to ensure that this generated file&#34;</span><span class=p>)</span>
+    <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;// is compatible with the galaxy package it is being compiled against.&#34;</span><span class=p>)</span>
+    <span class=c1>// 只要调用这个 Ident 方法 就会自动写入到 import 中 ，所以如果对 import 的包名没有特殊要求，那就直接使用 Ident
+</span><span class=c1></span>    <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;var _ &#34;</span><span class=p>,</span> <span class=nx>contextPackage</span><span class=p>.</span><span class=nf>Ident</span><span class=p>(</span><span class=s>&#34;Context&#34;</span><span class=p>))</span>
+
+    <span class=c1>// 像我自己自定义 import 的包就不要使用 Ident 方法，否则生成的代码文件里有两个同一个包的引入导致语法错误
+</span><span class=c1></span>    <span class=k>switch</span> <span class=o>*</span><span class=nx>gp</span><span class=p>.</span><span class=nx>RouterEngine</span> <span class=p>{</span>
+    <span class=k>case</span> <span class=s>&#34;gin&#34;</span><span class=p>:</span>
+        <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;const _ = &#34;</span><span class=p>,</span> <span class=s>&#34;gin.&#34;</span><span class=p>,</span> <span class=s>&#34;Version&#34;</span><span class=p>)</span>
+    <span class=k>case</span> <span class=s>&#34;iris&#34;</span><span class=p>:</span>
+        <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;const _ = &#34;</span><span class=p>,</span> <span class=s>&#34;iris.&#34;</span><span class=p>,</span> <span class=s>&#34;Version&#34;</span><span class=p>)</span>
+    <span class=p>}</span>
+    <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>()</span>
+
+    <span class=c1>// 到这里我们就把包名 import 和变量写入成功了，剩下的就是针对 rpc service 生成对应的 handler
+</span><span class=c1></span>    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>service</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>file</span><span class=p>.</span><span class=nx>Services</span> <span class=p>{</span>
+        <span class=nf>genService</span><span class=p>(</span><span class=nx>gen</span><span class=p>,</span> <span class=nx>file</span><span class=p>,</span> <span class=nx>g</span><span class=p>,</span> <span class=nx>service</span><span class=p>,</span> <span class=nx>gp</span><span class=p>)</span>
+    <span class=p>}</span>
+<span class=p>}</span>
+
+
+<span class=c1>// rpc service 信息
+</span><span class=c1></span><span class=kd>type</span> <span class=nx>serviceDesc</span> <span class=kd>struct</span> <span class=p>{</span>
+    <span class=nx>ServiceType</span> <span class=kt>string</span> <span class=c1>// Greeter
+</span><span class=c1></span>    <span class=nx>ServiceName</span> <span class=kt>string</span> <span class=c1>// helloworld.Greeter
+</span><span class=c1></span>    <span class=nx>Metadata</span>    <span class=kt>string</span> <span class=c1>// api/helloworld/helloworld.proto
+</span><span class=c1></span>    <span class=nx>GenValidate</span> <span class=kt>bool</span>
+    <span class=nx>Methods</span>     <span class=p>[]</span><span class=o>*</span><span class=nx>methodDesc</span>
+    <span class=nx>MethodSets</span>  <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=o>*</span><span class=nx>methodDesc</span>
+<span class=p>}</span>
+
+<span class=c1>// rpc 方法信息
+</span><span class=c1></span><span class=kd>type</span> <span class=nx>methodDesc</span> <span class=kd>struct</span> <span class=p>{</span>
+    <span class=c1>// method
+</span><span class=c1></span>    <span class=nx>Name</span>    <span class=kt>string</span>
+    <span class=nx>Num</span>     <span class=kt>int</span>
+    <span class=nx>Request</span> <span class=kt>string</span>
+    <span class=nx>Reply</span>   <span class=kt>string</span>
+    <span class=c1>// http_rule
+</span><span class=c1></span>    <span class=nx>Path</span>            <span class=kt>string</span>
+    <span class=nx>Method</span>          <span class=kt>string</span>
+    <span class=nx>CamelCaseMethod</span> <span class=kt>string</span>
+    <span class=nx>HasVars</span>         <span class=kt>bool</span>
+    <span class=nx>HasBody</span>         <span class=kt>bool</span>
+    <span class=nx>Body</span>            <span class=kt>string</span>
+    <span class=nx>ResponseBody</span>    <span class=kt>string</span>
+<span class=p>}</span>
+
+<span class=c1>// 生成 service 相关代码
+</span><span class=c1></span><span class=kd>func</span> <span class=nf>genService</span><span class=p>(</span><span class=nx>gen</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>Plugin</span><span class=p>,</span> <span class=nx>file</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>File</span><span class=p>,</span> <span class=nx>g</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>GeneratedFile</span><span class=p>,</span> <span class=nx>service</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>Service</span><span class=p>,</span> <span class=nx>gp</span> <span class=o>*</span><span class=nx>GenParam</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>if</span> <span class=nx>service</span><span class=p>.</span><span class=nx>Desc</span><span class=p>.</span><span class=nf>Options</span><span class=p>().(</span><span class=o>*</span><span class=nx>descriptorpb</span><span class=p>.</span><span class=nx>ServiceOptions</span><span class=p>).</span><span class=nf>GetDeprecated</span><span class=p>()</span> <span class=p>{</span>
+        <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=s>&#34;//&#34;</span><span class=p>)</span>
+        <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=nx>deprecationComment</span><span class=p>)</span>
+    <span class=p>}</span>
+
+    <span class=c1>// HTTP Server.
+</span><span class=c1></span>    <span class=c1>// 服务的主要变量，比如服务名 服务类型等
+</span><span class=c1></span>    <span class=nx>sd</span> <span class=o>:=</span> <span class=o>&amp;</span><span class=nx>serviceDesc</span><span class=p>{</span>
+        <span class=nx>ServiceType</span><span class=p>:</span> <span class=nx>service</span><span class=p>.</span><span class=nx>GoName</span><span class=p>,</span>
+        <span class=nx>ServiceName</span><span class=p>:</span> <span class=nb>string</span><span class=p>(</span><span class=nx>service</span><span class=p>.</span><span class=nx>Desc</span><span class=p>.</span><span class=nf>FullName</span><span class=p>()),</span>
+        <span class=nx>Metadata</span><span class=p>:</span>    <span class=nx>file</span><span class=p>.</span><span class=nx>Desc</span><span class=p>.</span><span class=nf>Path</span><span class=p>(),</span>
+        <span class=nx>GenValidate</span><span class=p>:</span> <span class=o>*</span><span class=nx>gp</span><span class=p>.</span><span class=nx>GenValidateCode</span><span class=p>,</span>
+    <span class=p>}</span>
+    <span class=c1>// 开始遍历服务的方法
+</span><span class=c1></span>    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>method</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>service</span><span class=p>.</span><span class=nx>Methods</span> <span class=p>{</span>
+        <span class=c1>// 不处理
+</span><span class=c1></span>        <span class=k>if</span> <span class=nx>method</span><span class=p>.</span><span class=nx>Desc</span><span class=p>.</span><span class=nf>IsStreamingClient</span><span class=p>()</span> <span class=o>||</span> <span class=nx>method</span><span class=p>.</span><span class=nx>Desc</span><span class=p>.</span><span class=nf>IsStreamingServer</span><span class=p>()</span> <span class=p>{</span>
+            <span class=k>continue</span>
+        <span class=p>}</span>
+        <span class=c1>// annotations 这个就是我们在 rpc 方法里 option 里定义的 http 路由
+</span><span class=c1></span>        <span class=nx>rule</span><span class=p>,</span> <span class=nx>ok</span> <span class=o>:=</span> <span class=nx>proto</span><span class=p>.</span><span class=nf>GetExtension</span><span class=p>(</span><span class=nx>method</span><span class=p>.</span><span class=nx>Desc</span><span class=p>.</span><span class=nf>Options</span><span class=p>(),</span> <span class=nx>annotations</span><span class=p>.</span><span class=nx>E_Http</span><span class=p>).(</span><span class=o>*</span><span class=nx>annotations</span><span class=p>.</span><span class=nx>HttpRule</span><span class=p>)</span>
+        <span class=k>if</span> <span class=nx>rule</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=o>&amp;&amp;</span> <span class=nx>ok</span> <span class=p>{</span>
+            <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>bind</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>rule</span><span class=p>.</span><span class=nx>AdditionalBindings</span> <span class=p>{</span>
+                <span class=c1>// 拿到 option里定义的路由， http method等信息
+</span><span class=c1></span>                <span class=nx>sd</span><span class=p>.</span><span class=nx>Methods</span> <span class=p>=</span> <span class=nb>append</span><span class=p>(</span><span class=nx>sd</span><span class=p>.</span><span class=nx>Methods</span><span class=p>,</span> <span class=nf>buildHTTPRule</span><span class=p>(</span><span class=nx>g</span><span class=p>,</span> <span class=nx>method</span><span class=p>,</span> <span class=nx>bind</span><span class=p>))</span>
+            <span class=p>}</span>
+            <span class=nx>sd</span><span class=p>.</span><span class=nx>Methods</span> <span class=p>=</span> <span class=nb>append</span><span class=p>(</span><span class=nx>sd</span><span class=p>.</span><span class=nx>Methods</span><span class=p>,</span> <span class=nf>buildHTTPRule</span><span class=p>(</span><span class=nx>g</span><span class=p>,</span> <span class=nx>method</span><span class=p>,</span> <span class=nx>rule</span><span class=p>))</span>
+        <span class=p>}</span> <span class=k>else</span> <span class=k>if</span> <span class=p>!</span><span class=o>*</span><span class=nx>gp</span><span class=p>.</span><span class=nx>Omitempty</span> <span class=p>{</span>
+            <span class=nx>path</span> <span class=o>:=</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Sprintf</span><span class=p>(</span><span class=s>&#34;/%s/%s&#34;</span><span class=p>,</span> <span class=nx>service</span><span class=p>.</span><span class=nx>Desc</span><span class=p>.</span><span class=nf>FullName</span><span class=p>(),</span> <span class=nx>method</span><span class=p>.</span><span class=nx>Desc</span><span class=p>.</span><span class=nf>Name</span><span class=p>())</span>
+            <span class=nx>sd</span><span class=p>.</span><span class=nx>Methods</span> <span class=p>=</span> <span class=nb>append</span><span class=p>(</span><span class=nx>sd</span><span class=p>.</span><span class=nx>Methods</span><span class=p>,</span> <span class=nf>buildMethodDesc</span><span class=p>(</span><span class=nx>g</span><span class=p>,</span> <span class=nx>method</span><span class=p>,</span> <span class=s>&#34;POST&#34;</span><span class=p>,</span> <span class=nx>path</span><span class=p>))</span>
+        <span class=p>}</span>
+    <span class=p>}</span>
+
+    <span class=c1>// 拿到了 n 个 rpc 方法，开始生成了
+</span><span class=c1></span>    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=nx>sd</span><span class=p>.</span><span class=nx>Methods</span><span class=p>)</span> <span class=o>!=</span> <span class=mi>0</span> <span class=p>{</span>
+        <span class=c1>// 渲染
+</span><span class=c1></span>        <span class=nx>g</span><span class=p>.</span><span class=nf>P</span><span class=p>(</span><span class=nx>sd</span><span class=p>.</span><span class=nf>execute</span><span class=p>(</span><span class=o>*</span><span class=nx>gp</span><span class=p>.</span><span class=nx>RouterEngine</span><span class=p>))</span>
+    <span class=p>}</span>
+<span class=p>}</span>
+
+<span class=c1>// 检查是否有 http 规则 即 
+</span><span class=c1>// option (google.api.http) = {
+</span><span class=c1>//      get: &#34;/user/query&#34;
+</span><span class=c1>//    };
+</span><span class=c1></span><span class=kd>func</span> <span class=nf>hasHTTPRule</span><span class=p>(</span><span class=nx>services</span> <span class=p>[]</span><span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>Service</span><span class=p>)</span> <span class=kt>bool</span> <span class=p>{</span>
+    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>service</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>services</span> <span class=p>{</span>
+        <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>method</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>service</span><span class=p>.</span><span class=nx>Methods</span> <span class=p>{</span>
+            <span class=k>if</span> <span class=nx>method</span><span class=p>.</span><span class=nx>Desc</span><span class=p>.</span><span class=nf>IsStreamingClient</span><span class=p>()</span> <span class=o>||</span> <span class=nx>method</span><span class=p>.</span><span class=nx>Desc</span><span class=p>.</span><span class=nf>IsStreamingServer</span><span class=p>()</span> <span class=p>{</span>
+                <span class=k>continue</span>
+            <span class=p>}</span>
+            <span class=nx>rule</span><span class=p>,</span> <span class=nx>ok</span> <span class=o>:=</span> <span class=nx>proto</span><span class=p>.</span><span class=nf>GetExtension</span><span class=p>(</span><span class=nx>method</span><span class=p>.</span><span class=nx>Desc</span><span class=p>.</span><span class=nf>Options</span><span class=p>(),</span> <span class=nx>annotations</span><span class=p>.</span><span class=nx>E_Http</span><span class=p>).(</span><span class=o>*</span><span class=nx>annotations</span><span class=p>.</span><span class=nx>HttpRule</span><span class=p>)</span>
+            <span class=k>if</span> <span class=nx>rule</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=o>&amp;&amp;</span> <span class=nx>ok</span> <span class=p>{</span>
+                <span class=k>return</span> <span class=kc>true</span>
+            <span class=p>}</span>
+        <span class=p>}</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=kc>false</span>
+<span class=p>}</span>
+
+<span class=c1>// 解析 http 规则，读取内容
+</span><span class=c1></span><span class=kd>func</span> <span class=nf>buildHTTPRule</span><span class=p>(</span><span class=nx>g</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>GeneratedFile</span><span class=p>,</span> <span class=nx>m</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>Method</span><span class=p>,</span> <span class=nx>rule</span> <span class=o>*</span><span class=nx>annotations</span><span class=p>.</span><span class=nx>HttpRule</span><span class=p>)</span> <span class=o>*</span><span class=nx>methodDesc</span> <span class=p>{</span>
+    <span class=kd>var</span> <span class=p>(</span>
+        <span class=nx>path</span>         <span class=kt>string</span>
+        <span class=nx>method</span>       <span class=kt>string</span>
+        <span class=nx>body</span>         <span class=kt>string</span>
+        <span class=nx>responseBody</span> <span class=kt>string</span>
+    <span class=p>)</span>
+    <span class=c1>// 读取 路由和方法
+</span><span class=c1></span>    <span class=k>switch</span> <span class=nx>pattern</span> <span class=o>:=</span> <span class=nx>rule</span><span class=p>.</span><span class=nx>Pattern</span><span class=p>.(</span><span class=kd>type</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>case</span> <span class=o>*</span><span class=nx>annotations</span><span class=p>.</span><span class=nx>HttpRule_Get</span><span class=p>:</span>
+        <span class=nx>path</span> <span class=p>=</span> <span class=nx>pattern</span><span class=p>.</span><span class=nx>Get</span>
+        <span class=nx>method</span> <span class=p>=</span> <span class=s>&#34;GET&#34;</span>
+    <span class=k>case</span> <span class=o>*</span><span class=nx>annotations</span><span class=p>.</span><span class=nx>HttpRule_Put</span><span class=p>:</span>
+        <span class=nx>path</span> <span class=p>=</span> <span class=nx>pattern</span><span class=p>.</span><span class=nx>Put</span>
+        <span class=nx>method</span> <span class=p>=</span> <span class=s>&#34;PUT&#34;</span>
+    <span class=k>case</span> <span class=o>*</span><span class=nx>annotations</span><span class=p>.</span><span class=nx>HttpRule_Post</span><span class=p>:</span>
+        <span class=nx>path</span> <span class=p>=</span> <span class=nx>pattern</span><span class=p>.</span><span class=nx>Post</span>
+        <span class=nx>method</span> <span class=p>=</span> <span class=s>&#34;POST&#34;</span>
+    <span class=k>case</span> <span class=o>*</span><span class=nx>annotations</span><span class=p>.</span><span class=nx>HttpRule_Delete</span><span class=p>:</span>
+        <span class=nx>path</span> <span class=p>=</span> <span class=nx>pattern</span><span class=p>.</span><span class=nx>Delete</span>
+        <span class=nx>method</span> <span class=p>=</span> <span class=s>&#34;DELETE&#34;</span>
+    <span class=k>case</span> <span class=o>*</span><span class=nx>annotations</span><span class=p>.</span><span class=nx>HttpRule_Patch</span><span class=p>:</span>
+        <span class=nx>path</span> <span class=p>=</span> <span class=nx>pattern</span><span class=p>.</span><span class=nx>Patch</span>
+        <span class=nx>method</span> <span class=p>=</span> <span class=s>&#34;PATCH&#34;</span>
+    <span class=k>case</span> <span class=o>*</span><span class=nx>annotations</span><span class=p>.</span><span class=nx>HttpRule_Custom</span><span class=p>:</span>
+        <span class=nx>path</span> <span class=p>=</span> <span class=nx>pattern</span><span class=p>.</span><span class=nx>Custom</span><span class=p>.</span><span class=nx>Path</span>
+        <span class=nx>method</span> <span class=p>=</span> <span class=nx>pattern</span><span class=p>.</span><span class=nx>Custom</span><span class=p>.</span><span class=nx>Kind</span>
+    <span class=p>}</span>
+    <span class=nx>body</span> <span class=p>=</span> <span class=nx>rule</span><span class=p>.</span><span class=nx>Body</span>
+    <span class=nx>responseBody</span> <span class=p>=</span> <span class=nx>rule</span><span class=p>.</span><span class=nx>ResponseBody</span>
+    <span class=nx>md</span> <span class=o>:=</span> <span class=nf>buildMethodDesc</span><span class=p>(</span><span class=nx>g</span><span class=p>,</span> <span class=nx>m</span><span class=p>,</span> <span class=nx>method</span><span class=p>,</span> <span class=nx>path</span><span class=p>)</span>
+    <span class=k>if</span> <span class=nx>method</span> <span class=o>==</span> <span class=s>&#34;GET&#34;</span> <span class=p>{</span>
+        <span class=nx>md</span><span class=p>.</span><span class=nx>HasBody</span> <span class=p>=</span> <span class=kc>false</span>
+    <span class=p>}</span> <span class=k>else</span> <span class=k>if</span> <span class=nx>body</span> <span class=o>==</span> <span class=s>&#34;*&#34;</span> <span class=p>{</span>
+        <span class=nx>md</span><span class=p>.</span><span class=nx>HasBody</span> <span class=p>=</span> <span class=kc>true</span>
+        <span class=nx>md</span><span class=p>.</span><span class=nx>Body</span> <span class=p>=</span> <span class=s>&#34;&#34;</span>
+    <span class=p>}</span> <span class=k>else</span> <span class=k>if</span> <span class=nx>body</span> <span class=o>!=</span> <span class=s>&#34;&#34;</span> <span class=p>{</span>
+        <span class=nx>md</span><span class=p>.</span><span class=nx>HasBody</span> <span class=p>=</span> <span class=kc>true</span>
+        <span class=nx>md</span><span class=p>.</span><span class=nx>Body</span> <span class=p>=</span> <span class=s>&#34;.&#34;</span> <span class=o>+</span> <span class=nf>camelCaseVars</span><span class=p>(</span><span class=nx>body</span><span class=p>)</span>
+    <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+        <span class=nx>md</span><span class=p>.</span><span class=nx>HasBody</span> <span class=p>=</span> <span class=kc>false</span>
+    <span class=p>}</span>
+    <span class=k>if</span> <span class=nx>responseBody</span> <span class=o>==</span> <span class=s>&#34;*&#34;</span> <span class=p>{</span>
+        <span class=nx>md</span><span class=p>.</span><span class=nx>ResponseBody</span> <span class=p>=</span> <span class=s>&#34;&#34;</span>
+    <span class=p>}</span> <span class=k>else</span> <span class=k>if</span> <span class=nx>responseBody</span> <span class=o>!=</span> <span class=s>&#34;&#34;</span> <span class=p>{</span>
+        <span class=nx>md</span><span class=p>.</span><span class=nx>ResponseBody</span> <span class=p>=</span> <span class=s>&#34;.&#34;</span> <span class=o>+</span> <span class=nf>camelCaseVars</span><span class=p>(</span><span class=nx>responseBody</span><span class=p>)</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=nx>md</span>
+<span class=p>}</span>
+
+<span class=c1>// 构建 每个方法的基础信息
+</span><span class=c1>// 到这里我们拿到了 我们需要生成一个 handler 的所有信息
+</span><span class=c1>// 名称，输入，输出，方法类型，路由
+</span><span class=c1></span><span class=kd>func</span> <span class=nf>buildMethodDesc</span><span class=p>(</span><span class=nx>g</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>GeneratedFile</span><span class=p>,</span> <span class=nx>m</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>Method</span><span class=p>,</span> <span class=nx>method</span><span class=p>,</span> <span class=nx>path</span> <span class=kt>string</span><span class=p>)</span> <span class=o>*</span><span class=nx>methodDesc</span> <span class=p>{</span>
+    <span class=k>defer</span> <span class=kd>func</span><span class=p>()</span> <span class=p>{</span> <span class=nx>methodSets</span><span class=p>[</span><span class=nx>m</span><span class=p>.</span><span class=nx>GoName</span><span class=p>]</span><span class=o>++</span> <span class=p>}()</span>
+    <span class=k>return</span> <span class=o>&amp;</span><span class=nx>methodDesc</span><span class=p>{</span>
+        <span class=nx>Name</span><span class=p>:</span>            <span class=nx>m</span><span class=p>.</span><span class=nx>GoName</span><span class=p>,</span>
+        <span class=nx>Num</span><span class=p>:</span>             <span class=nx>methodSets</span><span class=p>[</span><span class=nx>m</span><span class=p>.</span><span class=nx>GoName</span><span class=p>],</span>
+        <span class=nx>Request</span><span class=p>:</span>         <span class=nx>g</span><span class=p>.</span><span class=nf>QualifiedGoIdent</span><span class=p>(</span><span class=nx>m</span><span class=p>.</span><span class=nx>Input</span><span class=p>.</span><span class=nx>GoIdent</span><span class=p>),</span> <span class=c1>// rpc 方法中的 request
+</span><span class=c1></span>        <span class=nx>Reply</span><span class=p>:</span>           <span class=nx>g</span><span class=p>.</span><span class=nf>QualifiedGoIdent</span><span class=p>(</span><span class=nx>m</span><span class=p>.</span><span class=nx>Output</span><span class=p>.</span><span class=nx>GoIdent</span><span class=p>),</span> <span class=c1>// rpc 方法中的 response
+</span><span class=c1></span>        <span class=nx>Path</span><span class=p>:</span>            <span class=nx>path</span><span class=p>,</span>
+        <span class=nx>Method</span><span class=p>:</span>          <span class=nx>method</span><span class=p>,</span>
+        <span class=nx>CamelCaseMethod</span><span class=p>:</span> <span class=nf>camelCase</span><span class=p>(</span><span class=nx>strings</span><span class=p>.</span><span class=nf>ToLower</span><span class=p>(</span><span class=nx>method</span><span class=p>)),</span>
+        <span class=nx>HasVars</span><span class=p>:</span>         <span class=nb>len</span><span class=p>(</span><span class=nf>buildPathVars</span><span class=p>(</span><span class=nx>m</span><span class=p>,</span> <span class=nx>path</span><span class=p>))</span> <span class=p>&gt;</span> <span class=mi>0</span><span class=p>,</span>
+    <span class=p>}</span>
+<span class=p>}</span>
+
+<span class=c1>// 处理 路由中 /api/user/{name} 这种情况
+</span><span class=c1></span><span class=kd>func</span> <span class=nf>buildPathVars</span><span class=p>(</span><span class=nx>method</span> <span class=o>*</span><span class=nx>protogen</span><span class=p>.</span><span class=nx>Method</span><span class=p>,</span> <span class=nx>path</span> <span class=kt>string</span><span class=p>)</span> <span class=p>(</span><span class=nx>res</span> <span class=p>[]</span><span class=kt>string</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>v</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>strings</span><span class=p>.</span><span class=nf>Split</span><span class=p>(</span><span class=nx>path</span><span class=p>,</span> <span class=s>&#34;/&#34;</span><span class=p>)</span> <span class=p>{</span>
+        <span class=k>if</span> <span class=nx>strings</span><span class=p>.</span><span class=nf>HasPrefix</span><span class=p>(</span><span class=nx>v</span><span class=p>,</span> <span class=s>&#34;{&#34;</span><span class=p>)</span> <span class=o>&amp;&amp;</span> <span class=nx>strings</span><span class=p>.</span><span class=nf>HasSuffix</span><span class=p>(</span><span class=nx>v</span><span class=p>,</span> <span class=s>&#34;}&#34;</span><span class=p>)</span> <span class=p>{</span>
+            <span class=nx>name</span> <span class=o>:=</span> <span class=nx>strings</span><span class=p>.</span><span class=nf>TrimRight</span><span class=p>(</span><span class=nx>strings</span><span class=p>.</span><span class=nf>TrimLeft</span><span class=p>(</span><span class=nx>v</span><span class=p>,</span> <span class=s>&#34;{&#34;</span><span class=p>),</span> <span class=s>&#34;}&#34;</span><span class=p>)</span>
+            <span class=nx>res</span> <span class=p>=</span> <span class=nb>append</span><span class=p>(</span><span class=nx>res</span><span class=p>,</span> <span class=nx>name</span><span class=p>)</span>
+        <span class=p>}</span>
+    <span class=p>}</span>
+    <span class=k>return</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=模板渲染>模板渲染</h3>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// execute 方法实现也其实不复杂，总起来就是 go 的 temple 包的使用
+</span><span class=c1>// 提前写好模板文件，然后拿到所有需要的变量，进行模板渲染，写入文件
+</span><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>serviceDesc</span><span class=p>)</span> <span class=nf>execute</span><span class=p>(</span><span class=nx>routerEngine</span> <span class=kt>string</span><span class=p>)</span> <span class=kt>string</span> <span class=p>{</span>
+    <span class=kd>var</span> <span class=p>(</span>
+        <span class=nx>name</span> <span class=p>=</span> <span class=nx>routerEngine</span>
+        <span class=nx>tmp</span>  <span class=kt>string</span>
+    <span class=p>)</span>
+    <span class=k>switch</span> <span class=nx>routerEngine</span> <span class=p>{</span>
+    <span class=k>case</span> <span class=s>&#34;gin&#34;</span><span class=p>:</span>
+        <span class=nx>tmp</span> <span class=p>=</span> <span class=nx>ginTemplate</span>
+    <span class=k>case</span> <span class=s>&#34;iris&#34;</span><span class=p>:</span>
+        <span class=nx>tmp</span> <span class=p>=</span> <span class=nx>irisTemplate</span>
+    <span class=k>default</span><span class=p>:</span>
+        <span class=nb>panic</span><span class=p>(</span><span class=s>&#34;unknown http engine&#34;</span><span class=p>)</span>
+    <span class=p>}</span>
+    <span class=nx>s</span><span class=p>.</span><span class=nx>MethodSets</span> <span class=p>=</span> <span class=nb>make</span><span class=p>(</span><span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=o>*</span><span class=nx>methodDesc</span><span class=p>)</span>
+    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>m</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>s</span><span class=p>.</span><span class=nx>Methods</span> <span class=p>{</span>
+        <span class=nx>s</span><span class=p>.</span><span class=nx>MethodSets</span><span class=p>[</span><span class=nx>m</span><span class=p>.</span><span class=nx>Name</span><span class=p>]</span> <span class=p>=</span> <span class=nx>m</span>
+    <span class=p>}</span>
+    <span class=nx>buf</span> <span class=o>:=</span> <span class=nb>new</span><span class=p>(</span><span class=nx>bytes</span><span class=p>.</span><span class=nx>Buffer</span><span class=p>)</span>
+    <span class=nx>tmpl</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>template</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=nx>name</span><span class=p>).</span><span class=nf>Parse</span><span class=p>(</span><span class=nx>strings</span><span class=p>.</span><span class=nf>TrimSpace</span><span class=p>(</span><span class=nx>tmp</span><span class=p>))</span>
+    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+        <span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+    <span class=p>}</span>
+    <span class=k>if</span> <span class=nx>err</span> <span class=p>=</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nf>Execute</span><span class=p>(</span><span class=nx>buf</span><span class=p>,</span> <span class=nx>s</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+        <span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+    <span class=p>}</span>
+
+    <span class=k>return</span> <span class=nx>strings</span><span class=p>.</span><span class=nf>Trim</span><span class=p>(</span><span class=nx>buf</span><span class=p>.</span><span class=nf>String</span><span class=p>(),</span> <span class=s>&#34;\r\n&#34;</span><span class=p>)</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=模板内容>模板内容</h3>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go>
+<span class=kd>var</span> <span class=nx>ginTemplate</span> <span class=p>=</span> <span class=s>`
+</span><span class=s></span><span class=cp>{{</span><span class=nx>$svrType</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=na>.ServiceType</span><span class=cp>}}</span><span class=s>
+</span><span class=s></span><span class=cp>{{</span><span class=nx>$svrName</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=na>.ServiceName</span><span class=cp>}}</span><span class=s>
+</span><span class=s></span><span class=cp>{{</span><span class=nx>$validate</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=na>.GenValidate</span><span class=cp>}}</span><span class=s>
+</span><span class=s>// 这里定义 handler interface
+</span><span class=s>type </span><span class=cp>{{</span><span class=na>.ServiceType</span><span class=cp>}}</span><span class=s>HTTPHandler interface {
+</span><span class=s></span><span class=cp>{{-</span><span class=w> </span><span class=k>range</span><span class=w> </span><span class=na>.MethodSets</span><span class=cp>}}</span><span class=s>
+</span><span class=s>    </span><span class=cp>{{</span><span class=na>.Name</span><span class=cp>}}</span><span class=s>(context.Context, *</span><span class=cp>{{</span><span class=na>.Request</span><span class=cp>}}</span><span class=s>, *</span><span class=cp>{{</span><span class=na>.Reply</span><span class=cp>}}</span><span class=s>) error
+</span><span class=s></span><span class=cp>{{-</span><span class=w> </span><span class=k>end</span><span class=cp>}}</span><span class=s>
+</span><span class=s>}
+</span><span class=s>
+</span><span class=s>// Register</span><span class=cp>{{</span><span class=na>.ServiceType</span><span class=cp>}}</span><span class=s>HTTPHandler define http router handle by gin. 
+</span><span class=s>// 注册路由 handler
+</span><span class=s>func Register</span><span class=cp>{{</span><span class=na>.ServiceType</span><span class=cp>}}</span><span class=s>HTTPHandler(g *gin.RouterGroup, srv </span><span class=cp>{{</span><span class=na>.ServiceType</span><span class=cp>}}</span><span class=s>HTTPHandler) {
+</span><span class=s>    </span><span class=cp>{{-</span><span class=w> </span><span class=k>range</span><span class=w> </span><span class=na>.Methods</span><span class=cp>}}</span><span class=s>
+</span><span class=s>    g.</span><span class=cp>{{</span><span class=na>.Method</span><span class=cp>}}</span><span class=s>(&#34;</span><span class=cp>{{</span><span class=na>.Path</span><span class=cp>}}</span><span class=s>&#34;, _</span><span class=cp>{{</span><span class=nx>$svrType</span><span class=cp>}}</span><span class=s>_</span><span class=cp>{{</span><span class=na>.Name</span><span class=cp>}}{{</span><span class=na>.Num</span><span class=cp>}}</span><span class=s>_HTTP_Handler(srv))
+</span><span class=s>    </span><span class=cp>{{-</span><span class=w> </span><span class=k>end</span><span class=cp>}}</span><span class=s>
+</span><span class=s>}
+</span><span class=s>
+</span><span class=s>// 定义 handler
+</span><span class=s>// 遍历之前解析到所有 rpc 方法信息
+</span><span class=s></span><span class=cp>{{</span><span class=k>range</span><span class=w> </span><span class=na>.Methods</span><span class=cp>}}</span><span class=s>
+</span><span class=s>func _</span><span class=cp>{{</span><span class=nx>$svrType</span><span class=cp>}}</span><span class=s>_</span><span class=cp>{{</span><span class=na>.Name</span><span class=cp>}}{{</span><span class=na>.Num</span><span class=cp>}}</span><span class=s>_HTTP_Handler(srv </span><span class=cp>{{</span><span class=nx>$svrType</span><span class=cp>}}</span><span class=s>HTTPHandler) func(c *gin.Context) {
+</span><span class=s>    return func(c *gin.Context) {
+</span><span class=s>        var (
+</span><span class=s>            in  = new(</span><span class=cp>{{</span><span class=na>.Request</span><span class=cp>}}</span><span class=s>)
+</span><span class=s>            out = new(</span><span class=cp>{{</span><span class=na>.Reply</span><span class=cp>}}</span><span class=s>)
+</span><span class=s>            ctx = middleware.GetContextFromGinCtx(c)
+</span><span class=s>        )
+</span><span class=s>
+</span><span class=s>        if err := c.ShouldBind(in</span><span class=cp>{{</span><span class=na>.Body</span><span class=cp>}}</span><span class=s>); err != nil {
+</span><span class=s>            c.AbortWithStatusJSON(400, gin.H{&#34;err&#34;: err.Error()})
+</span><span class=s>            return
+</span><span class=s>        }
+</span><span class=s>        
+</span><span class=s>        // 这里就是最开始提到的判断是否启用 validate
+</span><span class=s>        // 其中这个 api.Validator 接口只有一个方法 Validate() error
+</span><span class=s>        // 所以需要在一个统一的地方定义好引入使用，建议不要在生成的时候写入，因为这个是通用的 interface{}
+</span><span class=s>        </span><span class=cp>{{</span><span class=k>if</span><span class=w> </span><span class=nx>$validate</span><span class=w> </span><span class=cp>-}}</span><span class=s> 
+</span><span class=s>        // check param
+</span><span class=s>        if v, ok := interface{}(in).(api.Validator);ok {
+</span><span class=s>            if err := v.Validate();err != nil {
+</span><span class=s>                c.AbortWithStatusJSON(400, gin.H{&#34;err&#34;: err.Error()})
+</span><span class=s>                return
+</span><span class=s>            }
+</span><span class=s>        }
+</span><span class=s>        </span><span class=cp>{{</span><span class=k>end</span><span class=w> </span><span class=cp>-}}</span><span class=s>
+</span><span class=s>
+</span><span class=s>        // 执行方法
+</span><span class=s>        err := srv.</span><span class=cp>{{</span><span class=na>.Name</span><span class=cp>}}</span><span class=s>(ctx, in, out)
+</span><span class=s>        if err != nil {
+</span><span class=s>            c.AbortWithStatusJSON(500, gin.H{&#34;err&#34;: err.Error()})
+</span><span class=s>            return
+</span><span class=s>        }
+</span><span class=s>        
+</span><span class=s>        c.JSON(200, out)
+</span><span class=s>    }
+</span><span class=s>}
+</span><span class=s></span><span class=cp>{{</span><span class=k>end</span><span class=cp>}}</span><span class=s>
+</span><span class=s>`</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>iris 的模板基本类似。</p>
+<p>到这里代码部分完全结束，做一个简单的总结：</p>
+<ol>
+<li>
+<p>构思需求，即我需要什么样的插件，它需要给我生成什么的代码块？</p>
+</li>
+<li>
+<p>根据需求先自己写一个预期代码，然后把这份代码拆解成一个模板，提取里面的可以渲染的变量。</p>
+</li>
+<li>
+<p>模板里可以有逻辑，也就是可以做一些参数校验的方式，生成不同的代码，比如针对不同的 http 方法，做不同的处理，针对不同的插件参数生成不同的代码块。</p>
+</li>
+<li>
+<p>程序入口到渲染文件前这段代码，基本都用 <code>protogen</code> 包提供的方法，可以对这个包做一些调研阅读文档，看看它都提供什么能力, 说不定可以少走很多弯路。</p>
+</li>
+</ol>
+<p>基本就这些了，我也是各种琢磨琢磨出来的，建议大家多动手，只要不写永远学不到精髓。</p>
+</div><div class=post-footer id=post-footer>
+<div class=post-info>
+<div class=post-info-line>
+<div class=post-info-mod>
+<span>更新于 2021-11-22</span>
+</div>
+<div class=post-info-license></div>
+</div>
+<div class=post-info-line>
+<div class=post-info-md><span>
+<a class=link-to-markdown href=/posts/go-protoc-http/index.md target=_blank>阅读原始文档</a>
+</span></div>
+<div class=post-info-share>
+<span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/go-protoc-http/ data-title="如何自定义 protoc 插件" data-hashtags=go,grpc,protoc><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/go-protoc-http/ data-hashtag=go><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/go-protoc-http/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/go-protoc-http/ data-title="如何自定义 protoc 插件" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/go-protoc-http/ data-title="如何自定义 protoc 插件"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/go-protoc-http/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/go-protoc-http/ data-title="如何自定义 protoc 插件"><i data-svg-src=/lib/simple-icons/icons/line.min.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/go-protoc-http/ data-title="如何自定义 protoc 插件"><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/posts/go-protoc-http/ data-title="如何自定义 protoc 插件" data-description><i data-svg-src=/lib/simple-icons/icons/myspace.min.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/go-protoc-http/ data-title="如何自定义 protoc 插件" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/go-protoc-http/ data-title="如何自定义 protoc 插件"><i data-svg-src=/lib/simple-icons/icons/baidu.min.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/go-protoc-http/ data-title="如何自定义 protoc 插件"><i class="fab fa-evernote fa-fw"></i></a></span>
+</div>
+</div>
+</div>
+<div class=post-info-more>
+<section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/go/>go</a>,&nbsp;<a href=/tags/grpc/>grpc</a>,&nbsp;<a href=/tags/protoc/>protoc</a></section>
+<section>
+<span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span>
+</section>
+</div>
+<div class=post-nav><a href=/posts/go-cobra/ class=prev rel=prev title=如何编写自己的第一个命令行工具><i class="fas fa-angle-left fa-fw"></i>如何编写自己的第一个命令行工具</a>
+<a href=/posts/docker-dlv-debugging/ class=next rel=next title="如何在 docker 环境下进行远程 dlv 调试">如何在 docker 环境下进行远程 dlv 调试<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+<div id=comments><div id=disqus_thread class=comment></div><noscript>
+Please enable JavaScript to view the comments powered by <a href=https://disqus.com/?ref_noscript>Disqus</a>.
+</noscript></div></article></div>
+</main><footer class=footer>
+<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank</div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.89.4">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+</div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2021</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div>
+</div>
+</footer></div>
+<div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部>
+<i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title=查看评论>
+<i class="fas fa-comment fa-fw"></i>
+</a>
+</div><link rel=stylesheet href=/lib/katex/katex.min.css><link rel=stylesheet href=/lib/katex/copy-tex.min.css><link rel=stylesheet href=/lib/cookieconsent/cookieconsent.min.css><script type=text/javascript src=https://yusank.disqus.com/embed.js defer></script><script type=text/javascript src=/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=/lib/autocomplete/autocomplete.min.js></script><script type=text/javascript src=/lib/lunr/lunr.min.js></script><script type=text/javascript src=/lib/lunr/lunr.stemmer.support.min.js></script><script type=text/javascript src=/lib/lunr/lunr.zh.min.js></script><script type=text/javascript src=/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=/lib/sharer/sharer.min.js></script><script type=text/javascript src=/lib/katex/katex.min.js></script><script type=text/javascript src=/lib/katex/auto-render.min.js></script><script type=text/javascript src=/lib/katex/copy-tex.min.js></script><script type=text/javascript src=/lib/katex/mhchem.min.js></script><script type=text/javascript src=/lib/cookieconsent/cookieconsent.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{},cookieconsent:{content:{dismiss:"同意",link:"了解更多",message:"本网站使用 Cookies 来改善您的浏览体验."},enable:!0,palette:{button:{background:"#f0f0f0"},popup:{background:"#1aa3ff"}},theme:"edgeless"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},search:{highlightTag:"em",lunrIndexURL:"/index.json",lunrLanguageCode:"zh",lunrSegmentitURL:"/lib/lunr/lunr.segmentit.js",maxResultLength:10,noResultsFound:"没有找到结果",snippetLength:50,type:"lunr"}}</script><script type=text/javascript src=/js/theme.min.js></script></body>
+</html>

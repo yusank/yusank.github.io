@@ -1,0 +1,791 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=robots content="noodp">
+<meta http-equiv=x-ua-compatible content="IE=edge, chrome=1">
+<title>haproxy 开发 lua 插件过程遇到的坑 - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="haproxy 开发 lua 插件过程遇到的坑">
+<meta property="og:description" content="总结在开发和调试以及压测 lua 插件 功能过程中遇到的坑 该插件实现在 haproxy 中简单的蓝绿标记请">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://yusank.github.io/posts/haproxy_lua_trouble/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2021-11-03T13:20:00+08:00">
+<meta property="article:modified_time" content="2021-11-22T15:22:33+08:00">
+<meta name=twitter:card content="summary_large_image">
+<meta name=twitter:image content="https://yusank.github.io/logo.png">
+<meta name=twitter:title content="haproxy 开发 lua 插件过程遇到的坑">
+<meta name=twitter:description content="总结在开发和调试以及压测 lua 插件 功能过程中遇到的坑 该插件实现在 haproxy 中简单的蓝绿标记请">
+<meta name=application-name content="LoveIt">
+<meta name=apple-mobile-web-app-title content="LoveIt"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/haproxy_lua_trouble/><link rel=prev href=https://yusank.github.io/posts/apisix_plugins/><link rel=next href=https://yusank.github.io/posts/redeis-server-introduction/><link rel=stylesheet href=/lib/normalize/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/lib/fontawesome-free/all.min.css><link rel=stylesheet href=/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"haproxy 开发 lua 插件过程遇到的坑","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/haproxy_lua_trouble\/"},"genre":"posts","keywords":"lua, haproxy","wordcount":3124,"url":"https:\/\/yusank.github.io\/posts\/haproxy_lua_trouble\/","datePublished":"2021-11-03T13:20:00+08:00","dateModified":"2021-11-22T15:22:33+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head>
+<body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':'auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark')&&document.body.setAttribute('theme','dark')</script>
+<div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
+<div class=header-wrapper>
+<div class=header-title>
+<a href=/ title="Yusank`s Site">Yusank`s Site</a>
+</div>
+<div class=menu>
+<div class=menu-inner><a class=menu-item href=/posts/> 文章 </a><a class=menu-item href=/categories/> 分类 </a><a class=menu-item href=/tags/> 标签 </a><a class=menu-item href=/about/> 关于 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><span class="menu-item search" id=search-desktop>
+<input type=text placeholder=搜索文章标题或内容... id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=搜索>
+<i class="fas fa-search fa-fw"></i>
+</a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=清空>
+<i class="fas fa-times-circle fa-fw"></i>
+</a>
+<span class="search-button search-loading" id=search-loading-desktop>
+<i class="fas fa-spinner fa-fw fa-spin"></i>
+</span>
+</span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i>
+</a>
+</div>
+</div>
+</div>
+</header><header class=mobile id=header-mobile>
+<div class=header-container>
+<div class=header-wrapper>
+<div class=header-title>
+<a href=/ title="Yusank`s Site">Yusank`s Site</a>
+</div>
+<div class=menu-toggle id=menu-toggle-mobile>
+<span></span><span></span><span></span>
+</div>
+</div>
+<div class=menu id=menu-mobile><div class=search-wrapper>
+<div class="search mobile" id=search-mobile>
+<input type=text placeholder=搜索文章标题或内容... id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=搜索>
+<i class="fas fa-search fa-fw"></i>
+</a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=清空>
+<i class="fas fa-times-circle fa-fw"></i>
+</a>
+<span class="search-button search-loading" id=search-loading-mobile>
+<i class="fas fa-spinner fa-fw fa-spin"></i>
+</span>
+</div>
+<a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>
+取消
+</a>
+</div><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i>
+</a></div>
+</div>
+</header>
+<div class="search-dropdown desktop">
+<div id=search-dropdown-desktop></div>
+</div>
+<div class="search-dropdown mobile">
+<div id=search-dropdown-mobile></div>
+</div>
+<main class=main>
+<div class=container><div class=toc id=toc-auto>
+<h2 class=toc-title>目录</h2>
+<div class="toc-content always-active" id=toc-content-auto></div>
+</div><article class="page single"><h1 class="single-title animated flipInX">haproxy 开发 lua 插件过程遇到的坑</h1><div class=post-meta>
+<div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/%E7%BD%91%E5%85%B3/><i class="far fa-folder fa-fw"></i>网关</a></span></div>
+<div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2021-11-03>2021-11-03</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 3124 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 7 分钟&nbsp;</div>
+</div><div class="details toc" id=toc-static kept>
+<div class="details-summary toc-title">
+<span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span>
+</div>
+<div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
+<ol>
+<li><a href=#遇到的第一个问题>遇到的第一个问题</a></li>
+<li><a href=#遇到的第二个问题>遇到的第二个问题</a></li>
+<li><a href=#遇到的第三个问题>遇到的第三个问题</a>
+<ol>
+<li><a href=#lua-的面向对象>lua 的面向对象</a></li>
+</ol>
+</li>
+<li><a href=#遇到的第四个问题>遇到的第四个问题</a>
+<ol>
+<li><a href=#发现问题>发现问题</a></li>
+<li><a href=#定位问题>定位问题</a></li>
+<li><a href=#解决问题>解决问题</a></li>
+</ol>
+</li>
+<li><a href=#参考文档>参考文档</a></li>
+</ol>
+</nav></div>
+</div><div class=content id=content><blockquote>
+<p>总结在开发和调试以及压测 lua 插件 功能过程中遇到的坑
+该插件实现在 haproxy 中简单的蓝绿标记请求并转发到对应的服务。 <strong>pfb 即为 pre feartue brach 特性分支。</strong></p>
+</blockquote>
+<h2 id=遇到的第一个问题>遇到的第一个问题</h2>
+<p>由于对 haproxy 提供的 lua api 不熟悉，导致前期开发的过程中错误使用 <code>core.Map</code> 能力，导致新能比较差而且还遇到在运行时不能调用 <code>Map.new()</code> 方法的问题，最后通过初始化过程缓存 Map 对象的方式解决这个问题。</p>
+<p>修改前代码：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-lua data-lang=lua><span class=c1>-- ha 启动时 会将 frontend 配置文件进行解析 并以 host 为 key 进行去重后写入文件里</span>
+<span class=c1>-- 在判断流量时 根据请求的 host 去找文件并在运行时打开文件进行查找</span>
+<span class=kr>function</span> <span class=nc>_M</span><span class=p>.</span><span class=nf>lookupBEWithType</span><span class=p>(</span><span class=n>host</span><span class=p>,</span> <span class=n>path</span><span class=p>,</span> <span class=n>mapType</span><span class=p>)</span>
+	<span class=kd>local</span> <span class=n>mapFile</span> <span class=o>=</span> <span class=s2>&#34;/opt/&#34;</span> <span class=o>..</span> <span class=n>host</span>
+	<span class=kd>local</span> <span class=n>beMap</span> <span class=o>=</span> <span class=kc>nil</span>
+
+	<span class=kr>if</span> <span class=n>mapType</span> <span class=o>==</span> <span class=n>Map._reg</span> <span class=kr>then</span>
+		<span class=n>mapFile</span> <span class=o>=</span> <span class=n>mapFile</span> <span class=o>..</span> <span class=s2>&#34;.path_reg&#34;</span>
+		<span class=n>beMap</span> <span class=o>=</span> <span class=n>Map.new</span><span class=p>(</span><span class=n>mapFile</span><span class=p>,</span> <span class=n>Map._reg</span><span class=p>)</span>
+	<span class=kr>else</span>
+		<span class=n>mapFile</span> <span class=o>=</span> <span class=n>mapFile</span> <span class=o>..</span> <span class=s2>&#34;.path_beg&#34;</span>
+		<span class=n>beMap</span> <span class=o>=</span> <span class=n>Map.new</span><span class=p>(</span><span class=n>mapFile</span><span class=p>,</span> <span class=n>Map._beg</span><span class=p>)</span>
+	<span class=kr>end</span>
+
+	<span class=kr>if</span> <span class=n>beMap</span> <span class=o>==</span> <span class=kc>nil</span> <span class=kr>then</span>
+		<span class=n>core.Warning</span><span class=p>(</span><span class=s2>&#34;beMap is nil&#34;</span><span class=p>)</span>
+		<span class=kr>return</span> <span class=kc>nil</span>
+	<span class=kr>end</span>
+
+	<span class=kr>return</span> <span class=n>Map.lookup</span><span class=p>(</span><span class=n>beMap</span><span class=p>,</span> <span class=n>path</span><span class=p>)</span>
+<span class=kr>end</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>修改后：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-lua data-lang=lua><span class=kd>local</span> <span class=n>_M</span> <span class=o>=</span> <span class=p>{</span>
+	<span class=n>hostMap</span> <span class=o>=</span> <span class=p>{}</span>
+<span class=p>}</span>
+
+<span class=kr>function</span> <span class=nc>_M</span><span class=p>.</span><span class=nf>parseFrontendConfigs</span><span class=p>()</span>
+	<span class=c1>-- 初始化内存</span>
+<span class=kr>end</span>
+
+
+<span class=c1>-- 初始化时直接将host 作为 key  ha 的 map 作为value 存到内存中，直接使用</span>
+<span class=kr>function</span> <span class=nc>_M</span><span class=p>.</span><span class=nf>lookupBEWithType</span><span class=p>(</span><span class=n>host</span><span class=p>,</span> <span class=n>path</span><span class=p>,</span> <span class=n>mapType</span><span class=p>)</span>
+	<span class=c1>-- local mapFile = &#34;/opt/&#34; .. host</span>
+	<span class=kd>local</span> <span class=n>beMap</span> <span class=o>=</span> <span class=kc>nil</span>
+	<span class=kd>local</span> <span class=n>hm</span> <span class=o>=</span> <span class=n>_M.hostMap</span><span class=p>[</span><span class=n>host</span><span class=p>]</span>
+	<span class=kr>if</span> <span class=n>hm</span> <span class=o>==</span> <span class=kc>nil</span> <span class=kr>then</span>
+		<span class=n>_M.warning</span><span class=p>(</span><span class=s2>&#34;host map is nil host: &#34;</span> <span class=o>..</span> <span class=n>host</span><span class=p>)</span>
+		<span class=kr>return</span> <span class=kc>nil</span>
+	<span class=kr>end</span>
+
+	<span class=kr>if</span> <span class=n>mapType</span> <span class=o>==</span> <span class=n>Map._reg</span> <span class=kr>then</span>
+		<span class=n>beMap</span> <span class=o>=</span> <span class=n>hm.reg</span>
+	<span class=kr>else</span>
+		<span class=n>beMap</span> <span class=o>=</span> <span class=n>hm.beg</span>
+	<span class=kr>end</span>
+
+	<span class=kr>if</span> <span class=n>beMap</span> <span class=o>==</span> <span class=kc>nil</span> <span class=kr>then</span>
+		<span class=n>_M.warning</span><span class=p>(</span><span class=s2>&#34;beMap is nil, host: &#34;</span> <span class=o>..</span> <span class=n>host</span><span class=p>)</span>
+		<span class=kr>return</span> <span class=kc>nil</span>
+	<span class=kr>end</span>
+
+	<span class=kr>return</span> <span class=n>Map.lookup</span><span class=p>(</span><span class=n>beMap</span><span class=p>,</span> <span class=n>path</span><span class=p>)</span>
+<span class=kr>end</span>
+
+<span class=kd>local</span> <span class=kr>function</span> <span class=nf>parse</span><span class=p>(</span><span class=n>txn</span><span class=p>)</span>
+	<span class=n>_M.parseFrontendConfigs</span><span class=p>()</span>
+<span class=kr>end</span>
+
+<span class=c1>-- 注册初始化方法</span>
+<span class=n>core.register_init</span><span class=p>(</span><span class=n>parse</span><span class=p>)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=遇到的第二个问题>遇到的第二个问题</h2>
+<p>需要支持长链接和 ws。</p>
+<p>最开始的开发中使用的 ha 提供的 http 库来直接调用蓝绿服务的节点，但是这个库过于简单，长链接，连接池，websocket都不支持更不用说 rpc 了，想要支持只能自行开发，但是很费时间和精力，经过思考讨论决定使用 ha 的原生能力去转发，而不是自己发出请求。</p>
+<p>修改前的配置文件：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=c1># 蓝绿服务节点缓存管理接口，由 controller 调用</span>
+http-request use-service lua.svcManage <span class=k>if</span> <span class=o>{</span> path_beg /svc-cache/api/v1/endpoints <span class=o>}</span>
+
+<span class=c1># 调用 lua 代码区分流量类型，并将类型写入到变量 req.flowType</span>
+<span class=c1># var 是 ha 提供的变量能力，可以有 txn, req, res 等前缀，分别作用在整个请求、request 阶段和 response 阶段</span>
+http-request set-var<span class=o>(</span>req.flowType<span class=o>)</span> lua.flowType<span class=o>()</span>
+<span class=c1># pfb 流量在 lua 代码内调用 pfb 节点</span>
+http-request use-service lua.pfbDispatch <span class=k>if</span> <span class=o>{</span> var<span class=o>(</span>req.flowType<span class=o>)</span> -m str <span class=s1>&#39;pfb&#39;</span> <span class=o>}</span>
+<span class=c1># 其他服务走原有的配置</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>修改前 pfb 的选择节点和发起请求的代码块：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-lua data-lang=lua><span class=kr>function</span> <span class=nc>_pfb</span><span class=p>.</span><span class=nf>dispatch</span><span class=p>(</span><span class=n>applet</span><span class=p>)</span>
+    <span class=c1>-- 在 flowType() 方法中确定 pfb 服务后 将 pfb key写入上下文并在这里读取使用</span>
+	<span class=kd>local</span> <span class=n>cacheKey</span> <span class=o>=</span> <span class=n>applet</span><span class=p>:</span><span class=n>get_priv</span><span class=p>()</span>
+	<span class=kr>if</span> <span class=n>cacheKey</span> <span class=o>==</span> <span class=kc>nil</span> <span class=ow>or</span> <span class=n>cacheKey</span> <span class=o>==</span> <span class=s2>&#34;&#34;</span> <span class=kr>then</span>
+		<span class=n>_pfb.warning</span><span class=p>(</span><span class=s2>&#34;ep is nil&#34;</span><span class=p>)</span>
+		<span class=n>util.errorResponse</span><span class=p>(</span><span class=n>applet</span><span class=p>,</span> <span class=s2>&#34;internal error&#34;</span><span class=p>)</span>
+		<span class=kr>return</span>
+	<span class=kr>end</span>
+	<span class=n>_pfb.info</span><span class=p>(</span><span class=s2>&#34;pfb cache key:&#34;</span> <span class=o>..</span> <span class=n>cacheKey</span><span class=p>)</span>
+
+    <span class=c1>-- 获取节点列表并进行负载</span>
+	<span class=kd>local</span> <span class=n>endpoint</span> <span class=o>=</span> <span class=n>pfbCache.loadEndpoint</span><span class=p>(</span><span class=n>cacheKey</span><span class=p>)</span>
+	<span class=kr>if</span> <span class=n>endpoint</span> <span class=o>==</span> <span class=kc>nil</span> <span class=kr>then</span>
+		<span class=n>_pfb.warning</span><span class=p>(</span><span class=s2>&#34;load endpoint fail, key: &#34;</span> <span class=o>..</span> <span class=n>cacheKey</span><span class=p>)</span>
+		<span class=n>util.errorResponse</span><span class=p>(</span><span class=n>applet</span><span class=p>,</span> <span class=s2>&#34;internal error&#34;</span><span class=p>)</span>
+		<span class=kr>return</span>
+	<span class=kr>end</span>
+
+	<span class=kd>local</span> <span class=n>body</span> <span class=o>=</span> <span class=n>applet</span><span class=p>:</span><span class=n>receive</span><span class=p>(</span><span class=n>applet.length</span><span class=p>)</span>
+	<span class=kd>local</span> <span class=n>uri</span> <span class=o>=</span> <span class=s2>&#34;http://&#34;</span> <span class=o>..</span> <span class=n>endpoint</span> <span class=o>..</span> <span class=n>applet.path</span> <span class=o>..</span> <span class=s2>&#34;?&#34;</span> <span class=o>..</span> <span class=n>applet.qs</span>
+
+    <span class=c1>-- 发起请求</span>
+	<span class=kd>local</span> <span class=n>resp</span><span class=p>,</span> <span class=n>err</span> <span class=o>=</span> <span class=n>util.httpAny</span><span class=p>(</span><span class=n>uri</span><span class=p>,</span> <span class=n>applet.method</span><span class=p>,</span> <span class=n>applet.headers</span><span class=p>,</span> <span class=n>body</span><span class=p>)</span>
+	<span class=kr>if</span> <span class=n>err</span> <span class=o>~=</span> <span class=kc>nil</span> <span class=kr>then</span>
+		<span class=n>_pfb.warning</span><span class=p>(</span><span class=s2>&#34;http any err: &#34;</span> <span class=o>..</span> <span class=n>err</span><span class=p>)</span>
+		<span class=n>util.errorResponse</span><span class=p>(</span><span class=n>applet</span><span class=p>,</span> <span class=n>err</span><span class=p>)</span>
+	<span class=kr>end</span>
+
+	<span class=n>applet</span><span class=p>:</span><span class=n>set_status</span><span class=p>(</span><span class=n>resp.status_code</span><span class=p>)</span>
+	<span class=kr>for</span> <span class=n>key</span><span class=p>,</span> <span class=n>value</span> <span class=kr>in</span> <span class=n>pairs</span><span class=p>(</span><span class=n>resp.headers</span><span class=p>)</span> <span class=kr>do</span>
+		<span class=n>applet</span><span class=p>:</span><span class=n>add_header</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+	<span class=kr>end</span>
+
+    <span class=c1>-- 写响应</span>
+	<span class=n>applet</span><span class=p>:</span><span class=n>start_response</span><span class=p>()</span>
+	<span class=n>applet</span><span class=p>:</span><span class=n>send</span><span class=p>(</span><span class=n>resp.content</span><span class=p>)</span>
+<span class=kr>end</span>
+
+<span class=c1>---根据 key 读取 service 数据，并根据index 和 endpoints length 做 balance</span>
+<span class=c1>--- 返回 ip:port or nil</span>
+<span class=c1>---@param key string 缓存的 key</span>
+<span class=c1>---@return string endpoint balance 后得到的节点 ip:port</span>
+<span class=kr>function</span> <span class=nc>_cache</span><span class=p>.</span><span class=nf>loadEndpoint</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+	<span class=kd>local</span> <span class=n>svc</span> <span class=o>=</span> <span class=n>_cache</span><span class=p>[</span><span class=n>key</span><span class=p>]</span>
+	<span class=kr>if</span> <span class=n>svc</span> <span class=o>==</span> <span class=kc>nil</span> <span class=kr>then</span>
+		<span class=kr>return</span> <span class=s2>&#34;&#34;</span>
+	<span class=kr>end</span>
+
+	<span class=kr>if</span> <span class=n>svc.endpoints</span> <span class=o>==</span> <span class=kc>nil</span> <span class=ow>or</span> <span class=o>#</span><span class=n>svc.endpoints</span> <span class=o>==</span> <span class=mi>0</span> <span class=kr>then</span>
+		<span class=kr>return</span> <span class=s2>&#34;&#34;</span>
+	<span class=kr>end</span>
+
+	<span class=c1>-- if svc.index &gt; #svc.endpoints then 1 else svc.index</span>
+	<span class=kd>local</span> <span class=n>endpoint</span> <span class=o>=</span> <span class=n>svc.endpoints</span><span class=p>[</span><span class=n>svc.index</span> <span class=o>&gt;</span> <span class=o>#</span><span class=n>svc.endpoints</span> <span class=ow>and</span> <span class=mi>1</span> <span class=ow>or</span> <span class=n>svc.index</span><span class=p>]</span>
+	<span class=n>_cache.info</span><span class=p>(</span><span class=s2>&#34;load index: &#34;</span> <span class=o>..</span> <span class=n>tostring</span><span class=p>(</span><span class=n>svc.index</span><span class=p>)</span> <span class=o>..</span> <span class=s2>&#34; load endpoint: &#34;</span> <span class=o>..</span> <span class=n>endpoint</span><span class=p>)</span>
+	<span class=c1>-- if svc.index + 1 &gt; #svc.endpoints then 1 else svc.index + 1</span>
+	<span class=n>svc.index</span> <span class=o>=</span> <span class=n>svc.index</span> <span class=o>+</span> <span class=mi>1</span> <span class=o>&gt;</span> <span class=o>#</span><span class=n>svc.endpoints</span> <span class=ow>and</span> <span class=mi>1</span> <span class=ow>or</span> <span class=n>svc.index</span> <span class=o>+</span> <span class=mi>1</span>
+
+	<span class=kr>return</span> <span class=n>endpoint</span>
+<span class=kr>end</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>修改后配置：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-diff data-lang=diff>     http-request set-var(req.flowType) lua.flowType()
+    
+<span class=gd>-    http-request use-service lua.pfbDispatch if { var(req.flowType) -m str &#39;pfb&#39; }
+</span><span class=gd></span>
+<span class=gi>+   # pfb
+</span><span class=gi>+    http-request set-dst lua.getDstIP if { var(req.flowType) -m str &#39;pfb&#39; }
+</span><span class=gi>+    http-request set-dst-port lua.getDstPort if { var(req.flowType) -m str &#39;pfb&#39; }
+</span><span class=gi>+    use_backend %[lua.pfbDynamicBackend] if { var(req.flowType) -m str &#39;pfb&#39; }
+</span></code></pre></td></tr></table>
+</div>
+</div><p>直接删除 <code>pfbDispatch</code> 方法，在判断 pfb 流量后将进行负载均衡操作，并把选到的 <code>ip:port</code> 写入上下文。此时之后流量发到 pfb 节点的流程发生了比较大的变化：</p>
+<ul>
+<li>由 controller 生成一份 pfb 服务的 backend 配置文件 所有的 backend 名字以 pfb 开通的特定规则的 backend</li>
+<li>使用 ha 的 <code>set-dst</code> 规则重写 destination ip 和端口，但是协议和能力还是走 ha 的原生能力，即解决了长链接问题</li>
+<li>通过执行三段 lua 代码通过上下文即可指定 ip 端口以及使用的 backend</li>
+</ul>
+<p>注：如果需要直接指定 ip 则 backend 必需是以下格式：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>backend xxx
+	server server 0.0.0.0:0
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=遇到的第三个问题>遇到的第三个问题</h2>
+<p>压测性能问题。</p>
+<p>在压测过程中正常流量与 pfb 流量耗时和消耗的资源差距比较大，尤其是占用 cpu 会高出一倍多。</p>
+<p>优化点有四个：</p>
+<ol>
+<li><strong>不要使用全局变量。</strong></li>
+</ol>
+<p>最开始负载均衡模块抽离出来做了全局的 LB 的类，但是压测遇到性能瓶颈后，改为 local后性能有 10%左右的提升</p>
+<ol start=2>
+<li><strong>调用链长的问题</strong></li>
+</ol>
+<p>使用过程中会有比较长的跨包引用，这块简化后也得到了明显的性能提升</p>
+<ol start=3>
+<li><strong>字符串拼接</strong></li>
+</ol>
+<p>lua 代码中我们用了大量的字符串拼接，这块对 lua 的性能影响也很大</p>
+<ol start=4>
+<li><strong>日志问题</strong></li>
+</ol>
+<p>直接调用的 ha 的 core 库提供的日志，但是我们最开始日志打的比较多，导致压测时西能下降很严重，这块去了大部分日志后，性能提升最高</p>
+<h3 id=lua-的面向对象>lua 的面向对象</h3>
+<p>由于 go 出身，开发 lua 插件的时候总是想往面向对象思想靠拢 但是对 lua 不是很熟悉，开发一段时间后才总结了一些小经验，以以下代码为例，讲解如何定义对象和其方法以及如何使用。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-lua data-lang=lua><span class=c1>-- 实现简单的轮顺算法</span>
+<span class=kd>local</span> <span class=n>round_robin</span> <span class=o>=</span> <span class=p>{}</span>
+
+<span class=c1>---new round robin class</span>
+<span class=c1>---@param endpoints table</span>
+<span class=c1>---@return table</span>
+<span class=kr>function</span> <span class=nc>round_robin</span><span class=p>.</span><span class=nf>new</span><span class=p>(</span><span class=n>self</span><span class=p>,</span> <span class=n>endpoints</span><span class=p>)</span>
+	<span class=kd>local</span> <span class=n>o</span> <span class=o>=</span> <span class=p>{</span>
+		<span class=n>endpoints</span> <span class=o>=</span> <span class=n>endpoints</span><span class=p>,</span>
+		<span class=n>index</span> <span class=o>=</span> <span class=mi>1</span>
+	<span class=p>}</span>
+
+	<span class=n>setmetatable</span><span class=p>(</span><span class=n>o</span><span class=p>,</span> <span class=n>self</span><span class=p>)</span>
+	<span class=n>self.__index</span> <span class=o>=</span> <span class=n>self</span>
+
+	<span class=kr>return</span> <span class=n>o</span>
+<span class=kr>end</span>
+
+<span class=c1>---balance endpints</span>
+<span class=c1>---@return string endpoint ip:port</span>
+<span class=kr>function</span> <span class=nc>round_robin</span><span class=p>.</span><span class=nf>Balance</span><span class=p>(</span><span class=n>self</span><span class=p>)</span>
+	<span class=kd>local</span> <span class=n>ln</span> <span class=o>=</span> <span class=o>#</span><span class=n>self.endpoints</span>
+	<span class=kr>if</span> <span class=n>ln</span> <span class=o>==</span> <span class=mi>0</span> <span class=kr>then</span>
+		<span class=kr>return</span> <span class=kc>nil</span>
+	<span class=kr>end</span>
+
+	<span class=c1>-- if self.index &gt; #self.endpoints then 1 else self.index</span>
+	<span class=kd>local</span> <span class=n>endpoint</span> <span class=o>=</span> <span class=n>self.endpoints</span><span class=p>[</span><span class=n>self.index</span> <span class=o>&gt;</span> <span class=n>ln</span> <span class=ow>and</span> <span class=mi>1</span> <span class=ow>or</span> <span class=n>self.index</span><span class=p>]</span>
+	<span class=c1>-- if self.index + 1 &gt; #self.endpoints then 1 else self.index + 1</span>
+	<span class=n>self.index</span> <span class=o>=</span> <span class=n>self.index</span> <span class=o>+</span> <span class=mi>1</span> <span class=o>&gt;</span> <span class=n>ln</span> <span class=ow>and</span> <span class=mi>1</span> <span class=ow>or</span> <span class=n>self.index</span> <span class=o>+</span> <span class=mi>1</span>
+
+	<span class=kr>return</span> <span class=n>endpoint</span>
+<span class=kr>end</span>
+
+<span class=c1>---check is there has any valid endpoints</span>
+<span class=c1>---@return table</span>
+<span class=kr>function</span> <span class=nc>round_robin</span><span class=p>.</span><span class=nf>Get</span><span class=p>(</span><span class=n>self</span><span class=p>)</span>
+	<span class=kr>return</span> <span class=p>{</span>
+		<span class=n>endpoints</span> <span class=o>=</span> <span class=n>self.endpoints</span><span class=p>,</span>
+		<span class=n>index</span> <span class=o>=</span> <span class=n>self.index</span>
+	<span class=p>}</span>
+<span class=kr>end</span>
+
+<span class=kr>return</span> <span class=n>round_robin</span>
+
+<span class=c1>-- 其他包内引入使用</span>
+
+<span class=kd>local</span> <span class=n>rr</span> <span class=o>=</span> <span class=n>round_robin</span><span class=p>:</span><span class=n>new</span><span class=p>(</span><span class=n>endpoints</span><span class=p>)</span>
+<span class=kd>local</span> <span class=n>endpoint</span> <span class=o>=</span> <span class=n>rr</span><span class=p>:</span><span class=n>Balance</span><span class=p>()</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=遇到的第四个问题>遇到的第四个问题</h2>
+<p>连接数比较高的情况下 ha 发生 crash 重启。</p>
+<p>这个问题比较奇怪，前后花的时间也比较长，总体来说可以分几个阶段。</p>
+<h3 id=发现问题>发现问题</h3>
+<p>crash 日志：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>Thread <span class=m>13</span> is about to <span class=nb>kill</span> the process.
+...
+*&gt;Thread 13: <span class=nv>id</span><span class=o>=</span>0x7f4822ffd700 <span class=nv>act</span><span class=o>=</span><span class=m>1</span> <span class=nv>glob</span><span class=o>=</span><span class=m>1</span> <span class=nv>wq</span><span class=o>=</span><span class=m>1</span> <span class=nv>rq</span><span class=o>=</span><span class=m>1</span> <span class=nv>tl</span><span class=o>=</span><span class=m>1</span> <span class=nv>tlsz</span><span class=o>=</span><span class=m>18</span> <span class=nv>rqsz</span><span class=o>=</span><span class=m>159</span>
+             <span class=nv>stuck</span><span class=o>=</span><span class=m>1</span> <span class=nv>prof</span><span class=o>=</span><span class=m>1</span> <span class=nv>harmless</span><span class=o>=</span><span class=m>0</span> <span class=nv>wantrdv</span><span class=o>=</span><span class=m>0</span>
+             cpu_ns: <span class=nv>poll</span><span class=o>=</span><span class=m>9971328211</span> <span class=nv>now</span><span class=o>=</span><span class=m>18093189004</span> <span class=nv>diff</span><span class=o>=</span><span class=m>8121860793</span>
+             <span class=nv>curr_task</span><span class=o>=</span>0x7f47d87eb370 <span class=o>(</span>task<span class=o>)</span> <span class=nv>calls</span><span class=o>=</span><span class=m>1</span> <span class=nv>last</span><span class=o>=</span><span class=m>6726431149</span> ns ago
+               <span class=nv>fct</span><span class=o>=</span>0x5645b8182850<span class=o>(</span>process_stream<span class=o>)</span> <span class=nv>ctx</span><span class=o>=(</span>nil<span class=o>)</span>
+
+             call trace<span class=o>(</span>15<span class=o>)</span>:
+             <span class=p>|</span> 0x5645b825a587 <span class=o>[</span><span class=m>48</span> <span class=m>83</span> c4 <span class=m>10</span> 5b 5d <span class=m>41</span> 5c<span class=o>]</span>: wdt_handler+0x107/0x114
+             <span class=p>|</span> 0x7f4830fc5730 <span class=o>[</span><span class=m>48</span> c7 c0 0f <span class=m>00</span> <span class=m>00</span> <span class=m>00</span> 0f<span class=o>]</span>: libpthread:+0x12730
+             <span class=p>|</span> 0x5645b81011c2 <span class=o>[</span>e9 c1 fd ff ff <span class=m>66</span> 0f 1f<span class=o>]</span>: hlua_ctx_destroy+0x312/0x367
+             <span class=p>|</span> 0x5645b8186316 <span class=o>[</span><span class=m>49</span> <span class=m>83</span> bf f0 <span class=m>00</span> <span class=m>00</span> <span class=m>00</span> 00<span class=o>]</span>: process_stream+0x3ac6/0x50ff
+</code></pre></td></tr></table>
+</div>
+</div><p>初步判断是跟 lua 相关，但是无法定位到具体方法上。</p>
+<p>经过翻阅官方 repo 的 <a href=https://github.com/haproxy/haproxy/issues/1284#issuecomment-863294819 target=_blank rel="noopener noreffer">issue</a> 后，发现 ha 可以通过global 参数 <code>set dumpable</code> 来开启 core dump 的，然后打开该开关，然后复现问题拿到 dump 文件进行分析。</p>
+<p>Coredump 文件分析后最后结束在hlua_ctx_init 方法，此时依然不能精准问题所在处，然后看到了官方列出的已知 <a href="http://git.haproxy.org/?p=haproxy-2.2.git;a=commitdiff;h=36cdbee" target=_blank rel="noopener noreffer">bug</a>。</p>
+<h3 id=定位问题>定位问题</h3>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-markdown data-lang=markdown>**BUG/MEDIUM: lua: Always init the lua stack before referencing the context**
+
+author	Christopher Faulet <span class=p>&lt;</span><span class=nt>cfaulet</span><span class=err>@</span><span class=na>haproxy</span><span class=err>.</span><span class=na>com</span><span class=p>&gt;</span>	
+Wed, 24 Mar 2021 22:03:01 +0800 (15:03 +0100)
+committer	Christopher Faulet <span class=p>&lt;</span><span class=nt>cfaulet</span><span class=err>@</span><span class=na>haproxy</span><span class=err>.</span><span class=na>com</span><span class=p>&gt;</span>	
+Thu, 25 Mar 2021 00:15:21 +0800 (17:15 +0100)
+----
+When a lua context is allocated, its stack must be initialized to NULL
+before attaching it to its owner (task, stream or applet).  Otherwise, if
+the watchdog is fired before the stack is really created, that may lead to a
+segfault because we try to dump the traceback of an uninitialized lua stack.
+
+It is easy to trigger this bug if a lua script do a blocking call while
+another thread try to initialize a new lua context. Because of the global
+lua lock, the init is blocked before the stack creation. Of course, it only
+happens if the script is executed in the shared global context.
+
+This patch must be backported as far as 2.0.
+
+(cherry picked from commit 1e8433f594de4b860e5205fdd6cb40d91ff58f17)
+Signed-off-by: Christopher Faulet <span class=p>&lt;</span><span class=nt>cfaulet</span><span class=err>@</span><span class=na>haproxy</span><span class=err>.</span><span class=na>com</span><span class=p>&gt;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>大致意思是执行的 lua 脚本有阻塞行为时，如果别的线程尝试创建新的 context 的话，会崩溃的情况。而且在 issue 里有人尝试在 lua 代码 sleep 5s 也能触发。即每调用一次 lua 必然伴随自执行 <code>hlua_ctx_init</code> 和 <code>hlua_ctx_destroy</code> 方法。</p>
+<p>我们遇到的场景时，请求量达到一定数值后，每个请求处理的时间会边长，从而会出现一些延迟高的请求，从而导致上述的 bug。</p>
+<h3 id=解决问题>解决问题</h3>
+<ol>
+<li><strong>升级版本</strong></li>
+</ol>
+<p>官方给出这个 bug 在 2.3 之前的版本会有，我们首先想到就是升到 2.3 以上（目前是 2.2.2），然后尝试升级了版本（2.3.14）后，跑一次压力测试。这次没有崩溃但是连接数达到 8w 后 ha 开始处理不过来更多的请求，这个离 ha 的极限性能还差一段距离的，所以问题其实并没有真正解决，而且线上环境上升级版本的难度很大。</p>
+<ol start=2>
+<li><strong>从 lua 下手</strong></li>
+</ol>
+<p>可以重新看一下 pfb 相关的配置</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>http-request set-var<span class=o>(</span>req.flowType<span class=o>)</span> lua.flowType<span class=o>()</span>
+<span class=c1># pfb</span>
+http-request set-dst lua.getDstIP <span class=k>if</span> <span class=o>{</span> var<span class=o>(</span>req.flowType<span class=o>)</span> -m str <span class=s1>&#39;pfb&#39;</span> <span class=o>}</span>
+http-request set-dst-port lua.getDstPort <span class=k>if</span> <span class=o>{</span> var<span class=o>(</span>req.flowType<span class=o>)</span> -m str <span class=s1>&#39;pfb&#39;</span> <span class=o>}</span>
+use_backend %<span class=o>[</span>lua.pfbDynamicBackend<span class=o>]</span> <span class=k>if</span> <span class=o>{</span> var<span class=o>(</span>req.flowType<span class=o>)</span> -m str <span class=s1>&#39;pfb&#39;</span> <span class=o>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>不难发现，一次 pfb 标识的请求需要调用四次 lua 代码，这个确实有点多。而且官方给出 ha 中使用 lua 至少损失 5%的性能，目前来看可能不止 5%这么少。</p>
+<p>其实后面的三个 lua 方法里也没有很复杂的逻辑，纯从上下文读取ip 端口和 backend 名字，其实这块可以用 ha 的 var 语法来实现。开始改造 <code>flowType</code> 方法，将写入上下文的部门改成 <code>set-var</code> ，然后改造 config，调用 lua 脚本的地方改成读取 var。</p>
+<p>改造对比</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-diff data-lang=diff><span class=gd>--- lua code
+</span><span class=gd></span>
+<span class=gd>-local tb = {
+</span><span class=gd>-	pfbBackend = &#34;pfb-&#34; .. backend, -- use backend
+</span><span class=gd>- 	ip = ip, -- set dst ip
+</span><span class=gd>- 	port = port -- set dst port
+</span><span class=gd>- }
+</span><span class=gd>- txn:set_priv(tb)
+</span><span class=gd></span>
+<span class=gi>+ txn:set_var(&#34;req.be&#34;, &#34;pfb-&#34; .. backend)
+</span><span class=gi>+ txn:set_var(&#34;req.ip&#34;, ip)
+</span><span class=gi>+ txn:set_var(&#34;req.port&#34;, port)
+</span><span class=gi></span>
+<span class=gd>--- config
+</span><span class=gd></span>
+<span class=gd>- http-request set-dst lua.getDstIP if { var(req.flowType) -m str &#39;pfb&#39; }
+</span><span class=gd>- http-request set-dst-port lua.getDstPort if { var(req.flowType) -m str &#39;pfb&#39; }
+</span><span class=gd>- use_backend %[lua.pfbDynamicBackend] if { var(req.flowType) -m str &#39;pfb&#39; }
+</span><span class=gd></span><span class=gi>+ http-request set-dst var(req.ip) if { var(req.flowType) -m str &#39;pfb&#39; }
+</span><span class=gi>+ http-request set-dst-port var(req.port) if { var(req.flowType) -m str &#39;pfb&#39; }
+</span><span class=gi>+ use_backend %[var(req.be)] if { var(req.flowType) -m str &#39;pfb&#39; }
+</span></code></pre></td></tr></table>
+</div>
+</div><p>这样下来，一次请求只会调用一次 lua 脚本，其所有变量都是通过 ha 的 var 来传递，crash 问题也解决，连接数也上去了。</p>
+<h2 id=参考文档>参考文档</h2>
+<ul>
+<li><a href=https://zhuanlan.zhihu.com/p/29317103 target=_blank rel="noopener noreffer">https://zhuanlan.zhihu.com/p/29317103</a></li>
+<li><a href=https://www.jianshu.com/p/32f0b17b852c target=_blank rel="noopener noreffer">https://www.jianshu.com/p/32f0b17b852c</a></li>
+<li><a href="http://git.haproxy.org/?p=haproxy-2.2.git;a=commitdiff;h=36cdbee" target=_blank rel="noopener noreffer">http://git.haproxy.org/?p=haproxy-2.2.git;a=commitdiff;h=36cdbee</a></li>
+<li><a href=https://github.com/haproxy/haproxy/issues/1284 target=_blank rel="noopener noreffer">https://github.com/haproxy/haproxy/issues/1284</a></li>
+<li><a href=https://cloud.tencent.com/developer/article/1005003 target=_blank rel="noopener noreffer">https://cloud.tencent.com/developer/article/1005003</a></li>
+</ul>
+</div><div class=post-footer id=post-footer>
+<div class=post-info>
+<div class=post-info-line>
+<div class=post-info-mod>
+<span>更新于 2021-11-22</span>
+</div>
+<div class=post-info-license></div>
+</div>
+<div class=post-info-line>
+<div class=post-info-md><span>
+<a class=link-to-markdown href=/posts/haproxy_lua_trouble/index.md target=_blank>阅读原始文档</a>
+</span></div>
+<div class=post-info-share>
+<span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/haproxy_lua_trouble/ data-title="haproxy 开发 lua 插件过程遇到的坑" data-hashtags=lua,haproxy><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/haproxy_lua_trouble/ data-hashtag=lua><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/haproxy_lua_trouble/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/haproxy_lua_trouble/ data-title="haproxy 开发 lua 插件过程遇到的坑" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/haproxy_lua_trouble/ data-title="haproxy 开发 lua 插件过程遇到的坑"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/haproxy_lua_trouble/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/haproxy_lua_trouble/ data-title="haproxy 开发 lua 插件过程遇到的坑"><i data-svg-src=/lib/simple-icons/icons/line.min.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/haproxy_lua_trouble/ data-title="haproxy 开发 lua 插件过程遇到的坑"><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/posts/haproxy_lua_trouble/ data-title="haproxy 开发 lua 插件过程遇到的坑" data-description><i data-svg-src=/lib/simple-icons/icons/myspace.min.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/haproxy_lua_trouble/ data-title="haproxy 开发 lua 插件过程遇到的坑" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/haproxy_lua_trouble/ data-title="haproxy 开发 lua 插件过程遇到的坑"><i data-svg-src=/lib/simple-icons/icons/baidu.min.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/haproxy_lua_trouble/ data-title="haproxy 开发 lua 插件过程遇到的坑"><i class="fab fa-evernote fa-fw"></i></a></span>
+</div>
+</div>
+</div>
+<div class=post-info-more>
+<section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/lua/>lua</a>,&nbsp;<a href=/tags/haproxy/>haproxy</a></section>
+<section>
+<span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span>
+</section>
+</div>
+<div class=post-nav><a href=/posts/apisix_plugins/ class=prev rel=prev title="apisix 开发自定义插件"><i class="fas fa-angle-left fa-fw"></i>apisix 开发自定义插件</a>
+<a href=/posts/redeis-server-introduction/ class=next rel=next title="[系列]Redis Server 实现·前言">[系列]Redis Server 实现·前言<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+<div id=comments><div id=disqus_thread class=comment></div><noscript>
+Please enable JavaScript to view the comments powered by <a href=https://disqus.com/?ref_noscript>Disqus</a>.
+</noscript></div></article></div>
+</main><footer class=footer>
+<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank</div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.89.4">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+</div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2021</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div>
+</div>
+</footer></div>
+<div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部>
+<i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title=查看评论>
+<i class="fas fa-comment fa-fw"></i>
+</a>
+</div><link rel=stylesheet href=/lib/katex/katex.min.css><link rel=stylesheet href=/lib/katex/copy-tex.min.css><link rel=stylesheet href=/lib/cookieconsent/cookieconsent.min.css><script type=text/javascript src=https://yusank.disqus.com/embed.js defer></script><script type=text/javascript src=/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=/lib/autocomplete/autocomplete.min.js></script><script type=text/javascript src=/lib/lunr/lunr.min.js></script><script type=text/javascript src=/lib/lunr/lunr.stemmer.support.min.js></script><script type=text/javascript src=/lib/lunr/lunr.zh.min.js></script><script type=text/javascript src=/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=/lib/sharer/sharer.min.js></script><script type=text/javascript src=/lib/katex/katex.min.js></script><script type=text/javascript src=/lib/katex/auto-render.min.js></script><script type=text/javascript src=/lib/katex/copy-tex.min.js></script><script type=text/javascript src=/lib/katex/mhchem.min.js></script><script type=text/javascript src=/lib/cookieconsent/cookieconsent.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{},cookieconsent:{content:{dismiss:"同意",link:"了解更多",message:"本网站使用 Cookies 来改善您的浏览体验."},enable:!0,palette:{button:{background:"#f0f0f0"},popup:{background:"#1aa3ff"}},theme:"edgeless"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},search:{highlightTag:"em",lunrIndexURL:"/index.json",lunrLanguageCode:"zh",lunrSegmentitURL:"/lib/lunr/lunr.segmentit.js",maxResultLength:10,noResultsFound:"没有找到结果",snippetLength:50,type:"lunr"}}</script><script type=text/javascript src=/js/theme.min.js></script></body>
+</html>

@@ -1,0 +1,767 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=robots content="noodp">
+<meta http-equiv=x-ua-compatible content="IE=edge, chrome=1">
+<title>nginx 中使用 lua 动态加载服务配置 - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="nginx 中使用 lua 动态加载服务配置">
+<meta property="og:description" content="本文简单介绍如何通过 lua 脚本和 ngx_shared_dict 在 nginx 中动态加载后端服务配置以及动态更新服务配置. nginx">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://yusank.github.io/posts/nginx-lua-plugins/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2021-09-17T12:22:33+08:00">
+<meta property="article:modified_time" content="2021-11-22T15:22:33+08:00">
+<meta name=twitter:card content="summary_large_image">
+<meta name=twitter:image content="https://yusank.github.io/logo.png">
+<meta name=twitter:title content="nginx 中使用 lua 动态加载服务配置">
+<meta name=twitter:description content="本文简单介绍如何通过 lua 脚本和 ngx_shared_dict 在 nginx 中动态加载后端服务配置以及动态更新服务配置. nginx">
+<meta name=application-name content="LoveIt">
+<meta name=apple-mobile-web-app-title content="LoveIt"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/nginx-lua-plugins/><link rel=prev href=https://yusank.github.io/posts/deploy-k8s-cluster/><link rel=next href=https://yusank.github.io/posts/apisix_plugins/><link rel=stylesheet href=/lib/normalize/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/lib/fontawesome-free/all.min.css><link rel=stylesheet href=/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"nginx 中使用 lua 动态加载服务配置","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/nginx-lua-plugins\/"},"genre":"posts","keywords":"nginx, lua","wordcount":1914,"url":"https:\/\/yusank.github.io\/posts\/nginx-lua-plugins\/","datePublished":"2021-09-17T12:22:33+08:00","dateModified":"2021-11-22T15:22:33+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head>
+<body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':'auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark')&&document.body.setAttribute('theme','dark')</script>
+<div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
+<div class=header-wrapper>
+<div class=header-title>
+<a href=/ title="Yusank`s Site">Yusank`s Site</a>
+</div>
+<div class=menu>
+<div class=menu-inner><a class=menu-item href=/posts/> 文章 </a><a class=menu-item href=/categories/> 分类 </a><a class=menu-item href=/tags/> 标签 </a><a class=menu-item href=/about/> 关于 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><span class="menu-item search" id=search-desktop>
+<input type=text placeholder=搜索文章标题或内容... id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=搜索>
+<i class="fas fa-search fa-fw"></i>
+</a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=清空>
+<i class="fas fa-times-circle fa-fw"></i>
+</a>
+<span class="search-button search-loading" id=search-loading-desktop>
+<i class="fas fa-spinner fa-fw fa-spin"></i>
+</span>
+</span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i>
+</a>
+</div>
+</div>
+</div>
+</header><header class=mobile id=header-mobile>
+<div class=header-container>
+<div class=header-wrapper>
+<div class=header-title>
+<a href=/ title="Yusank`s Site">Yusank`s Site</a>
+</div>
+<div class=menu-toggle id=menu-toggle-mobile>
+<span></span><span></span><span></span>
+</div>
+</div>
+<div class=menu id=menu-mobile><div class=search-wrapper>
+<div class="search mobile" id=search-mobile>
+<input type=text placeholder=搜索文章标题或内容... id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=搜索>
+<i class="fas fa-search fa-fw"></i>
+</a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=清空>
+<i class="fas fa-times-circle fa-fw"></i>
+</a>
+<span class="search-button search-loading" id=search-loading-mobile>
+<i class="fas fa-spinner fa-fw fa-spin"></i>
+</span>
+</div>
+<a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>
+取消
+</a>
+</div><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i>
+</a></div>
+</div>
+</header>
+<div class="search-dropdown desktop">
+<div id=search-dropdown-desktop></div>
+</div>
+<div class="search-dropdown mobile">
+<div id=search-dropdown-mobile></div>
+</div>
+<main class=main>
+<div class=container><div class=toc id=toc-auto>
+<h2 class=toc-title>目录</h2>
+<div class="toc-content always-active" id=toc-content-auto></div>
+</div><article class="page single"><h1 class="single-title animated flipInX">nginx 中使用 lua 动态加载服务配置</h1><div class=post-meta>
+<div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/%E7%BD%91%E5%85%B3/><i class="far fa-folder fa-fw"></i>网关</a></span></div>
+<div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2021-09-17>2021-09-17</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 1914 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 4 分钟&nbsp;</div>
+</div><div class="details toc" id=toc-static kept>
+<div class="details-summary toc-title">
+<span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span>
+</div>
+<div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
+<ol>
+<li><a href=#nginx>nginx</a>
+<ol>
+<li><a href=#加载-lua-脚本>加载 lua 脚本</a></li>
+<li><a href=#执行-lua-脚本>执行 lua 脚本</a></li>
+<li><a href=#完整配置>完整配置</a></li>
+</ol>
+</li>
+<li><a href=#lua>lua</a>
+<ol>
+<li><a href=#定义变量>定义变量</a></li>
+<li><a href=#动态更新服务列表>动态更新服务列表</a></li>
+<li><a href=#动态读取后端服务>动态读取后端服务</a></li>
+</ol>
+</li>
+<li><a href=#结论>结论</a></li>
+</ol>
+</nav></div>
+</div><div class=content id=content><blockquote>
+<p>本文简单介绍如何通过 lua 脚本和 ngx_shared_dict 在 nginx 中动态加载后端服务配置以及动态更新服务配置.</p>
+</blockquote>
+<h2 id=nginx>nginx</h2>
+<h3 id=加载-lua-脚本>加载 lua 脚本</h3>
+<p>在 Nginx 中需要引入和加载 lua 脚本，从而在路由转发时运行 lua 脚本进行我们的逻辑。初始化代码如下：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-vim data-lang=vim><span class=nx>http</span> {<span class=err>
+</span><span class=err></span>    <span class=nx>lua_shared_dict</span> <span class=nx>endpoints_data</span> <span class=m>5</span>m; #<span class=nx>定义upstream共享内存空间</span><span class=err>
+</span><span class=err></span>    <span class=nx>lua_shared_dict</span> <span class=nx>cache</span> <span class=m>1</span>m; #<span class=nx>定义计数共享空间</span><span class=err>
+</span><span class=err></span>    <span class=nx>access_log</span>  <span class=nx>nginx_access</span>.<span class=nx>log</span>;<span class=err>
+</span><span class=err>
+</span><span class=err></span>    <span class=nx>lua_package_path</span> <span class=s2>&#34;/etc/nginx/lua/?.lua;;&#34;</span>;<span class=err>
+</span><span class=err></span>    <span class=nx>init_by_lua_block</span> {<span class=err>
+</span><span class=err></span>        <span class=nx>collectgarbage</span><span class=p>(</span><span class=s2>&#34;collect&#34;</span><span class=p>)</span><span class=err>
+</span><span class=err></span>        <span class=nx>local</span> <span class=nx>ok</span><span class=p>,</span> <span class=nx>res</span><span class=err>
+</span><span class=err>
+</span><span class=err></span>        # <span class=nx>加载脚本</span> <span class=nx>configuration</span>.<span class=nx>lua</span><span class=err>
+</span><span class=err></span>        <span class=nx>ok</span><span class=p>,</span> <span class=nx>res</span> <span class=p>=</span> <span class=nx>pcall</span><span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=s2>&#34;configuration&#34;</span><span class=p>)</span><span class=err>
+</span><span class=err></span>        <span class=k>if</span> <span class=nx>not</span> <span class=nx>ok</span> <span class=nx>then</span><span class=err>
+</span><span class=err></span>          <span class=nx>error</span><span class=p>(</span><span class=s2>&#34;require failed: &#34;</span> .. <span class=nx>tostring</span><span class=p>(</span><span class=nx>res</span><span class=p>))</span><span class=err>
+</span><span class=err></span>        <span class=k>else</span><span class=err>
+</span><span class=err></span>          <span class=nx>configuration</span> <span class=p>=</span> <span class=nx>res</span><span class=err>
+</span><span class=err></span>        <span class=nx>end</span><span class=err>
+</span><span class=err></span>    }<span class=err>
+</span><span class=err></span>    # <span class=nx>执行脚本内初始化方法</span>，<span class=nx>这里为可选项</span>，<span class=nx>如果没有可初始化的代码部分</span> <span class=nx>这里可以不要</span><span class=err>
+</span><span class=err></span>    <span class=nx>init_worker_by_lua_block</span> {<span class=err>
+</span><span class=err></span>        <span class=nx>configuration</span>.<span class=nx>prepare</span><span class=p>()</span><span class=err>
+</span><span class=err></span>    }<span class=err>
+</span><span class=err></span>}<span class=err>
+</span></code></pre></td></tr></table>
+</div>
+</div><h3 id=执行-lua-脚本>执行 lua 脚本</h3>
+<p>如何在 Nginx 配置中执行 lua 脚本，从而实现一些特殊逻辑？这里给出一个简单的示例:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-vim data-lang=vim><span class=nx>server</span> {<span class=err>
+</span><span class=err></span>        # <span class=nx>执行最简单的</span> <span class=nx>lua</span> <span class=nx>脚本</span><span class=err>
+</span><span class=err></span>        <span class=nx>location</span> /<span class=nx>hello</span> {<span class=err>
+</span><span class=err></span>            <span class=nx>default_type</span> <span class=s1>&#39;text/plain&#39;</span>; <span class=err>
+</span><span class=err></span>            <span class=nx>content_by_lua</span> <span class=s1>&#39;ngx.say(&#34;hello, lua&#34;)&#39;</span>; <span class=err>
+</span><span class=err></span>        }<span class=err>
+</span><span class=err></span>        # <span class=nx>配置接口</span><span class=err>
+</span><span class=err></span>        # <span class=nx>这里是执行加载的</span> <span class=nx>lua</span> <span class=nx>脚本中方法</span><span class=err>
+</span><span class=err></span>        <span class=nx>location</span> /<span class=nx>configuration</span> {<span class=err>
+</span><span class=err></span>            <span class=nx>client_max_body_size</span>                    <span class=m>5</span>m;<span class=err>
+</span><span class=err></span>            <span class=nx>client_body_buffer_size</span>                 <span class=m>1</span>m;<span class=err>
+</span><span class=err></span>            <span class=nx>proxy_buffering</span>                         <span class=nx>off</span>;<span class=err>
+</span><span class=err>
+</span><span class=err></span>            <span class=nx>content_by_lua_block</span> {<span class=err>
+</span><span class=err></span>              <span class=nx>configuration</span>.<span class=nx>call</span><span class=p>()</span> # <span class=nx>调用</span> <span class=nx>call</span><span class=p>()</span> <span class=nx>方法</span><span class=err>
+</span><span class=err></span>            }<span class=err>
+</span><span class=err></span>        }<span class=err>
+</span><span class=err></span>        # <span class=nx>执行较为复杂的</span> <span class=nx>lua</span> <span class=nx>逻辑</span><span class=err>
+</span><span class=err></span>        <span class=nx>location</span> /<span class=nx>lua</span> {<span class=err>
+</span><span class=err></span>            <span class=nx>default_type</span> <span class=s1>&#39;text/plain&#39;</span>; <span class=err>
+</span><span class=err></span>            # <span class=nx>读取请求中的</span> <span class=nx>path</span> <span class=nx>参数</span> <span class=nx>并从共享</span> <span class=nx>dict</span> <span class=nx>中查询这个值</span>，<span class=err>
+</span><span class=err></span>            # <span class=nx>返回查询到的结果</span><span class=err>
+</span><span class=err></span>            <span class=nx>content_by_lua</span> &#39;<span class=err>
+</span><span class=err></span>                <span class=nx>local</span> <span class=nx>path</span> <span class=p>=</span> <span class=nx>ngx</span>.<span class=nx>req</span>.<span class=nx>get_uri_args</span><span class=p>()</span>[<span class=s2>&#34;path&#34;</span>]<span class=err>
+</span><span class=err></span>                <span class=k>if</span> <span class=nx>path</span> <span class=p>==</span> <span class=nx>nil</span> <span class=nx>then</span><span class=err>
+</span><span class=err></span>                    <span class=nx>ngx</span>.<span class=nx>say</span><span class=p>(</span><span class=s2>&#34;path not found&#34;</span><span class=p>)</span><span class=err>
+</span><span class=err></span>                    <span class=nx>return</span><span class=err>
+</span><span class=err></span>                <span class=nx>end</span><span class=err>
+</span><span class=err></span>                <span class=nx>local</span> <span class=nx>data</span> <span class=p>=</span> <span class=nx>ngx</span>.<span class=nx>shared</span>.<span class=nx>endpoints_data</span>:<span class=nx>get</span><span class=p>(</span><span class=s2>&#34;/&#34;</span>..<span class=nx>path</span><span class=p>)</span><span class=err>
+</span><span class=err></span>                <span class=k>if</span> <span class=nx>not</span> <span class=nx>data</span> <span class=nx>then</span><span class=err>
+</span><span class=err></span>                    <span class=nx>ngx</span>.<span class=nx>say</span><span class=p>(</span><span class=s2>&#34;unkonw path&#34;</span><span class=p>)</span><span class=err>
+</span><span class=err></span>                    <span class=nx>return</span><span class=err>
+</span><span class=err></span>                <span class=nx>end</span><span class=err>
+</span><span class=err></span>                <span class=nx>ngx</span>.<span class=nx>say</span><span class=p>(</span><span class=s2>&#34;paths: &#34;</span>..<span class=nx>data</span><span class=p>)</span><span class=err>
+</span><span class=err></span>            &#39;;<span class=err>
+</span><span class=err></span>        }<span class=err>
+</span><span class=err></span>}<span class=err>
+</span></code></pre></td></tr></table>
+</div>
+</div><p><code>lua</code> 的语法相对简单好上手，实现一些简单的逻辑也很方便，非常值得学习。</p>
+<h3 id=完整配置>完整配置</h3>
+<p>先给出 Nginx 的完整配置，里面包括动态配置后端服务列表和动态加载服务转发的逻辑，然后再给出 lua 部分详细实现的代码。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span><span class=lnt>93
+</span><span class=lnt>94
+</span><span class=lnt>95
+</span><span class=lnt>96
+</span><span class=lnt>97
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-vim data-lang=vim><span class=nx>user</span>  <span class=nx>nginx</span>;<span class=err>
+</span><span class=err></span><span class=nx>worker_processes</span>  <span class=m>1</span>;<span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=nx>pid</span>        <span class=sr>/var/</span><span class=nx>run</span>/<span class=nx>nginx</span>.<span class=nx>pid</span>;<span class=err>
+</span><span class=err></span><span class=nx>error_log</span>  <span class=nx>nginx_error</span>.<span class=nx>log</span>;<span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=nx>events</span> {<span class=err>
+</span><span class=err></span>    <span class=nx>worker_connections</span>  <span class=m>1024</span>;<span class=err>
+</span><span class=err></span>}<span class=err>
+</span><span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=nx>http</span> {<span class=err>
+</span><span class=err></span>    <span class=nx>lua_shared_dict</span> <span class=nx>endpoints_data</span> <span class=m>5</span>m; #<span class=nx>定义upstream共享内存空间</span><span class=err>
+</span><span class=err></span>    <span class=nx>lua_shared_dict</span> <span class=nx>cache</span> <span class=m>1</span>m; #<span class=nx>定义计数共享空间</span><span class=err>
+</span><span class=err></span>    <span class=nx>access_log</span>  <span class=nx>nginx_access</span>.<span class=nx>log</span>;<span class=err>
+</span><span class=err>
+</span><span class=err></span>    <span class=nx>lua_package_path</span> <span class=s2>&#34;/etc/nginx/lua/?.lua;;&#34;</span>;<span class=err>
+</span><span class=err></span>    <span class=nx>init_by_lua_block</span> {<span class=err>
+</span><span class=err></span>        <span class=nx>collectgarbage</span><span class=p>(</span><span class=s2>&#34;collect&#34;</span><span class=p>)</span><span class=err>
+</span><span class=err></span>        <span class=nx>local</span> <span class=nx>ok</span><span class=p>,</span> <span class=nx>res</span><span class=err>
+</span><span class=err>
+</span><span class=err></span>        <span class=nx>ok</span><span class=p>,</span> <span class=nx>res</span> <span class=p>=</span> <span class=nx>pcall</span><span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=s2>&#34;configuration&#34;</span><span class=p>)</span><span class=err>
+</span><span class=err></span>        <span class=k>if</span> <span class=nx>not</span> <span class=nx>ok</span> <span class=nx>then</span><span class=err>
+</span><span class=err></span>          <span class=nx>error</span><span class=p>(</span><span class=s2>&#34;require failed: &#34;</span> .. <span class=nx>tostring</span><span class=p>(</span><span class=nx>res</span><span class=p>))</span><span class=err>
+</span><span class=err></span>        <span class=k>else</span><span class=err>
+</span><span class=err></span>          <span class=nx>configuration</span> <span class=p>=</span> <span class=nx>res</span><span class=err>
+</span><span class=err></span>        <span class=nx>end</span><span class=err>
+</span><span class=err></span>    }<span class=err>
+</span><span class=err></span>    # <span class=nx>执行脚本内初始化方法</span>，<span class=nx>这里为可选项</span>，<span class=nx>如果没有可初始化的代码部分</span> <span class=nx>这里可以不要</span><span class=err>
+</span><span class=err></span>    <span class=nx>init_worker_by_lua_block</span> {<span class=err>
+</span><span class=err></span>        <span class=nx>configuration</span>.<span class=nx>prepare</span><span class=p>()</span><span class=err>
+</span><span class=err></span>    }<span class=err>
+</span><span class=err></span>    <span class=nx>include</span>       <span class=sr>/etc/</span><span class=nx>nginx</span>/<span class=nx>mime</span>.<span class=nx>types</span>;<span class=err>
+</span><span class=err></span>    <span class=nx>default_type</span>  <span class=nx>application</span>/<span class=nx>octet</span><span class=p>-</span><span class=nx>stream</span>;<span class=err>
+</span><span class=err>
+</span><span class=err></span>    <span class=nx>sendfile</span>        <span class=nx>on</span>;<span class=err>
+</span><span class=err></span>    #<span class=nx>tcp_nopush</span>     <span class=nx>on</span>;<span class=err>
+</span><span class=err>
+</span><span class=err></span>    <span class=nx>keepalive_timeout</span>  <span class=m>65</span>;<span class=err>
+</span><span class=err>
+</span><span class=err></span>    #<span class=nx>gzip</span>  <span class=nx>on</span>;<span class=err>
+</span><span class=err></span>    <span class=nx>server</span> {<span class=err>
+</span><span class=err></span>        # <span class=nx>执行最简单的</span> <span class=nx>lua</span> <span class=nx>脚本</span><span class=err>
+</span><span class=err></span>        <span class=nx>location</span> /<span class=nx>hello</span> {<span class=err>
+</span><span class=err></span>            <span class=nx>default_type</span> <span class=s1>&#39;text/plain&#39;</span>; <span class=err>
+</span><span class=err></span>            <span class=nx>content_by_lua</span> <span class=s1>&#39;ngx.say(&#34;hello, lua&#34;)&#39;</span>; <span class=err>
+</span><span class=err></span>        }<span class=err>
+</span><span class=err></span>        # <span class=nx>配置接口</span><span class=err>
+</span><span class=err></span>        # <span class=nx>这里是执行加载的</span> <span class=nx>lua</span> <span class=nx>脚本中方法</span><span class=err>
+</span><span class=err></span>        <span class=nx>location</span> /<span class=nx>configuration</span> {<span class=err>
+</span><span class=err></span>            <span class=nx>client_max_body_size</span>                    <span class=m>5</span>m;<span class=err>
+</span><span class=err></span>            <span class=nx>client_body_buffer_size</span>                 <span class=m>1</span>m;<span class=err>
+</span><span class=err></span>            <span class=nx>proxy_buffering</span>                         <span class=nx>off</span>;<span class=err>
+</span><span class=err>
+</span><span class=err></span>            <span class=nx>content_by_lua_block</span> {<span class=err>
+</span><span class=err></span>              <span class=nx>configuration</span>.<span class=nx>call</span><span class=p>()</span> # <span class=nx>调用</span> <span class=nx>call</span><span class=p>()</span> <span class=nx>方法</span><span class=err>
+</span><span class=err></span>            }<span class=err>
+</span><span class=err></span>        }<span class=err>
+</span><span class=err></span>        # <span class=nx>执行较为复杂的</span> <span class=nx>lua</span> <span class=nx>逻辑</span><span class=err>
+</span><span class=err></span>        <span class=nx>location</span> /<span class=nx>lua</span> {<span class=err>
+</span><span class=err></span>            <span class=nx>default_type</span> <span class=s1>&#39;text/plain&#39;</span>; <span class=err>
+</span><span class=err></span>            # <span class=nx>读取请求中的</span> <span class=nx>path</span> <span class=nx>参数</span> <span class=nx>并从共享</span> <span class=nx>dict</span> <span class=nx>中查询这个值</span>，<span class=err>
+</span><span class=err></span>            # <span class=nx>返回查询到的结果</span><span class=err>
+</span><span class=err></span>            <span class=nx>content_by_lua</span> &#39;<span class=err>
+</span><span class=err></span>                <span class=nx>local</span> <span class=nx>path</span> <span class=p>=</span> <span class=nx>ngx</span>.<span class=nx>req</span>.<span class=nx>get_uri_args</span><span class=p>()</span>[<span class=s2>&#34;path&#34;</span>]<span class=err>
+</span><span class=err></span>                <span class=k>if</span> <span class=nx>path</span> <span class=p>==</span> <span class=nx>nil</span> <span class=nx>then</span><span class=err>
+</span><span class=err></span>                    <span class=nx>ngx</span>.<span class=nx>say</span><span class=p>(</span><span class=s2>&#34;path not found&#34;</span><span class=p>)</span><span class=err>
+</span><span class=err></span>                    <span class=nx>return</span><span class=err>
+</span><span class=err></span>                <span class=nx>end</span><span class=err>
+</span><span class=err></span>                <span class=nx>local</span> <span class=nx>data</span> <span class=p>=</span> <span class=nx>ngx</span>.<span class=nx>shared</span>.<span class=nx>endpoints_data</span>:<span class=nx>get</span><span class=p>(</span><span class=s2>&#34;/&#34;</span>..<span class=nx>path</span><span class=p>)</span><span class=err>
+</span><span class=err></span>                <span class=k>if</span> <span class=nx>not</span> <span class=nx>data</span> <span class=nx>then</span><span class=err>
+</span><span class=err></span>                    <span class=nx>ngx</span>.<span class=nx>say</span><span class=p>(</span><span class=s2>&#34;unkonw path&#34;</span><span class=p>)</span><span class=err>
+</span><span class=err></span>                    <span class=nx>return</span><span class=err>
+</span><span class=err></span>                <span class=nx>end</span><span class=err>
+</span><span class=err></span>                <span class=nx>ngx</span>.<span class=nx>say</span><span class=p>(</span><span class=s2>&#34;paths: &#34;</span>..<span class=nx>data</span><span class=p>)</span><span class=err>
+</span><span class=err></span>            &#39;;<span class=err>
+</span><span class=err></span>        }<span class=err>
+</span><span class=err>
+</span><span class=err></span>        # <span class=nx>other</span> <span class=nx>path</span><span class=err>
+</span><span class=err></span>        <span class=nx>location</span> / {<span class=err>
+</span><span class=err></span>            <span class=nx>set</span> $<span class=nx>load_ups</span> <span class=s2>&#34;&#34;</span>;<span class=err>
+</span><span class=err></span>            # <span class=nx>动态设置当前</span> <span class=nx>upstream</span><span class=p>,</span> <span class=nx>未找到返回404</span><span class=err>
+</span><span class=err></span>            <span class=nx>rewrite_by_lua</span> &#39;<span class=err>
+</span><span class=err></span>                <span class=nx>local</span> <span class=nx>ups</span> <span class=p>=</span> <span class=nx>configuration</span>.<span class=nx>getEndpoints</span><span class=p>()</span><span class=err>
+</span><span class=err></span>                <span class=k>if</span> <span class=nx>ups</span> <span class=p>~=</span> <span class=nx>nil</span> <span class=nx>then</span><span class=err>
+</span><span class=err></span>                    <span class=nx>ngx</span>.<span class=nx>log</span><span class=p>(</span><span class=nx>ngx</span>.<span class=nx>ERR</span><span class=p>,</span><span class=s2>&#34;got upstream&#34;</span><span class=p>,</span> <span class=nx>ups</span><span class=p>)</span><span class=err>
+</span><span class=err></span>                    <span class=nx>ngx</span>.<span class=nx>var</span>.<span class=nx>load_ups</span> <span class=p>=</span> <span class=nx>ups</span><span class=err>
+</span><span class=err></span>                    <span class=nx>return</span><span class=err>
+</span><span class=err></span>                <span class=nx>end</span><span class=err>
+</span><span class=err></span>                <span class=nx>ngx</span>.<span class=nx>status</span> <span class=p>=</span> <span class=nx>ngx</span>.<span class=nx>HTTP_NOT_FOUND</span><span class=err>
+</span><span class=err></span>                <span class=nx>ngx</span>.<span class=nx>exit</span><span class=p>(</span><span class=nx>ngx</span>.<span class=nx>status</span><span class=p>)</span><span class=err>
+</span><span class=err></span>            &#39;;<span class=err>
+</span><span class=err></span>            <span class=nx>proxy_pass</span> <span class=nx>http</span>:<span class=sr>//</span>$<span class=nx>load_ups</span>$<span class=nx>uri</span>;<span class=err>
+</span><span class=err></span>            <span class=nx>add_header</span>  <span class=nx>X</span><span class=p>-</span><span class=nx>Upstream</span>  $<span class=nx>upstream_addr</span> <span class=nx>always</span>; # <span class=nx>添加</span> <span class=nx>backend</span> <span class=nx>ip</span><span class=err>
+</span><span class=err></span>        }<span class=err>
+</span><span class=err></span>    }<span class=err>
+</span><span class=err></span>}<span class=err>
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id=lua>lua</h2>
+<h3 id=定义变量>定义变量</h3>
+<p>因为需要用到 shared_dict 特性，在 lua 和 Nginx 之间公用内存块 从而实现数据的同步共享，所以需要预定义一些变量。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-lua data-lang=lua><span class=c1>-- 引入变量</span>
+<span class=kd>local</span> <span class=n>io</span> <span class=o>=</span> <span class=n>io</span>
+<span class=kd>local</span> <span class=n>ngx</span> <span class=o>=</span> <span class=n>ngx</span>
+<span class=kd>local</span> <span class=n>table</span> <span class=o>=</span> <span class=n>table</span>
+<span class=c1>-- 当前包的对象，类似 go 语言的定义结构体 让给这个结构体实现方法</span>
+<span class=kd>local</span> <span class=n>_M</span> <span class=o>=</span> <span class=p>{}</span>
+<span class=c1>-- 与 Nginx 共享的空间 可读写</span>
+<span class=kd>local</span> <span class=n>Endpoints</span> <span class=o>=</span> <span class=n>ngx.shared</span><span class=p>.</span><span class=n>endpoints_data</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=动态更新服务列表>动态更新服务列表</h3>
+<p>服务列表是通过被调接口实现，即有别的服务区监听服务节点(endpoint)的变化,然后调用<code>/configuration/backends</code> 接口，被 Nginx 配置的 <code>/configuration</code> 规则命中后调用 <code>configuration.call()</code> 方法，我们看一下这个 <code>call</code> 方法的实现。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-lua data-lang=lua><span class=c1>-- call called by ngx</span>
+<span class=kr>function</span> <span class=nc>_M</span><span class=p>.</span><span class=nf>call</span><span class=p>()</span>
+    <span class=c1>-- 只处理 GET 和 POST</span>
+    <span class=kr>if</span> <span class=n>ngx.var</span><span class=p>.</span><span class=n>request_method</span> <span class=o>~=</span> <span class=s2>&#34;POST&#34;</span> <span class=ow>and</span> <span class=n>ngx.var</span><span class=p>.</span><span class=n>request_method</span> <span class=o>~=</span> <span class=s2>&#34;GET&#34;</span> <span class=kr>then</span>
+        <span class=n>ngx.status</span> <span class=o>=</span> <span class=n>ngx.HTTP_BAD_REQUEST</span>
+        <span class=n>ngx.print</span><span class=p>(</span><span class=s2>&#34;Only POST and GET requests are allowed!&#34;</span><span class=p>)</span>
+        <span class=kr>return</span>
+      <span class=kr>end</span>
+    <span class=c1>-- 目前只处理后端服务的配置 所以判断路由</span>
+    <span class=kr>if</span> <span class=n>ngx.var</span><span class=p>.</span><span class=n>request_uri</span> <span class=o>==</span> <span class=s2>&#34;/configuration/backends&#34;</span> <span class=kr>then</span>
+        <span class=c1>-- 调用内部方法</span>
+        <span class=n>handle_backends</span><span class=p>()</span>
+        <span class=kr>return</span>
+    <span class=kr>end</span>
+    <span class=c1>-- 非法请求 返回 404</span>
+    <span class=n>ngx.status</span> <span class=o>=</span> <span class=n>ngx.HTTP_NOT_FOUND</span>
+    <span class=n>ngx.print</span><span class=p>(</span><span class=s2>&#34;Not found!&#34;</span><span class=p>)</span>
+<span class=kr>end</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>多说一句，调用 <code>/configuration/backends</code> 时传参是在请求 body 里，格式为 <code>json</code> 所以需要引入第三方的 json 解析包。<code>handle_backends</code> 方法的实现：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-lua data-lang=lua><span class=c1>-- handle_backends .</span>
+<span class=kd>local</span> <span class=kr>function</span> <span class=nf>handle_backends</span><span class=p>()</span>
+    <span class=kr>if</span> <span class=n>ngx.var</span><span class=p>.</span><span class=n>request_method</span> <span class=o>==</span> <span class=s2>&#34;GET&#34;</span> <span class=kr>then</span>
+        <span class=n>ngx.status</span> <span class=o>=</span> <span class=n>ngx.HTTP_OK</span>
+        <span class=c1>-- 返回查询的服务列表</span>
+        <span class=kd>local</span> <span class=n>path</span> <span class=o>=</span> <span class=n>ngx.req</span><span class=p>.</span><span class=n>get_uri_args</span><span class=p>()[</span><span class=s2>&#34;path&#34;</span><span class=p>]</span>
+        <span class=n>ngx.print</span><span class=p>(</span><span class=n>Endpoints</span><span class=p>:</span><span class=n>get</span><span class=p>(</span><span class=s2>&#34;path&#34;</span><span class=p>))</span>
+        <span class=kr>return</span>
+    <span class=kr>end</span>
+
+    <span class=c1>-- 读取请求 body</span>
+    <span class=kd>local</span> <span class=n>obj</span> <span class=o>=</span> <span class=n>fetch_request_body</span><span class=p>()</span>
+    <span class=kr>if</span> <span class=ow>not</span> <span class=n>obj</span> <span class=kr>then</span>
+        <span class=n>ngx.log</span><span class=p>(</span><span class=n>ngx.ERR</span><span class=p>,</span> <span class=s2>&#34;dynamic-configuration: unable to read valid request body&#34;</span><span class=p>)</span>
+        <span class=n>ngx.status</span> <span class=o>=</span> <span class=n>ngx.HTTP_BAD_REQUEST</span>
+        <span class=kr>return</span>
+    <span class=kr>end</span>
+
+    <span class=c1>-- 通过 第三方包 json 解析 body到 lua table</span>
+    <span class=kd>local</span> <span class=n>rule</span><span class=p>,</span> <span class=n>err</span> <span class=o>=</span> <span class=n>json.decode</span><span class=p>(</span><span class=n>obj</span><span class=p>)</span>
+    <span class=kr>if</span> <span class=ow>not</span> <span class=n>rule</span> <span class=kr>then</span>
+        <span class=n>ngx.log</span><span class=p>(</span><span class=n>ngx.ERR</span><span class=p>,</span> <span class=s2>&#34;could not parse backends data: &#34;</span><span class=p>,</span> <span class=n>err</span><span class=p>)</span>
+        <span class=kr>return</span>
+    <span class=kr>end</span>
+
+    <span class=n>ngx.log</span><span class=p>(</span><span class=n>ngx.ERR</span><span class=p>,</span> <span class=s2>&#34;decoed rule&#34;</span><span class=p>,</span> <span class=n>obj</span><span class=p>)</span>
+
+    <span class=c1>-- 清空共享空间</span>
+    <span class=n>Endpoints</span><span class=p>:</span><span class=n>flush_all</span><span class=p>()</span>
+    <span class=c1>-- 遍历并写入</span>
+    <span class=kr>for</span> <span class=n>_</span><span class=p>,</span> <span class=n>new_rule</span> <span class=kr>in</span> <span class=n>ipairs</span><span class=p>(</span><span class=n>rule.rules</span><span class=p>)</span> <span class=kr>do</span>
+        <span class=c1>-- 更新</span>
+        <span class=c1>-- 将数组合并</span>
+        <span class=kd>local</span> <span class=n>succ</span><span class=p>,</span> <span class=n>err1</span><span class=p>,</span> <span class=n>forcible</span> <span class=o>=</span> <span class=n>Endpoints</span><span class=p>:</span><span class=n>set</span><span class=p>(</span><span class=n>new_rule.path</span><span class=p>,</span> <span class=n>table.concat</span><span class=p>(</span><span class=n>new_rule.upstreams</span><span class=p>,</span> <span class=s2>&#34;,&#34;</span><span class=p>))</span>
+        <span class=n>ngx.log</span><span class=p>(</span><span class=n>ngx.ERR</span><span class=p>,</span> <span class=s2>&#34;set result&#34;</span><span class=p>,</span> <span class=n>succ</span><span class=p>,</span> <span class=n>err1</span><span class=p>,</span><span class=n>forcible</span><span class=p>)</span>
+    <span class=kr>end</span>
+
+    <span class=n>ngx.status</span> <span class=o>=</span> <span class=n>ngx.HTTP_CREATED</span>
+    <span class=n>ngx.say</span><span class=p>(</span><span class=s2>&#34;ok&#34;</span><span class=p>)</span>
+<span class=kr>end</span>
+
+<span class=c1>-- 读取请求 body 部分</span>
+<span class=kd>local</span> <span class=kr>function</span> <span class=nf>fetch_request_body</span><span class=p>()</span>
+    <span class=n>ngx.req</span><span class=p>.</span><span class=n>read_body</span><span class=p>()</span>
+    <span class=kd>local</span> <span class=n>body</span> <span class=o>=</span> <span class=n>ngx.req</span><span class=p>.</span><span class=n>get_body_data</span><span class=p>()</span>
+  
+    <span class=kr>if</span> <span class=ow>not</span> <span class=n>body</span> <span class=kr>then</span>
+      <span class=c1>-- request body might&#39;ve been written to tmp file if body &gt; client_body_buffer_size</span>
+        <span class=kd>local</span> <span class=n>file_name</span> <span class=o>=</span> <span class=n>ngx.req</span><span class=p>.</span><span class=n>get_body_file</span><span class=p>()</span>
+        <span class=kd>local</span> <span class=n>file</span> <span class=o>=</span> <span class=n>io.open</span><span class=p>(</span><span class=n>file_name</span><span class=p>,</span> <span class=s2>&#34;rb&#34;</span><span class=p>)</span>
+    
+        <span class=kr>if</span> <span class=ow>not</span> <span class=n>file</span> <span class=kr>then</span>
+            <span class=kr>return</span> <span class=kc>nil</span>
+        <span class=kr>end</span>
+    
+        <span class=n>body</span> <span class=o>=</span> <span class=n>file</span><span class=p>:</span><span class=n>read</span><span class=p>(</span><span class=s2>&#34;*all&#34;</span><span class=p>)</span>
+        <span class=n>file</span><span class=p>:</span><span class=n>close</span><span class=p>()</span>
+    <span class=kr>end</span>
+  
+    <span class=kr>return</span> <span class=n>body</span>
+<span class=kr>end</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>请求 body 的 json 结构如下：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kd>type</span> <span class=nx>NginxRuleConf</span> <span class=kd>struct</span> <span class=p>{</span>
+	<span class=nx>Rules</span> <span class=p>[]</span><span class=kd>struct</span><span class=p>{</span>
+        <span class=nx>Path</span>        <span class=kt>string</span>   <span class=s>`json:&#34;path&#34;`</span>
+	    <span class=nx>ServiceName</span> <span class=kt>string</span>   <span class=s>`json:&#34;serviceName&#34;`</span>
+	    <span class=nx>Port</span>        <span class=kt>int32</span>    <span class=s>`json:&#34;-&#34;`</span>
+	    <span class=nx>Upstreams</span>   <span class=p>[]</span><span class=kt>string</span> <span class=s>`json:&#34;upstreams&#34;`</span>
+    <span class=p>}</span> <span class=s>`json:&#34;rules&#34;`</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=动态读取后端服务>动态读取后端服务</h3>
+<p>上面已经通过接口的方式动态更新服务节点列表并写入到共享空间 <code>endpoints_data</code> 内，我们现在实现读取服务列表并选择其中一个节点进行接口转发。</p>
+<p>代码如下：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-lua data-lang=lua><span class=c1>-- 轮顺的方式取节点</span>
+<span class=kr>function</span> <span class=nc>_M</span><span class=p>.</span><span class=nf>getEndpoints</span><span class=p>()</span> 
+    <span class=kd>local</span> <span class=n>cache</span> <span class=o>=</span> <span class=n>ngx.shared</span><span class=p>.</span><span class=n>cache</span>
+    <span class=kd>local</span> <span class=n>path</span> <span class=o>=</span> <span class=n>ngx.var</span><span class=p>.</span><span class=n>request_uri</span>
+    <span class=kd>local</span> <span class=n>eps</span> <span class=o>=</span>  <span class=n>Endpoints</span><span class=p>:</span><span class=n>get</span><span class=p>(</span><span class=n>path</span><span class=p>)</span>
+    <span class=kr>if</span> <span class=ow>not</span> <span class=n>eps</span> <span class=kr>then</span>
+        <span class=kr>return</span> <span class=kc>nil</span>
+    <span class=kr>end</span>
+
+    <span class=kd>local</span> <span class=n>tab</span> <span class=o>=</span> <span class=n>split</span><span class=p>(</span><span class=n>eps</span><span class=p>,</span><span class=s2>&#34;,&#34;</span><span class=p>)</span>
+    <span class=kd>local</span> <span class=n>index</span> <span class=o>=</span> <span class=n>cache</span><span class=p>:</span><span class=n>get</span><span class=p>(</span><span class=n>path</span><span class=p>)</span>
+    <span class=kr>if</span> <span class=n>index</span> <span class=o>==</span>  <span class=kc>nil</span> <span class=ow>or</span> <span class=n>index</span> <span class=o>&gt;</span> <span class=o>#</span><span class=n>tab</span> <span class=kr>then</span>
+        <span class=n>index</span> <span class=o>=</span> <span class=mi>1</span>
+    <span class=kr>end</span>
+    <span class=c1>-- 加一</span>
+    <span class=n>cache</span><span class=p>:</span><span class=n>set</span><span class=p>(</span><span class=n>path</span><span class=p>,</span><span class=n>index</span><span class=o>+</span><span class=mi>1</span><span class=p>)</span>
+    <span class=kr>return</span> <span class=n>tab</span><span class=p>[</span><span class=n>index</span><span class=p>]</span>
+<span class=kr>end</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=结论>结论</h2>
+<p>至此实现的效果是，可以动态配置多个后端服务和后端服务节点列表，外部服务请求 Nginx 时，会尝试从已有的服务中匹配转发，如果服务有多个节点则轮顺的方法去转发。如有服务信息发生变化，则通过调用 Nginx 中配置的 <code>configuration</code> 接口更新即可，无需修改 Nginx 配置。</p>
+</div><div class=post-footer id=post-footer>
+<div class=post-info>
+<div class=post-info-line>
+<div class=post-info-mod>
+<span>更新于 2021-11-22</span>
+</div>
+<div class=post-info-license></div>
+</div>
+<div class=post-info-line>
+<div class=post-info-md><span>
+<a class=link-to-markdown href=/posts/nginx-lua-plugins/index.md target=_blank>阅读原始文档</a>
+</span></div>
+<div class=post-info-share>
+<span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/nginx-lua-plugins/ data-title="nginx 中使用 lua 动态加载服务配置" data-hashtags=nginx,lua><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/nginx-lua-plugins/ data-hashtag=nginx><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/nginx-lua-plugins/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/nginx-lua-plugins/ data-title="nginx 中使用 lua 动态加载服务配置" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/nginx-lua-plugins/ data-title="nginx 中使用 lua 动态加载服务配置"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/nginx-lua-plugins/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/nginx-lua-plugins/ data-title="nginx 中使用 lua 动态加载服务配置"><i data-svg-src=/lib/simple-icons/icons/line.min.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/nginx-lua-plugins/ data-title="nginx 中使用 lua 动态加载服务配置"><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/posts/nginx-lua-plugins/ data-title="nginx 中使用 lua 动态加载服务配置" data-description><i data-svg-src=/lib/simple-icons/icons/myspace.min.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/nginx-lua-plugins/ data-title="nginx 中使用 lua 动态加载服务配置" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/nginx-lua-plugins/ data-title="nginx 中使用 lua 动态加载服务配置"><i data-svg-src=/lib/simple-icons/icons/baidu.min.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/nginx-lua-plugins/ data-title="nginx 中使用 lua 动态加载服务配置"><i class="fab fa-evernote fa-fw"></i></a></span>
+</div>
+</div>
+</div>
+<div class=post-info-more>
+<section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/nginx/>nginx</a>,&nbsp;<a href=/tags/lua/>lua</a></section>
+<section>
+<span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span>
+</section>
+</div>
+<div class=post-nav><a href=/posts/deploy-k8s-cluster/ class=prev rel=prev title="部署单机 k8s 集群"><i class="fas fa-angle-left fa-fw"></i>部署单机 k8s 集群</a>
+<a href=/posts/apisix_plugins/ class=next rel=next title="apisix 开发自定义插件">apisix 开发自定义插件<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+<div id=comments><div id=disqus_thread class=comment></div><noscript>
+Please enable JavaScript to view the comments powered by <a href=https://disqus.com/?ref_noscript>Disqus</a>.
+</noscript></div></article></div>
+</main><footer class=footer>
+<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank</div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.89.4">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+</div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2021</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div>
+</div>
+</footer></div>
+<div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部>
+<i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title=查看评论>
+<i class="fas fa-comment fa-fw"></i>
+</a>
+</div><link rel=stylesheet href=/lib/katex/katex.min.css><link rel=stylesheet href=/lib/katex/copy-tex.min.css><link rel=stylesheet href=/lib/cookieconsent/cookieconsent.min.css><script type=text/javascript src=https://yusank.disqus.com/embed.js defer></script><script type=text/javascript src=/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=/lib/autocomplete/autocomplete.min.js></script><script type=text/javascript src=/lib/lunr/lunr.min.js></script><script type=text/javascript src=/lib/lunr/lunr.stemmer.support.min.js></script><script type=text/javascript src=/lib/lunr/lunr.zh.min.js></script><script type=text/javascript src=/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=/lib/sharer/sharer.min.js></script><script type=text/javascript src=/lib/katex/katex.min.js></script><script type=text/javascript src=/lib/katex/auto-render.min.js></script><script type=text/javascript src=/lib/katex/copy-tex.min.js></script><script type=text/javascript src=/lib/katex/mhchem.min.js></script><script type=text/javascript src=/lib/cookieconsent/cookieconsent.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{},cookieconsent:{content:{dismiss:"同意",link:"了解更多",message:"本网站使用 Cookies 来改善您的浏览体验."},enable:!0,palette:{button:{background:"#f0f0f0"},popup:{background:"#1aa3ff"}},theme:"edgeless"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},search:{highlightTag:"em",lunrIndexURL:"/index.json",lunrLanguageCode:"zh",lunrSegmentitURL:"/lib/lunr/lunr.segmentit.js",maxResultLength:10,noResultsFound:"没有找到结果",snippetLength:50,type:"lunr"}}</script><script type=text/javascript src=/js/theme.min.js></script></body>
+</html>
