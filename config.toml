@@ -378,17 +378,17 @@ paginate = 7
       # Disqus 评论系统设置
       [params.page.comment.disqus]
         # 
-        enable = false
+        enable = true
         # Disqus 的 shortname，用来在文章中启用 Disqus 评论系统
-        shortname = ""
+        shortname = "yusankurban"
       # Gitalk 评论系统设置
       [params.page.comment.gitalk]
         # 
-        enable = true
-        owner = "yusank"
-        repo = "https://github.com/yusank/yusank.github.io"
-        clientId = "6f073db028a9eeb7d2de"
-        clientSecret = "e17e61d65568e45944de54d1e52910e7c99a4c18"
+        enable = false
+        owner = ""
+        repo = ""
+        clientId = ""
+        clientSecret = ""
       # Valine 评论系统设置
       [params.page.comment.valine]
         enable = false
