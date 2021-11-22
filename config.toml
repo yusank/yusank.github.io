@@ -576,7 +576,7 @@ paginate = 7
 # Permalinks 配置
 [Permalinks]
   # posts = ":year/:month/:filename"
-  posts = ":filename"
+  posts = "posts/:filename"
 
 # 隐私信息配置
 [privacy]
