@@ -1,0 +1,626 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=robots content="noodp">
+<meta http-equiv=x-ua-compatible content="IE=edge, chrome=1">
+<title>GO interface - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="GO interface">
+<meta property="og:description" content="go 的 interface 的实现和原理。 Go interface interface 在 Golang 中 interface 是一个很重要的概念和特性。 什么是 interfa">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://yusank.github.io/go-interface/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2017-06-08T15:07:00+08:00">
+<meta property="article:modified_time" content="2021-11-22T15:22:33+08:00">
+<meta name=twitter:card content="summary_large_image">
+<meta name=twitter:image content="https://yusank.github.io/logo.png">
+<meta name=twitter:title content="GO interface">
+<meta name=twitter:description content="go 的 interface 的实现和原理。 Go interface interface 在 Golang 中 interface 是一个很重要的概念和特性。 什么是 interfa">
+<meta name=application-name content="LoveIt">
+<meta name=apple-mobile-web-app-title content="LoveIt"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/go-interface/><link rel=prev href=https://yusank.github.io/go-format/><link rel=next href=https://yusank.github.io/docker/><link rel=stylesheet href=/lib/normalize/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/lib/fontawesome-free/all.min.css><link rel=stylesheet href=/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"GO interface","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/go-interface\/"},"genre":"posts","keywords":"go","wordcount":2681,"url":"https:\/\/yusank.github.io\/go-interface\/","datePublished":"2017-06-08T15:07:00+08:00","dateModified":"2021-11-22T15:22:33+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head>
+<body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':'auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark')&&document.body.setAttribute('theme','dark')</script>
+<div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
+<div class=header-wrapper>
+<div class=header-title>
+<a href=/ title="Yusank`s Site">Yusank`s Site</a>
+</div>
+<div class=menu>
+<div class=menu-inner><a class=menu-item href=/posts/> 文章 </a><a class=menu-item href=/categories/> 分类 </a><a class=menu-item href=/tags/> 标签 </a><a class=menu-item href=/about/> 关于 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><span class="menu-item search" id=search-desktop>
+<input type=text placeholder=搜索文章标题或内容... id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=搜索>
+<i class="fas fa-search fa-fw"></i>
+</a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=清空>
+<i class="fas fa-times-circle fa-fw"></i>
+</a>
+<span class="search-button search-loading" id=search-loading-desktop>
+<i class="fas fa-spinner fa-fw fa-spin"></i>
+</span>
+</span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i>
+</a>
+</div>
+</div>
+</div>
+</header><header class=mobile id=header-mobile>
+<div class=header-container>
+<div class=header-wrapper>
+<div class=header-title>
+<a href=/ title="Yusank`s Site">Yusank`s Site</a>
+</div>
+<div class=menu-toggle id=menu-toggle-mobile>
+<span></span><span></span><span></span>
+</div>
+</div>
+<div class=menu id=menu-mobile><div class=search-wrapper>
+<div class="search mobile" id=search-mobile>
+<input type=text placeholder=搜索文章标题或内容... id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=搜索>
+<i class="fas fa-search fa-fw"></i>
+</a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=清空>
+<i class="fas fa-times-circle fa-fw"></i>
+</a>
+<span class="search-button search-loading" id=search-loading-mobile>
+<i class="fas fa-spinner fa-fw fa-spin"></i>
+</span>
+</div>
+<a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>
+取消
+</a>
+</div><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i>
+</a></div>
+</div>
+</header>
+<div class="search-dropdown desktop">
+<div id=search-dropdown-desktop></div>
+</div>
+<div class="search-dropdown mobile">
+<div id=search-dropdown-mobile></div>
+</div>
+<main class=main>
+<div class=container><div class=toc id=toc-auto>
+<h2 class=toc-title>目录</h2>
+<div class="toc-content always-active" id=toc-content-auto></div>
+</div><article class="page single"><h1 class="single-title animated flipInX">GO interface</h1><div class=post-meta>
+<div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/><i class="far fa-folder fa-fw"></i>源码解读</a></span></div>
+<div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2017-06-08>2017-06-08</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 2681 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 6 分钟&nbsp;</div>
+</div><div class="details toc" id=toc-static kept>
+<div class="details-summary toc-title">
+<span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span>
+</div>
+<div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
+<ol>
+<li><a href=#interface>interface</a>
+<ol>
+<li><a href=#什么是-interface>什么是 interface？</a></li>
+<li><a href=#为什么-interface>为什么 interface</a>
+<ol>
+<li><a href=#write-generic-algorithm>write generic algorithm</a></li>
+<li><a href=#hiding-implement-detail>hiding implement detail</a></li>
+<li><a href=#providing-interception-points>providing interception points</a></li>
+</ol>
+</li>
+<li><a href=#非侵入式>非侵入式</a></li>
+<li><a href=#interface-type-assertion>interface type assertion</a></li>
+<li><a href=#总结>总结</a></li>
+</ol>
+</li>
+<li><a href=#参考>参考</a></li>
+</ol>
+</nav></div>
+</div><div class=content id=content><p>go 的 interface 的实现和原理。</p>
+<h1 id=go-interface>Go interface</h1>
+<h2 id=interface>interface</h2>
+<p>在 Golang 中 interface 是一个很重要的概念和特性。</p>
+<h3 id=什么是-interface>什么是 interface？</h3>
+<blockquote>
+<p>In <a href=https://en.wikipedia.org/wiki/Object-oriented_programming target=_blank rel="noopener noreffer">object-oriented programming</a>, a <strong>protocol</strong> or <strong>interface</strong> is a common means for unrelated <a href=https://en.wikipedia.org/wiki/Object_%28computer_science%29 target=_blank rel="noopener noreffer">objects</a> to communicate with each other. These are definitions of <a href=https://en.wikipedia.org/wiki/Method_%28computer_science%29 target=_blank rel="noopener noreffer">methods</a> and values which the objects agree upon in order to co-operate. — wikipedia</p>
+</blockquote>
+<p>这是 wikipedia 关于 protocal 的定义，将 interface 类比如 protocal 是一种非常助于理解的方式。protocol，中文一般叫做协议，比如网络传输中的 TCP 协议。protocol 可以认为是一种双方为了交流而做出的约定，interface 可以类比如此。</p>
+<p>在 Golang 中，interface 是一种抽象类型，相对于抽象类型的是具体类型（concrete type）：int，string。如下是 io 包里面的例子。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// Writer is the interface that wraps the basic Write method.
+</span><span class=c1>//
+</span><span class=c1>// Write writes len(p) bytes from p to the underlying data stream.
+</span><span class=c1>// It returns the number of bytes written from p (0 &lt;= n &lt;= len(p))
+</span><span class=c1>// and any error encountered that caused the write to stop early.
+</span><span class=c1>// Write must return a non-nil error if it returns n &lt; len(p).
+</span><span class=c1>// Write must not modify the slice data, even temporarily.
+</span><span class=c1>//
+</span><span class=c1>// Implementations must not retain p.
+</span><span class=c1></span><span class=kd>type</span> <span class=nx>Writer</span> <span class=kd>interface</span> <span class=p>{</span>
+    <span class=nf>Write</span><span class=p>(</span><span class=nx>p</span> <span class=p>[]</span><span class=kt>byte</span><span class=p>)</span> <span class=p>(</span><span class=nx>n</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>err</span> <span class=kt>error</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=c1>// Closer is the interface that wraps the basic Close method.
+</span><span class=c1>//
+</span><span class=c1>// The behavior of Close after the first call is undefined.
+</span><span class=c1>// Specific implementations may document their own behavior.
+</span><span class=c1></span><span class=kd>type</span> <span class=nx>Closer</span> <span class=kd>interface</span> <span class=p>{</span>
+    <span class=nf>Close</span><span class=p>()</span> <span class=kt>error</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>在 Golang 中，interface 是一组 method 的集合，是 <a href=https://zh.wikipedia.org/wiki/%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B target=_blank rel="noopener noreffer">duck-type programming</a> (鸭子类型)的一种体现。不关心属性（数据），只关心行为（方法）。具体使用中你可以自定义自己的 struct，并提供特定的 interface 里面的 method 就可以把它当成 interface 来使用。下面是一种 interface 的典型用法，定义函数的时候参数定义成 interface，调用函数的时候就可以做到非常的灵活。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kd>type</span> <span class=nx>MyInterface</span> <span class=kd>interface</span><span class=p>{</span>
+    <span class=nf>Print</span><span class=p>()</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=nf>TestFunc</span><span class=p>(</span><span class=nx>x</span> <span class=nx>MyInterface</span><span class=p>)</span> <span class=p>{}</span>
+<span class=kd>type</span> <span class=nx>MyStruct</span> <span class=kd>struct</span> <span class=p>{}</span>
+<span class=kd>func</span> <span class=p>(</span><span class=nx>me</span> <span class=nx>MyStruct</span><span class=p>)</span> <span class=nf>Print</span><span class=p>()</span> <span class=p>{}</span>
+
+<span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+    <span class=kd>var</span> <span class=nx>me</span> <span class=nx>MyStruct</span>
+    <span class=nf>TestFunc</span><span class=p>(</span><span class=nx>me</span><span class=p>)</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=为什么-interface>为什么 interface</h3>
+<p>Gopher China 上给出了下面的三个理由：</p>
+<ul>
+<li>writing generic algorithm （泛型编程）</li>
+<li>hiding implementation detail （隐藏具体实现）</li>
+<li>providing interception points （提供监听点/拦截点？）</li>
+</ul>
+<h4 id=write-generic-algorithm>write generic algorithm</h4>
+<p>严格来说，在 Golang 中并不支持泛型编程。在 C++ 等高级语言中使用泛型编程非常的简单，所以泛型编程一直是 Golang 诟病最多的地方。但是使用 interface 我们可以实现泛型编程，我这里简单说一下，具体可以参考我前面给出来的那篇文章。比如我们现在要写一个泛型算法，形参定义采用 interface 就可以了，以标准库的 sort 为例。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kn>package</span> <span class=nx>sort</span>
+
+<span class=c1>// A type, typically a collection, that satisfies sort.Interface can be
+</span><span class=c1>// sorted by the routines in this package.  The methods require that the
+</span><span class=c1>// elements of the collection be enumerated by an integer index.
+</span><span class=c1></span><span class=kd>type</span> <span class=nx>Interface</span> <span class=kd>interface</span> <span class=p>{</span>
+    <span class=c1>// Len is the number of elements in the collection.
+</span><span class=c1></span>    <span class=nf>Len</span><span class=p>()</span> <span class=kt>int</span>
+    <span class=c1>// Less reports whether the element with
+</span><span class=c1></span>    <span class=c1>// index i should sort before the element with index j.
+</span><span class=c1></span>    <span class=nf>Less</span><span class=p>(</span><span class=nx>i</span><span class=p>,</span> <span class=nx>j</span> <span class=kt>int</span><span class=p>)</span> <span class=kt>bool</span>
+    <span class=c1>// Swap swaps the elements with indexes i and j.
+</span><span class=c1></span>    <span class=nf>Swap</span><span class=p>(</span><span class=nx>i</span><span class=p>,</span> <span class=nx>j</span> <span class=kt>int</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=o>...</span>
+
+<span class=c1>// Sort sorts data.
+</span><span class=c1>// It makes one call to data.Len to determine n, and O(n*log(n)) calls to
+</span><span class=c1>// data.Less and data.Swap. The sort is not guaranteed to be stable.
+</span><span class=c1></span><span class=kd>func</span> <span class=nf>Sort</span><span class=p>(</span><span class=nx>data</span> <span class=nx>Interface</span><span class=p>)</span> <span class=p>{</span>
+    <span class=c1>// Switch to heapsort if depth of 2*ceil(lg(n+1)) is reached.
+</span><span class=c1></span>    <span class=nx>n</span> <span class=o>:=</span> <span class=nx>data</span><span class=p>.</span><span class=nf>Len</span><span class=p>()</span>
+    <span class=nx>maxDepth</span> <span class=o>:=</span> <span class=mi>0</span>
+    <span class=k>for</span> <span class=nx>i</span> <span class=o>:=</span> <span class=nx>n</span><span class=p>;</span> <span class=nx>i</span> <span class=p>&gt;</span> <span class=mi>0</span><span class=p>;</span> <span class=nx>i</span> <span class=o>&gt;&gt;=</span> <span class=mi>1</span> <span class=p>{</span>
+        <span class=nx>maxDepth</span><span class=o>++</span>
+    <span class=p>}</span>
+    <span class=nx>maxDepth</span> <span class=o>*=</span> <span class=mi>2</span>
+    <span class=nf>quickSort</span><span class=p>(</span><span class=nx>data</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=nx>n</span><span class=p>,</span> <span class=nx>maxDepth</span><span class=p>)</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Sort 函数的形参是一个 interface，包含了三个方法：<code>Len()</code>，<code>Less(i,j int)</code>，<code>Swap(i, j int)</code>。使用的时候不管数组的元素类型是什么类型（int, float, string…），只要我们实现了这三个方法就可以使用 Sort 函数，这样就实现了“泛型编程”。有一点比较麻烦的是，我们需要将数组自定义一下。下面是一个例子。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kd>type</span> <span class=nx>Person</span> <span class=kd>struct</span> <span class=p>{</span>
+    <span class=nx>Name</span> <span class=kt>string</span>
+    <span class=nx>Age</span>  <span class=kt>int</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=p>(</span><span class=nx>p</span> <span class=nx>Person</span><span class=p>)</span> <span class=nf>String</span><span class=p>()</span> <span class=kt>string</span> <span class=p>{</span>
+    <span class=k>return</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Sprintf</span><span class=p>(</span><span class=s>&#34;%s: %d&#34;</span><span class=p>,</span> <span class=nx>p</span><span class=p>.</span><span class=nx>Name</span><span class=p>,</span> <span class=nx>p</span><span class=p>.</span><span class=nx>Age</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=c1>// ByAge implements sort.Interface for []Person based on
+</span><span class=c1>// the Age field.
+</span><span class=c1></span><span class=kd>type</span> <span class=nx>ByAge</span> <span class=p>[]</span><span class=nx>Person</span> <span class=c1>//自定义
+</span><span class=c1></span>
+<span class=kd>func</span> <span class=p>(</span><span class=nx>a</span> <span class=nx>ByAge</span><span class=p>)</span> <span class=nf>Len</span><span class=p>()</span> <span class=kt>int</span>           <span class=p>{</span> <span class=k>return</span> <span class=nb>len</span><span class=p>(</span><span class=nx>a</span><span class=p>)</span> <span class=p>}</span>
+<span class=kd>func</span> <span class=p>(</span><span class=nx>a</span> <span class=nx>ByAge</span><span class=p>)</span> <span class=nf>Swap</span><span class=p>(</span><span class=nx>i</span><span class=p>,</span> <span class=nx>j</span> <span class=kt>int</span><span class=p>)</span>      <span class=p>{</span> <span class=nx>a</span><span class=p>[</span><span class=nx>i</span><span class=p>],</span> <span class=nx>a</span><span class=p>[</span><span class=nx>j</span><span class=p>]</span> <span class=p>=</span> <span class=nx>a</span><span class=p>[</span><span class=nx>j</span><span class=p>],</span> <span class=nx>a</span><span class=p>[</span><span class=nx>i</span><span class=p>]</span> <span class=p>}</span>
+<span class=kd>func</span> <span class=p>(</span><span class=nx>a</span> <span class=nx>ByAge</span><span class=p>)</span> <span class=nf>Less</span><span class=p>(</span><span class=nx>i</span><span class=p>,</span> <span class=nx>j</span> <span class=kt>int</span><span class=p>)</span> <span class=kt>bool</span> <span class=p>{</span> <span class=k>return</span> <span class=nx>a</span><span class=p>[</span><span class=nx>i</span><span class=p>].</span><span class=nx>Age</span> <span class=p>&lt;</span> <span class=nx>a</span><span class=p>[</span><span class=nx>j</span><span class=p>].</span><span class=nx>Age</span> <span class=p>}</span>
+
+<span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+    <span class=nx>people</span> <span class=o>:=</span> <span class=p>[]</span><span class=nx>Person</span><span class=p>{</span>
+        <span class=p>{</span><span class=s>&#34;Bob&#34;</span><span class=p>,</span> <span class=mi>31</span><span class=p>},</span>
+        <span class=p>{</span><span class=s>&#34;John&#34;</span><span class=p>,</span> <span class=mi>42</span><span class=p>},</span>
+        <span class=p>{</span><span class=s>&#34;Michael&#34;</span><span class=p>,</span> <span class=mi>17</span><span class=p>},</span>
+        <span class=p>{</span><span class=s>&#34;Jenny&#34;</span><span class=p>,</span> <span class=mi>26</span><span class=p>},</span>
+    <span class=p>}</span>
+
+    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>people</span><span class=p>)</span>
+    <span class=nx>sort</span><span class=p>.</span><span class=nf>Sort</span><span class=p>(</span><span class=nf>ByAge</span><span class=p>(</span><span class=nx>people</span><span class=p>))</span>
+    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>people</span><span class=p>)</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>另外 Gopher China 上还提到了一个比较有趣的东西和大家分享一下。在我们设计函数的时候，下面是一个比较好的准则。</p>
+<blockquote>
+<p>Be <strong>conservative</strong> in what you send, be <strong>liberal</strong> in what you accept. — Robustness Principle</p>
+</blockquote>
+<p>对应到 Golang 就是：</p>
+<blockquote>
+<p>Return <strong>concrete types</strong>, receive <strong>interfaces</strong> as parameter. — Robustness Principle applied to Go</p>
+</blockquote>
+<p>话说这么说，但是当我们翻阅 Golang 源码的时候，有些函数的返回值也是 interface。</p>
+<h4 id=hiding-implement-detail>hiding implement detail</h4>
+<p>隐藏具体实现，这个很好理解。比如我设计一个函数给你返回一个 interface，那么你只能通过 interface 里面的方法来做一些操作，但是内部的具体实现是完全不知道的。Francesc 举了个 context 的例子。 context 最先由 google 提供，现在已经纳入了标准库，而且在原有 context 的基础上增加了：cancelCtx，timerCtx，valueCtx。语言的表达有时候略显苍白无力，看一下 context 包的代码吧。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kd>func</span> <span class=nf>WithCancel</span><span class=p>(</span><span class=nx>parent</span> <span class=nx>Context</span><span class=p>)</span> <span class=p>(</span><span class=nx>ctx</span> <span class=nx>Context</span><span class=p>,</span> <span class=nx>cancel</span> <span class=nx>CancelFunc</span><span class=p>)</span> <span class=p>{</span>
+    <span class=nx>c</span> <span class=o>:=</span> <span class=nf>newCancelCtx</span><span class=p>(</span><span class=nx>parent</span><span class=p>)</span>
+    <span class=nf>propagateCancel</span><span class=p>(</span><span class=nx>parent</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>c</span><span class=p>)</span>
+    <span class=k>return</span> <span class=o>&amp;</span><span class=nx>c</span><span class=p>,</span> <span class=kd>func</span><span class=p>()</span> <span class=p>{</span> <span class=nx>c</span><span class=p>.</span><span class=nf>cancel</span><span class=p>(</span><span class=kc>true</span><span class=p>,</span> <span class=nx>Canceled</span><span class=p>)</span> <span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>表明上 WithCancel 函数返回的还是一个 Context interface，但是这个 interface 的具体实现是 cancelCtx struct。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// newCancelCtx returns an initialized cancelCtx.
+</span><span class=c1></span><span class=kd>func</span> <span class=nf>newCancelCtx</span><span class=p>(</span><span class=nx>parent</span> <span class=nx>Context</span><span class=p>)</span> <span class=nx>cancelCtx</span> <span class=p>{</span>
+    <span class=k>return</span> <span class=nx>cancelCtx</span><span class=p>{</span>
+        <span class=nx>Context</span><span class=p>:</span> <span class=nx>parent</span><span class=p>,</span>
+        <span class=nx>done</span><span class=p>:</span>    <span class=nb>make</span><span class=p>(</span><span class=kd>chan</span> <span class=kd>struct</span><span class=p>{}),</span>
+    <span class=p>}</span>
+<span class=p>}</span>
+
+<span class=c1>// A cancelCtx can be canceled. When canceled, it also cancels any children
+</span><span class=c1>// that implement canceler.
+</span><span class=c1></span><span class=kd>type</span> <span class=nx>cancelCtx</span> <span class=kd>struct</span> <span class=p>{</span>
+    <span class=nx>Context</span>     <span class=c1>//注意一下这个地方
+</span><span class=c1></span>
+    <span class=nx>done</span> <span class=kd>chan</span> <span class=kd>struct</span><span class=p>{}</span> <span class=c1>// closed by the first cancel call.
+</span><span class=c1></span>    <span class=nx>mu</span>       <span class=nx>sync</span><span class=p>.</span><span class=nx>Mutex</span>
+    <span class=nx>children</span> <span class=kd>map</span><span class=p>[</span><span class=nx>canceler</span><span class=p>]</span><span class=kd>struct</span><span class=p>{}</span> <span class=c1>// set to nil by the first cancel call
+</span><span class=c1></span>    <span class=nx>err</span>      <span class=kt>error</span>                 <span class=c1>// set to non-nil by the first cancel call
+</span><span class=c1></span><span class=p>}</span>
+
+<span class=kd>func</span> <span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>cancelCtx</span><span class=p>)</span> <span class=nf>Done</span><span class=p>()</span> <span class=o>&lt;-</span><span class=kd>chan</span> <span class=kd>struct</span><span class=p>{}</span> <span class=p>{</span>
+    <span class=k>return</span> <span class=nx>c</span><span class=p>.</span><span class=nx>done</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>cancelCtx</span><span class=p>)</span> <span class=nf>Err</span><span class=p>()</span> <span class=kt>error</span> <span class=p>{</span>
+    <span class=nx>c</span><span class=p>.</span><span class=nx>mu</span><span class=p>.</span><span class=nf>Lock</span><span class=p>()</span>
+    <span class=k>defer</span> <span class=nx>c</span><span class=p>.</span><span class=nx>mu</span><span class=p>.</span><span class=nf>Unlock</span><span class=p>()</span>
+    <span class=k>return</span> <span class=nx>c</span><span class=p>.</span><span class=nx>err</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>cancelCtx</span><span class=p>)</span> <span class=nf>String</span><span class=p>()</span> <span class=kt>string</span> <span class=p>{</span>
+    <span class=k>return</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Sprintf</span><span class=p>(</span><span class=s>&#34;%v.WithCancel&#34;</span><span class=p>,</span> <span class=nx>c</span><span class=p>.</span><span class=nx>Context</span><span class=p>)</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>尽管内部实现上下面三个函数返回的具体 struct （都实现了 Context interface）不同，但是对于使用者来说是完全无感知的。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kd>func</span> <span class=nf>WithCancel</span><span class=p>(</span><span class=nx>parent</span> <span class=nx>Context</span><span class=p>)</span> <span class=p>(</span><span class=nx>ctx</span> <span class=nx>Context</span><span class=p>,</span> <span class=nx>cancel</span> <span class=nx>CancelFunc</span><span class=p>)</span>    <span class=c1>//返回 cancelCtx
+</span><span class=c1></span><span class=kd>func</span> <span class=nf>WithDeadline</span><span class=p>(</span><span class=nx>parent</span> <span class=nx>Context</span><span class=p>,</span> <span class=nx>deadline</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Time</span><span class=p>)</span> <span class=p>(</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>CancelFunc</span><span class=p>)</span> <span class=c1>//返回 timerCtx
+</span><span class=c1></span><span class=kd>func</span> <span class=nf>WithValue</span><span class=p>(</span><span class=nx>parent</span> <span class=nx>Context</span><span class=p>,</span> <span class=nx>key</span><span class=p>,</span> <span class=nx>val</span> <span class=kd>interface</span><span class=p>{})</span> <span class=nx>Context</span>    <span class=c1>//返回 valueCtx
+</span></code></pre></td></tr></table>
+</div>
+</div><h4 id=providing-interception-points>providing interception points</h4>
+<p>这里的 interception 想表达的意思应该是 wrapper 或者装饰器，他给出了一个例子如下：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kd>type</span> <span class=nx>header</span> <span class=kd>struct</span> <span class=p>{</span>
+    <span class=nx>rt</span>  <span class=nx>http</span><span class=p>.</span><span class=nx>RoundTripper</span>
+    <span class=nx>v</span>   <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kt>string</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=p>(</span><span class=nx>h</span> <span class=nx>header</span><span class=p>)</span> <span class=nf>RoundTrip</span><span class=p>(</span><span class=nx>r</span> <span class=o>*</span><span class=nx>http</span><span class=p>.</span><span class=nx>Request</span><span class=p>)</span> <span class=o>*</span><span class=nx>http</span><span class=p>.</span><span class=nx>Response</span> <span class=p>{</span>
+    <span class=k>for</span> <span class=nx>k</span><span class=p>,</span> <span class=nx>v</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>h</span><span class=p>.</span><span class=nx>v</span> <span class=p>{</span>
+        <span class=nx>r</span><span class=p>.</span><span class=nx>Header</span><span class=p>.</span><span class=nf>Set</span><span class=p>(</span><span class=nx>k</span><span class=p>,</span><span class=nx>v</span><span class=p>)</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=nx>h</span><span class=p>.</span><span class=nx>rt</span><span class=p>.</span><span class=nf>RoundTrip</span><span class=p>(</span><span class=nx>r</span><span class=p>)</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>通过 interface，我们可以通过类似这种方式实现动态分配 (dynamic dispatch)。</p>
+<h3 id=非侵入式>非侵入式</h3>
+<p>什么是侵入式呢？比如 Java 的 interface 实现需要显示的声明。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>MyWriter</span> <span class=kd>implements</span> <span class=n>io</span><span class=o>.</span><span class=na>Writer</span> <span class=o>{}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这样就意味着如果要实现多个 interface 需要显示地写很多遍，同时 package 的依赖还需要进行管理。Dependency is evil。比如我要实现 io 包里面的 Reader，Writer，ReadWriter 接口，代码可以像下面这样写。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kd>type</span> <span class=nx>MyIO</span> <span class=kd>struct</span> <span class=p>{}</span>
+
+<span class=kd>func</span> <span class=p>(</span><span class=nx>io</span> <span class=o>*</span><span class=nx>MyIO</span><span class=p>)</span> <span class=nf>Read</span><span class=p>(</span><span class=nx>p</span> <span class=p>[]</span><span class=kt>byte</span><span class=p>)</span> <span class=p>(</span><span class=nx>n</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>err</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span><span class=o>...</span><span class=p>}</span>
+<span class=kd>func</span> <span class=p>(</span><span class=nx>io</span> <span class=o>*</span><span class=nx>MyIO</span><span class=p>)</span> <span class=nf>Write</span><span class=p>(</span><span class=nx>p</span> <span class=p>[]</span><span class=kt>byte</span><span class=p>)</span> <span class=p>(</span><span class=nx>n</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>err</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span><span class=o>...</span><span class=p>}</span>
+
+<span class=c1>// io package
+</span><span class=c1></span><span class=kd>type</span> <span class=nx>Reader</span> <span class=kd>interface</span> <span class=p>{</span>
+    <span class=nf>Read</span><span class=p>(</span><span class=nx>p</span> <span class=p>[]</span><span class=kt>byte</span><span class=p>)</span> <span class=p>(</span><span class=nx>n</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>err</span> <span class=kt>error</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=kd>type</span> <span class=nx>Writer</span> <span class=kd>interface</span> <span class=p>{</span>
+    <span class=nf>Write</span><span class=p>(</span><span class=nx>p</span> <span class=p>[]</span><span class=kt>byte</span><span class=p>)</span> <span class=p>(</span><span class=nx>n</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>err</span> <span class=kt>error</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=kd>type</span> <span class=nx>ReadWriter</span> <span class=kd>interface</span> <span class=p>{</span>
+    <span class=nx>Reader</span>
+    <span class=nx>Writer</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这种写法真的很方便，而且不用去显示的 import io package，interface 底层实现的时候会动态的检测。这样也会引入一些问题：</p>
+<ol>
+<li>性能下降。使用 interface 作为函数参数，runtime 的时候会动态的确定行为。而使用 struct 作为参数，编译期间就可以确定了。</li>
+<li>不知道 struct 实现哪些 interface。这个问题可以使用 guru 工具来解决。</li>
+</ol>
+<p>综上，Golang interface 的这种非侵入实现真的很难说它是好，还是坏。但是可以肯定的一点是，对开发人员来说代码写起来更简单了。</p>
+<h3 id=interface-type-assertion>interface type assertion</h3>
+<p>interface 像其他类型转换的时候一般我们称作断言，举个例子。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kd>func</span> <span class=nf>do</span><span class=p>(</span><span class=nx>v</span> <span class=kd>interface</span><span class=p>{})</span> <span class=p>{</span>
+    <span class=nx>n</span> <span class=o>:=</span> <span class=nx>v</span><span class=p>.(</span><span class=kt>int</span><span class=p>)</span>    <span class=c1>// might panic
+</span><span class=c1></span><span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这样写的坏处在于：一旦断言失败，程序将会 panic。一种避免 panic 的写法是使用 type assertion。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kd>func</span> <span class=nf>do</span><span class=p>(</span><span class=nx>v</span> <span class=kd>interface</span><span class=p>{})</span> <span class=p>{</span>
+    <span class=nx>n</span><span class=p>,</span> <span class=nx>ok</span> <span class=o>:=</span> <span class=nx>v</span><span class=p>.(</span><span class=kt>int</span><span class=p>)</span>
+    <span class=k>if</span> <span class=p>!</span><span class=nx>ok</span> <span class=p>{</span>
+        <span class=c1>// 断言失败处理
+</span><span class=c1></span>    <span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>对于 interface 的操作可以使用 reflect 包来处理，关于 reflect 包的原理和使用可以参考我的文章。</p>
+<h3 id=总结>总结</h3>
+<p>interface 是 Golang 的一种重要的特性，但是这是以 runtime 为代价的，也就意味着性能的损失（关于 interface 的底层实现之后有时间再写）。抛开性能不谈，interface 对于如何设计我们的代码确实给了一个很好的思考。</p>
+<h2 id=参考>参考</h2>
+<ol>
+<li><a href=http://legendtkl.com/2015/11/25/go-generic-programming/ target=_blank rel="noopener noreffer">Golang “泛型编程”</a></li>
+<li><a href=http://legendtkl.com/2015/11/28/go-interface-reflect/ target=_blank rel="noopener noreffer">谈一谈 Golang 的 interface 和 reflect</a></li>
+<li><a href="https://www.youtube.com/watch?v=F4wUrj6pmSI&t=2319s" target=_blank rel="noopener noreffer">understanding golang interface(Gopher China) — youtube</a></li>
+<li><a href=https://github.com/gopherchina/conference/blob/master/2017/1.4%20interface.presented.pdf target=_blank rel="noopener noreffer">understanding golang interface(Gopher China) — slide</a></li>
+</ol>
+</div><div class=post-footer id=post-footer>
+<div class=post-info>
+<div class=post-info-line>
+<div class=post-info-mod>
+<span>更新于 2021-11-22</span>
+</div>
+<div class=post-info-license></div>
+</div>
+<div class=post-info-line>
+<div class=post-info-md><span>
+<a class=link-to-markdown href=/go-interface/index.md target=_blank>阅读原始文档</a>
+</span></div>
+<div class=post-info-share>
+<span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/go-interface/ data-title="GO interface" data-hashtags=go><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/go-interface/ data-hashtag=go><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/go-interface/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/go-interface/ data-title="GO interface" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/go-interface/ data-title="GO interface"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/go-interface/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/go-interface/ data-title="GO interface"><i data-svg-src=/lib/simple-icons/icons/line.min.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/go-interface/ data-title="GO interface"><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/go-interface/ data-title="GO interface" data-description><i data-svg-src=/lib/simple-icons/icons/myspace.min.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/go-interface/ data-title="GO interface" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/go-interface/ data-title="GO interface"><i data-svg-src=/lib/simple-icons/icons/baidu.min.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/go-interface/ data-title="GO interface"><i class="fab fa-evernote fa-fw"></i></a></span>
+</div>
+</div>
+</div>
+<div class=post-info-more>
+<section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/go/>go</a></section>
+<section>
+<span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span>
+</section>
+</div>
+<div class=post-nav><a href=/go-format/ class=prev rel=prev title="Go Format"><i class="fas fa-angle-left fa-fw"></i>Go Format</a>
+<a href=/docker/ class=next rel=next title="Docker 基础知识和基本操作">Docker 基础知识和基本操作<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+<div id=comments><div id=gitalk class=comment></div><noscript>
+Please enable JavaScript to view the comments powered by <a href=https://github.com/gitalk/gitalk></a>Gitalk</a>.
+</noscript></div></article></div>
+</main><footer class=footer>
+<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank</div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.89.4">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+</div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2021</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div>
+</div>
+</footer></div>
+<div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部>
+<i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title=查看评论>
+<i class="fas fa-comment fa-fw"></i>
+</a>
+</div><link rel=stylesheet href=/lib/gitalk/gitalk.min.css><link rel=stylesheet href=/lib/katex/katex.min.css><link rel=stylesheet href=/lib/katex/copy-tex.min.css><link rel=stylesheet href=/lib/cookieconsent/cookieconsent.min.css><script type=text/javascript src=/lib/gitalk/gitalk.min.js></script><script type=text/javascript src=/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=/lib/autocomplete/autocomplete.min.js></script><script type=text/javascript src=/lib/lunr/lunr.min.js></script><script type=text/javascript src=/lib/lunr/lunr.stemmer.support.min.js></script><script type=text/javascript src=/lib/lunr/lunr.zh.min.js></script><script type=text/javascript src=/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=/lib/sharer/sharer.min.js></script><script type=text/javascript src=/lib/katex/katex.min.js></script><script type=text/javascript src=/lib/katex/auto-render.min.js></script><script type=text/javascript src=/lib/katex/copy-tex.min.js></script><script type=text/javascript src=/lib/katex/mhchem.min.js></script><script type=text/javascript src=/lib/cookieconsent/cookieconsent.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{gitalk:{admin:["yusank"],clientID:"6f073db028a9eeb7d2de",clientSecret:"e17e61d65568e45944de54d1e52910e7c99a4c18",id:"2017-06-08T15:07:00+08:00",owner:"yusank",repo:"https://github.com/yusank/yusank.github.io",title:"GO interface"}},cookieconsent:{content:{dismiss:"同意",link:"了解更多",message:"本网站使用 Cookies 来改善您的浏览体验."},enable:!0,palette:{button:{background:"#f0f0f0"},popup:{background:"#1aa3ff"}},theme:"edgeless"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},search:{highlightTag:"em",lunrIndexURL:"/index.json",lunrLanguageCode:"zh",lunrSegmentitURL:"/lib/lunr/lunr.segmentit.js",maxResultLength:10,noResultsFound:"没有找到结果",snippetLength:50,type:"lunr"}}</script><script type=text/javascript src=/js/theme.min.js></script></body>
+</html>

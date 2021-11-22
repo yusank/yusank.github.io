@@ -1,0 +1,793 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=robots content="noodp">
+<meta http-equiv=x-ua-compatible content="IE=edge, chrome=1">
+<title>如何编写自己的第一个命令行工具 - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="如何编写自己的第一个命令行工具">
+<meta property="og:description" content="关于如何用 go 语言编写一个命令行工具。这里会基于 cobra 开源库进行开发。cobra 作为一">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://yusank.github.io/go-cobra/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2021-06-30T18:22:00+08:00">
+<meta property="article:modified_time" content="2021-11-22T15:22:33+08:00">
+<meta name=twitter:card content="summary_large_image">
+<meta name=twitter:image content="https://yusank.github.io/logo.png">
+<meta name=twitter:title content="如何编写自己的第一个命令行工具">
+<meta name=twitter:description content="关于如何用 go 语言编写一个命令行工具。这里会基于 cobra 开源库进行开发。cobra 作为一">
+<meta name=application-name content="LoveIt">
+<meta name=apple-mobile-web-app-title content="LoveIt"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/go-cobra/><link rel=prev href=https://yusank.github.io/use-nacos-with-go-micro/><link rel=next href=https://yusank.github.io/go-protoc-http/><link rel=stylesheet href=/lib/normalize/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/lib/fontawesome-free/all.min.css><link rel=stylesheet href=/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"如何编写自己的第一个命令行工具","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/go-cobra\/"},"genre":"posts","keywords":"go, cobra","wordcount":2882,"url":"https:\/\/yusank.github.io\/go-cobra\/","datePublished":"2021-06-30T18:22:00+08:00","dateModified":"2021-11-22T15:22:33+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head>
+<body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':'auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark')&&document.body.setAttribute('theme','dark')</script>
+<div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
+<div class=header-wrapper>
+<div class=header-title>
+<a href=/ title="Yusank`s Site">Yusank`s Site</a>
+</div>
+<div class=menu>
+<div class=menu-inner><a class=menu-item href=/posts/> 文章 </a><a class=menu-item href=/categories/> 分类 </a><a class=menu-item href=/tags/> 标签 </a><a class=menu-item href=/about/> 关于 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><span class="menu-item search" id=search-desktop>
+<input type=text placeholder=搜索文章标题或内容... id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=搜索>
+<i class="fas fa-search fa-fw"></i>
+</a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=清空>
+<i class="fas fa-times-circle fa-fw"></i>
+</a>
+<span class="search-button search-loading" id=search-loading-desktop>
+<i class="fas fa-spinner fa-fw fa-spin"></i>
+</span>
+</span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i>
+</a>
+</div>
+</div>
+</div>
+</header><header class=mobile id=header-mobile>
+<div class=header-container>
+<div class=header-wrapper>
+<div class=header-title>
+<a href=/ title="Yusank`s Site">Yusank`s Site</a>
+</div>
+<div class=menu-toggle id=menu-toggle-mobile>
+<span></span><span></span><span></span>
+</div>
+</div>
+<div class=menu id=menu-mobile><div class=search-wrapper>
+<div class="search mobile" id=search-mobile>
+<input type=text placeholder=搜索文章标题或内容... id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=搜索>
+<i class="fas fa-search fa-fw"></i>
+</a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=清空>
+<i class="fas fa-times-circle fa-fw"></i>
+</a>
+<span class="search-button search-loading" id=search-loading-mobile>
+<i class="fas fa-spinner fa-fw fa-spin"></i>
+</span>
+</div>
+<a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>
+取消
+</a>
+</div><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i>
+</a></div>
+</div>
+</header>
+<div class="search-dropdown desktop">
+<div id=search-dropdown-desktop></div>
+</div>
+<div class="search-dropdown mobile">
+<div id=search-dropdown-mobile></div>
+</div>
+<main class=main>
+<div class=container><div class=toc id=toc-auto>
+<h2 class=toc-title>目录</h2>
+<div class="toc-content always-active" id=toc-content-auto></div>
+</div><article class="page single"><h1 class="single-title animated flipInX">如何编写自己的第一个命令行工具</h1><div class=post-meta>
+<div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/%E5%B7%A5%E5%85%B7%E5%BC%80%E5%8F%91/><i class="far fa-folder fa-fw"></i>工具开发</a></span></div>
+<div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2021-06-30>2021-06-30</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 2882 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 6 分钟&nbsp;</div>
+</div><div class="details toc" id=toc-static kept>
+<div class="details-summary toc-title">
+<span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span>
+</div>
+<div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
+<ol>
+<li><a href=#创建根命令>创建根命令</a></li>
+<li><a href=#添加子命令>添加子命令</a></li>
+<li><a href=#自主更新>自主更新</a></li>
+<li><a href=#小彩蛋>小彩蛋</a></li>
+</ol>
+</nav></div>
+</div><div class=content id=content><p>关于如何用 go 语言编写一个命令行工具。这里会基于 <code>cobra</code> 开源库进行开发。<code>cobra</code> 作为一个非常有名的命令行工具库，被很多开源项目引入使用，很多命令行工具都能看到 <code>cobra</code> 的身影。<code>cobra</code> 提供一个完整的命令行的工具的所需的功能，包括命令定义、命令扩展、读取参数等。下面我们以开发一个命令行工具的流程一步步学习如何使用 <code>cobra</code> 开发一个自己的命令行工具。</p>
+<h2 id=创建根命令>创建根命令</h2>
+<p>我们项目暂且就叫 <code>myCmd</code>, 我们本地创建一个go项目就叫 <code>myCmd</code>。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ mkdir myCmd
+$ <span class=nb>cd</span> myCmd
+$ touch main.go
+$ go mod init myCmd
+</code></pre></td></tr></table>
+</div>
+</div><p>main.go</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kn>package</span> <span class=nx>main</span>
+
+<span class=kn>import</span> <span class=p>(</span>
+	<span class=s>&#34;log&#34;</span>
+
+	<span class=s>&#34;github.com/spf13/cobra&#34;</span>
+<span class=p>)</span>
+
+<span class=kd>var</span> <span class=p>(</span>
+    <span class=c1>// 定义主命令
+</span><span class=c1></span>	<span class=nx>rootCmd</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>cobra</span><span class=p>.</span><span class=nx>Command</span><span class=p>{</span>
+		<span class=nx>Use</span><span class=p>:</span>   <span class=s>&#34;myCmd&#34;</span><span class=p>,</span>
+		<span class=nx>Short</span><span class=p>:</span> <span class=s>&#34;这里是对命令的简短介绍&#34;</span><span class=p>,</span>
+		<span class=nx>Long</span><span class=p>:</span> <span class=s>`这里可以放对命令的详细介绍。
+</span><span class=s>可以多行`</span><span class=p>,</span>
+		<span class=nx>Example</span><span class=p>:</span> <span class=s>&#34;myCmd help&#34;</span><span class=p>,</span> <span class=c1>// 使用示例
+</span><span class=c1></span>        <span class=nx>Version</span><span class=p>:</span> <span class=s>&#34;v0.0.1&#34;</span><span class=p>,</span> <span class=c1>// 定义版本
+</span><span class=c1></span>
+	<span class=p>}</span>
+
+	<span class=nx>dirPath</span> <span class=kt>string</span>
+<span class=p>)</span>
+
+<span class=kd>func</span> <span class=nf>init</span><span class=p>()</span> <span class=p>{</span>
+    <span class=c1>// 定义参数，即从命令行读取的参数变量
+</span><span class=c1></span>    <span class=c1>// 除了 PersistentFlags 外，也可以用 Flags()，区别是 前一个可以在其子命令也可以用，后一个不能。即PersistentFlags是一个全局的flag注册。
+</span><span class=c1></span>	<span class=nx>rootCmd</span><span class=p>.</span><span class=nf>PersistentFlags</span><span class=p>().</span><span class=nf>StringVarP</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>dirPath</span><span class=p>,</span> <span class=s>&#34;dir&#34;</span><span class=p>,</span> <span class=s>&#34;d&#34;</span><span class=p>,</span> <span class=s>&#34;.&#34;</span><span class=p>,</span> <span class=s>&#34;文件路径&#34;</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+	<span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>rootCmd</span><span class=p>.</span><span class=nf>Execute</span><span class=p>();</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+		<span class=nx>log</span><span class=p>.</span><span class=nf>Fatal</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+	<span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这样我们就创建了一个属于的自己的命令，执行看一下效果。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=c1># 直接执行,会打印 字段Long的值，</span>
+➜./myCmd   
+这里可以放对命令的详细介绍。
+可以多行
+<span class=c1># 打印版本</span>
+➜./myCmd -v
+myCmd version v0.0.1
+<span class=c1># 输入未知 flag</span>
+➜./myCmd -x
+Error: unknown shorthand flag: <span class=s1>&#39;x&#39;</span> in -x
+Usage:
+
+Examples:
+myCmd <span class=nb>help</span>
+
+Flags:
+  -d, --dir string   文件路径 <span class=o>(</span>default <span class=s2>&#34;.&#34;</span><span class=o>)</span>
+  -h, --help         <span class=nb>help</span> <span class=k>for</span> myCmd
+  -v, --version      version <span class=k>for</span> myCmd
+
+2021/07/04 15:18:59 unknown shorthand flag: <span class=s1>&#39;x&#39;</span> in -x
+</code></pre></td></tr></table>
+</div>
+</div><p>不难发现，版本处理，未知参数处理等情况 cobra已经做了相对完善的处理，我们不需要做太多的错误处理。</p>
+<p>目前未知，我们的的命令只是定义了命令，并没有执行任何指令，下面我们添加一个简单的执行函数。<code>cobra.Command</code> 有很多参数可以定义执行函数的，我们以最常用的的 <code>Run</code>，<code>RunE</code> 为例，分别是不返回错误和返回错误的函数定义。</p>
+<p>假如我们的主命令执行一个打印 d 参数传值的目录的信息。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// rootCmd
+</span><span class=c1></span><span class=nx>RunE</span><span class=p>:</span> <span class=nx>printDirInfo</span><span class=p>,</span>
+
+<span class=cm>/*
+</span><span class=cm>...
+</span><span class=cm>*/</span> 
+
+<span class=kd>func</span> <span class=nf>printDirInfo</span><span class=p>(</span><span class=nx>cmd</span> <span class=o>*</span><span class=nx>cobra</span><span class=p>.</span><span class=nx>Command</span><span class=p>,</span> <span class=nx>args</span> <span class=p>[]</span><span class=kt>string</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+	<span class=nx>info</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>os</span><span class=p>.</span><span class=nf>Stat</span><span class=p>(</span><span class=nx>dirPath</span><span class=p>)</span>
+	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+		<span class=k>return</span> <span class=nx>err</span>
+	<span class=p>}</span>
+
+	<span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;name:%s, size:%d modTime:%v \n&#34;</span><span class=p>,</span> <span class=nx>info</span><span class=p>.</span><span class=nf>Name</span><span class=p>(),</span> <span class=nx>info</span><span class=p>.</span><span class=nf>Size</span><span class=p>(),</span> <span class=nx>info</span><span class=p>.</span><span class=nf>ModTime</span><span class=p>())</span>
+	<span class=k>return</span> <span class=kc>nil</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>执行一下命令：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=c1># 查看一下 main 文件的信息</span>
+➜./myCmd -d main.go 
+name:main.go, size:759 modTime:2021-07-04 15:26:43.311399368 +0800 CST 
+
+<span class=c1># 查看一个不存在的文件</span>
+➜./myCmd -d main.go1
+Error: stat main.go1: no such file or directory
+Usage:
+  myCmd <span class=o>[</span>flags<span class=o>]</span>
+
+Examples:
+myCmd <span class=nb>help</span>
+
+Flags:
+  -d, --dir string   命令执行目录 <span class=o>(</span>default <span class=s2>&#34;.&#34;</span><span class=o>)</span>
+  -h, --help         <span class=nb>help</span> <span class=k>for</span> myCmd
+  -v, --version      version <span class=k>for</span> myCmd
+
+2021/07/04 15:30:01 stat main.go1: no such file or directory
+<span class=c1># 不仅打印出错误，如何使用命令也会同时打印出来</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>下面我们就添加我们的子命令。</p>
+<h2 id=添加子命令>添加子命令</h2>
+<p>我们现在添加一个子命令，这个子命令的功能是统计当前目录下的所有文件信息，我们就起名叫 <code>stat</code>。同时，为了方便全局变量的在不同包内读取，创建一个 <code>variable</code> 的目录，里面存放全局的一些变量，包内变量就放到各自包内。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>➜ mkdir stat
+➜ mkdir variable
+➜ touch stat/stat.go
+➜ touch variable/variable.go
+</code></pre></td></tr></table>
+</div>
+</div><p>下面是stat文件的内容。</p>
+<p>stat.go</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kn>package</span> <span class=nx>stat</span>
+
+<span class=kn>import</span> <span class=p>(</span>
+	<span class=s>&#34;fmt&#34;</span>
+	<span class=s>&#34;myCmd/variable&#34;</span>
+	<span class=s>&#34;os&#34;</span>
+	<span class=s>&#34;path/filepath&#34;</span>
+
+	<span class=s>&#34;github.com/spf13/cobra&#34;</span>
+<span class=p>)</span>
+
+<span class=kd>var</span> <span class=p>(</span>
+	<span class=nx>StatCmd</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>cobra</span><span class=p>.</span><span class=nx>Command</span><span class=p>{</span>
+		<span class=nx>Use</span><span class=p>:</span>   <span class=s>&#34;stat&#34;</span><span class=p>,</span>
+		<span class=nx>Short</span><span class=p>:</span> <span class=s>&#34;统计目录&#34;</span><span class=p>,</span>
+		<span class=nx>RunE</span><span class=p>:</span>  <span class=nx>statDir</span><span class=p>,</span>
+	<span class=p>}</span>
+
+	<span class=nx>isStatDir</span> <span class=kt>bool</span>
+<span class=p>)</span>
+
+<span class=kd>func</span> <span class=nf>init</span><span class=p>()</span> <span class=p>{</span>
+    <span class=c1>// 这里使用 Flags 只在我这个命令内解析和读取
+</span><span class=c1></span>	<span class=nx>StatCmd</span><span class=p>.</span><span class=nf>Flags</span><span class=p>().</span><span class=nf>BoolVarP</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>isStatDir</span><span class=p>,</span> <span class=s>&#34;stat_dir&#34;</span><span class=p>,</span> <span class=s>&#34;s&#34;</span><span class=p>,</span> <span class=kc>false</span><span class=p>,</span> <span class=s>&#34;是否统计目录信息&#34;</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=nf>statDir</span><span class=p>(</span><span class=nx>cmd</span> <span class=o>*</span><span class=nx>cobra</span><span class=p>.</span><span class=nx>Command</span><span class=p>,</span> <span class=nx>args</span> <span class=p>[]</span><span class=kt>string</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+	<span class=k>return</span> <span class=nx>filepath</span><span class=p>.</span><span class=nf>Walk</span><span class=p>(</span><span class=nx>variable</span><span class=p>.</span><span class=nx>DirPath</span><span class=p>,</span> <span class=kd>func</span><span class=p>(</span><span class=nx>path</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>info</span> <span class=nx>os</span><span class=p>.</span><span class=nx>FileInfo</span><span class=p>,</span> <span class=nx>err</span> <span class=kt>error</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+		<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+			<span class=k>return</span> <span class=nx>err</span>
+		<span class=p>}</span>
+		<span class=k>if</span> <span class=nx>info</span><span class=p>.</span><span class=nf>IsDir</span><span class=p>()</span> <span class=o>&amp;&amp;</span> <span class=p>!</span><span class=nx>isStatDir</span> <span class=p>{</span>
+			<span class=c1>// 不统计
+</span><span class=c1></span>			<span class=k>return</span> <span class=kc>nil</span>
+		<span class=p>}</span>
+
+		<span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;path:%s, size:%d, modTime:%v&#34;</span><span class=p>,</span> <span class=nx>path</span><span class=p>,</span> <span class=nx>info</span><span class=p>.</span><span class=nf>Size</span><span class=p>(),</span> <span class=nx>info</span><span class=p>.</span><span class=nf>ModTime</span><span class=p>())</span>
+		<span class=k>return</span> <span class=kc>nil</span>
+	<span class=p>})</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>然后将该子命令注册的主命令下。</p>
+<p>main.go</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kn>package</span> <span class=nx>main</span>
+
+<span class=kn>import</span> <span class=p>(</span>
+	<span class=s>&#34;fmt&#34;</span>
+	<span class=s>&#34;log&#34;</span>
+	<span class=s>&#34;myCmd/stat&#34;</span>
+	<span class=s>&#34;myCmd/variable&#34;</span>
+	<span class=s>&#34;os&#34;</span>
+
+	<span class=s>&#34;github.com/spf13/cobra&#34;</span>
+<span class=p>)</span>
+
+<span class=kd>var</span> <span class=p>(</span>
+	<span class=nx>rootCmd</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>cobra</span><span class=p>.</span><span class=nx>Command</span><span class=p>{</span>
+		<span class=nx>Use</span><span class=p>:</span>   <span class=s>&#34;myCmd&#34;</span><span class=p>,</span>
+		<span class=nx>Short</span><span class=p>:</span> <span class=s>&#34;这里是对命令的简短介绍&#34;</span><span class=p>,</span>
+		<span class=nx>Long</span><span class=p>:</span> <span class=s>`这里可以放对命令的详细介绍。
+</span><span class=s>可以多行`</span><span class=p>,</span>
+		<span class=nx>Example</span><span class=p>:</span> <span class=s>&#34;myCmd help&#34;</span><span class=p>,</span> <span class=c1>// 使用示例
+</span><span class=c1></span>		<span class=nx>Version</span><span class=p>:</span> <span class=nx>variable</span><span class=p>.</span><span class=nx>Version</span><span class=p>,</span> <span class=c1>// 全局变量常量都移到 variable 目录下
+</span><span class=c1></span>		<span class=nx>RunE</span><span class=p>:</span>    <span class=nx>printDirInfo</span><span class=p>,</span>
+	<span class=p>}</span>
+<span class=p>)</span>
+
+<span class=kd>func</span> <span class=nf>init</span><span class=p>()</span> <span class=p>{</span>
+	<span class=nx>rootCmd</span><span class=p>.</span><span class=nf>PersistentFlags</span><span class=p>().</span><span class=nf>StringVarP</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>variable</span><span class=p>.</span><span class=nx>DirPath</span><span class=p>,</span> <span class=s>&#34;dir&#34;</span><span class=p>,</span> <span class=s>&#34;d&#34;</span><span class=p>,</span> <span class=s>&#34;.&#34;</span><span class=p>,</span> <span class=s>&#34;文件路径&#34;</span><span class=p>)</span>
+    <span class=c1>// 注册命令
+</span><span class=c1></span>	<span class=nx>rootCmd</span><span class=p>.</span><span class=nf>AddCommand</span><span class=p>(</span><span class=nx>stat</span><span class=p>.</span><span class=nx>StatCmd</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=nf>printDirInfo</span><span class=p>(</span><span class=nx>cmd</span> <span class=o>*</span><span class=nx>cobra</span><span class=p>.</span><span class=nx>Command</span><span class=p>,</span> <span class=nx>args</span> <span class=p>[]</span><span class=kt>string</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+	<span class=nx>info</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>os</span><span class=p>.</span><span class=nf>Stat</span><span class=p>(</span><span class=nx>variable</span><span class=p>.</span><span class=nx>DirPath</span><span class=p>)</span>
+	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+		<span class=k>return</span> <span class=nx>err</span>
+	<span class=p>}</span>
+
+	<span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;name:%s, size:%d modTime:%v \n&#34;</span><span class=p>,</span> <span class=nx>info</span><span class=p>.</span><span class=nf>Name</span><span class=p>(),</span> <span class=nx>info</span><span class=p>.</span><span class=nf>Size</span><span class=p>(),</span> <span class=nx>info</span><span class=p>.</span><span class=nf>ModTime</span><span class=p>())</span>
+	<span class=k>return</span> <span class=kc>nil</span>
+<span class=p>}</span>
+
+<span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+	<span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>rootCmd</span><span class=p>.</span><span class=nf>Execute</span><span class=p>();</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+		<span class=nx>log</span><span class=p>.</span><span class=nf>Fatal</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+	<span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>再次执行 <code>help</code> 查看我们的命令。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>➜./myCmd -h
+这里可以放对命令的详细介绍。
+可以多行
+
+Usage:
+  myCmd <span class=o>[</span>flags<span class=o>]</span>
+  myCmd <span class=o>[</span>command<span class=o>]</span>
+
+Examples:
+myCmd <span class=nb>help</span>
+
+Available Commands:
+  <span class=nb>help</span>        Help about any <span class=nb>command</span>
+  stat        统计目录
+
+Flags:
+  -d, --dir string   文件路径 <span class=o>(</span>default <span class=s2>&#34;.&#34;</span><span class=o>)</span>
+  -h, --help         <span class=nb>help</span> <span class=k>for</span> myCmd
+  -v, --version      version <span class=k>for</span> myCmd
+
+Use <span class=s2>&#34;myCmd [command] --help&#34;</span> <span class=k>for</span> more information about a command.
+
+<span class=c1># 查看子命令help</span>
+➜./myCmd stat -h
+统计目录
+
+Usage:
+  myCmd stat <span class=o>[</span>flags<span class=o>]</span>
+
+Flags:
+  -h, --help           <span class=nb>help</span> <span class=k>for</span> stat
+  -s, --stat_dir       是否统计目录信息
+
+Global Flags:
+  -d, --dir string   文件路径 <span class=o>(</span>default <span class=s2>&#34;.&#34;</span><span class=o>)</span>
+
+<span class=c1># 统计</span>
+➜./myCmd stat -d .
+path:go.mod, size:61, modTime:2021-07-04 15:03:33.339495852 +0800 CST
+path:go.sum, size:56568, modTime:2021-07-04 15:03:33.339185898 +0800 CST
+path:main.go, size:929, modTime:2021-07-04 15:55:07.206300444 +0800 CST
+path:myCmd, size:4344056, modTime:2021-07-04 16:01:12.930132286 +0800 CST
+path:stat/stat.go, size:691, modTime:2021-07-04 16:01:09.353487727 +0800 CST
+path:variable/variable.go, size:73, modTime:2021-07-04 15:48:18.345134258 +0800 CST
+</code></pre></td></tr></table>
+</div>
+</div><p>不难发现，这个子命令可以无限嵌套，我们可以拥有二级三级子命令，能满足我们各种各样奇葩的需求，子命令可以复用其上级目录的 flag参数。</p>
+<h2 id=自主更新>自主更新</h2>
+<p>假如我们开发命令，已经发布到 GitHub 上，别人可以简单的 <code>go get</code> 命令就能安装使用我们的命令。但是我要是发布一个新版本，希望使用的人能知道我的命令工具有新版了而且要是能方便的更新到最新的版本是不是一个非常人性化的设计呢？</p>
+<p>其实实现起来也不难，这里抛出个思路。假如我们命令每次执行的时候，我做一次版本检查（但是<strong>强烈不建议</strong>每次都检查，最好本地做一个上次检查时间的缓存，最多一天检查一次，否则用户体验非常不好），如果有新的版本我就提醒用户，甚至我可以检查的时候拉过来新版本的 feature 展现给用户，，然后提供一个 <code>update</code> 的子命令，自我更新，这体验是不是听起来就很不错呀。</p>
+<p>至于 <code>update</code> 这个子命令实现也很简单，尝试执行一次 <code>go get -u &lt;myCmdRemoteURL></code> 即可，虽然看起来是对 <code>go get</code> 的一次封装，但是对于用户来说就很简单方便。</p>
+<h2 id=小彩蛋>小彩蛋</h2>
+<p>到这里我们一个小命令行工具也有模有样了，但是缺一个灵魂，是什么呢？</p>
+<p>当然是</p>
+<p>命令的炫酷的logo！！！</p>
+<p>先看效果图：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=c1># 普通版本</span>
+  __  __  __     __   _____   __  __   _____  
+ <span class=p>|</span>  <span class=se>\/</span>  <span class=p>|</span> <span class=se>\ \ </span>  / /  / ____<span class=p>|</span> <span class=p>|</span>  <span class=se>\/</span>  <span class=p>|</span> <span class=p>|</span>  __ <span class=se>\ </span>
+ <span class=p>|</span> <span class=se>\ </span> / <span class=p>|</span>  <span class=se>\ \_</span>/ /  <span class=p>|</span> <span class=p>|</span>      <span class=p>|</span> <span class=se>\ </span> / <span class=p>|</span> <span class=p>|</span> <span class=p>|</span>  <span class=p>|</span> <span class=p>|</span>
+ <span class=p>|</span> <span class=p>|</span><span class=se>\/</span><span class=p>|</span> <span class=p>|</span>   <span class=se>\ </span>  /   <span class=p>|</span> <span class=p>|</span>      <span class=p>|</span> <span class=p>|</span><span class=se>\/</span><span class=p>|</span> <span class=p>|</span> <span class=p>|</span> <span class=p>|</span>  <span class=p>|</span> <span class=p>|</span>
+ <span class=p>|</span> <span class=p>|</span>  <span class=p>|</span> <span class=p>|</span>    <span class=p>|</span> <span class=p>|</span>    <span class=p>|</span> <span class=p>|</span>____  <span class=p>|</span> <span class=p>|</span>  <span class=p>|</span> <span class=p>|</span> <span class=p>|</span> <span class=p>|</span>__<span class=p>|</span> <span class=p>|</span>
+ <span class=p>|</span>_<span class=p>|</span>  <span class=p>|</span>_<span class=p>|</span>    <span class=p>|</span>_<span class=p>|</span>     <span class=se>\_</span>____<span class=p>|</span> <span class=p>|</span>_<span class=p>|</span>  <span class=p>|</span>_<span class=p>|</span> <span class=p>|</span>_____/ 
+                                              
+                                              
+<span class=c1># 斜体</span>
+                                                                     
+    /<span class=p>|</span>    //<span class=p>|</span> <span class=p>|</span> <span class=se>\\</span>    / /     //   <span class=o>)</span> <span class=o>)</span>     /<span class=p>|</span>    //<span class=p>|</span> <span class=p>|</span>     //    <span class=o>)</span> <span class=o>)</span> 
+   //<span class=p>|</span>   // <span class=p>|</span> <span class=p>|</span>  <span class=se>\\</span>  / /     //           //<span class=p>|</span>   // <span class=p>|</span> <span class=p>|</span>    //    / /  
+  // <span class=p>|</span>  //  <span class=p>|</span> <span class=p>|</span>   <span class=se>\\</span>/ /     //           // <span class=p>|</span>  //  <span class=p>|</span> <span class=p>|</span>   //    / /   
+ //  <span class=p>|</span> //   <span class=p>|</span> <span class=p>|</span>    / /     //           //  <span class=p>|</span> //   <span class=p>|</span> <span class=p>|</span>  //    / /    
+//   <span class=p>|</span>//    <span class=p>|</span> <span class=p>|</span>   / /     <span class=o>((</span>____/ /    //   <span class=p>|</span>//    <span class=p>|</span> <span class=p>|</span> //____/ /     
+
+<span class=c1># 夸张版本</span>
+          _____                _____                    _____                    _____                    _____          
+         /<span class=se>\ </span>   <span class=se>\ </span>             <span class=p>|</span><span class=se>\ </span>   <span class=se>\ </span>                 /<span class=se>\ </span>   <span class=se>\ </span>                 /<span class=se>\ </span>   <span class=se>\ </span>                 /<span class=se>\ </span>   <span class=se>\ </span>        
+        /::<span class=se>\_</span>___<span class=se>\ </span>            <span class=p>|</span>:<span class=se>\_</span>___<span class=se>\ </span>               /::<span class=se>\ </span>   <span class=se>\ </span>               /::<span class=se>\_</span>___<span class=se>\ </span>               /::<span class=se>\ </span>   <span class=se>\ </span>       
+       /::::<span class=p>|</span>   <span class=p>|</span>             <span class=p>|</span>::<span class=p>|</span>   <span class=p>|</span>               /::::<span class=se>\ </span>   <span class=se>\ </span>             /::::<span class=p>|</span>   <span class=p>|</span>               /::::<span class=se>\ </span>   <span class=se>\ </span>      
+      /:::::<span class=p>|</span>   <span class=p>|</span>             <span class=p>|</span>::<span class=p>|</span>   <span class=p>|</span>              /::::::<span class=se>\ </span>   <span class=se>\ </span>           /:::::<span class=p>|</span>   <span class=p>|</span>              /::::::<span class=se>\ </span>   <span class=se>\ </span>     
+     /::::::<span class=p>|</span>   <span class=p>|</span>             <span class=p>|</span>::<span class=p>|</span>   <span class=p>|</span>             /:::/<span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>         /::::::<span class=p>|</span>   <span class=p>|</span>             /:::/<span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>    
+    /:::/<span class=p>|</span>::<span class=p>|</span>   <span class=p>|</span>             <span class=p>|</span>::<span class=p>|</span>   <span class=p>|</span>            /:::/  <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>       /:::/<span class=p>|</span>::<span class=p>|</span>   <span class=p>|</span>            /:::/  <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>   
+   /:::/ <span class=p>|</span>::<span class=p>|</span>   <span class=p>|</span>             <span class=p>|</span>::<span class=p>|</span>   <span class=p>|</span>           /:::/    <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>     /:::/ <span class=p>|</span>::<span class=p>|</span>   <span class=p>|</span>           /:::/    <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>  
+  /:::/  <span class=p>|</span>::<span class=p>|</span>___<span class=p>|</span>______       <span class=p>|</span>::<span class=p>|</span>___<span class=p>|</span>______    /:::/    / <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>   /:::/  <span class=p>|</span>::<span class=p>|</span>___<span class=p>|</span>______    /:::/    / <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span> 
+ /:::/   <span class=p>|</span>::::::::<span class=se>\ </span>   <span class=se>\ </span>     /::::::::<span class=se>\ </span>   <span class=se>\ </span> /:::/    /   <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span> /:::/   <span class=p>|</span>::::::::<span class=se>\ </span>   <span class=se>\ </span> /:::/    /   <span class=se>\:</span>::<span class=se>\ </span>___<span class=se>\ </span>
+/:::/    <span class=p>|</span>:::::::::<span class=se>\_</span>___<span class=se>\ </span>   /::::::::::<span class=se>\_</span>___<span class=se>\/</span>:::/____/     <span class=se>\:</span>::<span class=se>\_</span>___<span class=se>\/</span>:::/    <span class=p>|</span>:::::::::<span class=se>\_</span>___<span class=se>\/</span>:::/____/     <span class=se>\:</span>::<span class=p>|</span>    <span class=p>|</span>
+<span class=se>\:</span>:/    / ~~~~~/:::/    /   /:::/~~~~/~~      <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>     <span class=se>\:</span>:/    /<span class=se>\:</span>:/    / ~~~~~/:::/    /<span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>    /:::<span class=p>|</span>____<span class=p>|</span>
+ <span class=se>\/</span>____/      /:::/    /   /:::/    /          <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>     <span class=se>\/</span>____/  <span class=se>\/</span>____/      /:::/    /  <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>  /:::/    / 
+             /:::/    /   /:::/    /            <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>                         /:::/    /    <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>/:::/    /  
+            /:::/    /   /:::/    /              <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>                       /:::/    /      <span class=se>\:</span>::<span class=se>\ </span>   /:::/    /   
+           /:::/    /    <span class=se>\:</span>:/    /                <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>                     /:::/    /        <span class=se>\:</span>::<span class=se>\ </span> /:::/    /    
+          /:::/    /      <span class=se>\/</span>____/                  <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>                   /:::/    /          <span class=se>\:</span>::<span class=se>\/</span>:::/    /     
+         /:::/    /                                 <span class=se>\:</span>::<span class=se>\ </span>   <span class=se>\ </span>                 /:::/    /            <span class=se>\:</span>:::::/    /      
+        /:::/    /                                   <span class=se>\:</span>::<span class=se>\_</span>___<span class=se>\ </span>               /:::/    /              <span class=se>\:</span>:::/    /       
+        <span class=se>\:</span>:/    /                                     <span class=se>\:</span>:/    /                <span class=se>\:</span>:/    /                <span class=se>\:</span>:/____/        
+         <span class=se>\/</span>____/                                       <span class=se>\/</span>____/                  <span class=se>\/</span>____/                  ~~              
+                                                                                                                         
+</code></pre></td></tr></table>
+</div>
+</div><p>我随机选了几个作为演示，<a href=https://www.colorschemer.com/ascii-art-generator target=_blank rel="noopener noreffer">点击这里跳转</a>制作自己工具的logo，然后再主命令注册一个 <code>PreRun</code> 的函数，在该函数内打印我们的logo。这样在主逻辑执行前会打印我们的logo，辨识度一下子提高很多。</p>
+<p>实际效果：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>➜./myCmd -d main.go 
+ __  __  __     __   _____   __  __   _____  
+<span class=p>|</span>  <span class=se>\/</span>  <span class=p>|</span> <span class=se>\ \ </span>  / /  / ____<span class=p>|</span> <span class=p>|</span>  <span class=se>\/</span>  <span class=p>|</span> <span class=p>|</span>  __ <span class=se>\ </span>
+<span class=p>|</span> <span class=se>\ </span> / <span class=p>|</span>  <span class=se>\ \_</span>/ /  <span class=p>|</span> <span class=p>|</span>      <span class=p>|</span> <span class=se>\ </span> / <span class=p>|</span> <span class=p>|</span> <span class=p>|</span>  <span class=p>|</span> <span class=p>|</span>
+<span class=p>|</span> <span class=p>|</span><span class=se>\/</span><span class=p>|</span> <span class=p>|</span>   <span class=se>\ </span>  /   <span class=p>|</span> <span class=p>|</span>      <span class=p>|</span> <span class=p>|</span><span class=se>\/</span><span class=p>|</span> <span class=p>|</span> <span class=p>|</span> <span class=p>|</span>  <span class=p>|</span> <span class=p>|</span>
+<span class=p>|</span> <span class=p>|</span>  <span class=p>|</span> <span class=p>|</span>    <span class=p>|</span> <span class=p>|</span>    <span class=p>|</span> <span class=p>|</span>____  <span class=p>|</span> <span class=p>|</span>  <span class=p>|</span> <span class=p>|</span> <span class=p>|</span> <span class=p>|</span>__<span class=p>|</span> <span class=p>|</span>
+<span class=p>|</span>_<span class=p>|</span>  <span class=p>|</span>_<span class=p>|</span>    <span class=p>|</span>_<span class=p>|</span>     <span class=se>\_</span>____<span class=p>|</span> <span class=p>|</span>_<span class=p>|</span>  <span class=p>|</span>_<span class=p>|</span> <span class=p>|</span>_____/ 
+   
+name:main.go, size:1320 modTime:2021-07-04 16:28:51.339520282 +0800 CST 
+</code></pre></td></tr></table>
+</div>
+</div><p>暂且就这么多，感谢 <code>spf13/cobra</code> 的作者，提供这么高质量的开源库。</p>
+</div><div class=post-footer id=post-footer>
+<div class=post-info>
+<div class=post-info-line>
+<div class=post-info-mod>
+<span>更新于 2021-11-22</span>
+</div>
+<div class=post-info-license></div>
+</div>
+<div class=post-info-line>
+<div class=post-info-md><span>
+<a class=link-to-markdown href=/go-cobra/index.md target=_blank>阅读原始文档</a>
+</span></div>
+<div class=post-info-share>
+<span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/go-cobra/ data-title=如何编写自己的第一个命令行工具 data-hashtags=go,cobra><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/go-cobra/ data-hashtag=go><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/go-cobra/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/go-cobra/ data-title=如何编写自己的第一个命令行工具 data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/go-cobra/ data-title=如何编写自己的第一个命令行工具><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/go-cobra/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/go-cobra/ data-title=如何编写自己的第一个命令行工具><i data-svg-src=/lib/simple-icons/icons/line.min.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/go-cobra/ data-title=如何编写自己的第一个命令行工具><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/go-cobra/ data-title=如何编写自己的第一个命令行工具 data-description><i data-svg-src=/lib/simple-icons/icons/myspace.min.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/go-cobra/ data-title=如何编写自己的第一个命令行工具 data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/go-cobra/ data-title=如何编写自己的第一个命令行工具><i data-svg-src=/lib/simple-icons/icons/baidu.min.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/go-cobra/ data-title=如何编写自己的第一个命令行工具><i class="fab fa-evernote fa-fw"></i></a></span>
+</div>
+</div>
+</div>
+<div class=post-info-more>
+<section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/go/>go</a>,&nbsp;<a href=/tags/cobra/>cobra</a></section>
+<section>
+<span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span>
+</section>
+</div>
+<div class=post-nav><a href=/use-nacos-with-go-micro/ class=prev rel=prev title="Go-Micro 中使用Nacos"><i class="fas fa-angle-left fa-fw"></i>Go-Micro 中使用Nacos</a>
+<a href=/go-protoc-http/ class=next rel=next title="如何自定义 protoc 插件">如何自定义 protoc 插件<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+<div id=comments><div id=gitalk class=comment></div><noscript>
+Please enable JavaScript to view the comments powered by <a href=https://github.com/gitalk/gitalk></a>Gitalk</a>.
+</noscript></div></article></div>
+</main><footer class=footer>
+<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank</div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.89.4">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+</div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2021</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div>
+</div>
+</footer></div>
+<div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部>
+<i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title=查看评论>
+<i class="fas fa-comment fa-fw"></i>
+</a>
+</div><link rel=stylesheet href=/lib/gitalk/gitalk.min.css><link rel=stylesheet href=/lib/katex/katex.min.css><link rel=stylesheet href=/lib/katex/copy-tex.min.css><link rel=stylesheet href=/lib/cookieconsent/cookieconsent.min.css><script type=text/javascript src=/lib/gitalk/gitalk.min.js></script><script type=text/javascript src=/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=/lib/autocomplete/autocomplete.min.js></script><script type=text/javascript src=/lib/lunr/lunr.min.js></script><script type=text/javascript src=/lib/lunr/lunr.stemmer.support.min.js></script><script type=text/javascript src=/lib/lunr/lunr.zh.min.js></script><script type=text/javascript src=/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=/lib/sharer/sharer.min.js></script><script type=text/javascript src=/lib/katex/katex.min.js></script><script type=text/javascript src=/lib/katex/auto-render.min.js></script><script type=text/javascript src=/lib/katex/copy-tex.min.js></script><script type=text/javascript src=/lib/katex/mhchem.min.js></script><script type=text/javascript src=/lib/cookieconsent/cookieconsent.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{gitalk:{admin:["yusank"],clientID:"6f073db028a9eeb7d2de",clientSecret:"e17e61d65568e45944de54d1e52910e7c99a4c18",id:"2021-06-30T18:22:00+08:00",owner:"yusank",repo:"https://github.com/yusank/yusank.github.io",title:"如何编写自己的第一个命令行工具"}},cookieconsent:{content:{dismiss:"同意",link:"了解更多",message:"本网站使用 Cookies 来改善您的浏览体验."},enable:!0,palette:{button:{background:"#f0f0f0"},popup:{background:"#1aa3ff"}},theme:"edgeless"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},search:{highlightTag:"em",lunrIndexURL:"/index.json",lunrLanguageCode:"zh",lunrSegmentitURL:"/lib/lunr/lunr.segmentit.js",maxResultLength:10,noResultsFound:"没有找到结果",snippetLength:50,type:"lunr"}}</script><script type=text/javascript src=/js/theme.min.js></script></body>
+</html>
