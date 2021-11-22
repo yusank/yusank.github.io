@@ -951,7 +951,7 @@ uglyURLs = false
     ######################################
     ## 字号（单位：px）
 
-    fontSize = 14
+    fontSize = 16
 
     ######################################
     ## 制表符的宽度
@@ -971,7 +971,7 @@ uglyURLs = false
     enableParagraphIndent = true
 
     # 是否缩进第一段（全局设置）
-    indentFirstParagraph = false
+    indentFirstParagraph = true
     # 说明：文章的 Front Matter 中的 `indentFirstParagraph`
     #      的优先级高于此处
 
@@ -993,7 +993,7 @@ uglyURLs = false
     ## 首字下沉
 
     # 是否开启（全局设置）
-    enableDropCap = false
+    enableDropCap = true
     # 说明：文章的 Front Matter 中的 `dropCap`
     #      的优先级高于此处
 
@@ -1065,17 +1065,17 @@ uglyURLs = false
     # 文章的 Git 版本信息
 
     # 是否开启
-    enablePostGitInfo = false
+    enablePostGitInfo = true
 
     # 是否显示（全局设置）
-    displayPostGitInfo = false
+    displayPostGitInfo = true
     # 说明：文章的 Front Matter 中的 `gitinfo`
     #      的优先级高于此处
 
     # 仓库地址
-    repoURL = ""
+    repoURL = "https://github.com/yusank/yusank.github.io/tree/hugo"
     # 编辑地址
-    repoEditURL = ""
+    repoEditURL = "https://github.com/yusank/yusank.github.io/edit/hugo/content/posts/"
 
     # Git 的图标
     gitIcon = "code-branch"

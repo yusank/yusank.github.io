@@ -3,7 +3,7 @@ title: "Go Channel 源码解读"
 date: 2020-03-06T17:24:41+08:00
 updated: 2020-04-06T17:24:41+08:00
 categories:
-- 技术
+- 源码解读
 tags:
 - go
 - channel

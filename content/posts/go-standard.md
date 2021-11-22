@@ -4,8 +4,7 @@ date: 2020-11-25T16:24:41+08:00
 updated: 2020-11-30T19:46:41+08:00
 draft: false
 categories:
-- 技术
-- 规范
+- 代码规范
 tags:
 - go
 ---

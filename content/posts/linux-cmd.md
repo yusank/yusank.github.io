@@ -3,9 +3,9 @@ title: "linux命令"
 date: 2016-12-28T13:13:13+08:00
 updated: 2016-12-28T13:13:13+08:00
 categories: 
-- 技术
+- 基础知识
 tags: 
-- Linux
+- linux
 ---
 welcome to learn terminal command!!!
 

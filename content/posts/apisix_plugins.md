@@ -2,7 +2,7 @@
 title: "apisix 开发自定义插件"
 date: 2021-11-03T12:20:00+08:00
 categories: 
-- 技术
+- 网关
 tags:
 - lua
 - go

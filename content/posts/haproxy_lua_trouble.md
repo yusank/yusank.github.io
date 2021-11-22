@@ -2,7 +2,7 @@
 title: "haproxy 开发 lua 插件过程遇到的坑"
 date: 2021-11-03T13:20:00+08:00
 categories: 
-- 技术
+- 网关
 tags:
 - lua
 - haproxy

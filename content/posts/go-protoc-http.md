@@ -2,7 +2,6 @@
 date: 2021-07-08T18:22:00+08:00
 title: "如何自定义 protoc 插件"
 categories:
-- 技术
 - protobuf
 tags:
 - go

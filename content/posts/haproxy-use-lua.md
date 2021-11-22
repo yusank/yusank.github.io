@@ -2,6 +2,8 @@
 title: "HAProxy 中使用 lua"
 draft: true
 date: 2021:10:12T12:00:01+08:00
+categories: 
+- 网关
 tags:
 - lua
 - haproxy

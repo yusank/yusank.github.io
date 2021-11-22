@@ -3,10 +3,9 @@ title: "Unix 网络编程"
 date: 2017-04-22T16:52:00+08:00
 updated: 2017-04-22T16:52:01+08:00
 categories: 
-- 技术
+- 网络编程
 tags: 
 - Unix
-- 网络编程
 ---
 # Unix 网络编程
 

@@ -3,7 +3,7 @@ title: "GO test"
 date: 2017-06-01T15:07:00+08:00
 updated: 2017-06-01T15:07:01+08:00
 category:
-- 技术
+- 基础知识
 tags:
 - go
 ---
