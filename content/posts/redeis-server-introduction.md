@@ -6,7 +6,9 @@ categories: ["Redis"]
 tags: ["redis", "系列篇"]
 ---
 
-本文系列篇`Redis Server 实现`的开篇文章，将列出本系列篇讲述的内容和实现的功能做简单的描述。
+> 本文系列篇`Redis Server 实现`的开篇文章，将列出本系列篇讲述的内容和实现的功能做简单的描述。
+
+<!--more-->
 
 ## 核心内容
 
@@ -23,6 +25,6 @@ tags: ["redis", "系列篇"]
 
 ## 文章传送门
 
-- [协议篇(未发布)](https://yusank.github.io/posts/redis-server-protocol/)
+- [协议篇](https://yusank.github.io/posts/redis-server-protocol/)
 - [网络篇(未发布)](https://yusank.github.io)
 - 待补充

@@ -463,7 +463,7 @@ paginate = 7
   #  TypeIt 配置
   [params.typeit]
     # 每一步的打字速度 (单位是毫秒)
-    speed = 100
+    speed = 70
     # 光标的闪烁速度 (单位是毫秒)
     cursorSpeed = 1000
     # 光标的字符 (支持 HTML 格式)
