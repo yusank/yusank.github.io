@@ -150,7 +150,7 @@ paginate = 7
   [params.footer]
     enable = true
     #  自定义内容 (支持 HTML 格式)
-    custom = 'Keep learning and stay with lights.<br>❤ yusank'
+    custom = 'Keep learning and stay with lights.<br>❤ yusank<br><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv">本站总访问量：<span id="busuanzi_value_site_pv"></span>次</span><span id="busuanzi_container_site_uv"> 本站总访问人数：<span id="busuanzi_value_site_uv"></span>人次</span>'
     #  是否显示 Hugo 和主题信息
     hugo = true
     #  是否显示版权信息
