@@ -315,7 +315,7 @@ paginate = 7
       maxShownLines = 100
     #  KaTeX 数学公式
     [params.page.math]
-      enable = true
+      enable = false
       # 默认块定界符是 $$ ... $$ 和 \\[ ... \\]
       blockLeftDelimiter = ""
       blockRightDelimiter = ""
@@ -409,7 +409,7 @@ paginate = 7
         # 位于 "themes/LoveIt/assets/data/emoji/" 目录
         # 可以在你的项目下相同路径存放你自己的数据文件:
         # "assets/data/emoji/"
-        emoji = ""
+        emoji = "apple.yaml"
       # Facebook 评论系统设置
       [params.page.comment.facebook]
         enable = false
@@ -516,7 +516,7 @@ paginate = 7
     # 位于 "themes/LoveIt/assets/data/cdn/" 目录
     # 可以在你的项目下相同路径存放你自己的数据文件:
     # "assets/data/cdn/"
-    data = ""
+    data = "jsdelivr.yml"
 
   #  兼容性设置
   [params.compatibility]
