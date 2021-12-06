@@ -5,6 +5,8 @@
 本文章为该系列的`协议篇`，如果需要阅读其他相关文章， 请点击[这里](https://yusank.github.io/posts/redeis-server-introduction/)跳转查看
 {{< /admonition >}}
 
+<!--more-->
+
 ## 前言
 
 `Redis` 作为一个当下最流行的 `NoSQL` 或 `KV` 数据库，几乎嵌入到大部对性能、时效性高的项目内，变成了每个程序员尤其是后端程序必需了解的一个知识点。
