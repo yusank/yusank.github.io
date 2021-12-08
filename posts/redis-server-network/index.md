@@ -208,8 +208,6 @@ type Server struct {
     listener net.Listener
     // 新增 WaitGroup 更好控制并发和退出逻辑
     wg       *sync.WaitGroup
-    // 新增是覅否关闭标志位
-    closed   bool
 }
 ```
 
@@ -259,7 +257,6 @@ func (s *Server) Start() error {
 func (s *Server) Stop() {
     s.cancel()
     _ = s.listener.Close()
-    s.closed = true
 }
 ```
 
@@ -297,41 +294,67 @@ func (s *Server) handleListener() {
 ```go
 // handle by a new goroutine
 func (s *Server) handleConn(conn net.Conn) {
-    defer func() {
-        _ = conn.Close()
-        // Done wg before exit
-        s.wg.Done()
-    }()
-
     reader := bufio.NewReader(conn)
+    // ReceiveDataAsync 返回一个结构体包含两个 channel，实际读取数据是异步的
+    ar := protocol.ReceiveDataAsync(reader)
+loop:
     for {
-        if s.closed {
-            break
-        }
-
-        // 在处理请求时，通过上层 context 控制处理超时，从而保证不会无限期等待
-        // 下游处理时，如果是耗时操作则异步处理并同时检查 ctx 是否 Done ，
-        // 如果 Done，则立刻结束这次处理给上层返回错误，
-        reply, err := s.handler.Handle(s.ctx, reader)
-        if err == io.EOF {
-            break
-        }
-
-        if err != nil {
+        select {
+            // ctx
+            // 处理完上一个请求后 如果 ctx 已经被 cancel 了 则退出循环结束这个 connection
+        case <-s.ctx.Done():
+            break loop
+        case <-ar.ErrorChan:
             log.Println("handle err:", err)
-            break
-        }
+            break loop
+        case rec := <-ar.ReceiveChan:
+            rsp := handleRequest(rec)
+            reply := rsp.Encode()
 
-        if len(reply) == 0 {
-            continue
-        }
+            if len(reply) == 0 {
+                continue
+            }
 
-        _, err = conn.Write(reply)
-        if err != nil {
-            log.Println("write err:", err)
-            break
+            _, err := conn.Write(reply)
+            if err != nil {
+                log.Println("write err:", err)
+                break loop
+            }
         }
     }
+
+    _ = conn.Close()
+    s.wg.Done()
+}
+
+func ReceiveDataAsync(r Reader) *AsyncReceive {
+    var ar = &AsyncReceive{
+        ReceiveChan: make(chan Receive, 1),
+        ErrorChan:   make(chan error, 1),
+    }
+    go func() {
+        defer func() {
+            close(ar.ReceiveChan)
+            close(ar.ErrorChan)
+        }()
+
+        for {
+            rec, err := DecodeFromReader(r)
+            if err != nil {
+                ar.ErrorChan <- err
+
+                if errors.Is(err, io.EOF) || errors.Is(err, net.ErrClosed) {
+                    return
+                }
+                log.Println(err)
+                continue
+            }
+
+            ar.ReceiveChan <- rec
+        }
+    }()
+
+    return ar
 }
 
 ```
