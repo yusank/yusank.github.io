@@ -1,5 +1,5 @@
 ---
-title: "[系列]Redis Server 实现·网络篇"
+title: "[系列]Redis Server 实现·服务管理篇"
 date: 2021-12-06T10:00:00+08:00
 lastmod: 2021-12-06T10:00:00+08:00
 categories: ["Redis"]
@@ -11,7 +11,7 @@ tags: ["redis", "系列篇", "网络"]
 <!--more-->
 
 {{< admonition type=quote title="说明" open=true >}}
-本文章为该系列的`网络篇`，如果需要阅读其他相关文章， 请点击[这里](https://yusank.github.io/posts/redeis-server-introduction/)跳转查看
+本文章为该系列的`服务管理篇`，如果需要阅读其他相关文章， 请点击[这里](https://yusank.github.io/posts/redeis-server-introduction/)跳转查看
 {{< /admonition >}}
 
 ## 定义服务
