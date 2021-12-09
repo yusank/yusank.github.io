@@ -66,6 +66,7 @@ This is *Quete* .
 ### typeit
 
 #### markdown
+
 {{< typeit >}}
 This is a *paragraph* with **typing animation** based on [TypeIt](https://typeitjs.com/)...
 {{< /typeit >}}
@@ -76,12 +77,11 @@ This is a *paragraph* with **typing animation** based on [TypeIt](https://typeit
 这块目前发现是有 bug 的，不会换行，所以暂时不可用。
 {{< /admonition >}}
 
-
 {{< typeit code=go >}}
 import "fmt"
 
 func main() {
-	fmt.Println("Hello, world")
+    fmt.Println("Hello, world")
 }
 {{< /typeit >}}
 
