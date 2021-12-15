@@ -144,7 +144,7 @@ paginate = 7
       # 你可以在名称 (允许 HTML 格式) 之后添加其他信息, 例如图标
       post = ""
       #  是否为标题显示打字机动画
-      typeit = false
+      typeit = true
 
   # 页面底部信息配置
   [params.footer]
@@ -192,9 +192,9 @@ paginate = 7
       # Gravatar 邮箱，用于优先在主页显示的头像
       gravatarEmail = ""
       # 主页显示头像的 URL
-      avatarURL = "https://blog-1256738295.cos.ap-beijing.myqcloud.com/avatar.png"
+      avatarURL = "images/avatar.png"
       #  主页显示的网站标题 (支持 HTML 格式)
-      title = ""
+      title = "Yusank"
       # 主页显示的网站副标题
       subtitle = "这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."
       # 是否为副标题显示打字机动画
@@ -306,7 +306,7 @@ paginate = 7
       #  是否保持使用文章前面的静态目录
       keepStatic = false
       # 是否使侧边目录自动折叠展开
-      auto = false
+      auto = true
     #  代码配置
     [params.page.code]
       # 是否显示代码块的复制按钮

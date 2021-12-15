@@ -4,6 +4,8 @@ date: 2021-11-23T10:00:00+08:00
 lastmod: 2021-11-23T10:00:00+08:00
 categories: ["Redis"]
 tags: ["redis", "系列篇"]
+toc:
+  auto: false
 ---
 
 {{< admonition type=quote title="说明" open=true >}}
