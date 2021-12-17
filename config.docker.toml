@@ -3,7 +3,7 @@
 # for docker build
 
 baseURL = "https://yusank.space/"
-title = "后端技术储备"
+title = "研发小白的经验分享"
 defaultContentLanguage = "zh-cn"
 languageCode = "zh-CN"
 hasCJKLanguage = true
@@ -76,7 +76,7 @@ paginate = 7
   #  LoveIt 主题版本
   version = "0.2.X"
   # 网站描述
-  description = "这里是后端知识储备系统，我会在这里分享学习和成长过程中的积累和经验."
+  description = "这里是研发小白，我会在这里分享学习和成长过程中的积累和经验."
   # 网站关键词
   keywords = ["yusank", "Tech"]
   # 网站默认主题样式 ("light", "dark", "auto")
@@ -139,7 +139,7 @@ paginate = 7
       # LOGO 的 URL
       logo = ""
       # 标题名称
-      name = "后端知识储备"
+      name = "研发小白的经验分享"
       # 你可以在名称 (允许 HTML 格式) 之前添加其他信息, 例如图标
       pre = ""
       # 你可以在名称 (允许 HTML 格式) 之后添加其他信息, 例如图标
@@ -151,7 +151,7 @@ paginate = 7
   [params.footer]
     enable = true
     #  自定义内容 (支持 HTML 格式)
-    custom = 'Keep learning and stay with lights.<br>❤ yusank<br>'
+    # custom = 'Keep learning and stay with lights.<br>❤ yusank<br>'
     #  是否显示 Hugo 和主题信息
     hugo = true
     #  是否显示版权信息
@@ -195,9 +195,9 @@ paginate = 7
       # 主页显示头像的 URL
       avatarURL = "images/avatar.png"
       #  主页显示的网站标题 (支持 HTML 格式)
-      title = "Yusank"
+      title = "研发小白"
       # 主页显示的网站副标题
-      subtitle = "这里是后端知识储备系统，我会在这里分享学习和成长过程中的积累和经验."
+      subtitle = "这里是研发小白，我会在这里分享学习和成长过程中的积累和经验."
       # 是否为副标题显示打字机动画
       typeit = true
       # 是否显示社交账号
