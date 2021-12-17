@@ -66,12 +66,12 @@
 <span><i class="details-icon fas fa-angle-right"></i></span>
 </div>
 <div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
-<ol>
+<ul>
 <li><a href=#创建根命令>创建根命令</a></li>
 <li><a href=#添加子命令>添加子命令</a></li>
 <li><a href=#自主更新>自主更新</a></li>
 <li><a href=#小彩蛋>小彩蛋</a></li>
-</ol>
+</ul>
 </nav></div>
 </div><div class=content id=content><p>关于如何用 go 语言编写一个命令行工具。这里会基于 <code>cobra</code> 开源库进行开发。<code>cobra</code> 作为一个非常有名的命令行工具库，被很多开源项目引入使用，很多命令行工具都能看到 <code>cobra</code> 的身影。<code>cobra</code> 提供一个完整的命令行的工具的所需的功能，包括命令定义、命令扩展、读取参数等。下面我们以开发一个命令行工具的流程一步步学习如何使用 <code>cobra</code> 开发一个自己的命令行工具。</p>
 <h2 id=创建根命令>创建根命令</h2>

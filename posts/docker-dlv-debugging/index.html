@@ -66,11 +66,11 @@
 <span><i class="details-icon fas fa-angle-right"></i></span>
 </div>
 <div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
-<ol>
+<ul>
 <li><a href=#docker-file>docker file</a></li>
 <li><a href=#启动-docker-镜像>启动 docker 镜像</a></li>
 <li><a href=#goland-配置>goland 配置</a></li>
-</ol>
+</ul>
 </nav></div>
 </div><div class=content id=content><p><code>dlv</code> 作为程序调试工具功能非常强大，日常开发和测试中几乎离不开 debug 调试。但是有的时候由于本地环境与线上环境不一致或有些问题在本地无法复现的时候，我们需要在线上/测试环境做 debug，同时希望 debug 体验能与本地 debug 体验一致。<code>dlv</code> 其实是支持这种需求的，线上运行线本地 debug。以下是基于 docker 环境的远程调试步骤，希望能对遇到这种情况的码友们友帮助。</p>
 <p>所需工具：</p>
