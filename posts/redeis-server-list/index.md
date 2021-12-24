@@ -9,7 +9,6 @@
 本文章为该系列的`链表`，如果需要阅读其他相关文章， 请点击[这里](https://yusank.github.io/posts/redeis-server-introduction/)跳转查看
 {{< /admonition >}}
 
-
 ## 1 前言
 
 众所周知，Redis 中有五大数据结构，在各种面试中也会经常遇到相关的问题，从这一篇开始，我把这个五大数据结构（`string`, `list`, `set`, `sorted_set`, `hash_map`）的底层原理和如何用 go 语言实现讲明白。
