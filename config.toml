@@ -136,7 +136,7 @@ paginate = 7
     #  页面头部导航栏标题配置
     [params.header.title]
       # LOGO 的 URL
-      logo = "images/logo.svg"
+      logo = "https://yusank.github.io/images/logo.svg"
       # 标题名称
       name = "usank`s Site"
       # 你可以在名称 (允许 HTML 格式) 之前添加其他信息, 例如图标
