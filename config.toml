@@ -378,7 +378,7 @@ paginate = 7
       # Disqus 评论系统设置
       [params.page.comment.disqus]
         # 
-        enable = true
+        enable = false
         # Disqus 的 shortname，用来在文章中启用 Disqus 评论系统
         shortname = "yusank"
       # Gitalk 评论系统设置
@@ -432,11 +432,11 @@ paginate = 7
         enable = false
       #  Utterances 评论系统设置
       [params.page.comment.utterances]
-        enable = false
+        enable = true
         # owner/repo
-        repo = ""
+        repo = "yusank/yusank.github.io"
         issueTerm = "pathname"
-        label = ""
+        label = "Comment"
         lightTheme = "github-light"
         darkTheme = "github-dark"
     #  第三方库配置
