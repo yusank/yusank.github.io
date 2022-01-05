@@ -177,6 +177,25 @@ typedef struct zskiplistNode {
 
 ![xxx](skiplist_find.png)
 
+源码：
+
+```c
+    /* 下面就是非常常规的一个遍历查找过程 */
+    x = zsl->header;
+    // 从head 顶层level开始向下遍历
+    for (i = zsl->level-1; i >= 0; i--) {
+        // 每一层判断forward元素不为空的时候是否与目标score和ele
+        while (x->level[i].forward &&
+                (x->level[i].forward->score < curscore ||
+                    (x->level[i].forward->score == curscore &&
+                    // 这里的 sdccmp 是Redis内实现的对其 String 结构的字符串进行对比(即字典排序的对比)
+                     sdscmp(x->level[i].forward->ele,ele) < 0)))
+        {
+            x = x->level[i].forward;
+        }
+    }
+```
+
 #### 3.2.4 添加元素
 
 添加元素核心有以下几点：
