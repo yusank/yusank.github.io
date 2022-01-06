@@ -196,6 +196,8 @@ typedef struct zskiplistNode {
     }
 ```
 
+> 然后再真正实现 `zset` 的时候，不会根据 value 值去遍历查询跳跃表, 而是直接从哈希表查是否存在
+
 #### 3.2.4 添加元素
 
 添加元素核心有以下几点：
@@ -206,6 +208,47 @@ typedef struct zskiplistNode {
 - 如果新元素的层高大于当前 skiplist 的高度，需要做哪些调整工作？
 
 对以上几点有了明确的认知和回答后，了解插入元素的过程就变得很简单。
+
+添加元素过程：
+
+0. 定义一个 `zskiplistNode *update[ZSKIPLIST_MAXLEVEL]` 数组记录每次变更 level 时的节点（后期更新受影响的节点用）
+
+1. 定义 `unsigned int rank[ZSKIPLIST_MAXLEVEL]` 数组记录两次向下遍历的节点直接的跨度
+
+2. 与查询元素一样，从 head 的顶层开始向下向前遍历，找到插入的位置，这个位置满足 score 值介于前后的元素
+
+3. 在遍历的过程中，每往下移动一次(level - 1 )的时候记录当前元素update[cur_level] = cur_node
+
+4. 在遍历的过程中，每往往前移动一次(注：每次移动只会单向 不会同事向前向下)的前记录同一个 level 内的跨度
+ rank[cur_level] += cur_node.level[cur_level].span (这里之所以累加是因为，同一个 level 上可能会向前移动 n 次，如上面示例图中的从 1 到 6 的过程都是在同一个 level 上进行的)
+
+5. 找到插入位置的前一个元素 `x` ，新元素最终插入到 `x` 后面
+
+6. 随机一个 level， Redis 是有一套简单的算法去生成随机的 level [跳转查看](#3.2.4.1 随机 level 算法)。
+
+{{< image src="skiplist_insert.png" caption="跳跃表插入元素过程" width="800" >}}
+
+##### 3.2.4.1 随机 level 算法
+
+跳跃表作为一个随机化的数据结构，每一个元素都是有随机 level，查询时通过跳跃 N 个元素的方式提高性能。比较理想的结构是数据每一层都尽可能有数据，不要过于居中某一层（否则退化成链表结构了），每个 level 的元素数从上到下呈现2^level的比例（其中 0 表示最底层）。这样在高层跳跃时一次可以跳跃更远，越到底层越接近目标，此时时间复杂度才能体现出 O(logN)。
+
+那么问题来了，如何确保每次随机时，越高层出现概率越低 越底层出现的概率越高呢？
+
+先给出 Redis 源码：
+
+```c
+/* Returns a random level for the new skiplist node we are going to create.
+ * The return value of this function is between 1 and ZSKIPLIST_MAXLEVEL
+ * (both inclusive), with a powerlaw-alike distribution where higher
+ * levels are less likely to be returned. */
+int zslRandomLevel(void) {
+    int level = 1;
+    while ((random()&0xFFFF) < (0.25 * 0xFFFF))
+        level += 1;
+    return (level<32) ? level : 32;
+}
+```
+
 
 #### 3.2.5 更新元素
 
