@@ -175,7 +175,7 @@ typedef struct zskiplistNode {
 
 3. 步骤 1，2 一直循环，指到 p 移动到 null 或者移动到目标元素为止。
 
-![xxx](skiplist_find.png)
+{{< image src="skiplist_find.png" caption="跳跃表查询元素过程" width="800" >}}
 
 源码：
 
