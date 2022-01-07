@@ -63,6 +63,14 @@ paginate = 7
     title = ""
     weight = 4
   [[menu.main]]
+    identifier = "links"
+    pre = ""
+    post = ""
+    name = "友链"
+    url = "/links/"
+    title = ""
+    weight = 5
+  [[menu.main]]
     identifier = "github"
     pre = "<i class='fab fa-github fa-fw'></i>"
     post = ""
@@ -315,7 +323,7 @@ paginate = 7
       maxShownLines = 100
     #  KaTeX 数学公式
     [params.page.math]
-      enable = false
+      enable = true
       # 默认块定界符是 $$ ... $$ 和 \\[ ... \\]
       blockLeftDelimiter = ""
       blockRightDelimiter = ""

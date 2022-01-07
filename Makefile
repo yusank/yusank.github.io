@@ -18,5 +18,5 @@ docker-run:
 	docker run -d -p 8088:80 --name blog yusank/hugo_blog:$(TAG)
 
 .PHONY: docker-push
-docker-push:
+docker-push: docker-build
 	docker push docker.io/yusank/hugo_blog:$(TAG)
