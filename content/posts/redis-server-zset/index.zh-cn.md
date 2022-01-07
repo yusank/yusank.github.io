@@ -1,7 +1,7 @@
 ---
 title: "[系列]Redis Server 实现·有序集合篇"
-date: 2021-12-24T10:50:00+08:00
-lastmod: 2021-13-24T11:50:00+08:00
+date: 2022-01-07T10:50:00+08:00
+lastmod: 2022-01-07T11:50:00+08:00
 categories: ["Redis"]
 tags: ["redis", "系列篇", "数据结构"]
 draft: false
@@ -219,7 +219,7 @@ typedef struct zskiplistNode {
 
 3. 在遍历的过程中，每往下移动一次(level - 1 )的时候记录当前元素update[cur_level] = cur_node
 
-4. 在遍历的过程中，每往往前移动一次(注：每次移动只会单向 不会同事向前向下)的前记录同一个 level 内的跨度
+4. 在遍历的过程中，每往前移动一次(注：每次移动只会单向 不会同时向前向下)的前记录同一个 level 内的跨度
  rank[cur_level] += cur_node.level[cur_level].span (这里之所以累加是因为，同一个 level 上可能会向前移动 n 次，如上面示例图中的从 1 到 6 的过程都是在同一个 level 上进行的)
 
 ```c
@@ -502,7 +502,7 @@ func newZslNode(level int, score float64, value string) *zSkipListNode {
 
 #### 4.3.1 根据排名查找元素
 
-在上面的实现里会看到到处飞的 span 这个属性，但是好像一直没约实际用上，其实在遍历过程中尤其是跟排名相关的操作里这个 span 属性是非常的有用，下面看一下实际用处：
+在上面的实现里会看到到处飞的 span 这个属性，但是好像一直没有实际用上，其实在遍历过程中尤其是跟排名相关的操作里这个 span 属性是非常的有用，下面看一下实际用处：
 
 ```go
 func (zsl *zSkipList) findElementByRank(rank uint) *zSkipListNode {

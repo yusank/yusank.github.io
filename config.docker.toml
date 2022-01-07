@@ -64,6 +64,14 @@ paginate = 7
     title = ""
     weight = 4
   [[menu.main]]
+    identifier = "links"
+    pre = ""
+    post = ""
+    name = "友链"
+    url = "/links/"
+    title = ""
+    weight = 5  
+  [[menu.main]]
     identifier = "github"
     pre = "<i class='fab fa-github fa-fw'></i>"
     post = ""
