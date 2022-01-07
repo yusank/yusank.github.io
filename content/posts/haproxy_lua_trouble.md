@@ -3,6 +3,7 @@ title: "haproxy 开发 lua 插件过程遇到的坑"
 date: 2021-11-03T13:20:00+08:00
 categories: ["网关"]
 tags: ["lua", "haproxy"]
+draft: true
 ---
 
 > 总结在开发和调试以及压测 lua 插件 功能过程中遇到的坑
@@ -18,23 +19,23 @@ tags: ["lua", "haproxy"]
 -- ha 启动时 会将 frontend 配置文件进行解析 并以 host 为 key 进行去重后写入文件里
 -- 在判断流量时 根据请求的 host 去找文件并在运行时打开文件进行查找
 function _M.lookupBEWithType(host, path, mapType)
-	local mapFile = "/opt/" .. host
-	local beMap = nil
+    local mapFile = "/opt/" .. host
+    local beMap = nil
 
-	if mapType == Map._reg then
-		mapFile = mapFile .. ".path_reg"
-		beMap = Map.new(mapFile, Map._reg)
-	else
-		mapFile = mapFile .. ".path_beg"
-		beMap = Map.new(mapFile, Map._beg)
-	end
+    if mapType == Map._reg then
+        mapFile = mapFile .. ".path_reg"
+        beMap = Map.new(mapFile, Map._reg)
+    else
+        mapFile = mapFile .. ".path_beg"
+        beMap = Map.new(mapFile, Map._beg)
+    end
 
-	if beMap == nil then
-		core.Warning("beMap is nil")
-		return nil
-	end
+    if beMap == nil then
+        core.Warning("beMap is nil")
+        return nil
+    end
 
-	return Map.lookup(beMap, path)
+    return Map.lookup(beMap, path)
 end
 ```
 
@@ -42,40 +43,40 @@ end
 
 ```lua
 local _M = {
-	hostMap = {}
+    hostMap = {}
 }
 
 function _M.parseFrontendConfigs()
-	-- 初始化内存
+    -- 初始化内存
 end
 
 
 -- 初始化时直接将host 作为 key  ha 的 map 作为value 存到内存中，直接使用
 function _M.lookupBEWithType(host, path, mapType)
-	-- local mapFile = "/opt/" .. host
-	local beMap = nil
-	local hm = _M.hostMap[host]
-	if hm == nil then
-		_M.warning("host map is nil host: " .. host)
-		return nil
-	end
+    -- local mapFile = "/opt/" .. host
+    local beMap = nil
+    local hm = _M.hostMap[host]
+    if hm == nil then
+        _M.warning("host map is nil host: " .. host)
+        return nil
+    end
 
-	if mapType == Map._reg then
-		beMap = hm.reg
-	else
-		beMap = hm.beg
-	end
+    if mapType == Map._reg then
+        beMap = hm.reg
+    else
+        beMap = hm.beg
+    end
 
-	if beMap == nil then
-		_M.warning("beMap is nil, host: " .. host)
-		return nil
-	end
+    if beMap == nil then
+        _M.warning("beMap is nil, host: " .. host)
+        return nil
+    end
 
-	return Map.lookup(beMap, path)
+    return Map.lookup(beMap, path)
 end
 
 local function parse(txn)
-	_M.parseFrontendConfigs()
+    _M.parseFrontendConfigs()
 end
 
 -- 注册初始化方法
@@ -107,40 +108,40 @@ http-request use-service lua.pfbDispatch if { var(req.flowType) -m str 'pfb' }
 ```lua
 function _pfb.dispatch(applet)
     -- 在 flowType() 方法中确定 pfb 服务后 将 pfb key写入上下文并在这里读取使用
-	local cacheKey = applet:get_priv()
-	if cacheKey == nil or cacheKey == "" then
-		_pfb.warning("ep is nil")
-		util.errorResponse(applet, "internal error")
-		return
-	end
-	_pfb.info("pfb cache key:" .. cacheKey)
+    local cacheKey = applet:get_priv()
+    if cacheKey == nil or cacheKey == "" then
+        _pfb.warning("ep is nil")
+        util.errorResponse(applet, "internal error")
+        return
+    end
+    _pfb.info("pfb cache key:" .. cacheKey)
 
     -- 获取节点列表并进行负载
-	local endpoint = pfbCache.loadEndpoint(cacheKey)
-	if endpoint == nil then
-		_pfb.warning("load endpoint fail, key: " .. cacheKey)
-		util.errorResponse(applet, "internal error")
-		return
-	end
+    local endpoint = pfbCache.loadEndpoint(cacheKey)
+    if endpoint == nil then
+        _pfb.warning("load endpoint fail, key: " .. cacheKey)
+        util.errorResponse(applet, "internal error")
+        return
+    end
 
-	local body = applet:receive(applet.length)
-	local uri = "http://" .. endpoint .. applet.path .. "?" .. applet.qs
+    local body = applet:receive(applet.length)
+    local uri = "http://" .. endpoint .. applet.path .. "?" .. applet.qs
 
     -- 发起请求
-	local resp, err = util.httpAny(uri, applet.method, applet.headers, body)
-	if err ~= nil then
-		_pfb.warning("http any err: " .. err)
-		util.errorResponse(applet, err)
-	end
+    local resp, err = util.httpAny(uri, applet.method, applet.headers, body)
+    if err ~= nil then
+        _pfb.warning("http any err: " .. err)
+        util.errorResponse(applet, err)
+    end
 
-	applet:set_status(resp.status_code)
-	for key, value in pairs(resp.headers) do
-		applet:add_header(key, value)
-	end
+    applet:set_status(resp.status_code)
+    for key, value in pairs(resp.headers) do
+        applet:add_header(key, value)
+    end
 
     -- 写响应
-	applet:start_response()
-	applet:send(resp.content)
+    applet:start_response()
+    applet:send(resp.content)
 end
 
 ---根据 key 读取 service 数据，并根据index 和 endpoints length 做 balance
@@ -148,22 +149,22 @@ end
 ---@param key string 缓存的 key
 ---@return string endpoint balance 后得到的节点 ip:port
 function _cache.loadEndpoint(key)
-	local svc = _cache[key]
-	if svc == nil then
-		return ""
-	end
+    local svc = _cache[key]
+    if svc == nil then
+        return ""
+    end
 
-	if svc.endpoints == nil or #svc.endpoints == 0 then
-		return ""
-	end
+    if svc.endpoints == nil or #svc.endpoints == 0 then
+        return ""
+    end
 
-	-- if svc.index > #svc.endpoints then 1 else svc.index
-	local endpoint = svc.endpoints[svc.index > #svc.endpoints and 1 or svc.index]
-	_cache.info("load index: " .. tostring(svc.index) .. " load endpoint: " .. endpoint)
-	-- if svc.index + 1 > #svc.endpoints then 1 else svc.index + 1
-	svc.index = svc.index + 1 > #svc.endpoints and 1 or svc.index + 1
+    -- if svc.index > #svc.endpoints then 1 else svc.index
+    local endpoint = svc.endpoints[svc.index > #svc.endpoints and 1 or svc.index]
+    _cache.info("load index: " .. tostring(svc.index) .. " load endpoint: " .. endpoint)
+    -- if svc.index + 1 > #svc.endpoints then 1 else svc.index + 1
+    svc.index = svc.index + 1 > #svc.endpoints and 1 or svc.index + 1
 
-	return endpoint
+    return endpoint
 end
 ```
 
@@ -192,7 +193,7 @@ end
 
 ```shell
 backend xxx
-	server server 0.0.0.0:0
+    server server 0.0.0.0:0
 ```
 
 
@@ -204,7 +205,7 @@ backend xxx
 
 优化点有四个：
 
-1.   **不要使用全局变量。**
+1. **不要使用全局变量。**
 
 最开始负载均衡模块抽离出来做了全局的 LB 的类，但是压测遇到性能瓶颈后，改为 local后性能有 10%左右的提升
 
@@ -232,40 +233,40 @@ local round_robin = {}
 ---@param endpoints table
 ---@return table
 function round_robin.new(self, endpoints)
-	local o = {
-		endpoints = endpoints,
-		index = 1
-	}
+    local o = {
+        endpoints = endpoints,
+        index = 1
+    }
 
-	setmetatable(o, self)
-	self.__index = self
+    setmetatable(o, self)
+    self.__index = self
 
-	return o
+    return o
 end
 
 ---balance endpints
 ---@return string endpoint ip:port
 function round_robin.Balance(self)
-	local ln = #self.endpoints
-	if ln == 0 then
-		return nil
-	end
+    local ln = #self.endpoints
+    if ln == 0 then
+        return nil
+    end
 
-	-- if self.index > #self.endpoints then 1 else self.index
-	local endpoint = self.endpoints[self.index > ln and 1 or self.index]
-	-- if self.index + 1 > #self.endpoints then 1 else self.index + 1
-	self.index = self.index + 1 > ln and 1 or self.index + 1
+    -- if self.index > #self.endpoints then 1 else self.index
+    local endpoint = self.endpoints[self.index > ln and 1 or self.index]
+    -- if self.index + 1 > #self.endpoints then 1 else self.index + 1
+    self.index = self.index + 1 > ln and 1 or self.index + 1
 
-	return endpoint
+    return endpoint
 end
 
 ---check is there has any valid endpoints
 ---@return table
 function round_robin.Get(self)
-	return {
-		endpoints = self.endpoints,
-		index = self.index
-	}
+    return {
+        endpoints = self.endpoints,
+        index = self.index
+    }
 end
 
 return round_robin

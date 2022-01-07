@@ -224,13 +224,13 @@ typedef struct zskiplistNode {
 
 5. 找到插入位置的前一个元素 `x` ，新元素最终插入到 `x` 后面
 
-6. 随机一个 level， Redis 是有一套简单的算法去生成随机的 level [跳转查看](#3.2.4.1 随机 level 算法)。
+6. 随机一个 level， Redis 是有一套简单的算法去生成随机的 level [跳转查看](#3241-随机-level-算法)。
 
-{{< image src="skiplist_insert.png" caption="跳跃表插入元素过程" width="800" >}}
+{{< image src="skiplist_insert.gif" caption="跳跃表插入元素过程" width="800" >}}
 
 ##### 3.2.4.1 随机 level 算法
 
-跳跃表作为一个随机化的数据结构，每一个元素都是有随机 level，查询时通过跳跃 N 个元素的方式提高性能。比较理想的结构是数据每一层都尽可能有数据，不要过于居中某一层（否则退化成链表结构了），每个 level 的元素数从上到下呈现2^level的比例（其中 0 表示最底层）。这样在高层跳跃时一次可以跳跃更远，越到底层越接近目标，此时时间复杂度才能体现出 O(logN)。
+跳跃表作为一个随机化的数据结构，每一个元素都是有随机 level，查询时通过跳跃 N 个元素的方式提高性能。比较理想的结构是数据每一层都尽可能有数据，不要过于居中某一层（否则退化成链表结构了），每个 level 的元素数从上到下呈现第 L 层的元素数为 L-1的1/p（其中Redis 中这个 p = 4）。这样在高层跳跃时一次可以跳跃更远，越到底层越接近目标，此时时间复杂度才能体现出 O(logN)。
 
 那么问题来了，如何确保每次随机时，越高层出现概率越低 越底层出现的概率越高呢？
 
@@ -244,6 +244,11 @@ typedef struct zskiplistNode {
 int zslRandomLevel(void) {
     int level = 1;
     while ((random()&0xFFFF) < (0.25 * 0xFFFF))
+    // 解释一下这里的算法
+    // 任意一个数 & 0xFFFF -> [0~0xFFFF]
+    // 所以这个结果小于 0.25 * 0xFFFF 的概率就是 1/4
+    // 根据概率论可以得出越高的 level 出现（即连续多次出现小于 0.25 * 0xFFFF 才能累加到高 level）的概率越低
+    // 数据如下
         level += 1;
     return (level<32) ? level : 32;
 }
