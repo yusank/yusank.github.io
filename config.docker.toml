@@ -63,20 +63,20 @@ paginate = 7
     url = "/about/"
     title = ""
     weight = 4
-  # [[menu.main]]
-  #   identifier = "github"
-  #   pre = "<i class='fab fa-github fa-fw'></i>"
-  #   post = ""
-  #   name = ""
-  #   url = "https://github.com/yusank"
-  #   title = "GitHub"
-  #   weight = 6
+  [[menu.main]]
+    identifier = "github"
+    pre = "<i class='fab fa-github fa-fw'></i>"
+    post = ""
+    name = ""
+    url = "https://github.com/yusank"
+    title = "GitHub"
+    weight = 6
 
 [params]
   #  LoveIt 主题版本
   version = "0.2.X"
   # 网站描述
-  description = "这里是开发小白，我会在这里分享学习和成长过程中的积累和经验."
+  description = "这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验。见证从小白到大牛的成长过程。"
   # 网站关键词
   keywords = ["yusank", "Tech"]
   # 网站默认主题样式 ("light", "dark", "auto")
@@ -137,9 +137,9 @@ paginate = 7
     #  页面头部导航栏标题配置
     [params.header.title]
       # LOGO 的 URL
-      logo = ""
+      logo = "https://yusank.space/images/logo.svg"
       # 标题名称
-      name = "从小白到大牛"
+      name = "usank`s Site"
       # 你可以在名称 (允许 HTML 格式) 之前添加其他信息, 例如图标
       pre = ""
       # 你可以在名称 (允许 HTML 格式) 之后添加其他信息, 例如图标
@@ -151,7 +151,7 @@ paginate = 7
   [params.footer]
     enable = true
     #  自定义内容 (支持 HTML 格式)
-    # custom = 'Keep learning and stay with lights.<br>❤ yusank<br>'
+    custom = 'Keep learning and stay with lights.<br>❤ Yusank<br>'
     #  是否显示 Hugo 和主题信息
     hugo = true
     #  是否显示版权信息
@@ -161,9 +161,9 @@ paginate = 7
     # 网站创立年份
     since = 2017
     # ICP 备案信息，仅在中国使用 (支持 HTML 格式)
-    icp = ""
+    icp = "<a href='https://beian.miit.gov.cn'>京ICP备2022000567号-1</a>"
     # 许可协议信息 (支持 HTML 格式)
-    license = '<a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a>'
+    license = '<a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">CC BY-NC 4.0</a>'
 
   #  Section (所有文章) 页面配置
   [params.section]
@@ -193,11 +193,11 @@ paginate = 7
       # Gravatar 邮箱，用于优先在主页显示的头像
       gravatarEmail = ""
       # 主页显示头像的 URL
-      avatarURL = "images/avatar.png"
+      avatarURL = "https://yusank.space/images/avatar.png"
       #  主页显示的网站标题 (支持 HTML 格式)
-      title = "小白"
+      title = "Yusank"
       # 主页显示的网站副标题
-      subtitle = "这里是研发小白，我会在这里分享学习和成长过程中的积累和经验."
+      subtitle = "这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验。见证从小白到大牛的成长过程。"
       # 是否为副标题显示打字机动画
       typeit = true
       # 是否显示社交账号
