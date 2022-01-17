@@ -13,7 +13,7 @@
 
 如果我有个对性能要求很高的程序（其实如果对性能要求极高其实可以考虑 C 或者 rust 的，这里就不考虑了），想在 map 上做进一步的优化的，应该如何优化，从什么地方入手呢？
 
-在我之前几篇文章都在将用 go 语言实现 Redis server 的过程，在实际开发过程中我最开始也是直接用的 `syncMap` 作为底层的哈希表的，但是最后压测的时候，结果不是很满意。尤其是写入操作数据量大的时候，tps 下降比较厉害，所以就开始搜查相关的优化方案。首先遇到了一个开源库[orcaman/concurrent-map](https://github.com/orcaman/concurrent-map),其 README 中的一句话吸引到我了
+在我之前几篇文章都在讲用 go 语言实现 Redis server 的过程，在实际开发过程中我最开始也是直接用的 `syncMap` 作为底层的哈希表的，但是最后压测的时候，结果不是很满意。尤其是写入操作数据量大的时候，tps 下降比较厉害，所以就开始搜查相关的优化方案。首先遇到了一个开源库[orcaman/concurrent-map](https://github.com/orcaman/concurrent-map),其 README 中的一句话吸引到我了
 
 {{< admonition type=quote title="orcaman/concurrent-map.README" open=true >}}
 Prior to Go 1.9, there was no concurrent map implementation in the stdlib. In Go 1.9, `sync.Map` was introduced. The new `sync.Map` has a few key differences from this map. The stdlib `sync.Map` is designed for append-only scenarios. **So if you want to use the map for something more like in-memory db, you might benefit from using our version**
@@ -360,7 +360,7 @@ PASS
 | `ShardMap` | 481.3 | 385.3 | 384.8|
 | `sync.Map` | 736.1 | 1409 | 2209 |
 
-不难发现，在数据量大的情况下（百万基本）`sync.Map` 的性能会下降很多，这个与 `sync.Map` 的设计和内部结构有关，感兴趣的朋友可以去阅读一下 `sync.Map` 的源码。
+不难发现，在数据量大的情况下（百万级别）`sync.Map` 的性能会下降很多，这个与 `sync.Map` 的设计和内部结构有关，感兴趣的朋友可以去阅读一下 `sync.Map` 的源码。
 
 >**注意：这里文章最开始时的压测结果差距很大的原因是 数据量不一样，第一个压测结果是基于 50000 个元素之上进行的，所以查询和删除的性能上看上去很高。而这里的压测时基于 3000000 个元素之上进行的。**
 

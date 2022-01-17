@@ -11,7 +11,7 @@
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://yusank.github.io/posts/shard-map/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts">
 <meta property="article:published_time" content="2022-01-13T10:50:00+08:00">
-<meta property="article:modified_time" content="2022-01-17T11:09:39+08:00">
+<meta property="article:modified_time" content="2022-01-17T11:35:44+08:00">
 <meta name=twitter:card content="summary_large_image">
 <meta name=twitter:image content="https://yusank.github.io/logo.png">
 <meta name=twitter:title content="go 语言中的分片 map 的实现">
@@ -21,7 +21,7 @@
 <meta name=application-name content="Yusank's Site">
 <meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
-<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/shard-map/><link rel=prev href=https://yusank.github.io/posts/redis-server-zset/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"go 语言中的分片 map 的实现","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/shard-map\/"},"genre":"posts","keywords":"go, map, 数据结构","wordcount":2912,"url":"https:\/\/yusank.github.io\/posts\/shard-map\/","datePublished":"2022-01-13T10:50:00+08:00","dateModified":"2022-01-17T11:09:39+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/shard-map/><link rel=prev href=https://yusank.github.io/posts/redis-server-zset/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"go 语言中的分片 map 的实现","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/shard-map\/"},"genre":"posts","keywords":"go, map, 数据结构","wordcount":2912,"url":"https:\/\/yusank.github.io\/posts\/shard-map\/","datePublished":"2022-01-13T10:50:00+08:00","dateModified":"2022-01-17T11:35:44+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head>
 <body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':'auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark')&&document.body.setAttribute('theme','dark')</script>
 <div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
 <div class=header-wrapper>
@@ -97,7 +97,7 @@
 <p><code>map</code> 作为一个基础的数据结构，在编程过程中可以说是无处不在，应用场景十分广泛。在大部分场景下用原生的 <code>map</code> 就能解决当前的问题。如果是高并发场景可以加入 <code>sync.RWMutex</code> 来控制并发读写或者直接使用 <code>sync.Map</code> 来减少手动写锁的处理逻辑。如果作为一个应用的基础数据结构，性能可以说是非常的高了，绝大部分场景下是完全足够的。但是总有人在优化性能这块想做到极致（包括我自己），即便是原生的数据结构也会有人想优化。既然想优化 map，那首先得了解 map 在什么情况下性能会受损或者性能不够高呢？</p>
 <p>对 map 结构熟悉的同学应该都知道，map 又称之为哈希表，key 是按照哈希值存储的，map 在元素增多/减少的过程在 go 里叫 <code>grow</code>,而这个过程中有个非常关键的步骤 <code>rehash</code>。即会对 map 内的数据进行重新哈希计算和移动位置，在数据量比较大的时候，map 的写性能会有一定的受损的。</p>
 <p>如果我有个对性能要求很高的程序（其实如果对性能要求极高其实可以考虑 C 或者 rust 的，这里就不考虑了），想在 map 上做进一步的优化的，应该如何优化，从什么地方入手呢？</p>
-<p>在我之前几篇文章都在将用 go 语言实现 Redis server 的过程，在实际开发过程中我最开始也是直接用的 <code>syncMap</code> 作为底层的哈希表的，但是最后压测的时候，结果不是很满意。尤其是写入操作数据量大的时候，tps 下降比较厉害，所以就开始搜查相关的优化方案。首先遇到了一个开源库<a href=https://github.com/orcaman/concurrent-map target=_blank rel="noopener noreffer">orcaman/concurrent-map</a>,其 README 中的一句话吸引到我了</p>
+<p>在我之前几篇文章都在讲用 go 语言实现 Redis server 的过程，在实际开发过程中我最开始也是直接用的 <code>syncMap</code> 作为底层的哈希表的，但是最后压测的时候，结果不是很满意。尤其是写入操作数据量大的时候，tps 下降比较厉害，所以就开始搜查相关的优化方案。首先遇到了一个开源库<a href=https://github.com/orcaman/concurrent-map target=_blank rel="noopener noreffer">orcaman/concurrent-map</a>,其 README 中的一句话吸引到我了</p>
 <div class="details admonition quote open">
 <div class="details-summary admonition-title">
 <i class="icon fas fa-quote-right fa-fw"></i>orcaman/concurrent-map.README<i class="details-icon fas fa-angle-right fa-fw"></i>
@@ -744,7 +744,7 @@ PASS
 </tr>
 </tbody>
 </table>
-<p>不难发现，在数据量大的情况下（百万基本）<code>sync.Map</code> 的性能会下降很多，这个与 <code>sync.Map</code> 的设计和内部结构有关，感兴趣的朋友可以去阅读一下 <code>sync.Map</code> 的源码。</p>
+<p>不难发现，在数据量大的情况下（百万级别）<code>sync.Map</code> 的性能会下降很多，这个与 <code>sync.Map</code> 的设计和内部结构有关，感兴趣的朋友可以去阅读一下 <code>sync.Map</code> 的源码。</p>
 <blockquote>
 <p><strong>注意：这里文章最开始时的压测结果差距很大的原因是 数据量不一样，第一个压测结果是基于 50000 个元素之上进行的，所以查询和删除的性能上看上去很高。而这里的压测时基于 3000000 个元素之上进行的。</strong></p>
 </blockquote>
