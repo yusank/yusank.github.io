@@ -20,3 +20,7 @@ docker-run:
 .PHONY: docker-push
 docker-push: docker-build
 	docker push docker.io/yusank/hugo_blog:$(TAG)
+
+.PHONY: docker-release
+docker-release:docker-push
+	ssh ${UserName}:${ServerIP} "./restart.sh latest"
