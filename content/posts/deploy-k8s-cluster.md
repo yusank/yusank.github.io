@@ -1,7 +1,7 @@
 ---
 title: "部署单机 k8s 集群"
 date: 2021-09-07T12:22:33+08:00
-categories: ["k8s"]
+categories: ["kubernetes"]
 tags: ["k8s", "docker"]
 ---
 
