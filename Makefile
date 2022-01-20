@@ -23,4 +23,4 @@ docker-push: docker-build
 
 .PHONY: docker-release
 docker-release:
-	ssh ${UserName}:${ServerIP} "./restart.sh latest"
+	ssh aliyun_d1 "./restart.sh latest"
