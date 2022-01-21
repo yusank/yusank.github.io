@@ -105,7 +105,7 @@ paginate = 7
     # 是否隐藏网站图标资源链接
     noFavicon = false
     # 更现代的 SVG 网站图标, 可替代旧的 .png 和 .ico 文件
-    svgFavicon = ""
+    svgFavicon = "https://yusank.github.io/images/logo.svg"
     # Android 浏览器主题色
     themeColor = "#ffffff"
     # Safari 图标颜色
@@ -210,7 +210,7 @@ paginate = 7
       # 是否显示社交账号
       social = true
       #  免责声明 (支持 HTML 格式)
-      disclaimer = ""
+      disclaimer = "本网站内所有内容均为作者本人原创，若转发请标注出处并带上原文链接。<br><b>支持原创，尊重原创，谢谢!</b>"
     # 主页文章列表
     [params.home.posts]
       enable = true

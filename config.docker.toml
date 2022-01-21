@@ -3,7 +3,7 @@
 # for docker build
 
 baseURL = "https://yusank.space/"
-title = "从小白到大牛"
+title = "Yusank`s Site"
 defaultContentLanguage = "zh-cn"
 languageCode = "zh-CN"
 hasCJKLanguage = true
@@ -70,7 +70,7 @@ paginate = 7
     name = "友链"
     url = "/links/"
     title = ""
-    weight = 5  
+    weight = 5
   [[menu.main]]
     identifier = "github"
     pre = "<i class='fab fa-github fa-fw'></i>"
@@ -86,7 +86,7 @@ paginate = 7
   # 网站描述
   description = "这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验。见证从小白到大牛的成长过程。"
   # 网站关键词
-  keywords = ["yusank", "Tech"]
+  keywords = ["yusank", "tech", "go", "golang", "blog"]
   # 网站默认主题样式 ("light", "dark", "auto")
   defaultTheme = "auto"
   # 公共 git 仓库路径，仅在 enableGitInfo 设为 true 时有效
@@ -102,11 +102,11 @@ paginate = 7
   #  应用图标配置
   [params.app]
     # 当添加到 iOS 主屏幕或者 Android 启动器时的标题, 覆盖默认标题
-    title = "LoveIt"
+    title = "Yusank`s Site"
     # 是否隐藏网站图标资源链接
     noFavicon = false
     # 更现代的 SVG 网站图标, 可替代旧的 .png 和 .ico 文件
-    svgFavicon = ""
+    svgFavicon = "https://yusank.space/images/logo.svg"
     # Android 浏览器主题色
     themeColor = "#ffffff"
     # Safari 图标颜色
@@ -211,7 +211,7 @@ paginate = 7
       # 是否显示社交账号
       social = true
       #  免责声明 (支持 HTML 格式)
-      disclaimer = ""
+      disclaimer = "本网站内所有内容均为作者本人原创，若转发请标注出处并带上原文链接。<br><b>支持原创，尊重原创，谢谢!</b>"
     # 主页文章列表
     [params.home.posts]
       enable = true
