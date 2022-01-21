@@ -1,5 +1,4 @@
-TAG=$(v)
-TAG ?= latest
+TAG = latest
 .PHONY: docker-build
 docker-build:
 	## change config
@@ -22,5 +21,5 @@ docker-push: docker-build
 	docker push docker.io/yusank/hugo_blog:$(TAG)
 
 .PHONY: docker-release
-docker-release:
+docker-release: docker-push
 	ssh aliyun_d1 "./restart.sh latest"
