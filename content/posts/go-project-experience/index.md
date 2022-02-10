@@ -252,9 +252,180 @@ web 项目我之前接触的比较多，参加了无数个大大小小的 web �
 
 ### 单元测试
 
+单元测试作为最基础的测试方法，应该在你的项目内尽可能覆盖大部分的方法，但是需要注意以下几点
+
+- 任意一个单元测试应该都是独立，不能有依赖
+- 任意一个单元测试执行前后不应该对数据有影响，如果这个单元测试需要修改数据库数据或文件，应该在测试结束后恢复发生变化的数据
+- 不应该长时间阻塞，不应该有 `select{}` 或死循环，等待手动停止的情况
+
+最简单的单元测试示例：
+
+```go
+func Test_ParseInt(t *testing.T) {
+    var (
+        input = "12"
+        output int64 =12
+    )
+    v, err := strconv.ParseInt("12", 10, 64)
+    if err != nil {
+        t.Error(err)
+        return
+    }
+
+    if v != output {
+        t.Errorf("want:%v, got:%v\n", output, v)
+        return
+    }
+
+    t.Log("ok")
+}
+```
+
+这是一个校验 `strconv.ParseInt` 方法的单元测试，可以直接运行。从上面的代码来说，有些啰嗦，而且错误信息的输出也得自己写，这里推荐比较流行的测试框架
+`github.com/stretchr/testify/assert`,该库对错误信息的格式化和遍历对比都毕竟成熟，而且提供很多方法，来简化你的测试代码量，下面看一下改版：
+
+```go
+
+func Test_ParseInt(t *testing.T) {
+    v, err := strconv.ParseInt("12", 10, 64)
+    // 如果有错误 这里会返回 false
+    if !assert.NoError(t, err) {
+        return
+    }
+
+    // Equal 方法支持对比所有的类型，不需要根据类型判断
+    // 并且报错时，日志信息也非常丰富
+    assert.Equal(t, int64(12), v)
+}
+```
+
+这里我不会细讲这个库，如果看过比较主流的开源库，有很多库都使用这个测试框架，非常值得学习和使用。
+
+一般来说，测试一个方法不止一个情况，大部分情况下会有多个各种输入，多方面来确保方法的可用性，这种情况下，可以采用下面的写法：
+
+```go
+func Test_zSkipList_rank(t *testing.T) {
+    type args struct {
+        score float64
+        value string
+    }
+    tests := []struct {
+        name string
+        args args
+        want int
+    }{
+        {
+            name: "c",
+            args: args{
+                score: 1,
+                value: "clang",
+            },
+            want: 1,
+        },
+        {
+            name: "java",
+            args: args{
+                score: 2,
+                value: "java",
+            },
+            want: 2,
+        },
+        {
+            name: "w",
+            args: args{
+                score: 5,
+                value: "world",
+            },
+            want: 3,
+        },
+        {
+            name: "js",
+            args: args{
+                score: 8,
+                value: "javascript",
+            },
+            want: 4,
+        },
+        {
+            name: "h",
+            args: args{
+                score: 10,
+                value: "hello",
+            },
+            want: 5,
+        },
+        {
+            name: "go",
+            args: args{
+                score: 12,
+                value: "golang",
+            },
+            want: 6,
+        },
+    }
+    zs := prepareZSetForTest()
+    zs.zsl.print()
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            got := zs.zsl.rank(tt.args.score, tt.args.value)
+            assert.Equal(t, tt.want, int(got))
+        })
+    }
+}
+```
+
+这里我直接从我的现成的代码里复制出来一个测试案例，这种写法特点是定义好输入输出的结构，然后批量赋值，最终一个个执行。
+如果测试过程中发现，输入的数据还不够，可以随时增加n个例子，其他部分不用动，*重要的是，可以在 GoLand idea 中执行任意一个测试数据，更加方便调试*。
+
 ### e2e 测试
 
+e2e 测试，相对于单元测试来说更加系统性测试，针对某个模块的整体功能的校验。没有一个必要的代码框架，代码量也会更多一些。比如测试用户注册流程的测试，那启动时需要准备该功能需要的环境（启动或者链接测试数据库，创建表或者创建测试数据等），调用对用的方法后，对结果进行校验，校验成功后需要删除测试用的数据和环境。
+
+对于web项目，可能针对接口也需要写测试，这个时候就需要启动当前的服务，准备环境，进行接口调用，完成后恢复涉及到的变更。
+
+e2e 测试更多关注当前程序的整体的功能，可以确保任意的代码改动没有对当前程序的整体能力（或核心功能）没有带来负面影响，所以e2e测试也是非常重要的。
+
 ### 压测
+
+压测(Benchmark) 不同于上述两个测试，关注的是函数或程序整体的性能情况。
+
+#### 函数的压测
+
+这块可以通过 go 的原生能力进行测试，写压测方法也很简单，如下：
+
+```go
+/*
+goos: darwin
+goarch: amd64
+pkg: github.com/yusank/godis/util
+cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+BenchmarkStringConcat
+BenchmarkStringConcat-12    14886952        70.91 ns/op
+PASS
+*/
+func BenchmarkStringConcat(b *testing.B) {
+    var slice = []string{
+        "$",
+        "10",
+        "\r\n",
+        "12345123456",
+        "\r\n",
+    }
+
+    for i := 0; i < b.N; i++ {
+        StringConcat(16, slice...)
+    }
+}
+```
+
+这是go 提供的压测函数的写法，执行后，输出上面代码中的注释部分，可以看到当前机器的信息和执行次数以及每次执行时需要的时间。通过这种方法，可以针对我们的一些高频率调用的方法进行压测，确保这些方法不是性能的瓶颈，并且遇到瓶颈或者优化时，通过压测的方式，对比优化前后的差异。
+
+#### 整体压测
+
+在GitHub上有很多项目，尤其是对性能要求高的项目都会有一个性能对比的图，对自己项目进行一个压测，对程序整体的吞吐进行全方面的压测，从而体现出该程序的高性能和稳定性。
+这个其实对于tcp或者web服务来说非常好做，而且有很多现成的工具，可进行压测并输出结果。
+
+以 `wrk` 为例，支持指定客户端数，并发数，请求次数等，甚至支持脚本执行，定制化压测，这里贴出[链接](https://www.jianshu.com/p/ac185e01cc30),希望看到这里的同学，花几分钟去了解一下如何使用。
 
 ## 代码规范
 
