@@ -53,6 +53,13 @@
 <main class=main>
 <div class=container><div class="page home" posts><div class=home-profile><div class=home-avatar><a href=/posts/ title=文章><img class=lazyload src=/svg/loading.min.svg data-src=https://yusank.github.io/images/avatar.png data-srcset="https://yusank.github.io/images/avatar.png, https://yusank.github.io/images/avatar.png 1.5x, https://yusank.github.io/images/avatar.png 2x" data-sizes=auto alt=https://yusank.github.io/images/avatar.png title=https://yusank.github.io/images/avatar.png></a></div><h1 class=home-title>Yusank</h1><h2 class=home-subtitle><div id=id-3 class=typeit></div></h2><div class=links><a href=https://github.com/yusank title=GitHub target=_blank rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href=https://linkedin.com/in/yusan-kurban-037a31a7 title=LinkedIn target=_blank rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href=https://weibo.com/yusann title=微博 target=_blank rel="noopener noreffer me"><i class="fab fa-weibo fa-fw"></i></a><a href=https://steamcommunity.com/id/yusan8 title=Steam target=_blank rel="noopener noreffer me"><i class="fab fa-steam fa-fw"></i></a><a href=https://www.zhihu.com/people/wu-fa-cha-kan-id title=知乎 target=_blank rel="noopener noreffer me"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/zhihu.svg></i></a><a href=mailto:yusankurban@gmail.com title=Email rel=me><i class="far fa-envelope fa-fw"></i></a><a href=/index.xml title=RSS target=_blank rel="noopener noreffer me"><i class="fas fa-rss fa-fw"></i></a></div><h3 class=home-disclaimer>本网站内所有内容均为作者本人原创，若转发请标注出处并带上原文链接。<br><b>支持原创，尊重原创，谢谢!</b></h3></div>
 <article class="single summary" itemscope itemtype=http://schema.org/Article><h1 class=single-title itemprop="name headline">
+<a href=/posts/redis-server-network/>[系列]Redis Server 实现·服务管理篇</a>
+</h1><div class=post-meta><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-publish>发布于 <time datetime=2021-12-06>2021-12-06</time></span>&nbsp;<span class=post-category>收录于 <a href=/categories/redis/><i class="far fa-folder fa-fw"></i>Redis</a></span></div><div class=content><blockquote>
+<p>这一篇主要是将如何定义一个比较完善的服务入口以及如何管理服务的生命周期、如何处理 <code>tcp</code> 的连接管理和请求处理等相关内容。</p>
+</blockquote></div><div class=post-footer>
+<a href=/posts/redis-server-network/>阅读全文</a><div class=post-tags>
+<i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/redis/>redis</a>,&nbsp;<a href=/tags/%E7%B3%BB%E5%88%97%E7%AF%87/>系列篇</a>,&nbsp;<a href=/tags/%E7%BD%91%E7%BB%9C/>网络</a></div></div>
+</article><article class="single summary" itemscope itemtype=http://schema.org/Article><h1 class=single-title itemprop="name headline">
 <a href=/posts/blog_example/>好用且实用的写文章技巧</a>
 </h1><div class=post-meta><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-publish>发布于 <time datetime=2021-11-23>2021-11-23</time></span>&nbsp;<span class=post-category>收录于 <a href=/categories/markdown/><i class="far fa-folder fa-fw"></i>Markdown</a></span></div><div class=content><blockquote>
 <p>这里我会记录一些 <code>Markdown</code> 和 <code>Shortcut</code> 的使用技巧以及常用的模块，方便后期写文章时查看和使用。</p>
@@ -88,11 +95,6 @@
 </h1><div class=post-meta><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-publish>发布于 <time datetime=2021-09-17>2021-09-17</time></span>&nbsp;<span class=post-category>收录于 <a href=/categories/%E7%BD%91%E5%85%B3/><i class="far fa-folder fa-fw"></i>网关</a></span></div><div class=content>本文简单介绍如何通过 lua 脚本和 ngx_shared_dict 在 nginx 中动态加载后端服务配置以及动态更新服务配置. nginx</div><div class=post-footer>
 <a href=/posts/nginx-lua-plugins/>阅读全文</a><div class=post-tags>
 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/nginx/>nginx</a>,&nbsp;<a href=/tags/lua/>lua</a></div></div>
-</article><article class="single summary" itemscope itemtype=http://schema.org/Article><h1 class=single-title itemprop="name headline">
-<a href=/posts/deploy-k8s-cluster/>部署单机 k8s 集群</a>
-</h1><div class=post-meta><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-publish>发布于 <time datetime=2021-09-07>2021-09-07</time></span>&nbsp;<span class=post-category>收录于 <a href=/categories/kubernetes/><i class="far fa-folder fa-fw"></i>kubernetes</a></span></div><div class=content>本文介绍本地或服务器上搭建单节点的 k8s 集群和 webUI 以及启用ingress，可以用作开发</div><div class=post-footer>
-<a href=/posts/deploy-k8s-cluster/>阅读全文</a><div class=post-tags>
-<i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/k8s/>k8s</a>,&nbsp;<a href=/tags/docker/>docker</a></div></div>
 </article><ul class=pagination><li class=page-item>
 <span class=page-link>
 <a href=/>1</a>
