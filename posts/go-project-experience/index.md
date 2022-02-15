@@ -410,8 +410,6 @@ func BenchmarkStringConcat(b *testing.B) {
 
 ## 4. 代码规范
 
-> lint 等工具
-
 代码规范这块我之前写过专门的文章([点击传送](../go-standard/))。但是实际开发过程中不能保证所有人（包括自己）都能完成的遵循代码规范的，所以需要一个自动化工具来校验/限制不规范的代码。
 
 **[golangci-lint](https://github.com/golangci/golangci-lint)** 是一个绝大多数 go 开发者都熟悉的一个工具，可以校验任何 go 项目的代码规范，能够指出不规范的部分，并且支持指定开启/关闭部分类型的校验。下面从一个简单的例子说明如何使用。

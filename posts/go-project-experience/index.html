@@ -11,7 +11,7 @@
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://yusank.github.io/posts/go-project-experience/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts">
 <meta property="article:published_time" content="2022-01-24T10:50:00+08:00">
-<meta property="article:modified_time" content="2022-02-15T16:10:39+08:00">
+<meta property="article:modified_time" content="2022-02-15T16:16:46+08:00">
 <meta name=twitter:card content="summary_large_image">
 <meta name=twitter:image content="https://yusank.github.io/logo.png">
 <meta name=twitter:title content="Go 项目开发和维护经验之谈">
@@ -19,7 +19,7 @@
 我想将自己的开发项目的经历以及过程中总结的经验或者一些小技巧整理出来，供自己和看到这篇文章的同学一个参考。内容包括但不限于，项目目录结构，模块拆分，单元测试，e2e 测试，git 的使用技巧，GitHub 的 actionflow 的使用技巧等。
 ">
 <meta name=application-name content="Yusank's Site">
-<meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/go-project-experience/><link rel=prev href=https://yusank.github.io/posts/hpa-controller/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go 项目开发和维护经验之谈","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/go-project-experience\/"},"genre":"posts","keywords":"go, 开发, 维护","wordcount":8993,"url":"https:\/\/yusank.github.io\/posts\/go-project-experience\/","datePublished":"2022-01-24T10:50:00+08:00","dateModified":"2022-02-15T16:10:39+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head>
+<meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/go-project-experience/><link rel=prev href=https://yusank.github.io/posts/hpa-controller/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go 项目开发和维护经验之谈","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/go-project-experience\/"},"genre":"posts","keywords":"go, 开发, 维护","wordcount":8989,"url":"https:\/\/yusank.github.io\/posts\/go-project-experience\/","datePublished":"2022-01-24T10:50:00+08:00","dateModified":"2022-02-15T16:16:46+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head>
 <body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':'auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark')&&document.body.setAttribute('theme','dark')</script>
 <div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
 <div class=header-wrapper>
@@ -60,7 +60,7 @@
 <div class=toc-content id=toc-content-auto></div>
 </div><article class="page single"><h1 class="single-title animated flipInX">Go 项目开发和维护经验之谈</h1><div class=post-meta>
 <div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E9%AA%8C/><i class="far fa-folder fa-fw"></i>项目经验</a></span></div>
-<div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2022-01-24>2022-01-24</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 8993 字&nbsp;
+<div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2022-01-24>2022-01-24</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 8989 字&nbsp;
 <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 18 分钟&nbsp;</div>
 </div><div class="details toc" id=toc-static kept>
 <div class="details-summary toc-title">
@@ -738,9 +738,6 @@
 这个其实对于tcp或者web服务来说非常好做，而且有很多现成的工具，可进行压测并输出结果。</p>
 <p>以 <code>wrk</code> 为例，支持指定客户端数，并发数，请求次数等，甚至支持脚本执行，定制化压测，这里贴出<a href=https://www.jianshu.com/p/ac185e01cc30 target=_blank rel="noopener noreffer">链接</a>,希望看到这里的同学，花几分钟去了解一下如何使用。</p>
 <h2 id=4-代码规范>4. 代码规范</h2>
-<blockquote>
-<p>lint 等工具</p>
-</blockquote>
 <p>代码规范这块我之前写过专门的文章(<a href=../go-standard/ rel>点击传送</a>)。但是实际开发过程中不能保证所有人（包括自己）都能完成的遵循代码规范的，所以需要一个自动化工具来校验/限制不规范的代码。</p>
 <p><strong><a href=https://github.com/golangci/golangci-lint target=_blank rel="noopener noreffer">golangci-lint</a></strong> 是一个绝大多数 go 开发者都熟悉的一个工具，可以校验任何 go 项目的代码规范，能够指出不规范的部分，并且支持指定开启/关闭部分类型的校验。下面从一个简单的例子说明如何使用。</p>
 <p>这是我在某个 main 方法里加了一些不规范的语法：</p>
