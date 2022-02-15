@@ -11,7 +11,7 @@
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://yusank.github.io/posts/go-project-experience/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts">
 <meta property="article:published_time" content="2022-01-24T10:50:00+08:00">
-<meta property="article:modified_time" content="2022-02-11T18:36:48+08:00">
+<meta property="article:modified_time" content="2022-02-15T16:10:39+08:00">
 <meta name=twitter:card content="summary_large_image">
 <meta name=twitter:image content="https://yusank.github.io/logo.png">
 <meta name=twitter:title content="Go 项目开发和维护经验之谈">
@@ -19,7 +19,7 @@
 我想将自己的开发项目的经历以及过程中总结的经验或者一些小技巧整理出来，供自己和看到这篇文章的同学一个参考。内容包括但不限于，项目目录结构，模块拆分，单元测试，e2e 测试，git 的使用技巧，GitHub 的 actionflow 的使用技巧等。
 ">
 <meta name=application-name content="Yusank's Site">
-<meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/go-project-experience/><link rel=prev href=https://yusank.github.io/posts/hpa-controller/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go 项目开发和维护经验之谈","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/go-project-experience\/"},"genre":"posts","keywords":"go, 开发, 维护","wordcount":8115,"url":"https:\/\/yusank.github.io\/posts\/go-project-experience\/","datePublished":"2022-01-24T10:50:00+08:00","dateModified":"2022-02-11T18:36:48+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head>
+<meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/go-project-experience/><link rel=prev href=https://yusank.github.io/posts/hpa-controller/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go 项目开发和维护经验之谈","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/go-project-experience\/"},"genre":"posts","keywords":"go, 开发, 维护","wordcount":8993,"url":"https:\/\/yusank.github.io\/posts\/go-project-experience\/","datePublished":"2022-01-24T10:50:00+08:00","dateModified":"2022-02-15T16:10:39+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head>
 <body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':'auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark')&&document.body.setAttribute('theme','dark')</script>
 <div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
 <div class=header-wrapper>
@@ -60,8 +60,8 @@
 <div class=toc-content id=toc-content-auto></div>
 </div><article class="page single"><h1 class="single-title animated flipInX">Go 项目开发和维护经验之谈</h1><div class=post-meta>
 <div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E9%AA%8C/><i class="far fa-folder fa-fw"></i>项目经验</a></span></div>
-<div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2022-01-24>2022-01-24</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 8115 字&nbsp;
-<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 17 分钟&nbsp;</div>
+<div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2022-01-24>2022-01-24</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 8993 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 18 分钟&nbsp;</div>
 </div><div class="details toc" id=toc-static kept>
 <div class="details-summary toc-title">
 <span>目录</span>
@@ -108,35 +108,20 @@
 <li><a href=#52-github--gitlab>5.2. github / gitlab</a></li>
 </ul>
 </li>
-<li><a href=#6-配置文件>6. 配置文件</a>
+<li><a href=#6-构建与运行>6. 构建与运行</a>
 <ul>
 <li><a href=#61-makefile>6.1. makefile</a></li>
 <li><a href=#62-dockerfile>6.2. dockerfile</a></li>
 </ul>
 </li>
-<li><a href=#7-文档>7. 文档</a>
-<ul>
-<li><a href=#71-开发文档>7.1. 开发文档</a></li>
-<li><a href=#72-测试文档>7.2. 测试文档</a></li>
-<li><a href=#73-维护文档>7.3. 维护文档</a></li>
-<li><a href=#74-其他相关>7.4. 其他相关</a></li>
-</ul>
-</li>
-<li><a href=#8-总结>8. 总结</a></li>
-<li><a href=#9-链接>9. 链接🔗</a></li>
+<li><a href=#7-总结>7. 总结</a></li>
+<li><a href=#8-链接>8. 链接🔗</a></li>
 </ul>
 </nav></div>
 </div><div class=content id=content><blockquote>
 <p>我想将自己的开发项目的经历以及过程中总结的经验或者一些小技巧整理出来，供自己和看到这篇文章的同学一个参考。内容包括但不限于，项目目录结构，模块拆分，单元测试，<code>e2e</code> 测试，<code>git</code> 的使用技巧，<code>GitHub</code> 的 <code>actionflow</code> 的使用技巧等。</p>
 </blockquote>
-<p><em>先画个饼，假期结束前尽量完成发布。。。</em></p>
-<blockquote>
-<p>果然是画饼，完全没时间写。</p>
-</blockquote>
 <h2 id=1-前言>1. 前言</h2>
-<blockquote>
-<p>介绍开发和维护过程中重要的或者方便的几个点 从而引出后面的部分。</p>
-</blockquote>
 <p>做 go 开发有几年的时间了，从最开始的只会写一些简单的代码到现在除了日常编码外会考虑一个项目的前前后后(自认为考虑的比较全)，代码管理，项目结构以及相关的工具搭配使用，
 走了很多的弯路，做了很多的重复工作，到目前为止积累了一些经验。想通过这篇文章输出一个总结，方便自己以及看到这篇文章的同学们之后在做新项目的时候有一定的启发。</p>
 <div class="details admonition note open">
@@ -148,15 +133,9 @@
 </div>
 </div>
 <h2 id=2-项目管理>2. 项目管理</h2>
-<blockquote>
-<p>非开发内容，对之后开发有帮助</p>
-</blockquote>
 <p><strong>项目管理</strong> 这个模块我想分享一些，在开发过程中需要注意的或者值得学习的知识点，从而提升开发效率减少一些出错的概率，同时提高对项目的整体的理解。</p>
 <h3 id=21-目录结构>2.1. 目录结构</h3>
-<blockquote>
-<p>这块没有对错 讲如何管理目录结构比较好，可以拿一些线上项目目录作为例子。
-目录结构在一些语言会有很严格的要求，但是如果你看过的 go 项目比较多你会发现，大家分目录各有各的好处各有各的理由。所以这里并没有对错，我分享几个高分的开源项目以及自己在做一些 web 项目的时候经常用的目录结构，仁者见仁智者见智吧。</p>
-</blockquote>
+<p>目录结构在一些语言会有很严格的要求，但是如果你看过的 go 项目比较多你会发现，大家分目录各有各的好处各有各的理由。所以这里并没有对错，我分享几个高分的开源项目以及自己在做一些 web 项目的时候经常用的目录结构，仁者见仁智者见智吧。</p>
 <h4 id=211-pkg-式目录>2.1.1. pkg 式目录</h4>
 <p>这类分目录在开源项目内十分常见，尤其是 k8s 以及相关组件的项目结构都是这类，下面看一下大概的目录结构。</p>
 <p>以 <a href=https://keda.sh target=_blank rel="noopener noreffer">KEDA</a> 为例：</p>
@@ -445,9 +424,6 @@
 <p>当然这一切都是我个人的一些经验总结，不一定适合你，但是找到一个比较合理且适合自己的才是最重要的，可以互相借鉴嘛！</p>
 </blockquote>
 <h3 id=22-模块拆分>2.2. 模块拆分</h3>
-<blockquote>
-<p>根据功能或管辖的层面来拆分</p>
-</blockquote>
 <p>这个就没什么可说的，单独提出来是为了提醒自己和各位，能拆分尽量拆分，不要一个文件上千行代码，一个方法几百行代码，别人看的时候真的很痛苦。</p>
 <h4 id=221-拆分方法>2.2.1. 拆分方法</h4>
 <p>这个比较好拆，唯一的原则就是<code>一个方法只做一件事儿</code>。这个一件事儿可大可小，这是基于当前这个方法所在的层级而定。
@@ -457,9 +433,6 @@
 <h4 id=222-拆分模块>2.2.2. 拆分模块</h4>
 <p>这块的话，我觉得重点是逻辑不要掺杂在一起，不同的逻辑尽量抽象出来。dao 层就做数据相关的（MySQL，Redis）不要掺杂逻辑，service 就做业务逻辑的组合，不要在 service 层直接操作底层组件。总结起来就是不要越界，上下不要越级（service -> dao），左右不要越界（用户相关逻辑不要掺杂订单的逻辑，即便是用户信息内需要包含用户的订单总金额，也要在订单模块实现查询方法去调而不是自己去实现，否则以后拆分很痛苦）。我觉得不同的功能之间相互认为是个微服务，不要有底层的依赖，不要认为代码在一个项目内就随便调用，业务升级业务拆分的时候真的非常痛苦（血的教训）。</p>
 <h3 id=23-记录任务>2.3. 记录任务</h3>
-<blockquote>
-<p>擅长使用 issue 功能</p>
-</blockquote>
 <p>这块的话，我觉得是一个工具推荐了算是。不管是个人开发或者团队开发，有个任务记录和里程碑是很重要的一点。不管是 GitHub 还是 Gitlab 都有 <code>issue</code> 和 <code>milestone</code> 的功能，对于一个开发者来说个人觉得非常的好用。</p>
 <p><code>issue</code> 你可以记录你要实现的功能、你现在出现的问题、QA 同学给你提的 bug，你每解决一个问题，每实现一个新功能在 git commit 上带上 issue 号就可以关联上。不管是之后定位问题还是查看某个功能的相关的提交都非常清晰，收益很多。</p>
 <p><code>milestone</code> 也是非常好用的功能，针对你的一个大功能或者一个新的版本创建一个 milestone 并加上截止日志，之后所有跟这个版本相关的 issue 都可以挂上这个里程碑，当你一个个完成的相关 issue 后，里程碑的完成度逐渐上升，记录了你的开发进度，同时提醒/监督自己。</p>
@@ -858,9 +831,6 @@ INFO Execution took 594.401598ms
 <p>上面提到了一些代码规范/单元测试和 GitHub action 等概念，从这里开始讲一下如何将这些概念串联起来，让更多的工作变成自动化。</p>
 <p>git 作为版本管理工具，除了版本管理外其他相关方面的能力也是非常的强。本地的git 可以分支开发，打 tag，git hook 等。远端（GitHub/Gitlab）可以有 issue，milestone，PR，MR，CICD 等能力。</p>
 <h3 id=51-git-hook>5.1. git hook</h3>
-<blockquote>
-<p>通过 git hook 进行测试或者 lint</p>
-</blockquote>
 <p><a href=https://git-scm.com/book/zh/v2/%E8%87%AA%E5%AE%9A%E4%B9%89-Git-Git-%E9%92%A9%E5%AD%90 target=_blank rel="noopener noreffer">git hook</a>是git 提供的钩子方法，可以配置很多事件的回调，让我们的一些手动工作配置到对应的 hook 上自动执行。我们打开任意的一个 git 项目进行下面的命令查看支持的 hooks：</p>
 <div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
@@ -924,39 +894,191 @@ fsmonitor-watchman.sample pre-commit.sample         pre-rebase.sample         pu
 </div>
 </div><p>启用后我的任何一次 commit 都会先进行一次全局的测试和 lint 校验通过后，才会 commit 成功否则本次 commit 失败。这种做法对于个人或少数几个人开发者来说，实用性蛮高的，一种自我约束并且保证不会提交一些垃圾代码。最重要的是不需要自己手动去检查代码质量和规范，不通过测试和规范的提交都不会产生一次 commitID。</p>
 <h3 id=52-github--gitlab>5.2. github / gitlab</h3>
-<blockquote>
-<p>cicd, GitHub action 等</p>
-</blockquote>
 <p>除了上述本地的一些 git hook 的限制外，GitHub 和 Gitlab 提供一套完整的 CICD 的能力，用户可以配置针对提交，MR，PR 等各种事件运行特定的脚本，在远端服务器进行校验，构建，部署等能力。</p>
 <p>CICD 对于现在的开发者来说应该很熟悉，对于热衷于工作自动化的程序员来说，CICD 可以说是非常好用的一个手段，我个人的大部分项目都会配置远端的代码测试代码规范校验的脚本。包括本博客也在 GitHub 上自动部署的,我只管提交剩余的工作都是自动化，感兴趣可以<a href=https://github.com/yusank/yusank.github.io/actions target=_blank rel="noopener noreffer">点击查看</a>。</p>
-<div class="details admonition warning open">
-<div class="details-summary admonition-title">
-<i class="icon fas fa-exclamation-triangle fa-fw"></i>注<i class="details-icon fas fa-angle-right fa-fw"></i>
-</div>
-<div class=details-content>
-<div class=admonition-content>会尽快补充后面的内容！！！</div>
-</div>
-</div>
-<h2 id=6-配置文件>6. 配置文件</h2>
+<h2 id=6-构建与运行>6. 构建与运行</h2>
+<p>项目的开发和调试过程我们免不了无数次的构建、编译、运行等过程，并且会依赖很多变量。这个时候我们应该有一个比较完善的解决方案来减少我们的敲各种命令的次数提升效率。</p>
 <h3 id=61-makefile>6.1. makefile</h3>
+<p><code>make</code>命令是GNU的工程化编译工具，用于编译众多相互关联的源代码文件，以实现工程化的管理，提高开发效率。我们应该对 make 有一定的了解，并学会使用它，从而提升效率。</p>
+<blockquote>
+<p><a href=https://www.ruanyifeng.com/blog/2015/02/make.html target=_blank rel="noopener noreffer">点击这里</a>学习/复习相关知识，本篇文章不再讲述相关内容。</p>
+</blockquote>
+<p>下面以当前博客项目的 Makefile 为例：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-makefile data-lang=makefile><span class=nv>TAG</span> <span class=o>=</span> latest
+<span class=nf>help</span><span class=o>:</span>  <span class=c>## Display this help
+</span><span class=c></span>    @awk <span class=s1>&#39;BEGIN {FS = &#34;:.*##&#34;; printf &#34;\nUsage:\n  make \033[36m&lt;target&gt;\033[0m\n&#34;} /^[0-9A-Za-z_-]+:.*?##/ { printf &#34;  \033[36m%-45s\033[0m %s\n&#34;, $$1, $$2 } /^##@/ { printf &#34;\n\033[1m%s\033[0m\n&#34;, substr($$0, 5) } &#39;</span> <span class=k>$(</span>MAKEFILE_LIST<span class=k>)</span>
+<span class=nf>.PHONY</span><span class=o>:</span> <span class=n>docker</span>-<span class=n>build</span>
+<span class=nf>docker-build</span><span class=o>:</span> <span class=c>## build docker image
+</span><span class=c></span>    <span class=c1>## change config</span>
+    cat config.toml &gt; config.backup.toml
+    rm -f config.toml
+    mv config.docker.toml config.toml
+    
+    docker build -t yusank/hugo_blog:<span class=k>$(</span>TAG<span class=k>)</span> .
+    <span class=c1># recover</span>
+    mv config.toml config.docker.toml
+    cat config.backup.toml &gt; config.toml
+    rm -f config.backup.toml
+<span class=nf>.PHONY</span><span class=o>:</span> <span class=n>docker</span>-<span class=n>run</span>
+<span class=nf>docker-run</span><span class=o>:</span> <span class=c>## run latest docker image localy
+</span><span class=c></span>    docker rm -f blog
+    docker run -d -p 8088:80 --name blog yusank/hugo_blog:<span class=k>$(</span>TAG<span class=k>)</span>
+
+<span class=nf>.PHONY</span><span class=o>:</span> <span class=n>docker</span>-<span class=n>push</span>
+<span class=nf>docker-push</span><span class=o>:</span> <span class=n>docker</span>-<span class=n>build</span> <span class=c>## bulid and push newest docker image
+</span><span class=c></span>    docker push docker.io/yusank/hugo_blog:<span class=k>$(</span>TAG<span class=k>)</span>
+
+<span class=nf>.PHONY</span><span class=o>:</span> <span class=n>docker</span>-<span class=n>release</span>
+<span class=nf>docker-release</span><span class=o>:</span> <span class=n>docker</span>-<span class=n>push</span> <span class=c>## relaese newest version of image to aliyun
+</span><span class=c></span>    ssh aliyun_d1 <span class=s2>&#34;./restart.sh latest&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到定义了几个命令，并且可以发现有些命令是有依赖关系的。当执行 <code>make docker-release</code> 时，会先进行 <code>docker-push</code>的逻辑，而 <code>docker-push</code> 又有其依赖，以此类推。如果没有定义这个 <code>makefile</code>, 那为了一个 release 操作，我需要你手动敲很多命令且还得确保顺序。</p>
+<p>这个只是一个十几行的 <code>make</code> 命令的示例，如果你的构建/编译的依赖更多（环境变量，上下文等），那更得写一个 <code>Makefile</code> 来减少人工操作次数。况且一次测好后，之后就避免人工操作失误的情况。</p>
+<p><code>help</code> 命令会打印当前 <code>Makefile</code> 支持的所有子命令，效果如下：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>➜ make <span class=nb>help</span>      
+Usage:
+  make &lt;target&gt;
+  <span class=nb>help</span>                                           Display this <span class=nb>help</span>
+  docker-build                                   build docker image
+  docker-run                                     run latest docker image localy
+  docker-push                                    bulid and push newest docker image
+  docker-release                                 relaese newest version of image to aliyun
+</code></pre></td></tr></table>
+</div>
+</div><p>写好一个 Makefile 可以说是一个一劳永逸，对自己和他人都有百益无一害的事儿了。你可以有个模板，有新的项目可以直接 copy 进去修改即可用的那种。</p>
 <h3 id=62-dockerfile>6.2. dockerfile</h3>
-<blockquote>
-<p>dockerfile</p>
-</blockquote>
-<h2 id=7-文档>7. 文档</h2>
-<h3 id=71-开发文档>7.1. 开发文档</h3>
-<h3 id=72-测试文档>7.2. 测试文档</h3>
-<h3 id=73-维护文档>7.3. 维护文档</h3>
-<h3 id=74-其他相关>7.4. 其他相关</h3>
-<blockquote>
-<p>代码量统计等</p>
-</blockquote>
-<h2 id=8-总结>8. 总结</h2>
-<h2 id=9-链接>9. 链接🔗</h2></div><div class=post-footer id=post-footer>
+<p><code>dockerfile</code> 的用处很简单，就是为了构建 docker 镜像。现在大部分人的项目都在容器内运行了，二进制裸跑在物理机或虚拟机的情况很少，所以 dockerfile 也是需要我们在项目中加好，方便自动化构建镜像。</p>
+<p>还是以本博客系统的镜像为例（引用本博客系统的文件不是因为夸自己写的好，纯属因为方便）：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-dockerfile data-lang=dockerfile><span class=k>ARG</span> <span class=nv>HUGO_DIR</span><span class=o>=</span>.<span class=err>
+</span><span class=err></span><span class=k>ARG</span> <span class=nv>HUGO_ENV_ARG</span><span class=o>=</span>production
+<span class=k>FROM</span><span class=s> klakegg/hugo:0.90.1-alpine-onbuild AS hugo</span><span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=k>FROM</span><span class=s> nginx</span><span class=err>
+</span><span class=err></span><span class=k>COPY</span> nginx.conf /etc/nginx/conf.d/nginx.conf<span class=err>
+</span><span class=err></span><span class=k>COPY</span> yusank.space.pem /etc/nginx/conf.d/yusank.space.pem<span class=err>
+</span><span class=err></span><span class=k>COPY</span> yusank.space.key /etc/nginx/conf.d/yusank.space.key<span class=err>
+</span><span class=err></span><span class=k>COPY</span> --from<span class=o>=</span>hugo /target /usr/share/nginx/html<span class=err>
+</span><span class=err></span><span class=k>EXPOSE</span><span class=s> 80</span><span class=err>
+</span><span class=err></span><span class=k>EXPOSE</span><span class=s> 443</span><span class=err>
+</span></code></pre></td></tr></table>
+</div>
+</div><p>典型的 go 项目的dockerfile：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-dockerfile data-lang=dockerfile><span class=k>FROM</span><span class=s> golang:1.17-alpine as builder</span><span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=k>WORKDIR</span><span class=s> /app/godis</span><span class=err>
+</span><span class=err></span><span class=k>COPY</span> . .<span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=c># args</span><span class=err>
+</span><span class=err></span><span class=k>ARG</span> build_tags<span class=err>
+</span><span class=err></span><span class=k>RUN</span> <span class=nv>CGO_ENABLED</span><span class=o>=</span><span class=m>0</span> go build -tags <span class=s2>&#34;</span><span class=si>${</span><span class=nv>build_tags</span><span class=si>}</span><span class=s2>&#34;</span> -o godis cmd/server/main.go<span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=k>FROM</span><span class=s> scratch</span><span class=err>
+</span><span class=err></span><span class=k>WORKDIR</span><span class=s> /app/godis</span><span class=err>
+</span><span class=err></span><span class=k>COPY</span> --from<span class=o>=</span>builder /app/godis .<span class=err>
+</span><span class=err>
+</span><span class=err></span><span class=k>EXPOSE</span><span class=s> 7379</span><span class=err>
+</span><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;./godis&#34;</span><span class=p>]</span><span class=err>
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id=7-总结>7. 总结</h2>
+<p>本篇文章主要讲述了我个人在开个项目过程积累的一些经验，不一定是最好的而且肯定露了很多地方，若有不正确的地方请指出。想通过这篇文章首先给自己一个总结，其次想给对项目的管理（开发方向）方面有疑惑有疑虑的同学一些启发。</p>
+<p>本篇文章的主要内容：</p>
+<ul>
+<li>介绍常见的项目目录结构，请按自己的实际情况选择</li>
+<li>如何拆分模块</li>
+<li>应该重视代码测试项目测试相关</li>
+<li>介绍 git,github,gitlab 的一些好用的特性，希望能带来效率的提升</li>
+<li>介绍 makefile,dockerfile 帮助提升开发效率</li>
+</ul>
+<h2 id=8-链接>8. 链接🔗</h2>
+<ul>
+<li><a href=https://keda.sh target=_blank rel="noopener noreffer">keda</a></li>
+<li><a href=https://github.com/golangci/golangci-lint target=_blank rel="noopener noreffer">golangci-lint</a></li>
+<li><a href=https://git-scm.com/book/zh/v2/%E8%87%AA%E5%AE%9A%E4%B9%89-Git-Git-%E9%92%A9%E5%AD%90 target=_blank rel="noopener noreffer">git hook</a></li>
+<li><a href=https://www.ruanyifeng.com/blog/2015/02/make.html target=_blank rel="noopener noreffer">Makefile</a></li>
+</ul></div><div class=post-footer id=post-footer>
 <div class=post-info>
 <div class=post-info-line>
 <div class=post-info-mod>
-<span>更新于 2022-02-11</span>
+<span>更新于 2022-02-15</span>
 </div>
 <div class=post-info-license></div>
 </div>
@@ -981,7 +1103,7 @@ fsmonitor-watchman.sample pre-commit.sample         pre-rebase.sample         pu
 Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>Utterances</a>.
 </noscript></div></article></div>
 </main><footer class=footer>
-<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.92.1">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.92.2">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
 </div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div>
 </div>
 </footer></div>
