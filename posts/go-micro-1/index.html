@@ -15,78 +15,40 @@
 <meta name=twitter:title content="Go-Micro 的架构及其使用（一）">
 <meta name=twitter:description content="关于如何使用go的微服务框架 go-micro/v3 的使用和其插件的自定义。第一部分将框架的架构大致了">
 <meta name=application-name content="Yusank's Site">
-<meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/go-micro-1/><link rel=prev href=https://yusank.github.io/posts/go-interview/><link rel=next href=https://yusank.github.io/posts/use-nacos-with-go-micro/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go-Micro 的架构及其使用（一）","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/go-micro-1\/"},"genre":"posts","keywords":"go, go-micro","wordcount":3874,"url":"https:\/\/yusank.github.io\/posts\/go-micro-1\/","datePublished":"2021-06-11T18:22:00+08:00","dateModified":"2021-11-22T15:22:33+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head>
-<body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':'auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark')&&document.body.setAttribute('theme','dark')</script>
+<meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/go-micro-1/><link rel=prev href=https://yusank.github.io/posts/go-interview/><link rel=next href=https://yusank.github.io/posts/use-nacos-with-go-micro/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go-Micro 的架构及其使用（一）","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/go-micro-1\/"},"genre":"posts","keywords":"go, go-micro","wordcount":3874,"url":"https:\/\/yusank.github.io\/posts\/go-micro-1\/","datePublished":"2021-06-11T18:22:00+08:00","dateModified":"2021-11-22T15:22:33+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script>
 <div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
 <div class=header-wrapper>
 <div class=header-title>
 <a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-1 class=typeit></span></a>
-</div>
-<div class=menu>
+</div><div class=menu>
 <div class=menu-inner><a class=menu-item href=/posts/> 文章 </a><a class=menu-item href=/categories/> 分类 </a><a class=menu-item href=/tags/> 标签 </a><a class=menu-item href=/about/> 关于 </a><a class=menu-item href=/links/> 友链 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
 <i class="fas fa-adjust fa-fw"></i>
 </a>
-</div>
-</div>
-</div>
-</header><header class=mobile id=header-mobile>
+</div></div></div></header><header class=mobile id=header-mobile>
 <div class=header-container>
 <div class=header-wrapper>
 <div class=header-title>
 <a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-2 class=typeit></span></a>
-</div>
-<div class=menu-toggle id=menu-toggle-mobile>
+</div><div class=menu-toggle id=menu-toggle-mobile>
 <span></span><span></span><span></span>
-</div>
-</div>
-<div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+</div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
 <i class="fas fa-adjust fa-fw"></i>
-</a></div>
-</div>
-</header>
-<div class="search-dropdown desktop">
-<div id=search-dropdown-desktop></div>
-</div>
-<div class="search-dropdown mobile">
-<div id=search-dropdown-mobile></div>
-</div>
-<main class=main>
+</a></div></div></header><div class="search-dropdown desktop">
+<div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile">
+<div id=search-dropdown-mobile></div></div><main class=main>
 <div class=container><div class=toc id=toc-auto>
-<h2 class=toc-title>目录</h2>
-<div class=toc-content id=toc-content-auto></div>
-</div><article class="page single"><h1 class="single-title animated flipInX">Go-Micro 的架构及其使用（一）</h1><div class=post-meta>
-<div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/microservice/><i class="far fa-folder fa-fw"></i>microservice</a></span></div>
-<div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2021-06-11>2021-06-11</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 3874 字&nbsp;
-<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 8 分钟&nbsp;</div>
-</div><div class="details toc" id=toc-static kept>
+<h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Go-Micro 的架构及其使用（一）</h1><div class=post-meta>
+<div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/microservice/><i class="far fa-folder fa-fw"></i>microservice</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2021-06-11>2021-06-11</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 3874 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 8 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept>
 <div class="details-summary toc-title">
 <span>目录</span>
 <span><i class="details-icon fas fa-angle-right"></i></span>
-</div>
-<div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
+</div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
 <ul>
 <li><a href=#架构>架构</a>
 <ul>
-<li><a href=#api>API</a></li>
-<li><a href=#config>Config</a></li>
-<li><a href=#logger>Logger</a></li>
-<li><a href=#plugins>plugins</a></li>
-<li><a href=#registry>Registry</a></li>
-<li><a href=#selector>Selector</a></li>
-<li><a href=#server>Server</a></li>
-<li><a href=#store>Store</a></li>
-<li><a href=#sync>Sync</a></li>
-</ul>
-</li>
-</ul>
-</nav></div>
-</div><div class=content id=content><p>关于如何使用go的微服务框架 <code>go-micro/v3</code> 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。</p>
-<h2 id=架构>架构</h2>
-<blockquote>
-<p>以 <code>v3.5.1</code> 分支为例</p>
-</blockquote>
-<p><code>go-micor</code> 项目的目录结构如下：</p>
-<div class=highlight><div class=chroma>
+<li><a href=#api>API</a></li><li><a href=#config>Config</a></li><li><a href=#logger>Logger</a></li><li><a href=#plugins>plugins</a></li><li><a href=#registry>Registry</a></li><li><a href=#selector>Selector</a></li><li><a href=#server>Server</a></li><li><a href=#store>Store</a></li><li><a href=#sync>Sync</a></li></ul></li></ul></nav></div></div><div class=content id=content><p>关于如何使用go的微服务框架 <code>go-micro/v3</code> 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。</p><h2 id=架构>架构</h2><blockquote>
+<p>以 <code>v3.5.1</code> 分支为例</p></blockquote><p><code>go-micor</code> 项目的目录结构如下：</p><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -113,42 +75,34 @@
 </span><span class=lnt>23
 </span><span class=lnt>24
 </span><span class=lnt>25
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ tree -L <span class=m>2</span>
-.
-├── LICENSE
-├── README.md
-├── _config.yml
-├── api // api 接口的定义，包括http、grpc、router等
-├── auth // 账号认证接口的定义
-├── broker // 消息队列接口定义及默认实现
-├── client // 客户端相关接口定义和实现
-├── cmd // 可执行命令（包括生成protobuf的命令实现）
-├── codec // code encoder
-├── config // 动态配置的接口定义
-├── debug // debug 模式
-├── errors // 错误处理
-├── examples // 各个模块的示例代码
-├── logger // 日志模块接口定义
-├── metadata // 原数据
-├── plugins // 各个模块定义的接口的不同实现
-├── registry // 服务注册接口定义
-├── selector // 负载均衡
-├── server // 服务端接口定义
-├── store // 数据存储接口定义
-├── sync 
-├── transport // 请求转发
-└── util // 工具类
-</code></pre></td></tr></table>
-</div>
-</div><p>下面按目录将 <code>go-micro</code> 的主要核心模块过一遍。</p>
-<h3 id=api>API</h3>
-<blockquote>
-<p><code>api</code> 层为定义和实现基于http/gRPC的api service。即http请求处理 路由处理 路由注册等。</p>
-</blockquote>
-<p>接口定义：</p>
-<div class=highlight><div class=chroma>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree -L <span class=m>2</span>
+</span></span><span class=line><span class=cl>.
+</span></span><span class=line><span class=cl>├── LICENSE
+</span></span><span class=line><span class=cl>├── README.md
+</span></span><span class=line><span class=cl>├── _config.yml
+</span></span><span class=line><span class=cl>├── api // api 接口的定义，包括http、grpc、router等
+</span></span><span class=line><span class=cl>├── auth // 账号认证接口的定义
+</span></span><span class=line><span class=cl>├── broker // 消息队列接口定义及默认实现
+</span></span><span class=line><span class=cl>├── client // 客户端相关接口定义和实现
+</span></span><span class=line><span class=cl>├── cmd // 可执行命令（包括生成protobuf的命令实现）
+</span></span><span class=line><span class=cl>├── codec // code encoder
+</span></span><span class=line><span class=cl>├── config // 动态配置的接口定义
+</span></span><span class=line><span class=cl>├── debug // debug 模式
+</span></span><span class=line><span class=cl>├── errors // 错误处理
+</span></span><span class=line><span class=cl>├── examples // 各个模块的示例代码
+</span></span><span class=line><span class=cl>├── logger // 日志模块接口定义
+</span></span><span class=line><span class=cl>├── metadata // 原数据
+</span></span><span class=line><span class=cl>├── plugins // 各个模块定义的接口的不同实现
+</span></span><span class=line><span class=cl>├── registry // 服务注册接口定义
+</span></span><span class=line><span class=cl>├── selector // 负载均衡
+</span></span><span class=line><span class=cl>├── server // 服务端接口定义
+</span></span><span class=line><span class=cl>├── store // 数据存储接口定义
+</span></span><span class=line><span class=cl>├── sync 
+</span></span><span class=line><span class=cl>├── transport // 请求转发
+</span></span><span class=line><span class=cl>└── util // 工具类
+</span></span></code></pre></td></tr></table></div></div><p>下面按目录将 <code>go-micro</code> 的主要核心模块过一遍。</p><h3 id=api>API</h3><blockquote>
+<p><code>api</code> 层为定义和实现基于http/gRPC的api service。即http请求处理 路由处理 路由注册等。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -162,24 +116,20 @@
 </span><span class=lnt>10
 </span><span class=lnt>11
 </span><span class=lnt>12
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kd>type</span> <span class=nx>Api</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=c1>// Initialise options
-</span><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// Get the options
-</span><span class=c1></span>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
-	<span class=c1>// Register a http handler
-</span><span class=c1></span>	<span class=nf>Register</span><span class=p>(</span><span class=o>*</span><span class=nx>Endpoint</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// Register a route
-</span><span class=c1></span>	<span class=nf>Deregister</span><span class=p>(</span><span class=o>*</span><span class=nx>Endpoint</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// Implemenation of api
-</span><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>目录结构：</p>
-<div class=highlight><div class=chroma>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Api</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Initialise options
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Get the options
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Register a http handler
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Register</span><span class=p>(</span><span class=o>*</span><span class=nx>Endpoint</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Register a route
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Deregister</span><span class=p>(</span><span class=o>*</span><span class=nx>Endpoint</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Implemenation of api
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>目录结构：</p><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -216,51 +166,44 @@
 </span><span class=lnt>33
 </span><span class=lnt>34
 </span><span class=lnt>35
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ tree
-.
-├── api.go
-├── api_test.go
-├── handler // 接口处理方法
-│   ├── api // 实现 http.ServerHTTP<span class=o>()</span> 方法
-│   ├── event // 基于消息队列的实现
-│   ├── handler.go // 接口定义
-│   ├── http // 基于http的实现
-│   ├── options.go
-│   ├── rpc // 基于rpc的实现
-│   └── web // 支持websocket的实现
-├── proto
-│   ├── api.pb.go
-│   ├── api.pb.micro.go
-│   └── api.proto // 数据结构定义
-├── resolver // 解析请求及路由
-│   ├── grpc
-│   ├── host
-│   ├── options.go
-│   ├── path
-│   ├── resolver.go
-│   └── vpath
-├── router // 路由定义和注册
-│   ├── options.go
-│   ├── registry
-│   ├── router.go
-│   ├── static
-│   └── util
-└── server // 服务定义和启动
-    ├── acme
-    ├── cors
-    ├── http
-    ├── options.go
-    └── server.go
-</code></pre></td></tr></table>
-</div>
-</div><h3 id=config>Config</h3>
-<blockquote>
-<p><code>config</code> 作为动态配置中心的接口定义和实现。支持动态加载、插件式配置源、配置合并和观察配置变化。</p>
-</blockquote>
-<p>接口定义：</p>
-<div class=highlight><div class=chroma>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree
+</span></span><span class=line><span class=cl>.
+</span></span><span class=line><span class=cl>├── api.go
+</span></span><span class=line><span class=cl>├── api_test.go
+</span></span><span class=line><span class=cl>├── handler // 接口处理方法
+</span></span><span class=line><span class=cl>│   ├── api // 实现 http.ServerHTTP<span class=o>()</span> 方法
+</span></span><span class=line><span class=cl>│   ├── event // 基于消息队列的实现
+</span></span><span class=line><span class=cl>│   ├── handler.go // 接口定义
+</span></span><span class=line><span class=cl>│   ├── http // 基于http的实现
+</span></span><span class=line><span class=cl>│   ├── options.go
+</span></span><span class=line><span class=cl>│   ├── rpc // 基于rpc的实现
+</span></span><span class=line><span class=cl>│   └── web // 支持websocket的实现
+</span></span><span class=line><span class=cl>├── proto
+</span></span><span class=line><span class=cl>│   ├── api.pb.go
+</span></span><span class=line><span class=cl>│   ├── api.pb.micro.go
+</span></span><span class=line><span class=cl>│   └── api.proto // 数据结构定义
+</span></span><span class=line><span class=cl>├── resolver // 解析请求及路由
+</span></span><span class=line><span class=cl>│   ├── grpc
+</span></span><span class=line><span class=cl>│   ├── host
+</span></span><span class=line><span class=cl>│   ├── options.go
+</span></span><span class=line><span class=cl>│   ├── path
+</span></span><span class=line><span class=cl>│   ├── resolver.go
+</span></span><span class=line><span class=cl>│   └── vpath
+</span></span><span class=line><span class=cl>├── router // 路由定义和注册
+</span></span><span class=line><span class=cl>│   ├── options.go
+</span></span><span class=line><span class=cl>│   ├── registry
+</span></span><span class=line><span class=cl>│   ├── router.go
+</span></span><span class=line><span class=cl>│   ├── static
+</span></span><span class=line><span class=cl>│   └── util
+</span></span><span class=line><span class=cl>└── server // 服务定义和启动
+</span></span><span class=line><span class=cl>    ├── acme
+</span></span><span class=line><span class=cl>    ├── cors
+</span></span><span class=line><span class=cl>    ├── http
+</span></span><span class=line><span class=cl>    ├── options.go
+</span></span><span class=line><span class=cl>    └── server.go
+</span></span></code></pre></td></tr></table></div></div><h3 id=config>Config</h3><blockquote>
+<p><code>config</code> 作为动态配置中心的接口定义和实现。支持动态加载、插件式配置源、配置合并和观察配置变化。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -333,83 +276,79 @@
 </span><span class=lnt>69
 </span><span class=lnt>70
 </span><span class=lnt>71
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// Config is an interface abstraction for dynamic configuration
-</span><span class=c1>// 配置接口定义
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Config</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=c1>// provide the reader.Values interface
-</span><span class=c1></span>    <span class=c1>// 读取到的配置的reader
-</span><span class=c1></span>	<span class=nx>reader</span><span class=p>.</span><span class=nx>Values</span>
-	<span class=c1>// Init the config
-</span><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=nx>opts</span> <span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// Options in the config
-</span><span class=c1></span>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
-	<span class=c1>// Stop the config loader/watcher
-</span><span class=c1></span>	<span class=nf>Close</span><span class=p>()</span> <span class=kt>error</span>
-	<span class=c1>// Load config sources
-</span><span class=c1></span>    <span class=c1>// 可以加载多个Source
-</span><span class=c1></span>	<span class=nf>Load</span><span class=p>(</span><span class=nx>source</span> <span class=o>...</span><span class=nx>source</span><span class=p>.</span><span class=nx>Source</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// Force a source changeset sync
-</span><span class=c1></span>    <span class=c1>// 同步配置变化
-</span><span class=c1></span>	<span class=nf>Sync</span><span class=p>()</span> <span class=kt>error</span>
-	<span class=c1>// Watch a value for changes
-</span><span class=c1></span>    <span class=c1>// 订阅配置变化
-</span><span class=c1></span>	<span class=nf>Watch</span><span class=p>(</span><span class=nx>path</span> <span class=o>...</span><span class=kt>string</span><span class=p>)</span> <span class=p>(</span><span class=nx>Watcher</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-<span class=p>}</span>
-
-<span class=c1>// Watcher is the config watcher
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Watcher</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=nf>Next</span><span class=p>()</span> <span class=p>(</span><span class=nx>reader</span><span class=p>.</span><span class=nx>Value</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-	<span class=nf>Stop</span><span class=p>()</span> <span class=kt>error</span>
-<span class=p>}</span>
-
-<span class=c1>// Source is the source from which config is loaded
-</span><span class=c1>// Source 就是配置来源 go-micro 已实现基于consul，etcd，file等多种配置来源，也可以自己实现下面接口来使用
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Source</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=nf>Read</span><span class=p>()</span> <span class=p>(</span><span class=o>*</span><span class=nx>ChangeSet</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-	<span class=nf>Write</span><span class=p>(</span><span class=o>*</span><span class=nx>ChangeSet</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=nf>Watch</span><span class=p>()</span> <span class=p>(</span><span class=nx>Watcher</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
-<span class=p>}</span>
-
-<span class=c1>// Reader is an interface for merging changesets
-</span><span class=c1>// 用于配置合并
-</span><span class=c1>// go-micro 实现了基于json的Reader,默认用json作为解析配置内容，并在插件目录内实现了 toml yaml xml等格式的Encoder可以按需求替换
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Reader</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=nf>Merge</span><span class=p>(</span><span class=o>...*</span><span class=nx>source</span><span class=p>.</span><span class=nx>ChangeSet</span><span class=p>)</span> <span class=p>(</span><span class=o>*</span><span class=nx>source</span><span class=p>.</span><span class=nx>ChangeSet</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-	<span class=nf>Values</span><span class=p>(</span><span class=o>*</span><span class=nx>source</span><span class=p>.</span><span class=nx>ChangeSet</span><span class=p>)</span> <span class=p>(</span><span class=nx>Values</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
-<span class=p>}</span>
-
-<span class=c1>// Values is returned by the reader
-</span><span class=c1>// 用于读写配置，读取的配置会返回 Value
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Values</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=nf>Bytes</span><span class=p>()</span> <span class=p>[]</span><span class=kt>byte</span>
-	<span class=nf>Get</span><span class=p>(</span><span class=nx>path</span> <span class=o>...</span><span class=kt>string</span><span class=p>)</span> <span class=nx>Value</span>
-	<span class=nf>Set</span><span class=p>(</span><span class=nx>val</span> <span class=kd>interface</span><span class=p>{},</span> <span class=nx>path</span> <span class=o>...</span><span class=kt>string</span><span class=p>)</span>
-	<span class=nf>Del</span><span class=p>(</span><span class=nx>path</span> <span class=o>...</span><span class=kt>string</span><span class=p>)</span>
-	<span class=nf>Map</span><span class=p>()</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kd>interface</span><span class=p>{}</span>
-	<span class=nf>Scan</span><span class=p>(</span><span class=nx>v</span> <span class=kd>interface</span><span class=p>{})</span> <span class=kt>error</span>
-<span class=p>}</span>
-
-<span class=c1>// Value represents a value of any type
-</span><span class=c1>// Value 为拿到的配置，可以通过其方法转到基础类型。
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Value</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=nf>Bool</span><span class=p>(</span><span class=nx>def</span> <span class=kt>bool</span><span class=p>)</span> <span class=kt>bool</span>
-	<span class=nf>Int</span><span class=p>(</span><span class=nx>def</span> <span class=kt>int</span><span class=p>)</span> <span class=kt>int</span>
-	<span class=nf>String</span><span class=p>(</span><span class=nx>def</span> <span class=kt>string</span><span class=p>)</span> <span class=kt>string</span>
-	<span class=nf>Float64</span><span class=p>(</span><span class=nx>def</span> <span class=kt>float64</span><span class=p>)</span> <span class=kt>float64</span>
-	<span class=nf>Duration</span><span class=p>(</span><span class=nx>def</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span><span class=p>)</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span>
-	<span class=nf>StringSlice</span><span class=p>(</span><span class=nx>def</span> <span class=p>[]</span><span class=kt>string</span><span class=p>)</span> <span class=p>[]</span><span class=kt>string</span>
-	<span class=nf>StringMap</span><span class=p>(</span><span class=nx>def</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kt>string</span><span class=p>)</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kt>string</span>
-	<span class=nf>Scan</span><span class=p>(</span><span class=nx>val</span> <span class=kd>interface</span><span class=p>{})</span> <span class=kt>error</span>
-	<span class=nf>Bytes</span><span class=p>()</span> <span class=p>[]</span><span class=kt>byte</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>目录结构：</p>
-<div class=highlight><div class=chroma>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Config is an interface abstraction for dynamic configuration
+</span></span></span><span class=line><span class=cl><span class=c1>// 配置接口定义
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Config</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// provide the reader.Values interface
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 读取到的配置的reader
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nx>reader</span><span class=p>.</span><span class=nx>Values</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Init the config
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=nx>opts</span> <span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Options in the config
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Stop the config loader/watcher
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Close</span><span class=p>()</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Load config sources
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 可以加载多个Source
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Load</span><span class=p>(</span><span class=nx>source</span> <span class=o>...</span><span class=nx>source</span><span class=p>.</span><span class=nx>Source</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Force a source changeset sync
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 同步配置变化
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Sync</span><span class=p>()</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Watch a value for changes
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 订阅配置变化
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Watch</span><span class=p>(</span><span class=nx>path</span> <span class=o>...</span><span class=kt>string</span><span class=p>)</span> <span class=p>(</span><span class=nx>Watcher</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Watcher is the config watcher
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Watcher</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Next</span><span class=p>()</span> <span class=p>(</span><span class=nx>reader</span><span class=p>.</span><span class=nx>Value</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Stop</span><span class=p>()</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Source is the source from which config is loaded
+</span></span></span><span class=line><span class=cl><span class=c1>// Source 就是配置来源 go-micro 已实现基于consul，etcd，file等多种配置来源，也可以自己实现下面接口来使用
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Source</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Read</span><span class=p>()</span> <span class=p>(</span><span class=o>*</span><span class=nx>ChangeSet</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Write</span><span class=p>(</span><span class=o>*</span><span class=nx>ChangeSet</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Watch</span><span class=p>()</span> <span class=p>(</span><span class=nx>Watcher</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Reader is an interface for merging changesets
+</span></span></span><span class=line><span class=cl><span class=c1>// 用于配置合并
+</span></span></span><span class=line><span class=cl><span class=c1>// go-micro 实现了基于json的Reader,默认用json作为解析配置内容，并在插件目录内实现了 toml yaml xml等格式的Encoder可以按需求替换
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Reader</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Merge</span><span class=p>(</span><span class=o>...*</span><span class=nx>source</span><span class=p>.</span><span class=nx>ChangeSet</span><span class=p>)</span> <span class=p>(</span><span class=o>*</span><span class=nx>source</span><span class=p>.</span><span class=nx>ChangeSet</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Values</span><span class=p>(</span><span class=o>*</span><span class=nx>source</span><span class=p>.</span><span class=nx>ChangeSet</span><span class=p>)</span> <span class=p>(</span><span class=nx>Values</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Values is returned by the reader
+</span></span></span><span class=line><span class=cl><span class=c1>// 用于读写配置，读取的配置会返回 Value
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Values</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Bytes</span><span class=p>()</span> <span class=p>[]</span><span class=kt>byte</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Get</span><span class=p>(</span><span class=nx>path</span> <span class=o>...</span><span class=kt>string</span><span class=p>)</span> <span class=nx>Value</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Set</span><span class=p>(</span><span class=nx>val</span> <span class=kd>interface</span><span class=p>{},</span> <span class=nx>path</span> <span class=o>...</span><span class=kt>string</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Del</span><span class=p>(</span><span class=nx>path</span> <span class=o>...</span><span class=kt>string</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Map</span><span class=p>()</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kd>interface</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Scan</span><span class=p>(</span><span class=nx>v</span> <span class=kd>interface</span><span class=p>{})</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Value represents a value of any type
+</span></span></span><span class=line><span class=cl><span class=c1>// Value 为拿到的配置，可以通过其方法转到基础类型。
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Value</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Bool</span><span class=p>(</span><span class=nx>def</span> <span class=kt>bool</span><span class=p>)</span> <span class=kt>bool</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Int</span><span class=p>(</span><span class=nx>def</span> <span class=kt>int</span><span class=p>)</span> <span class=kt>int</span>
+</span></span><span class=line><span class=cl>	<span class=nf>String</span><span class=p>(</span><span class=nx>def</span> <span class=kt>string</span><span class=p>)</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Float64</span><span class=p>(</span><span class=nx>def</span> <span class=kt>float64</span><span class=p>)</span> <span class=kt>float64</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Duration</span><span class=p>(</span><span class=nx>def</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span><span class=p>)</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span>
+</span></span><span class=line><span class=cl>	<span class=nf>StringSlice</span><span class=p>(</span><span class=nx>def</span> <span class=p>[]</span><span class=kt>string</span><span class=p>)</span> <span class=p>[]</span><span class=kt>string</span>
+</span></span><span class=line><span class=cl>	<span class=nf>StringMap</span><span class=p>(</span><span class=nx>def</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kt>string</span><span class=p>)</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kt>string</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Scan</span><span class=p>(</span><span class=nx>val</span> <span class=kd>interface</span><span class=p>{})</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Bytes</span><span class=p>()</span> <span class=p>[]</span><span class=kt>byte</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>目录结构：</p><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -445,49 +384,43 @@
 </span><span class=lnt>32
 </span><span class=lnt>33
 </span><span class=lnt>34
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ tree -L <span class=m>2</span>
-.
-├── README.md
-├── config.go // Config 接口定义
-├── default.go // 默认实现的Config
-├── default_test.go
-├── encoder // encoder 解析配置内容
-│   ├── encoder.go
-│   └── json // json实现
-├── loader // 加载配置
-│   ├── loader.go
-│   └── memory // 基于内存的加载，即启动时会将配置加载到内存
-├── options.go
-├── reader // 定义和实现Reader，内部依赖Encoder
-│   ├── json
-│   ├── options.go
-│   ├── preprocessor.go
-│   ├── preprocessor_test.go
-│   └── reader.go
-├── secrets // 定义和实现需要加解密的配置
-│   ├── box
-│   ├── secretbox
-│   └── secrets.go
-├── <span class=nb>source</span> // 配置来源
-│   ├── changeset.go
-│   ├── cli
-│   ├── env // 基于环境变量的实现
-│   ├── file // 基于本地文件实现
-│   ├── flag // 基于启动参数flag实现
-│   ├── memory // 基于内存实现
-│   ├── noop.go
-│   ├── options.go
-│   └── source.go
-└── value.go
-</code></pre></td></tr></table>
-</div>
-</div><p><code>plugins/config/encoder</code> 目录:</p>
-<blockquote>
-<p>实现Encoder接口</p>
-</blockquote>
-<div class=highlight><div class=chroma>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree -L <span class=m>2</span>
+</span></span><span class=line><span class=cl>.
+</span></span><span class=line><span class=cl>├── README.md
+</span></span><span class=line><span class=cl>├── config.go // Config 接口定义
+</span></span><span class=line><span class=cl>├── default.go // 默认实现的Config
+</span></span><span class=line><span class=cl>├── default_test.go
+</span></span><span class=line><span class=cl>├── encoder // encoder 解析配置内容
+</span></span><span class=line><span class=cl>│   ├── encoder.go
+</span></span><span class=line><span class=cl>│   └── json // json实现
+</span></span><span class=line><span class=cl>├── loader // 加载配置
+</span></span><span class=line><span class=cl>│   ├── loader.go
+</span></span><span class=line><span class=cl>│   └── memory // 基于内存的加载，即启动时会将配置加载到内存
+</span></span><span class=line><span class=cl>├── options.go
+</span></span><span class=line><span class=cl>├── reader // 定义和实现Reader，内部依赖Encoder
+</span></span><span class=line><span class=cl>│   ├── json
+</span></span><span class=line><span class=cl>│   ├── options.go
+</span></span><span class=line><span class=cl>│   ├── preprocessor.go
+</span></span><span class=line><span class=cl>│   ├── preprocessor_test.go
+</span></span><span class=line><span class=cl>│   └── reader.go
+</span></span><span class=line><span class=cl>├── secrets // 定义和实现需要加解密的配置
+</span></span><span class=line><span class=cl>│   ├── box
+</span></span><span class=line><span class=cl>│   ├── secretbox
+</span></span><span class=line><span class=cl>│   └── secrets.go
+</span></span><span class=line><span class=cl>├── <span class=nb>source</span> // 配置来源
+</span></span><span class=line><span class=cl>│   ├── changeset.go
+</span></span><span class=line><span class=cl>│   ├── cli
+</span></span><span class=line><span class=cl>│   ├── env // 基于环境变量的实现
+</span></span><span class=line><span class=cl>│   ├── file // 基于本地文件实现
+</span></span><span class=line><span class=cl>│   ├── flag // 基于启动参数flag实现
+</span></span><span class=line><span class=cl>│   ├── memory // 基于内存实现
+</span></span><span class=line><span class=cl>│   ├── noop.go
+</span></span><span class=line><span class=cl>│   ├── options.go
+</span></span><span class=line><span class=cl>│   └── source.go
+</span></span><span class=line><span class=cl>└── value.go
+</span></span></code></pre></td></tr></table></div></div><p><code>plugins/config/encoder</code> 目录:</p><blockquote>
+<p>实现Encoder接口</p></blockquote><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
@@ -496,22 +429,16 @@
 </span><span class=lnt>5
 </span><span class=lnt>6
 </span><span class=lnt>7
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ tree
-plugins/config/encoder
-├── cue
-├── hcl
-├── toml
-├── xml
-└── yaml
-</code></pre></td></tr></table>
-</div>
-</div><p><code>plugins/config/source</code> 目录：</p>
-<blockquote>
-<p>实现Source接口</p>
-</blockquote>
-<div class=highlight><div class=chroma>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree
+</span></span><span class=line><span class=cl>plugins/config/encoder
+</span></span><span class=line><span class=cl>├── cue
+</span></span><span class=line><span class=cl>├── hcl
+</span></span><span class=line><span class=cl>├── toml
+</span></span><span class=line><span class=cl>├── xml
+</span></span><span class=line><span class=cl>└── yaml
+</span></span></code></pre></td></tr></table></div></div><p><code>plugins/config/source</code> 目录：</p><blockquote>
+<p>实现Source接口</p></blockquote><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -524,27 +451,20 @@ plugins/config/encoder
 </span><span class=lnt> 9
 </span><span class=lnt>10
 </span><span class=lnt>11
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ tree
-plugins/config/source
-├── configmap
-├── consul
-├── etcd
-├── grpc
-├── mucp
-├── pkger
-├── runtimevar
-├── url
-└── vault
-</code></pre></td></tr></table>
-</div>
-</div><h3 id=logger>Logger</h3>
-<blockquote>
-<p><code>Logger</code> 包为全局日志库，默认实现了一套，并在<code>plugins</code> 内实现了基于 logrus，zap的个主流的日志的实现。</p>
-</blockquote>
-<p>接口定义：</p>
-<div class=highlight><div class=chroma>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree
+</span></span><span class=line><span class=cl>plugins/config/source
+</span></span><span class=line><span class=cl>├── configmap
+</span></span><span class=line><span class=cl>├── consul
+</span></span><span class=line><span class=cl>├── etcd
+</span></span><span class=line><span class=cl>├── grpc
+</span></span><span class=line><span class=cl>├── mucp
+</span></span><span class=line><span class=cl>├── pkger
+</span></span><span class=line><span class=cl>├── runtimevar
+</span></span><span class=line><span class=cl>├── url
+</span></span><span class=line><span class=cl>└── vault
+</span></span></code></pre></td></tr></table></div></div><h3 id=logger>Logger</h3><blockquote>
+<p><code>Logger</code> 包为全局日志库，默认实现了一套，并在<code>plugins</code> 内实现了基于 logrus，zap的个主流的日志的实现。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -561,34 +481,26 @@ plugins/config/source
 </span><span class=lnt>13
 </span><span class=lnt>14
 </span><span class=lnt>15
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// Logger is a generic logging interface
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Logger</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=c1>// Init initialises options
-</span><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=nx>options</span> <span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// The Logger options
-</span><span class=c1></span>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
-	<span class=c1>// Fields set fields to always be logged
-</span><span class=c1></span>	<span class=nf>Fields</span><span class=p>(</span><span class=nx>fields</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kd>interface</span><span class=p>{})</span> <span class=nx>Logger</span>
-	<span class=c1>// Log writes a log entry
-</span><span class=c1></span>	<span class=nf>Log</span><span class=p>(</span><span class=nx>level</span> <span class=nx>Level</span><span class=p>,</span> <span class=nx>v</span> <span class=o>...</span><span class=kd>interface</span><span class=p>{})</span>
-	<span class=c1>// Logf writes a formatted log entry
-</span><span class=c1></span>	<span class=nf>Logf</span><span class=p>(</span><span class=nx>level</span> <span class=nx>Level</span><span class=p>,</span> <span class=nx>format</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>v</span> <span class=o>...</span><span class=kd>interface</span><span class=p>{})</span>
-	<span class=c1>// String returns the name of logger
-</span><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>若需要自己定义日志格式和日志库，可以实现上面接口，并初始化的时候指定即可。</p>
-<h3 id=plugins>plugins</h3>
-<blockquote>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Logger is a generic logging interface
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Logger</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Init initialises options
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=nx>options</span> <span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// The Logger options
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Fields set fields to always be logged
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Fields</span><span class=p>(</span><span class=nx>fields</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kd>interface</span><span class=p>{})</span> <span class=nx>Logger</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Log writes a log entry
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Log</span><span class=p>(</span><span class=nx>level</span> <span class=nx>Level</span><span class=p>,</span> <span class=nx>v</span> <span class=o>...</span><span class=kd>interface</span><span class=p>{})</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Logf writes a formatted log entry
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Logf</span><span class=p>(</span><span class=nx>level</span> <span class=nx>Level</span><span class=p>,</span> <span class=nx>format</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>v</span> <span class=o>...</span><span class=kd>interface</span><span class=p>{})</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// String returns the name of logger
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>若需要自己定义日志格式和日志库，可以实现上面接口，并初始化的时候指定即可。</p><h3 id=plugins>plugins</h3><blockquote>
 <p>该目录作为插件目录，实现了大部分预定义的接口，方便使用的时候替换成默认实现的模块代码。
 该目录下所有子目录均可以作为go mod package 导入使用
-在之后讲如何使用是 同时演示如何使用插件</p>
-</blockquote>
-<p>目录结构：</p>
-<div class=highlight><div class=chroma>
+在之后讲如何使用是 同时演示如何使用插件</p></blockquote><p>目录结构：</p><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt>  1
 </span><span class=lnt>  2
@@ -705,131 +617,124 @@ plugins/config/source
 </span><span class=lnt>113
 </span><span class=lnt>114
 </span><span class=lnt>115
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ tree
-plugins
-├── LICENSE
-├── README.md
-├── auth // 用户认真
-│   └── jwt // 实现基于jwt的auth接口
-├── broker // 支持了市面上大部分消息队列
-│   ├── gocloud
-│   ├── googlepubsub
-│   ├── grpc
-│   ├── http
-│   ├── kafka
-│   ├── memory
-│   ├── mqtt
-│   ├── nats
-│   ├── nsq
-│   ├── proxy
-│   ├── rabbitmq
-│   ├── redis
-│   ├── segmentio
-│   ├── snssqs
-│   ├── sqs
-│   ├── stan
-│   └── stomp
-├── client // 支持了grpc http 等方式的客户端实现
-│   ├── grpc
-│   ├── http
-│   ├── mock
-│   └── mucp
-├── codec // 消息的编码解码的实现
-│   ├── bsonrpc
-│   ├── json-iterator
-│   ├── jsonrpc2
-│   ├── msgpackrpc
-│   └── segmentio
-├── config // 配置
-│    ├── encoder // 配置编码解码
-│       ├── cue
-│       ├── hcl
-│       ├── toml
-│       ├── xml
-│       └── yaml
-│   └── <span class=nb>source</span> // 配置数据源
-│       ├── configmap
-│       ├── consul
-│       ├── etcd
-│       ├── grpc
-│       ├── mucp
-│       ├── pkger
-│       ├── runtimevar
-│       ├── url
-│       └── vault
-├── logger // 日志库
-│   ├── apex
-│   ├── logrus
-│   ├── zap
-│   └── zerolog
-├── plugin.go
-├── proxy
-│   └── http
-├── registry // 服务发现服务注册
-│   ├── cache
-│   ├── consul
-│   ├── etcd
-│   ├── eureka
-│   ├── gossip
-│   ├── kubernetes
-│   ├── mdns
-│   ├── memory
-│   ├── multi
-│   ├── nats
-│   ├── proxy
-│   └── zookeeper
-├── release.sh
-├── selector // 负载均衡
-│   ├── dns
-│   ├── label
-│   ├── registry
-│   ├── shard
-│   └── static
-├── server // 后端服务
-│   ├── grpc
-│   ├── http
-│   └── mucp
-├── store // 数据存储的实现
-│   ├── cockroach
-│   ├── consul
-│   ├── file
-│   ├── memcached
-│   ├── memory
-│   ├── mysql
-│   └── redis
-├── sync // 数据同步
-│   ├── etcd
-│   └── memory
-├── template.go
-├── transport // 服务之间通讯模块
-│   ├── grpc
-│   ├── http
-│   ├── memory
-│   ├── nats
-│   ├── quic
-│   ├── rabbitmq
-│   ├── tcp
-│   └── utp
-└── wrapper // 自定义组件 比如监控、限流、熔断、追踪等
-    ├── README.md
-    ├── breaker // 熔断
-    ├── endpoint // 指定服务节点
-    ├── monitoring // 监控
-    ├── ratelimiter // 限流
-    ├── <span class=k>select</span> // 负载均衡
-    ├── service
-    ├── trace // 链路追踪
-    └── validator // 参数校验（处理请求时 可以统一参数校验等工作）
-</code></pre></td></tr></table>
-</div>
-</div><h3 id=registry>Registry</h3>
-<blockquote>
-<p>服务发现/服务注册相关逻辑均在 <code>registry</code> 包内实现。</p>
-</blockquote>
-<p>核心接口定义：</p>
-<div class=highlight><div class=chroma>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree
+</span></span><span class=line><span class=cl>plugins
+</span></span><span class=line><span class=cl>├── LICENSE
+</span></span><span class=line><span class=cl>├── README.md
+</span></span><span class=line><span class=cl>├── auth // 用户认真
+</span></span><span class=line><span class=cl>│   └── jwt // 实现基于jwt的auth接口
+</span></span><span class=line><span class=cl>├── broker // 支持了市面上大部分消息队列
+</span></span><span class=line><span class=cl>│   ├── gocloud
+</span></span><span class=line><span class=cl>│   ├── googlepubsub
+</span></span><span class=line><span class=cl>│   ├── grpc
+</span></span><span class=line><span class=cl>│   ├── http
+</span></span><span class=line><span class=cl>│   ├── kafka
+</span></span><span class=line><span class=cl>│   ├── memory
+</span></span><span class=line><span class=cl>│   ├── mqtt
+</span></span><span class=line><span class=cl>│   ├── nats
+</span></span><span class=line><span class=cl>│   ├── nsq
+</span></span><span class=line><span class=cl>│   ├── proxy
+</span></span><span class=line><span class=cl>│   ├── rabbitmq
+</span></span><span class=line><span class=cl>│   ├── redis
+</span></span><span class=line><span class=cl>│   ├── segmentio
+</span></span><span class=line><span class=cl>│   ├── snssqs
+</span></span><span class=line><span class=cl>│   ├── sqs
+</span></span><span class=line><span class=cl>│   ├── stan
+</span></span><span class=line><span class=cl>│   └── stomp
+</span></span><span class=line><span class=cl>├── client // 支持了grpc http 等方式的客户端实现
+</span></span><span class=line><span class=cl>│   ├── grpc
+</span></span><span class=line><span class=cl>│   ├── http
+</span></span><span class=line><span class=cl>│   ├── mock
+</span></span><span class=line><span class=cl>│   └── mucp
+</span></span><span class=line><span class=cl>├── codec // 消息的编码解码的实现
+</span></span><span class=line><span class=cl>│   ├── bsonrpc
+</span></span><span class=line><span class=cl>│   ├── json-iterator
+</span></span><span class=line><span class=cl>│   ├── jsonrpc2
+</span></span><span class=line><span class=cl>│   ├── msgpackrpc
+</span></span><span class=line><span class=cl>│   └── segmentio
+</span></span><span class=line><span class=cl>├── config // 配置
+</span></span><span class=line><span class=cl>│    ├── encoder // 配置编码解码
+</span></span><span class=line><span class=cl>│       ├── cue
+</span></span><span class=line><span class=cl>│       ├── hcl
+</span></span><span class=line><span class=cl>│       ├── toml
+</span></span><span class=line><span class=cl>│       ├── xml
+</span></span><span class=line><span class=cl>│       └── yaml
+</span></span><span class=line><span class=cl>│   └── <span class=nb>source</span> // 配置数据源
+</span></span><span class=line><span class=cl>│       ├── configmap
+</span></span><span class=line><span class=cl>│       ├── consul
+</span></span><span class=line><span class=cl>│       ├── etcd
+</span></span><span class=line><span class=cl>│       ├── grpc
+</span></span><span class=line><span class=cl>│       ├── mucp
+</span></span><span class=line><span class=cl>│       ├── pkger
+</span></span><span class=line><span class=cl>│       ├── runtimevar
+</span></span><span class=line><span class=cl>│       ├── url
+</span></span><span class=line><span class=cl>│       └── vault
+</span></span><span class=line><span class=cl>├── logger // 日志库
+</span></span><span class=line><span class=cl>│   ├── apex
+</span></span><span class=line><span class=cl>│   ├── logrus
+</span></span><span class=line><span class=cl>│   ├── zap
+</span></span><span class=line><span class=cl>│   └── zerolog
+</span></span><span class=line><span class=cl>├── plugin.go
+</span></span><span class=line><span class=cl>├── proxy
+</span></span><span class=line><span class=cl>│   └── http
+</span></span><span class=line><span class=cl>├── registry // 服务发现服务注册
+</span></span><span class=line><span class=cl>│   ├── cache
+</span></span><span class=line><span class=cl>│   ├── consul
+</span></span><span class=line><span class=cl>│   ├── etcd
+</span></span><span class=line><span class=cl>│   ├── eureka
+</span></span><span class=line><span class=cl>│   ├── gossip
+</span></span><span class=line><span class=cl>│   ├── kubernetes
+</span></span><span class=line><span class=cl>│   ├── mdns
+</span></span><span class=line><span class=cl>│   ├── memory
+</span></span><span class=line><span class=cl>│   ├── multi
+</span></span><span class=line><span class=cl>│   ├── nats
+</span></span><span class=line><span class=cl>│   ├── proxy
+</span></span><span class=line><span class=cl>│   └── zookeeper
+</span></span><span class=line><span class=cl>├── release.sh
+</span></span><span class=line><span class=cl>├── selector // 负载均衡
+</span></span><span class=line><span class=cl>│   ├── dns
+</span></span><span class=line><span class=cl>│   ├── label
+</span></span><span class=line><span class=cl>│   ├── registry
+</span></span><span class=line><span class=cl>│   ├── shard
+</span></span><span class=line><span class=cl>│   └── static
+</span></span><span class=line><span class=cl>├── server // 后端服务
+</span></span><span class=line><span class=cl>│   ├── grpc
+</span></span><span class=line><span class=cl>│   ├── http
+</span></span><span class=line><span class=cl>│   └── mucp
+</span></span><span class=line><span class=cl>├── store // 数据存储的实现
+</span></span><span class=line><span class=cl>│   ├── cockroach
+</span></span><span class=line><span class=cl>│   ├── consul
+</span></span><span class=line><span class=cl>│   ├── file
+</span></span><span class=line><span class=cl>│   ├── memcached
+</span></span><span class=line><span class=cl>│   ├── memory
+</span></span><span class=line><span class=cl>│   ├── mysql
+</span></span><span class=line><span class=cl>│   └── redis
+</span></span><span class=line><span class=cl>├── sync // 数据同步
+</span></span><span class=line><span class=cl>│   ├── etcd
+</span></span><span class=line><span class=cl>│   └── memory
+</span></span><span class=line><span class=cl>├── template.go
+</span></span><span class=line><span class=cl>├── transport // 服务之间通讯模块
+</span></span><span class=line><span class=cl>│   ├── grpc
+</span></span><span class=line><span class=cl>│   ├── http
+</span></span><span class=line><span class=cl>│   ├── memory
+</span></span><span class=line><span class=cl>│   ├── nats
+</span></span><span class=line><span class=cl>│   ├── quic
+</span></span><span class=line><span class=cl>│   ├── rabbitmq
+</span></span><span class=line><span class=cl>│   ├── tcp
+</span></span><span class=line><span class=cl>│   └── utp
+</span></span><span class=line><span class=cl>└── wrapper // 自定义组件 比如监控、限流、熔断、追踪等
+</span></span><span class=line><span class=cl>    ├── README.md
+</span></span><span class=line><span class=cl>    ├── breaker // 熔断
+</span></span><span class=line><span class=cl>    ├── endpoint // 指定服务节点
+</span></span><span class=line><span class=cl>    ├── monitoring // 监控
+</span></span><span class=line><span class=cl>    ├── ratelimiter // 限流
+</span></span><span class=line><span class=cl>    ├── <span class=k>select</span> // 负载均衡
+</span></span><span class=line><span class=cl>    ├── service
+</span></span><span class=line><span class=cl>    ├── trace // 链路追踪
+</span></span><span class=line><span class=cl>    └── validator // 参数校验（处理请求时 可以统一参数校验等工作）
+</span></span></code></pre></td></tr></table></div></div><h3 id=registry>Registry</h3><blockquote>
+<p>服务发现/服务注册相关逻辑均在 <code>registry</code> 包内实现。</p></blockquote><p>核心接口定义：</p><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -857,42 +762,35 @@ plugins
 </span><span class=lnt>24
 </span><span class=lnt>25
 </span><span class=lnt>26
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// The registry provides an interface for service discovery
-</span><span class=c1>// and an abstraction over varying implementations
-</span><span class=c1>// {consul, etcd, zookeeper, ...}
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Registry</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
-    <span class=c1>// 服务注册
-</span><span class=c1></span>	<span class=nf>Register</span><span class=p>(</span><span class=o>*</span><span class=nx>Service</span><span class=p>,</span> <span class=o>...</span><span class=nx>RegisterOption</span><span class=p>)</span> <span class=kt>error</span>
-    <span class=c1>// 服务注销
-</span><span class=c1></span>	<span class=nf>Deregister</span><span class=p>(</span><span class=o>*</span><span class=nx>Service</span><span class=p>,</span> <span class=o>...</span><span class=nx>DeregisterOption</span><span class=p>)</span> <span class=kt>error</span>
-    <span class=c1>// 查询服务
-</span><span class=c1></span>	<span class=nf>GetService</span><span class=p>(</span><span class=kt>string</span><span class=p>,</span> <span class=o>...</span><span class=nx>GetOption</span><span class=p>)</span> <span class=p>([]</span><span class=o>*</span><span class=nx>Service</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-    <span class=c1>// 列出服务列表
-</span><span class=c1></span>	<span class=nf>ListServices</span><span class=p>(</span><span class=o>...</span><span class=nx>ListOption</span><span class=p>)</span> <span class=p>([]</span><span class=o>*</span><span class=nx>Service</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-    <span class=c1>// 监控服务
-</span><span class=c1></span>	<span class=nf>Watch</span><span class=p>(</span><span class=o>...</span><span class=nx>WatchOption</span><span class=p>)</span> <span class=p>(</span><span class=nx>Watcher</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
-<span class=p>}</span>
-
-<span class=c1>// Watcher is an interface that returns updates
-</span><span class=c1>// about services within the registry.
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Watcher</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=c1>// Next is a blocking call
-</span><span class=c1></span>	<span class=nf>Next</span><span class=p>()</span> <span class=p>(</span><span class=o>*</span><span class=nx>Result</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-	<span class=nf>Stop</span><span class=p>()</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><h3 id=selector>Selector</h3>
-<blockquote>
-<p>负载均衡逻辑，即客户端请求其他服务时如何选取服务节点都是在该包内实现。可以通过option指定策略，随机，轮询等。</p>
-</blockquote>
-<p>接口定义：</p>
-<div class=highlight><div class=chroma>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// The registry provides an interface for service discovery
+</span></span></span><span class=line><span class=cl><span class=c1>// and an abstraction over varying implementations
+</span></span></span><span class=line><span class=cl><span class=c1>// {consul, etcd, zookeeper, ...}
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Registry</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 服务注册
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Register</span><span class=p>(</span><span class=o>*</span><span class=nx>Service</span><span class=p>,</span> <span class=o>...</span><span class=nx>RegisterOption</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 服务注销
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Deregister</span><span class=p>(</span><span class=o>*</span><span class=nx>Service</span><span class=p>,</span> <span class=o>...</span><span class=nx>DeregisterOption</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 查询服务
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>GetService</span><span class=p>(</span><span class=kt>string</span><span class=p>,</span> <span class=o>...</span><span class=nx>GetOption</span><span class=p>)</span> <span class=p>([]</span><span class=o>*</span><span class=nx>Service</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 列出服务列表
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>ListServices</span><span class=p>(</span><span class=o>...</span><span class=nx>ListOption</span><span class=p>)</span> <span class=p>([]</span><span class=o>*</span><span class=nx>Service</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 监控服务
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Watch</span><span class=p>(</span><span class=o>...</span><span class=nx>WatchOption</span><span class=p>)</span> <span class=p>(</span><span class=nx>Watcher</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Watcher is an interface that returns updates
+</span></span></span><span class=line><span class=cl><span class=c1>// about services within the registry.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Watcher</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Next is a blocking call
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Next</span><span class=p>()</span> <span class=p>(</span><span class=o>*</span><span class=nx>Result</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Stop</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=selector>Selector</h3><blockquote>
+<p>负载均衡逻辑，即客户端请求其他服务时如何选取服务节点都是在该包内实现。可以通过option指定策略，随机，轮询等。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -915,37 +813,30 @@ plugins
 </span><span class=lnt>19
 </span><span class=lnt>20
 </span><span class=lnt>21
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// Selector builds on the registry as a mechanism to pick nodes
-</span><span class=c1>// and mark their status. This allows host pools and other things
-</span><span class=c1>// to be built using various algorithms.
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Selector</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=nf>Init</span><span class=p>(</span><span class=nx>opts</span> <span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
-	<span class=c1>// Select returns a function which should return the next node
-</span><span class=c1></span>	<span class=nf>Select</span><span class=p>(</span><span class=nx>service</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>SelectOption</span><span class=p>)</span> <span class=p>(</span><span class=nx>Next</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-	<span class=c1>// Mark sets the success/error against a node
-</span><span class=c1></span>	<span class=nf>Mark</span><span class=p>(</span><span class=nx>service</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>node</span> <span class=o>*</span><span class=nx>registry</span><span class=p>.</span><span class=nx>Node</span><span class=p>,</span> <span class=nx>err</span> <span class=kt>error</span><span class=p>)</span>
-	<span class=c1>// Reset returns state back to zero for a service
-</span><span class=c1></span>	<span class=nf>Reset</span><span class=p>(</span><span class=nx>service</span> <span class=kt>string</span><span class=p>)</span>
-	<span class=c1>// Close renders the selector unusable
-</span><span class=c1></span>	<span class=nf>Close</span><span class=p>()</span> <span class=kt>error</span>
-	<span class=c1>// Name of the selector
-</span><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
-<span class=p>}</span>
-
-<span class=c1>// Next is a function that returns the next node
-</span><span class=c1>// based on the selector&#39;s strategy
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Next</span> <span class=kd>func</span><span class=p>()</span> <span class=p>(</span><span class=o>*</span><span class=nx>registry</span><span class=p>.</span><span class=nx>Node</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-</code></pre></td></tr></table>
-</div>
-</div><h3 id=server>Server</h3>
-<blockquote>
-<p>server 包为定义和实现管理服务相关逻辑。</p>
-</blockquote>
-<p>server的定义：</p>
-<div class=highlight><div class=chroma>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Selector builds on the registry as a mechanism to pick nodes
+</span></span></span><span class=line><span class=cl><span class=c1>// and mark their status. This allows host pools and other things
+</span></span></span><span class=line><span class=cl><span class=c1>// to be built using various algorithms.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Selector</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Init</span><span class=p>(</span><span class=nx>opts</span> <span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Select returns a function which should return the next node
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Select</span><span class=p>(</span><span class=nx>service</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>SelectOption</span><span class=p>)</span> <span class=p>(</span><span class=nx>Next</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Mark sets the success/error against a node
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Mark</span><span class=p>(</span><span class=nx>service</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>node</span> <span class=o>*</span><span class=nx>registry</span><span class=p>.</span><span class=nx>Node</span><span class=p>,</span> <span class=nx>err</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Reset returns state back to zero for a service
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Reset</span><span class=p>(</span><span class=nx>service</span> <span class=kt>string</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Close renders the selector unusable
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Close</span><span class=p>()</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Name of the selector
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Next is a function that returns the next node
+</span></span></span><span class=line><span class=cl><span class=c1>// based on the selector&#39;s strategy
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Next</span> <span class=kd>func</span><span class=p>()</span> <span class=p>(</span><span class=o>*</span><span class=nx>registry</span><span class=p>.</span><span class=nx>Node</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=server>Server</h3><blockquote>
+<p>server 包为定义和实现管理服务相关逻辑。</p></blockquote><p>server的定义：</p><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -978,48 +869,40 @@ plugins
 </span><span class=lnt>29
 </span><span class=lnt>30
 </span><span class=lnt>31
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// Server is a simple micro server abstraction
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Server</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=c1>// Initialise options
-</span><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// Retrieve the options
-</span><span class=c1></span>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
-	<span class=c1>// Register a handler
-</span><span class=c1></span>	<span class=nf>Handle</span><span class=p>(</span><span class=nx>Handler</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// Create a new handler
-</span><span class=c1></span>	<span class=nf>NewHandler</span><span class=p>(</span><span class=kd>interface</span><span class=p>{},</span> <span class=o>...</span><span class=nx>HandlerOption</span><span class=p>)</span> <span class=nx>Handler</span>
-	<span class=c1>// Create a new subscriber
-</span><span class=c1></span>	<span class=nf>NewSubscriber</span><span class=p>(</span><span class=kt>string</span><span class=p>,</span> <span class=kd>interface</span><span class=p>{},</span> <span class=o>...</span><span class=nx>SubscriberOption</span><span class=p>)</span> <span class=nx>Subscriber</span>
-	<span class=c1>// Register a subscriber
-</span><span class=c1></span>	<span class=nf>Subscribe</span><span class=p>(</span><span class=nx>Subscriber</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// Start the server
-</span><span class=c1></span>	<span class=nf>Start</span><span class=p>()</span> <span class=kt>error</span>
-	<span class=c1>// Stop the server
-</span><span class=c1></span>	<span class=nf>Stop</span><span class=p>()</span> <span class=kt>error</span>
-	<span class=c1>// Server implementation
-</span><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
-<span class=p>}</span>
-
-<span class=c1>// Router handle serving messages
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Router</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=c1>// ProcessMessage processes a message
-</span><span class=c1></span>    <span class=c1>// 处理消息队列消息
-</span><span class=c1></span>	<span class=nf>ProcessMessage</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>Message</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// ServeRequest processes a request to completion
-</span><span class=c1></span>    <span class=c1>// 处理 http/rpc 请求
-</span><span class=c1></span>	<span class=nf>ServeRequest</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>Request</span><span class=p>,</span> <span class=nx>Response</span><span class=p>)</span> <span class=kt>error</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>默认实现了rpc和消息队列，http服务 可以使用<code>plugins/server/http</code> 包。</p>
-<h3 id=store>Store</h3>
-<blockquote>
-<p>该包定义了数据存储的接口。</p>
-</blockquote>
-<p>接口定义：</p>
-<div class=highlight><div class=chroma>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Server is a simple micro server abstraction
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Server</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Initialise options
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Retrieve the options
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Register a handler
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Handle</span><span class=p>(</span><span class=nx>Handler</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Create a new handler
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>NewHandler</span><span class=p>(</span><span class=kd>interface</span><span class=p>{},</span> <span class=o>...</span><span class=nx>HandlerOption</span><span class=p>)</span> <span class=nx>Handler</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Create a new subscriber
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>NewSubscriber</span><span class=p>(</span><span class=kt>string</span><span class=p>,</span> <span class=kd>interface</span><span class=p>{},</span> <span class=o>...</span><span class=nx>SubscriberOption</span><span class=p>)</span> <span class=nx>Subscriber</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Register a subscriber
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Subscribe</span><span class=p>(</span><span class=nx>Subscriber</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Start the server
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Start</span><span class=p>()</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Stop the server
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Stop</span><span class=p>()</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Server implementation
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Router handle serving messages
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Router</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// ProcessMessage processes a message
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 处理消息队列消息
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>ProcessMessage</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>Message</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// ServeRequest processes a request to completion
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 处理 http/rpc 请求
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>ServeRequest</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>Request</span><span class=p>,</span> <span class=nx>Response</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>默认实现了rpc和消息队列，http服务 可以使用<code>plugins/server/http</code> 包。</p><h3 id=store>Store</h3><blockquote>
+<p>该包定义了数据存储的接口。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -1040,36 +923,28 @@ plugins
 </span><span class=lnt>17
 </span><span class=lnt>18
 </span><span class=lnt>19
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// Store is a data storage interface
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Store</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=c1>// Init initialises the store. It must perform any required setup on the backing storage implementation and check that it is ready for use, returning any errors.
-</span><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// Options allows you to view the current options.
-</span><span class=c1></span>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
-	<span class=c1>// Read takes a single key name and optional ReadOptions. It returns matching []*Record or an error.
-</span><span class=c1></span>	<span class=nf>Read</span><span class=p>(</span><span class=nx>key</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>ReadOption</span><span class=p>)</span> <span class=p>([]</span><span class=o>*</span><span class=nx>Record</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-	<span class=c1>// Write() writes a record to the store, and returns an error if the record was not written.
-</span><span class=c1></span>	<span class=nf>Write</span><span class=p>(</span><span class=nx>r</span> <span class=o>*</span><span class=nx>Record</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>WriteOption</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// Delete removes the record with the corresponding key from the store.
-</span><span class=c1></span>	<span class=nf>Delete</span><span class=p>(</span><span class=nx>key</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>DeleteOption</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// List returns any keys that match, or an empty list with no error if none matched.
-</span><span class=c1></span>	<span class=nf>List</span><span class=p>(</span><span class=nx>opts</span> <span class=o>...</span><span class=nx>ListOption</span><span class=p>)</span> <span class=p>([]</span><span class=kt>string</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-	<span class=c1>// Close the store
-</span><span class=c1></span>	<span class=nf>Close</span><span class=p>()</span> <span class=kt>error</span>
-	<span class=c1>// String returns the name of the implementation.
-</span><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>具体使用数据库类型，在<code>plugins/store</code> 内初始化对应的实例。</p>
-<h3 id=sync>Sync</h3>
-<blockquote>
-<p><code>sync</code> 包为定义分布式选举和分布式锁的定义。</p>
-</blockquote>
-<p>接口定义：</p>
-<div class=highlight><div class=chroma>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Store is a data storage interface
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Store</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Init initialises the store. It must perform any required setup on the backing storage implementation and check that it is ready for use, returning any errors.
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Options allows you to view the current options.
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Read takes a single key name and optional ReadOptions. It returns matching []*Record or an error.
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Read</span><span class=p>(</span><span class=nx>key</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>ReadOption</span><span class=p>)</span> <span class=p>([]</span><span class=o>*</span><span class=nx>Record</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Write() writes a record to the store, and returns an error if the record was not written.
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Write</span><span class=p>(</span><span class=nx>r</span> <span class=o>*</span><span class=nx>Record</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>WriteOption</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Delete removes the record with the corresponding key from the store.
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Delete</span><span class=p>(</span><span class=nx>key</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>DeleteOption</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// List returns any keys that match, or an empty list with no error if none matched.
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>List</span><span class=p>(</span><span class=nx>opts</span> <span class=o>...</span><span class=nx>ListOption</span><span class=p>)</span> <span class=p>([]</span><span class=kt>string</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Close the store
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Close</span><span class=p>()</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// String returns the name of the implementation.
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>具体使用数据库类型，在<code>plugins/store</code> 内初始化对应的实例。</p><h3 id=sync>Sync</h3><blockquote>
+<p><code>sync</code> 包为定义分布式选举和分布式锁的定义。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -1100,77 +975,57 @@ plugins
 </span><span class=lnt>27
 </span><span class=lnt>28
 </span><span class=lnt>29
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// Sync is an interface for distributed synchronization
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Sync</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=c1>// Initialise options
-</span><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// Return the options
-</span><span class=c1></span>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
-	<span class=c1>// Elect a leader
-</span><span class=c1></span>    <span class=c1>// 选举
-</span><span class=c1></span>	<span class=nf>Leader</span><span class=p>(</span><span class=nx>id</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>LeaderOption</span><span class=p>)</span> <span class=p>(</span><span class=nx>Leader</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-	<span class=c1>// Lock acquires a lock
-</span><span class=c1></span>    <span class=c1>// 上锁
-</span><span class=c1></span>	<span class=nf>Lock</span><span class=p>(</span><span class=nx>id</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>LockOption</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// Unlock releases a lock
-</span><span class=c1></span>    <span class=c1>// 释放锁
-</span><span class=c1></span>	<span class=nf>Unlock</span><span class=p>(</span><span class=nx>id</span> <span class=kt>string</span><span class=p>)</span> <span class=kt>error</span>
-	<span class=c1>// Sync implementation
-</span><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
-<span class=p>}</span>
-
-<span class=c1>// Leader provides leadership election
-</span><span class=c1>// 提供分布式选举
-</span><span class=c1></span><span class=kd>type</span> <span class=nx>Leader</span> <span class=kd>interface</span> <span class=p>{</span>
-	<span class=c1>// resign leadership
-</span><span class=c1></span>    <span class=c1>// 辞职 即放弃Leader状态
-</span><span class=c1></span>	<span class=nf>Resign</span><span class=p>()</span> <span class=kt>error</span>
-	<span class=c1>// status returns when leadership is lost
-</span><span class=c1></span>    <span class=c1>// 在leader 状态失去时，channel内可读取
-</span><span class=c1></span>	<span class=nf>Status</span><span class=p>()</span> <span class=kd>chan</span> <span class=kt>bool</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div></div><div class=post-footer id=post-footer>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Sync is an interface for distributed synchronization
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Sync</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Initialise options
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Return the options
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Options</span><span class=p>()</span> <span class=nx>Options</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Elect a leader
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 选举
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Leader</span><span class=p>(</span><span class=nx>id</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>LeaderOption</span><span class=p>)</span> <span class=p>(</span><span class=nx>Leader</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Lock acquires a lock
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 上锁
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Lock</span><span class=p>(</span><span class=nx>id</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>LockOption</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Unlock releases a lock
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 释放锁
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Unlock</span><span class=p>(</span><span class=nx>id</span> <span class=kt>string</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// Sync implementation
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Leader provides leadership election
+</span></span></span><span class=line><span class=cl><span class=c1>// 提供分布式选举
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Leader</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// resign leadership
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 辞职 即放弃Leader状态
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Resign</span><span class=p>()</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>	<span class=c1>// status returns when leadership is lost
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 在leader 状态失去时，channel内可读取
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Status</span><span class=p>()</span> <span class=kd>chan</span> <span class=kt>bool</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div></div><div class=post-footer id=post-footer>
 <div class=post-info>
 <div class=post-info-line>
 <div class=post-info-mod>
 <span>更新于 2021-11-22</span>
-</div>
-<div class=post-info-license></div>
-</div>
-<div class=post-info-line>
+</div><div class=post-info-license></div></div><div class=post-info-line>
 <div class=post-info-md><span>
 <a class=link-to-markdown href=/posts/go-micro-1/index.md target=_blank>阅读原始文档</a>
-</span></div>
-<div class=post-info-share>
+</span></div><div class=post-info-share>
 <span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-hashtags=go,go-micro><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/go-micro-1/ data-hashtag=go><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/go-micro-1/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/go-micro-1/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/line.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-ralateuid=yusann><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-description><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/myspace.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/baidu.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）"><i class="fab fa-evernote fa-fw"></i></a></span>
-</div>
-</div>
-</div>
-<div class=post-info-more>
-<section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/go/>go</a>,&nbsp;<a href=/tags/go-micro/>go-micro</a></section>
-<section>
+</div></div></div><div class=post-info-more>
+<section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/go/>go</a>,&nbsp;<a href=/tags/go-micro/>go-micro</a></section><section>
 <span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span>
-</section>
-</div>
-<div class=post-nav><a href=/posts/go-interview/ class=prev rel=prev title="Go 面试总结"><i class="fas fa-angle-left fa-fw"></i>Go 面试总结</a>
-<a href=/posts/use-nacos-with-go-micro/ class=next rel=next title="Go-Micro 中使用Nacos">Go-Micro 中使用Nacos<i class="fas fa-angle-right fa-fw"></i></a></div>
-</div>
-<div id=comments><div id=utterances></div><noscript>
+</section></div><div class=post-nav><a href=/posts/go-interview/ class=prev rel=prev title="Go 面试总结"><i class="fas fa-angle-left fa-fw"></i>Go 面试总结</a>
+<a href=/posts/use-nacos-with-go-micro/ class=next rel=next title="Go-Micro 中使用Nacos">Go-Micro 中使用Nacos<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=utterances></div><noscript>
 Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>Utterances</a>.
-</noscript></div></article></div>
-</main><footer class=footer>
-<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.92.2">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
-</div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div>
-</div>
-</footer></div>
-<div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部>
+</noscript></div></article></div></main><footer class=footer>
+<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.93.1">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+</div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部>
 <i class="fas fa-arrow-up fa-fw"></i>
 </a><a href=# id=view-comments class=fixed-button title=查看评论>
 <i class="fas fa-comment fa-fw"></i>
 </a>
-</div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@7.0.4/dist/typeit.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:70}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-24P8ZSJHCQ',{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body>
-</html>
+</div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@7.0.4/dist/typeit.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:70}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-24P8ZSJHCQ",{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body></html>

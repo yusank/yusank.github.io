@@ -15,366 +15,106 @@
 <meta name=twitter:title content="Go 面试总结">
 <meta name=twitter:description content="经历了2个月的面试折磨，拿到offer总算结束了这段时间。主要是想记录面试中遇到">
 <meta name=application-name content="Yusank's Site">
-<meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/go-interview/><link rel=prev href=https://yusank.github.io/posts/go-standard/><link rel=next href=https://yusank.github.io/posts/go-micro-1/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go 面试总结","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/go-interview\/"},"genre":"posts","keywords":"面试","wordcount":9121,"url":"https:\/\/yusank.github.io\/posts\/go-interview\/","datePublished":"2021-05-31T21:13:41+08:00","dateModified":"2021-11-22T15:22:33+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head>
-<body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':'auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark')&&document.body.setAttribute('theme','dark')</script>
+<meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/go-interview/><link rel=prev href=https://yusank.github.io/posts/go-standard/><link rel=next href=https://yusank.github.io/posts/go-micro-1/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go 面试总结","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/go-interview\/"},"genre":"posts","keywords":"面试","wordcount":9121,"url":"https:\/\/yusank.github.io\/posts\/go-interview\/","datePublished":"2021-05-31T21:13:41+08:00","dateModified":"2021-11-22T15:22:33+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script>
 <div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
 <div class=header-wrapper>
 <div class=header-title>
 <a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-1 class=typeit></span></a>
-</div>
-<div class=menu>
+</div><div class=menu>
 <div class=menu-inner><a class=menu-item href=/posts/> 文章 </a><a class=menu-item href=/categories/> 分类 </a><a class=menu-item href=/tags/> 标签 </a><a class=menu-item href=/about/> 关于 </a><a class=menu-item href=/links/> 友链 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
 <i class="fas fa-adjust fa-fw"></i>
 </a>
-</div>
-</div>
-</div>
-</header><header class=mobile id=header-mobile>
+</div></div></div></header><header class=mobile id=header-mobile>
 <div class=header-container>
 <div class=header-wrapper>
 <div class=header-title>
 <a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-2 class=typeit></span></a>
-</div>
-<div class=menu-toggle id=menu-toggle-mobile>
+</div><div class=menu-toggle id=menu-toggle-mobile>
 <span></span><span></span><span></span>
-</div>
-</div>
-<div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+</div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
 <i class="fas fa-adjust fa-fw"></i>
-</a></div>
-</div>
-</header>
-<div class="search-dropdown desktop">
-<div id=search-dropdown-desktop></div>
-</div>
-<div class="search-dropdown mobile">
-<div id=search-dropdown-mobile></div>
-</div>
-<main class=main>
+</a></div></div></header><div class="search-dropdown desktop">
+<div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile">
+<div id=search-dropdown-mobile></div></div><main class=main>
 <div class=container><div class=toc id=toc-auto>
-<h2 class=toc-title>目录</h2>
-<div class=toc-content id=toc-content-auto></div>
-</div><article class="page single"><h1 class="single-title animated flipInX">Go 面试总结</h1><div class=post-meta>
-<div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/%E6%8A%80%E6%9C%AF%E7%A7%AF%E7%B4%AF/><i class="far fa-folder fa-fw"></i>技术积累</a></span></div>
-<div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2021-05-31>2021-05-31</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 9121 字&nbsp;
-<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 19 分钟&nbsp;</div>
-</div><div class="details toc" id=toc-static kept>
+<h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Go 面试总结</h1><div class=post-meta>
+<div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/%E6%8A%80%E6%9C%AF%E7%A7%AF%E7%B4%AF/><i class="far fa-folder fa-fw"></i>技术积累</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2021-05-31>2021-05-31</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 9121 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 19 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept>
 <div class="details-summary toc-title">
 <span>目录</span>
 <span><i class="details-icon fas fa-angle-right"></i></span>
-</div>
-<div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
+</div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
 <ul>
 <li><a href=#数据库>数据库</a>
 <ul>
 <li><a href=#mysql>MySQL</a>
 <ul>
-<li><a href=#索引>索引</a></li>
-<li><a href=#事务>事务</a></li>
-<li><a href=#分库分表>分库分表</a></li>
-</ul>
-</li>
-<li><a href=#redis>Redis</a>
+<li><a href=#索引>索引</a></li><li><a href=#事务>事务</a></li><li><a href=#分库分表>分库分表</a></li></ul></li><li><a href=#redis>Redis</a>
 <ul>
-<li><a href=#数据结构>数据结构</a></li>
-<li><a href=#性能>性能</a></li>
-<li><a href=#持久化>持久化</a></li>
-<li><a href=#内存模型>内存模型</a></li>
-</ul>
-</li>
-<li><a href=#mongodb>MongoDB</a></li>
-<li><a href=#缓存>缓存</a>
+<li><a href=#数据结构>数据结构</a></li><li><a href=#性能>性能</a></li><li><a href=#持久化>持久化</a></li><li><a href=#内存模型>内存模型</a></li></ul></li><li><a href=#mongodb>MongoDB</a></li><li><a href=#缓存>缓存</a>
 <ul>
-<li><a href=#缓存穿透>缓存穿透</a></li>
-<li><a href=#缓存击穿>缓存击穿</a></li>
-<li><a href=#缓存雪崩>缓存雪崩</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href=#语言特性>语言特性</a>
+<li><a href=#缓存穿透>缓存穿透</a></li><li><a href=#缓存击穿>缓存击穿</a></li><li><a href=#缓存雪崩>缓存雪崩</a></li></ul></li></ul></li><li><a href=#语言特性>语言特性</a>
 <ul>
 <li><a href=#gmp>GMP</a>
 <ul>
-<li><a href=#概念>概念</a></li>
-<li><a href=#调度过程>调度过程</a>
+<li><a href=#概念>概念</a></li><li><a href=#调度过程>调度过程</a>
 <ul>
-<li><a href=#多个线程下如何调度>多个线程下如何调度</a></li>
-<li><a href=#调度循环中如何让出cpu>调度循环中如何让出CPU</a></li>
-</ul>
-</li>
-<li><a href=#抢占式调度>抢占式调度</a></li>
-<li><a href=#主动让出cpu>主动让出CPU</a>
+<li><a href=#多个线程下如何调度>多个线程下如何调度</a></li><li><a href=#调度循环中如何让出cpu>调度循环中如何让出CPU</a></li></ul></li><li><a href=#抢占式调度>抢占式调度</a></li><li><a href=#主动让出cpu>主动让出CPU</a>
 <ul>
-<li><a href=#timesleep>time.Sleep()</a></li>
-<li><a href=#mutex>Mutex</a></li>
-<li><a href=#channel>Channel</a></li>
-</ul>
-</li>
-<li><a href=#qa>QA</a></li>
-</ul>
-</li>
-<li><a href=#垃圾回收>垃圾回收</a></li>
-<li><a href=#channel-1>channel</a></li>
-<li><a href=#slice>slice</a></li>
-<li><a href=#map>map</a></li>
-<li><a href=#http库>http库</a></li>
-<li><a href=#interface>interface</a></li>
-<li><a href=#其他>其他</a>
+<li><a href=#timesleep>time.Sleep()</a></li><li><a href=#mutex>Mutex</a></li><li><a href=#channel>Channel</a></li></ul></li><li><a href=#qa>QA</a></li></ul></li><li><a href=#垃圾回收>垃圾回收</a></li><li><a href=#channel-1>channel</a></li><li><a href=#slice>slice</a></li><li><a href=#map>map</a></li><li><a href=#http库>http库</a></li><li><a href=#interface>interface</a></li><li><a href=#其他>其他</a>
 <ul>
-<li><a href=#变量逃逸>变量逃逸</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href=#项目经验>项目经验</a>
+<li><a href=#变量逃逸>变量逃逸</a></li></ul></li></ul></li><li><a href=#项目经验>项目经验</a>
 <ul>
-<li><a href=#微服务>微服务</a></li>
-<li><a href=#服务限流限速熔断>服务限流限速熔断</a></li>
-<li><a href=#提现个人能力的点>提现个人能力的点</a></li>
-<li><a href=#系统设计>系统设计</a></li>
-</ul>
-</li>
-<li><a href=#算法>算法</a>
+<li><a href=#微服务>微服务</a></li><li><a href=#服务限流限速熔断>服务限流限速熔断</a></li><li><a href=#提现个人能力的点>提现个人能力的点</a></li><li><a href=#系统设计>系统设计</a></li></ul></li><li><a href=#算法>算法</a>
 <ul>
-<li><a href=#堆>堆</a></li>
-<li><a href=#链表>链表</a></li>
-<li><a href=#二叉树>二叉树</a></li>
-<li><a href=#回溯法递归法>回溯法递归法</a></li>
-<li><a href=#动态规划dp>动态规划（DP）</a></li>
-</ul>
-</li>
-<li><a href=#计算机基础>计算机基础</a>
+<li><a href=#堆>堆</a></li><li><a href=#链表>链表</a></li><li><a href=#二叉树>二叉树</a></li><li><a href=#回溯法递归法>回溯法递归法</a></li><li><a href=#动态规划dp>动态规划（DP）</a></li></ul></li><li><a href=#计算机基础>计算机基础</a>
 <ul>
-<li><a href=#基础概念>基础概念</a></li>
-<li><a href=#tcpudp>tcp/udp</a></li>
-<li><a href=#http>http</a></li>
-<li><a href=#grpc>grpc</a></li>
-</ul>
-</li>
-<li><a href=#其他qa>其他QA</a></li>
-</ul>
-</nav></div>
-</div><div class=content id=content><p>经历了2个月的面试折磨，拿到offer总算结束了这段时间。主要是想记录面试中遇到的问题，列出来的问题不一定有答案，有答案也不一定是最佳答案，所以还是看问题为主，答案自行解决。</p>
-<h1 id=知识架构>知识架构</h1>
-<p><img class=lazyload src=/svg/loading.min.svg data-src=https://raw.githubusercontent.com/yusank/hugo.yusank.space/master/xmind.png data-srcset="https://raw.githubusercontent.com/yusank/hugo.yusank.space/master/xmind.png, https://raw.githubusercontent.com/yusank/hugo.yusank.space/master/xmind.png 1.5x, https://raw.githubusercontent.com/yusank/hugo.yusank.space/master/xmind.png 2x" data-sizes=auto alt=https://raw.githubusercontent.com/yusank/hugo.yusank.space/master/xmind.png title=xmind></p>
-<h2 id=数据库>数据库</h2>
-<h3 id=mysql>MySQL</h3>
-<h4 id=索引>索引</h4>
-<ul>
+<li><a href=#基础概念>基础概念</a></li><li><a href=#tcpudp>tcp/udp</a></li><li><a href=#http>http</a></li><li><a href=#grpc>grpc</a></li></ul></li><li><a href=#其他qa>其他QA</a></li></ul></nav></div></div><div class=content id=content><p>经历了2个月的面试折磨，拿到offer总算结束了这段时间。主要是想记录面试中遇到的问题，列出来的问题不一定有答案，有答案也不一定是最佳答案，所以还是看问题为主，答案自行解决。</p><h1 id=知识架构>知识架构</h1><p><img class=lazyload src=/svg/loading.min.svg data-src=https://raw.githubusercontent.com/yusank/hugo.yusank.space/master/xmind.png data-srcset="https://raw.githubusercontent.com/yusank/hugo.yusank.space/master/xmind.png, https://raw.githubusercontent.com/yusank/hugo.yusank.space/master/xmind.png 1.5x, https://raw.githubusercontent.com/yusank/hugo.yusank.space/master/xmind.png 2x" data-sizes=auto alt=https://raw.githubusercontent.com/yusank/hugo.yusank.space/master/xmind.png title=xmind></p><h2 id=数据库>数据库</h2><h3 id=mysql>MySQL</h3><h4 id=索引>索引</h4><ul>
 <li>B+tree <a href=https://mp.weixin.qq.com/s/5Yl6H6up9ntZq6l8qxiogw target=_blank rel="noopener noreffer">索引</a>
 <ul>
-<li>数据存储位置-在叶子节点 相邻节点是链表结构 这样可以实现 range 查询</li>
-<li>联合索引 最左原则</li>
-<li>索引不能是表达式的一部分 否则不走索引</li>
-<li>为什么主键是递增的，随机会怎么样？
+<li>数据存储位置-在叶子节点 相邻节点是链表结构 这样可以实现 range 查询</li><li>联合索引 最左原则</li><li>索引不能是表达式的一部分 否则不走索引</li><li>为什么主键是递增的，随机会怎么样？
 <ul>
-<li>如果使用非自增主键（如果身份证号或学号等），由于每次插入主键的值近似于随机，因此每次新纪录都要被插到现有索引页得中间某个位置，此时MySQL不得不为了将新记录插到合适位置而<code>移动数据</code>，甚至目标页面可能已经被回写到磁盘上而从缓存中清掉，此时又要从磁盘上读回来，这增加了很多开销，同时频繁的移动、分页操作造成了<code>大量的碎片</code>，得到了不够紧凑的索引结构，后续不得不通过<code>OPTIMIZE TABLE</code>来重建表并优化填充页面。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>哈希索引 - 精准查询</li>
-<li>聚簇索引和非聚簇索引
-<img class=lazyload src=/svg/loading.min.svg data-src=https://img2018.cnblogs.com/i-beta/1464190/201911/1464190-20191106145143172-1760681728.png data-srcset="https://img2018.cnblogs.com/i-beta/1464190/201911/1464190-20191106145143172-1760681728.png, https://img2018.cnblogs.com/i-beta/1464190/201911/1464190-20191106145143172-1760681728.png 1.5x, https://img2018.cnblogs.com/i-beta/1464190/201911/1464190-20191106145143172-1760681728.png 2x" data-sizes=auto alt=https://img2018.cnblogs.com/i-beta/1464190/201911/1464190-20191106145143172-1760681728.png title=请看图></li>
-</ul>
-<h4 id=事务>事务</h4>
-<ul>
+<li>如果使用非自增主键（如果身份证号或学号等），由于每次插入主键的值近似于随机，因此每次新纪录都要被插到现有索引页得中间某个位置，此时MySQL不得不为了将新记录插到合适位置而<code>移动数据</code>，甚至目标页面可能已经被回写到磁盘上而从缓存中清掉，此时又要从磁盘上读回来，这增加了很多开销，同时频繁的移动、分页操作造成了<code>大量的碎片</code>，得到了不够紧凑的索引结构，后续不得不通过<code>OPTIMIZE TABLE</code>来重建表并优化填充页面。</li></ul></li></ul></li><li>哈希索引 - 精准查询</li><li>聚簇索引和非聚簇索引
+<img class=lazyload src=/svg/loading.min.svg data-src=https://img2018.cnblogs.com/i-beta/1464190/201911/1464190-20191106145143172-1760681728.png data-srcset="https://img2018.cnblogs.com/i-beta/1464190/201911/1464190-20191106145143172-1760681728.png, https://img2018.cnblogs.com/i-beta/1464190/201911/1464190-20191106145143172-1760681728.png 1.5x, https://img2018.cnblogs.com/i-beta/1464190/201911/1464190-20191106145143172-1760681728.png 2x" data-sizes=auto alt=https://img2018.cnblogs.com/i-beta/1464190/201911/1464190-20191106145143172-1760681728.png title=请看图></li></ul><h4 id=事务>事务</h4><ul>
 <li>
-<p>事务的四种特性：</p>
-<ul>
-<li>原子性：一个事务（transaction）中的所有操作，要么全部完成，要么全部不完成，不会结束在中间某个环节。事务在执行过程中发生错误，会被回滚（Rollback）到事务开始前的状态，就像这个事务从来没有执行过一样。</li>
-<li>致性：在事务开始之前和事务结束以后，数据库的完整性没有被破坏。这表示写入的资料必须完全符合所有的预设规则，这包含资料的精确度、串联性以及后续数据库可以自发性地完成预定的工作。</li>
-<li>隔离性：数据库允许多个并发事务同时对其数据进行读写和修改的能力，隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致。事务隔离分为不同级别，包括读未提交（Read uncommitted）、读提交（read committed）、可重复读（repeatable read）和串行化（Serializable）。</li>
-<li>持久性：事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。</li>
-</ul>
-</li>
-<li>
-<p>事务的<a href=https://tech.meituan.com/2014/08/20/innodb-lock.html target=_blank rel="noopener noreffer">隔离级别</a>：</p>
-<ul>
-<li>未提交读(Read Uncommitted)：允许脏读，也就是可能读取到其他会话中未提交事务修改的数据</li>
-<li>提交读(Read Committed)：只能读取到已经提交的数据。Oracle等多数数据库默认都是该级别 (不重复读)</li>
-<li>可重复读(Repeated Read)：可重复读。在同一个事务内的查询都是事务开始时刻一致的，InnoDB默认级别。在SQL标准中，该隔离级别消除了不可重复读，但是还存在幻象读</li>
-<li>串行读(Serializable)：完全串行化的读，每次读都需要获得表级共享锁，读写相互都会阻塞</li>
-</ul>
-</li>
-</ul>
-<table>
+<p>事务的四种特性：</p><ul>
+<li>原子性：一个事务（transaction）中的所有操作，要么全部完成，要么全部不完成，不会结束在中间某个环节。事务在执行过程中发生错误，会被回滚（Rollback）到事务开始前的状态，就像这个事务从来没有执行过一样。</li><li>致性：在事务开始之前和事务结束以后，数据库的完整性没有被破坏。这表示写入的资料必须完全符合所有的预设规则，这包含资料的精确度、串联性以及后续数据库可以自发性地完成预定的工作。</li><li>隔离性：数据库允许多个并发事务同时对其数据进行读写和修改的能力，隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致。事务隔离分为不同级别，包括读未提交（Read uncommitted）、读提交（read committed）、可重复读（repeatable read）和串行化（Serializable）。</li><li>持久性：事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。</li></ul></li><li>
+<p>事务的<a href=https://tech.meituan.com/2014/08/20/innodb-lock.html target=_blank rel="noopener noreffer">隔离级别</a>：</p><ul>
+<li>未提交读(Read Uncommitted)：允许脏读，也就是可能读取到其他会话中未提交事务修改的数据</li><li>提交读(Read Committed)：只能读取到已经提交的数据。Oracle等多数数据库默认都是该级别 (不重复读)</li><li>可重复读(Repeated Read)：可重复读。在同一个事务内的查询都是事务开始时刻一致的，InnoDB默认级别。在SQL标准中，该隔离级别消除了不可重复读，但是还存在幻象读</li><li>串行读(Serializable)：完全串行化的读，每次读都需要获得表级共享锁，读写相互都会阻塞</li></ul></li></ul><table>
 <thead>
 <tr>
-<th>隔离级别</th>
-<th>脏读（Dirty Read）</th>
-<th>不可重复读（NonRepeatable Read）</th>
-<th>幻读（Phantom Read）</th>
-</tr>
-</thead>
-<tbody>
+<th>隔离级别</th><th>脏读（Dirty Read）</th><th>不可重复读（NonRepeatable Read）</th><th>幻读（Phantom Read）</th></tr></thead><tbody>
 <tr>
-<td>未提交读（Read uncommitted）</td>
-<td>可能</td>
-<td>可能</td>
-<td>可能</td>
-</tr>
-<tr>
-<td>已提交读（Read committed）</td>
-<td>不可能</td>
-<td>可能</td>
-<td>可能</td>
-</tr>
-<tr>
-<td>可重复读（Repeatable read）</td>
-<td>不可能</td>
-<td>不可能</td>
-<td>可能（innodb 不存在）</td>
-</tr>
-<tr>
-<td>可串行化（Serializable ）</td>
-<td>不可能</td>
-<td>不可能</td>
-<td>不可能</td>
-</tr>
-</tbody>
-</table>
-<h4 id=分库分表>分库分表</h4>
-<p>水平：</p>
-<ul>
-<li>水平分表 &ndash; 表之间结构相同 表之间数据不相同 所有表的数据并集是总数据（单表数据量很大，影响sql性能）</li>
-<li>水平分库 &ndash; 库之间表结构相同 库之间数据不相同 所有库数据的并集是总数据（并发量很高，cpu 网络扛不住，分库缓解压力）</li>
-</ul>
-<p>垂直：</p>
-<ul>
-<li>垂直分表 &ndash; 表之间结构不相同，数据根据某个字段关联，缓解io性能</li>
-<li>垂直分库 &ndash; 库之前的表之间结构不相同，服务压力很高 可以考虑拆出去做单独服务了</li>
-</ul>
-<p>方案：</p>
-<p><strong>方案一（水平扩容库）</strong>
+<td>未提交读（Read uncommitted）</td><td>可能</td><td>可能</td><td>可能</td></tr><tr>
+<td>已提交读（Read committed）</td><td>不可能</td><td>可能</td><td>可能</td></tr><tr>
+<td>可重复读（Repeatable read）</td><td>不可能</td><td>不可能</td><td>可能（innodb 不存在）</td></tr><tr>
+<td>可串行化（Serializable ）</td><td>不可能</td><td>不可能</td><td>不可能</td></tr></tbody></table><h4 id=分库分表>分库分表</h4><p>水平：</p><ul>
+<li>水平分表 &ndash; 表之间结构相同 表之间数据不相同 所有表的数据并集是总数据（单表数据量很大，影响sql性能）</li><li>水平分库 &ndash; 库之间表结构相同 库之间数据不相同 所有库数据的并集是总数据（并发量很高，cpu 网络扛不住，分库缓解压力）</li></ul><p>垂直：</p><ul>
+<li>垂直分表 &ndash; 表之间结构不相同，数据根据某个字段关联，缓解io性能</li><li>垂直分库 &ndash; 库之前的表之间结构不相同，服务压力很高 可以考虑拆出去做单独服务了</li></ul><p>方案：</p><p><strong>方案一（水平扩容库）</strong>
 采用双倍扩容策略，避免数据迁移。扩容前每个节点的数据，有一半要迁移至一个新增节点中，对应关系比较简单。
-具体操作如下(假设已有 2 个节点 A/B，要双倍扩容至 A/A2/B/B2 这 4 个节点)：</p>
-<ul>
-<li>无需停止应用服务器；</li>
-<li>新增两个数据库 A2/B2 作为从库，设置主从同步关系为：A=>A2、B=>B2，直至主从数据同步完毕(早期数据可手工同步)；</li>
-<li>调整分片规则并使之生效：</li>
-<li>原 ID%2=0 => A 改为 ID%4=0 => A, ID%4=2 => A2；</li>
-<li>原 ID%2=1 => B 改为 ID%4=1 => B, ID%4=3 => B2。</li>
-<li>解除数据库实例的主从同步关系，并使之生效；</li>
-<li>此时，四个节点的数据都已完整，只是有冗余(多存了和自己配对的节点的那部分数据)，择机清除即可(过后随时进行，不影响业务)。</li>
-</ul>
-<p><img class=lazyload src=/svg/loading.min.svg data-src=https://pic2.zhimg.com/v2-789f54a192017f3fa3138d3bf768cbad_r.jpg data-srcset="https://pic2.zhimg.com/v2-789f54a192017f3fa3138d3bf768cbad_r.jpg, https://pic2.zhimg.com/v2-789f54a192017f3fa3138d3bf768cbad_r.jpg 1.5x, https://pic2.zhimg.com/v2-789f54a192017f3fa3138d3bf768cbad_r.jpg 2x" data-sizes=auto alt=https://pic2.zhimg.com/v2-789f54a192017f3fa3138d3bf768cbad_r.jpg title=水平扩库></p>
-<p><strong>方案二（水平扩容表-双写）</strong></p>
-<ul>
-<li>第一步：（同步双写）修改应用配置和代码，加上双写，部署</li>
-<li>第二步：（同步双写）将老库中的老数据复制到新库中</li>
-<li>第三步：（同步双写）以老库为准校对新库中的老数据</li>
-<li>第四步：（同步双写）修改应用配置和代码，去掉双写，部署；</li>
-</ul>
-<p><img class=lazyload src=/svg/loading.min.svg data-src=https://pic2.zhimg.com/v2-4847eb9e869a90b8eb293ecdfeb19acd_r.jpg data-srcset="https://pic2.zhimg.com/v2-4847eb9e869a90b8eb293ecdfeb19acd_r.jpg, https://pic2.zhimg.com/v2-4847eb9e869a90b8eb293ecdfeb19acd_r.jpg 1.5x, https://pic2.zhimg.com/v2-4847eb9e869a90b8eb293ecdfeb19acd_r.jpg 2x" data-sizes=auto alt=https://pic2.zhimg.com/v2-4847eb9e869a90b8eb293ecdfeb19acd_r.jpg title=水平扩容表></p>
-<h3 id=redis>Redis</h3>
-<h4 id=数据结构>数据结构</h4>
-<ul>
+具体操作如下(假设已有 2 个节点 A/B，要双倍扩容至 A/A2/B/B2 这 4 个节点)：</p><ul>
+<li>无需停止应用服务器；</li><li>新增两个数据库 A2/B2 作为从库，设置主从同步关系为：A=>A2、B=>B2，直至主从数据同步完毕(早期数据可手工同步)；</li><li>调整分片规则并使之生效：</li><li>原 ID%2=0 => A 改为 ID%4=0 => A, ID%4=2 => A2；</li><li>原 ID%2=1 => B 改为 ID%4=1 => B, ID%4=3 => B2。</li><li>解除数据库实例的主从同步关系，并使之生效；</li><li>此时，四个节点的数据都已完整，只是有冗余(多存了和自己配对的节点的那部分数据)，择机清除即可(过后随时进行，不影响业务)。</li></ul><p><img class=lazyload src=/svg/loading.min.svg data-src=https://pic2.zhimg.com/v2-789f54a192017f3fa3138d3bf768cbad_r.jpg data-srcset="https://pic2.zhimg.com/v2-789f54a192017f3fa3138d3bf768cbad_r.jpg, https://pic2.zhimg.com/v2-789f54a192017f3fa3138d3bf768cbad_r.jpg 1.5x, https://pic2.zhimg.com/v2-789f54a192017f3fa3138d3bf768cbad_r.jpg 2x" data-sizes=auto alt=https://pic2.zhimg.com/v2-789f54a192017f3fa3138d3bf768cbad_r.jpg title=水平扩库></p><p><strong>方案二（水平扩容表-双写）</strong></p><ul>
+<li>第一步：（同步双写）修改应用配置和代码，加上双写，部署</li><li>第二步：（同步双写）将老库中的老数据复制到新库中</li><li>第三步：（同步双写）以老库为准校对新库中的老数据</li><li>第四步：（同步双写）修改应用配置和代码，去掉双写，部署；</li></ul><p><img class=lazyload src=/svg/loading.min.svg data-src=https://pic2.zhimg.com/v2-4847eb9e869a90b8eb293ecdfeb19acd_r.jpg data-srcset="https://pic2.zhimg.com/v2-4847eb9e869a90b8eb293ecdfeb19acd_r.jpg, https://pic2.zhimg.com/v2-4847eb9e869a90b8eb293ecdfeb19acd_r.jpg 1.5x, https://pic2.zhimg.com/v2-4847eb9e869a90b8eb293ecdfeb19acd_r.jpg 2x" data-sizes=auto alt=https://pic2.zhimg.com/v2-4847eb9e869a90b8eb293ecdfeb19acd_r.jpg title=水平扩容表></p><h3 id=redis>Redis</h3><h4 id=数据结构>数据结构</h4><ul>
 <li>String 简单动态字符串
 <ul>
-<li>编码方式不同会有什么影响</li>
-</ul>
-</li>
-<li>Set 底层哈希表</li>
-<li>ZSet member存在哈希表中 score 存在跳表里 查询插入时间复杂 logn
+<li>编码方式不同会有什么影响</li></ul></li><li>Set 底层哈希表</li><li>ZSet member存在哈希表中 score 存在跳表里 查询插入时间复杂 logn
 <ul>
-<li>为什么用跳表</li>
-</ul>
-</li>
-<li>List 双向链表结构</li>
-<li>Hmap 哈希表</li>
-</ul>
-<h4 id=性能>性能</h4>
-<p><a href=https://mp.weixin.qq.com/s/b_yzbLeQh57oYjqlIgPiYQ target=_blank rel="noopener noreffer">为什么这么快</a>
-<a href="https://juejin.cn/post/6915599025882431501?utm_source=gold_browser_extension#heading-4" target=_blank rel="noopener noreffer">为什么这么快2</a></p>
-<ul>
-<li>数据均存在内存（引发出持久化问题）</li>
-<li>高效的数据结构</li>
-<li>单线程，省去线程间上下文切换的时间 以及不需要考虑锁</li>
-<li>网络io 多路复用 可以让单个线程处理多个请求连接 减少网络io</li>
-<li>Redis采用自己实现的事件分离器，效率比较高，内部采用非阻塞的执行方式，吞吐能力比较大。</li>
-</ul>
-<h4 id=持久化>持久化</h4>
-<p>两种持久化：</p>
-<ul>
+<li>为什么用跳表</li></ul></li><li>List 双向链表结构</li><li>Hmap 哈希表</li></ul><h4 id=性能>性能</h4><p><a href=https://mp.weixin.qq.com/s/b_yzbLeQh57oYjqlIgPiYQ target=_blank rel="noopener noreffer">为什么这么快</a>
+<a href="https://juejin.cn/post/6915599025882431501?utm_source=gold_browser_extension#heading-4" target=_blank rel="noopener noreffer">为什么这么快2</a></p><ul>
+<li>数据均存在内存（引发出持久化问题）</li><li>高效的数据结构</li><li>单线程，省去线程间上下文切换的时间 以及不需要考虑锁</li><li>网络io 多路复用 可以让单个线程处理多个请求连接 减少网络io</li><li>Redis采用自己实现的事件分离器，效率比较高，内部采用非阻塞的执行方式，吞吐能力比较大。</li></ul><h4 id=持久化>持久化</h4><p>两种持久化：</p><ul>
 <li>RDB持久化 即内存数据定时dump到磁盘上。
 <ul>
-<li>fork 一个子进程 将数据写入一个临时文件 写入成功后 替换源文件。</li>
-<li>快照的数据是截止fork命令执行的那一刻</li>
-</ul>
-</li>
-<li>AOF 将Redis的操作日志以追加的方式写入文件。
+<li>fork 一个子进程 将数据写入一个临时文件 写入成功后 替换源文件。</li><li>快照的数据是截止fork命令执行的那一刻</li></ul></li><li>AOF 将Redis的操作日志以追加的方式写入文件。
 <ul>
-<li>将每一个写、删操作记录下来。默认配置时每秒同步一次。</li>
-</ul>
-</li>
-</ul>
-<p>RDB存在哪些优势呢？</p>
-<p>1). 一旦采用该方式，那么你的整个Redis数据库将只包含一个文件，这对于文件备份而言是非常完美的。比如，你可能打算每个小时归档一次最近24小时的数据，同时还要每天归档一次最近30天的数据。通过这样的备份策略，一旦系统出现灾难性故障，我们可以非常容易的进行恢复。</p>
-<p>2). 对于灾难恢复而言，RDB是非常不错的选择。因为我们可以非常轻松的将一个单独的文件压缩后再转移到其它存储介质上。</p>
-<p>3). 性能最大化。对于Redis的服务进程而言，在开始持久化时，它唯一需要做的只是fork出子进程，之后再由子进程完成这些持久化的工作，这样就可以极大的避免服务进程执行IO操作了。</p>
-<p>4). 相比于AOF机制，如果数据集很大，RDB的启动效率会更高。</p>
-<p>RDB又存在哪些劣势呢？</p>
-<p>1). 如果你想保证数据的高可用性，即最大限度的避免数据丢失，那么RDB将不是一个很好的选择。因为系统一旦在定时持久化之前出现宕机现象，此前没有来得及写入磁盘的数据都将丢失。</p>
-<p>2). 由于RDB是通过fork子进程来协助完成数据持久化工作的，因此，如果当数据集较大时，可能会导致整个服务器停止服务几百毫秒，甚至是1秒钟。</p>
-<p>AOF的优势有哪些呢？</p>
-<p>1). 该机制可以带来更高的数据安全性，即数据持久性。Redis中提供了3中同步策略，即每秒同步、每修改同步和不同步。事实上，每秒同步也是异步完成的，其效率也是非常高的，所差的是一旦系统出现宕机现象，那么这一秒钟之内修改的数据将会丢失。而每修改同步，我们可以将其视为同步持久化，即每次发生的数据变化都会被立即记录到磁盘中。可以预见，这种方式在效率上是最低的。至于无同步，无需多言，我想大家都能正确的理解它。</p>
-<p>2). 由于该机制对日志文件的写入操作采用的是append模式，因此在写入过程中即使出现宕机现象，也不会破坏日志文件中已经存在的内容。然而如果我们本次操作只是写入了一半数据就出现了系统崩溃问题，不用担心，在Redis下一次启动之前，我们可以通过redis-check-aof工具来帮助我们解决数据一致性的问题。</p>
-<p>3). 如果日志过大，Redis可以自动启用rewrite机制。即Redis以append模式不断的将修改数据写入到老的磁盘文件中，同时Redis还会创建一个新的文件用于记录此期间有哪些修改命令被执行。因此在进行rewrite切换时可以更好的保证数据安全性。</p>
-<p>4). AOF包含一个格式清晰、易于理解的日志文件用于记录所有的修改操作。事实上，我们也可以通过该文件完成数据的重建。</p>
-<p>AOF的劣势有哪些呢？</p>
-<p>1). 对于相同数量的数据集而言，AOF文件通常要大于RDB文件。RDB 在恢复大数据集时的速度比 AOF 的恢复速度要快。</p>
-<p>2). 根据同步策略的不同，AOF在运行效率上往往会慢于RDB。总之，每秒同步策略的效率是比较高的，同步禁用策略的效率和RDB一样高效。</p>
-<p>二者选择的标准，就是看系统是愿意牺牲一些性能，换取更高的缓存一致性（aof），还是愿意写操作频繁的时候，不启用备份来换取更高的性能，待手动运行save的时候，再做备份（rdb）。rdb这个就更有些 eventually consistent的意思了。</p>
-<h4 id=内存模型>内存模型</h4>
-<p><a href=https://mp.weixin.qq.com/s/YGmOoBZ7J-3dPrNntRTfSg target=_blank rel="noopener noreffer">内存模型</a></p>
-<h3 id=mongodb>MongoDB</h3>
-<blockquote>
-<p>待补充</p>
-</blockquote>
-<h3 id=缓存>缓存</h3>
-<blockquote>
-<p>常见缓存策略</p>
-</blockquote>
-<p><a href=https://www.cnblogs.com/lpfuture/p/5796398.html target=_blank rel="noopener noreffer">一致性哈希</a> 解决某个缓存节点宕机的情况。</p>
-<h4 id=缓存穿透>缓存穿透</h4>
-<p>描述：缓存穿透是指缓存和数据库中都没有的数据，而用户不断发起请求，如发起为id为“-1”的数据或id为特别大不存在的数据。这时的用户很可能是攻击者，攻击会导致数据库压力过大。</p>
-<p>解决方案：</p>
+<li>将每一个写、删操作记录下来。默认配置时每秒同步一次。</li></ul></li></ul><p>RDB存在哪些优势呢？</p><p>1). 一旦采用该方式，那么你的整个Redis数据库将只包含一个文件，这对于文件备份而言是非常完美的。比如，你可能打算每个小时归档一次最近24小时的数据，同时还要每天归档一次最近30天的数据。通过这样的备份策略，一旦系统出现灾难性故障，我们可以非常容易的进行恢复。</p><p>2). 对于灾难恢复而言，RDB是非常不错的选择。因为我们可以非常轻松的将一个单独的文件压缩后再转移到其它存储介质上。</p><p>3). 性能最大化。对于Redis的服务进程而言，在开始持久化时，它唯一需要做的只是fork出子进程，之后再由子进程完成这些持久化的工作，这样就可以极大的避免服务进程执行IO操作了。</p><p>4). 相比于AOF机制，如果数据集很大，RDB的启动效率会更高。</p><p>RDB又存在哪些劣势呢？</p><p>1). 如果你想保证数据的高可用性，即最大限度的避免数据丢失，那么RDB将不是一个很好的选择。因为系统一旦在定时持久化之前出现宕机现象，此前没有来得及写入磁盘的数据都将丢失。</p><p>2). 由于RDB是通过fork子进程来协助完成数据持久化工作的，因此，如果当数据集较大时，可能会导致整个服务器停止服务几百毫秒，甚至是1秒钟。</p><p>AOF的优势有哪些呢？</p><p>1). 该机制可以带来更高的数据安全性，即数据持久性。Redis中提供了3中同步策略，即每秒同步、每修改同步和不同步。事实上，每秒同步也是异步完成的，其效率也是非常高的，所差的是一旦系统出现宕机现象，那么这一秒钟之内修改的数据将会丢失。而每修改同步，我们可以将其视为同步持久化，即每次发生的数据变化都会被立即记录到磁盘中。可以预见，这种方式在效率上是最低的。至于无同步，无需多言，我想大家都能正确的理解它。</p><p>2). 由于该机制对日志文件的写入操作采用的是append模式，因此在写入过程中即使出现宕机现象，也不会破坏日志文件中已经存在的内容。然而如果我们本次操作只是写入了一半数据就出现了系统崩溃问题，不用担心，在Redis下一次启动之前，我们可以通过redis-check-aof工具来帮助我们解决数据一致性的问题。</p><p>3). 如果日志过大，Redis可以自动启用rewrite机制。即Redis以append模式不断的将修改数据写入到老的磁盘文件中，同时Redis还会创建一个新的文件用于记录此期间有哪些修改命令被执行。因此在进行rewrite切换时可以更好的保证数据安全性。</p><p>4). AOF包含一个格式清晰、易于理解的日志文件用于记录所有的修改操作。事实上，我们也可以通过该文件完成数据的重建。</p><p>AOF的劣势有哪些呢？</p><p>1). 对于相同数量的数据集而言，AOF文件通常要大于RDB文件。RDB 在恢复大数据集时的速度比 AOF 的恢复速度要快。</p><p>2). 根据同步策略的不同，AOF在运行效率上往往会慢于RDB。总之，每秒同步策略的效率是比较高的，同步禁用策略的效率和RDB一样高效。</p><p>二者选择的标准，就是看系统是愿意牺牲一些性能，换取更高的缓存一致性（aof），还是愿意写操作频繁的时候，不启用备份来换取更高的性能，待手动运行save的时候，再做备份（rdb）。rdb这个就更有些 eventually consistent的意思了。</p><h4 id=内存模型>内存模型</h4><p><a href=https://mp.weixin.qq.com/s/YGmOoBZ7J-3dPrNntRTfSg target=_blank rel="noopener noreffer">内存模型</a></p><h3 id=mongodb>MongoDB</h3><blockquote>
+<p>待补充</p></blockquote><h3 id=缓存>缓存</h3><blockquote>
+<p>常见缓存策略</p></blockquote><p><a href=https://www.cnblogs.com/lpfuture/p/5796398.html target=_blank rel="noopener noreffer">一致性哈希</a> 解决某个缓存节点宕机的情况。</p><h4 id=缓存穿透>缓存穿透</h4><p>描述：缓存穿透是指缓存和数据库中都没有的数据，而用户不断发起请求，如发起为id为“-1”的数据或id为特别大不存在的数据。这时的用户很可能是攻击者，攻击会导致数据库压力过大。</p><p>解决方案：</p><ul>
+<li>接口层增加校验，如用户鉴权校验，id做基础校验，id&lt;=0的直接拦截。</li><li>从缓存取不到的数据，在数据库中也没有取到，这时也可以将key-value对写为key-null，缓存有效时间可以设置短点，如30秒（设置太长会导致正常情况也没法使用）。这样可以防止攻击用户反复用同一个id暴力攻击。</li><li><a href=https://zhuanlan.zhihu.com/p/72378274 target=_blank rel="noopener noreffer">布隆过滤器</a>：将所有可能存在的数据哈希到一个足够大的bitmap中，一个一定不存在的数据会被 这个bitmap拦截掉，从而避免了对底层存储系统的查询压力。
 <ul>
-<li>接口层增加校验，如用户鉴权校验，id做基础校验，id&lt;=0的直接拦截。</li>
-<li>从缓存取不到的数据，在数据库中也没有取到，这时也可以将key-value对写为key-null，缓存有效时间可以设置短点，如30秒（设置太长会导致正常情况也没法使用）。这样可以防止攻击用户反复用同一个id暴力攻击。</li>
-<li><a href=https://zhuanlan.zhihu.com/p/72378274 target=_blank rel="noopener noreffer">布隆过滤器</a>：将所有可能存在的数据哈希到一个足够大的bitmap中，一个一定不存在的数据会被 这个bitmap拦截掉，从而避免了对底层存储系统的查询压力。
-<ul>
-<li>布隆过滤器原理：对key进行多个(n)hash算法 并将其值与 bitArray 长度m 进行取模 并对应的位置置位1，当一个新的key进行查询时 先查询其n个hash算法后的各个位置是否为1 如果都为1 则这个key可能存在 如果有任意一个位置不是1 则这个key 一定不存在。</li>
-</ul>
-</li>
-</ul>
-<h4 id=缓存击穿>缓存击穿</h4>
-<p>描述：缓存击穿是指缓存中没有但数据库中有的数据（一般是缓存时间到期），这时由于并发用户特别多，同时读缓存没读到数据，又同时去数据库去取数据，引起数据库压力瞬间增大，造成过大压力</p>
-<p>解决方案：</p>
-<ul>
-<li>热点数据不做过期</li>
-<li>互斥锁。如果数据缓存不存在 则先进行上锁读数据写缓存释放锁</li>
-</ul>
-<h4 id=缓存雪崩>缓存雪崩</h4>
-<p>描述：缓存雪崩是指缓存中数据大批量到过期时间，而查询数据量巨大，引起数据库压力过大甚至down机。和缓存击穿不同的是，缓存击穿指并发查同一条数据，缓存雪崩是不同数据都过期了，很多数据都查不到从而查数据库。</p>
-<p>解决方案：</p>
-<ul>
-<li>过期时间加随机数</li>
-<li>热点数据不过期</li>
-<li>分布式缓存 将热点数据拆分到不同的实例</li>
-</ul>
-<h2 id=语言特性>语言特性</h2>
-<h3 id=gmp>GMP</h3>
-<p><a href=https://www.cnblogs.com/sunsky303/p/9705727.html target=_blank rel="noopener noreffer">调度</a></p>
-<p><a href="https://mp.weixin.qq.com/s?__biz=MzA4ODg0NDkzOA==&mid=2247487174&idx=1&sn=a716cc5cc48b7cf6078698942a6c6c18&source=41&key=&ascene=14&uin=&devicetype=Windows+10&version=620603c8&lang=zh_CN&winzoom=1" target=_blank rel="noopener noreffer">调度2</a></p>
-<p><img class=lazyload src=/svg/loading.min.svg data-src=https://camo.githubusercontent.com/9a6338ccd341d0221f1096630c67f74ddf8a9f58f50b3f7f359d88d760d5355a/68747470733a2f2f7a68616f6d656e672d707269766174652e6f73732d636e2d7368616e676861692e616c6979756e63732e636f6d2f696d616765732f676d702e706e67 data-srcset="https://camo.githubusercontent.com/9a6338ccd341d0221f1096630c67f74ddf8a9f58f50b3f7f359d88d760d5355a/68747470733a2f2f7a68616f6d656e672d707269766174652e6f73732d636e2d7368616e676861692e616c6979756e63732e636f6d2f696d616765732f676d702e706e67, https://camo.githubusercontent.com/9a6338ccd341d0221f1096630c67f74ddf8a9f58f50b3f7f359d88d760d5355a/68747470733a2f2f7a68616f6d656e672d707269766174652e6f73732d636e2d7368616e676861692e616c6979756e63732e636f6d2f696d616765732f676d702e706e67 1.5x, https://camo.githubusercontent.com/9a6338ccd341d0221f1096630c67f74ddf8a9f58f50b3f7f359d88d760d5355a/68747470733a2f2f7a68616f6d656e672d707269766174652e6f73732d636e2d7368616e676861692e616c6979756e63732e636f6d2f696d616765732f676d702e706e67 2x" data-sizes=auto alt=https://camo.githubusercontent.com/9a6338ccd341d0221f1096630c67f74ddf8a9f58f50b3f7f359d88d760d5355a/68747470733a2f2f7a68616f6d656e672d707269766174652e6f73732d636e2d7368616e676861692e616c6979756e63732e636f6d2f696d616765732f676d702e706e67 title=调度></p>
-<h4 id=概念>概念</h4>
-<ul>
-<li>G：代表一个goroutine对象，每次go调用的时候，都会创建一个G对象，它包括栈、指令指针以及对于调用goroutines很重要的其它信息，比如阻塞它的任何channel，其主要数据结构：</li>
-</ul>
-<div class=highlight><div class=chroma>
+<li>布隆过滤器原理：对key进行多个(n)hash算法 并将其值与 bitArray 长度m 进行取模 并对应的位置置位1，当一个新的key进行查询时 先查询其n个hash算法后的各个位置是否为1 如果都为1 则这个key可能存在 如果有任意一个位置不是1 则这个key 一定不存在。</li></ul></li></ul><h4 id=缓存击穿>缓存击穿</h4><p>描述：缓存击穿是指缓存中没有但数据库中有的数据（一般是缓存时间到期），这时由于并发用户特别多，同时读缓存没读到数据，又同时去数据库去取数据，引起数据库压力瞬间增大，造成过大压力</p><p>解决方案：</p><ul>
+<li>热点数据不做过期</li><li>互斥锁。如果数据缓存不存在 则先进行上锁读数据写缓存释放锁</li></ul><h4 id=缓存雪崩>缓存雪崩</h4><p>描述：缓存雪崩是指缓存中数据大批量到过期时间，而查询数据量巨大，引起数据库压力过大甚至down机。和缓存击穿不同的是，缓存击穿指并发查同一条数据，缓存雪崩是不同数据都过期了，很多数据都查不到从而查数据库。</p><p>解决方案：</p><ul>
+<li>过期时间加随机数</li><li>热点数据不过期</li><li>分布式缓存 将热点数据拆分到不同的实例</li></ul><h2 id=语言特性>语言特性</h2><h3 id=gmp>GMP</h3><p><a href=https://www.cnblogs.com/sunsky303/p/9705727.html target=_blank rel="noopener noreffer">调度</a></p><p><a href="https://mp.weixin.qq.com/s?__biz=MzA4ODg0NDkzOA==&mid=2247487174&idx=1&sn=a716cc5cc48b7cf6078698942a6c6c18&source=41&key=&ascene=14&uin=&devicetype=Windows+10&version=620603c8&lang=zh_CN&winzoom=1" target=_blank rel="noopener noreffer">调度2</a></p><p><img class=lazyload src=/svg/loading.min.svg data-src=https://camo.githubusercontent.com/9a6338ccd341d0221f1096630c67f74ddf8a9f58f50b3f7f359d88d760d5355a/68747470733a2f2f7a68616f6d656e672d707269766174652e6f73732d636e2d7368616e676861692e616c6979756e63732e636f6d2f696d616765732f676d702e706e67 data-srcset="https://camo.githubusercontent.com/9a6338ccd341d0221f1096630c67f74ddf8a9f58f50b3f7f359d88d760d5355a/68747470733a2f2f7a68616f6d656e672d707269766174652e6f73732d636e2d7368616e676861692e616c6979756e63732e636f6d2f696d616765732f676d702e706e67, https://camo.githubusercontent.com/9a6338ccd341d0221f1096630c67f74ddf8a9f58f50b3f7f359d88d760d5355a/68747470733a2f2f7a68616f6d656e672d707269766174652e6f73732d636e2d7368616e676861692e616c6979756e63732e636f6d2f696d616765732f676d702e706e67 1.5x, https://camo.githubusercontent.com/9a6338ccd341d0221f1096630c67f74ddf8a9f58f50b3f7f359d88d760d5355a/68747470733a2f2f7a68616f6d656e672d707269766174652e6f73732d636e2d7368616e676861692e616c6979756e63732e636f6d2f696d616765732f676d702e706e67 2x" data-sizes=auto alt=https://camo.githubusercontent.com/9a6338ccd341d0221f1096630c67f74ddf8a9f58f50b3f7f359d88d760d5355a/68747470733a2f2f7a68616f6d656e672d707269766174652e6f73732d636e2d7368616e676861692e616c6979756e63732e636f6d2f696d616765732f676d702e706e67 title=调度></p><h4 id=概念>概念</h4><ul>
+<li>G：代表一个goroutine对象，每次go调用的时候，都会创建一个G对象，它包括栈、指令指针以及对于调用goroutines很重要的其它信息，比如阻塞它的任何channel，其主要数据结构：</li></ul><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -388,26 +128,21 @@
 </span><span class=lnt>10
 </span><span class=lnt>11
 </span><span class=lnt>12
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kd>type</span> <span class=nx>g</span> <span class=kd>struct</span> <span class=p>{</span>
-  <span class=nx>stack</span>       <span class=nx>stack</span>   <span class=c1>// 描述了真实的栈内存，包括上下界
-</span><span class=c1></span>
-  <span class=nx>m</span>              <span class=o>*</span><span class=nx>m</span>     <span class=c1>// 当前的m
-</span><span class=c1></span>  <span class=nx>sched</span>          <span class=nx>gobuf</span>   <span class=c1>// goroutine切换时，用于保存g的上下文      
-</span><span class=c1></span>  <span class=nx>param</span>          <span class=nx>unsafe</span><span class=p>.</span><span class=nx>Pointer</span> <span class=c1>// 用于传递参数，睡眠时其他goroutine可以设置param，唤醒时该goroutine可以获取
-</span><span class=c1></span>  <span class=nx>atomicstatus</span>   <span class=kt>uint32</span>
-  <span class=nx>stackLock</span>      <span class=kt>uint32</span> 
-  <span class=nx>goid</span>           <span class=kt>int64</span>  <span class=c1>// goroutine的ID
-</span><span class=c1></span>  <span class=nx>waitsince</span>      <span class=kt>int64</span> <span class=c1>// g被阻塞的大体时间
-</span><span class=c1></span>  <span class=nx>lockedm</span>        <span class=o>*</span><span class=nx>m</span>     <span class=c1>// G被锁定只在这个m上运行
-</span><span class=c1></span><span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><ul>
-<li>M: 代表内核线程(Pthread)，它本身就与一个内核线程进行绑定，goroutine 运行在M上。</li>
-</ul>
-<div class=highlight><div class=chroma>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>g</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>stack</span>       <span class=nx>stack</span>   <span class=c1>// 描述了真实的栈内存，包括上下界
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>  <span class=nx>m</span>              <span class=o>*</span><span class=nx>m</span>     <span class=c1>// 当前的m
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>sched</span>          <span class=nx>gobuf</span>   <span class=c1>// goroutine切换时，用于保存g的上下文      
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>param</span>          <span class=nx>unsafe</span><span class=p>.</span><span class=nx>Pointer</span> <span class=c1>// 用于传递参数，睡眠时其他goroutine可以设置param，唤醒时该goroutine可以获取
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>atomicstatus</span>   <span class=kt>uint32</span>
+</span></span><span class=line><span class=cl>  <span class=nx>stackLock</span>      <span class=kt>uint32</span> 
+</span></span><span class=line><span class=cl>  <span class=nx>goid</span>           <span class=kt>int64</span>  <span class=c1>// goroutine的ID
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>waitsince</span>      <span class=kt>int64</span> <span class=c1>// g被阻塞的大体时间
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>lockedm</span>        <span class=o>*</span><span class=nx>m</span>     <span class=c1>// G被锁定只在这个m上运行
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ul>
+<li>M: 代表内核线程(Pthread)，它本身就与一个内核线程进行绑定，goroutine 运行在M上。</li></ul><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -423,29 +158,24 @@
 </span><span class=lnt>12
 </span><span class=lnt>13
 </span><span class=lnt>14
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=kd>type</span> <span class=nx>m</span> <span class=kd>struct</span> <span class=p>{</span>    
-    <span class=cm>/*
-</span><span class=cm>        1.  所有调用栈的Goroutine,这是一个比较特殊的Goroutine。
-</span><span class=cm>        2.  普通的Goroutine栈是在Heap分配的可增长的stack,而g0的stack是M对应的线程栈。
-</span><span class=cm>        3.  所有调度相关代码,会先切换到该Goroutine的栈再执行。
-</span><span class=cm>    */</span>
-    <span class=nx>g0</span>       <span class=o>*</span><span class=nx>g</span>
-    <span class=nx>curg</span>     <span class=o>*</span><span class=nx>g</span>         <span class=c1>// M当前绑定的结构体G
-</span><span class=c1></span>
-    <span class=c1>// SP、PC寄存器用于现场保护和现场恢复
-</span><span class=c1></span>    <span class=nx>vdsoSP</span> <span class=kt>uintptr</span>
-    <span class=nx>vdsoPC</span> <span class=kt>uintptr</span>
-
-    <span class=c1>// 省略…}
-</span></code></pre></td></tr></table>
-</div>
-</div><ul>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>m</span> <span class=kd>struct</span> <span class=p>{</span>    
+</span></span><span class=line><span class=cl>    <span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>        1.  所有调用栈的Goroutine,这是一个比较特殊的Goroutine。
+</span></span></span><span class=line><span class=cl><span class=cm>        2.  普通的Goroutine栈是在Heap分配的可增长的stack,而g0的stack是M对应的线程栈。
+</span></span></span><span class=line><span class=cl><span class=cm>        3.  所有调度相关代码,会先切换到该Goroutine的栈再执行。
+</span></span></span><span class=line><span class=cl><span class=cm>    */</span>
+</span></span><span class=line><span class=cl>    <span class=nx>g0</span>       <span class=o>*</span><span class=nx>g</span>
+</span></span><span class=line><span class=cl>    <span class=nx>curg</span>     <span class=o>*</span><span class=nx>g</span>         <span class=c1>// M当前绑定的结构体G
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>    <span class=c1>// SP、PC寄存器用于现场保护和现场恢复
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>vdsoSP</span> <span class=kt>uintptr</span>
+</span></span><span class=line><span class=cl>    <span class=nx>vdsoPC</span> <span class=kt>uintptr</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 省略…}
+</span></span></span></code></pre></td></tr></table></div></div><ul>
 <li>P：P(Processor)是一个抽象的概念，并不是真正的物理CPU。所以当P有任务时需要创建或者唤醒一个系统线程来执行它队列里的任务。所以P/M需要进行绑定，构成一个执行单元。
-P决定了同时可以并发任务的数量，可通过GOMAXPROCS限制同时执行用户级任务的操作系统线程。可以通过runtime.GOMAXPROCS进行指定。在Go1.5之后GOMAXPROCS被默认设置可用的核数，而之前则默认为1。</li>
-</ul>
-<div class=highlight><div class=chroma>
+P决定了同时可以并发任务的数量，可通过GOMAXPROCS限制同时执行用户级任务的操作系统线程。可以通过runtime.GOMAXPROCS进行指定。在Go1.5之后GOMAXPROCS被默认设置可用的核数，而之前则默认为1。</li></ul><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -500,94 +230,65 @@ P决定了同时可以并发任务的数量，可通过GOMAXPROCS限制同时执
 </span><span class=lnt>51
 </span><span class=lnt>52
 </span><span class=lnt>53
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// 自定义设置GOMAXPROCS数量
-</span><span class=c1></span><span class=kd>func</span> <span class=nf>GOMAXPROCS</span><span class=p>(</span><span class=nx>n</span> <span class=kt>int</span><span class=p>)</span> <span class=kt>int</span> <span class=p>{</span>    
-    <span class=cm>/*
-</span><span class=cm>        1.  GOMAXPROCS设置可执行的CPU的最大数量,同时返回之前的设置。
-</span><span class=cm>        2.  如果n &lt; 1,则不更改当前的值。
-</span><span class=cm>    */</span>
-    <span class=nx>ret</span> <span class=o>:=</span> <span class=nb>int</span><span class=p>(</span><span class=nx>gomaxprocs</span><span class=p>)</span>
-
-    <span class=nf>stopTheWorld</span><span class=p>(</span><span class=s>&#34;GOMAXPROCS&#34;</span><span class=p>)</span>    
-    <span class=c1>// startTheWorld启动时,使用newprocs。
-</span><span class=c1></span>    <span class=nx>newprocs</span> <span class=p>=</span> <span class=nb>int32</span><span class=p>(</span><span class=nx>n</span><span class=p>)</span>
-    <span class=nf>startTheWorld</span><span class=p>()</span>    
-    <span class=k>return</span> <span class=nx>ret</span>
-<span class=p>}</span>
-<span class=c1>// 默认P被绑定到所有CPU核上
-</span><span class=c1>// P == cpu.cores
-</span><span class=c1></span>
-<span class=kd>func</span> <span class=nf>getproccount</span><span class=p>()</span> <span class=kt>int32</span> <span class=p>{</span>    
-    <span class=kd>const</span> <span class=nx>maxCPUs</span> <span class=p>=</span> <span class=mi>64</span> <span class=o>*</span> <span class=mi>1024</span>
-    <span class=kd>var</span> <span class=nx>buf</span> <span class=p>[</span><span class=nx>maxCPUs</span> <span class=o>/</span> <span class=mi>8</span><span class=p>]</span><span class=kt>byte</span>
-
-
-    <span class=c1>// 获取CPU Core
-</span><span class=c1></span>    <span class=nx>r</span> <span class=o>:=</span> <span class=nf>sched_getaffinity</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=nx>unsafe</span><span class=p>.</span><span class=nf>Sizeof</span><span class=p>(</span><span class=nx>buf</span><span class=p>),</span> <span class=o>&amp;</span><span class=nx>buf</span><span class=p>[</span><span class=mi>0</span><span class=p>])</span>
-
-    <span class=nx>n</span> <span class=o>:=</span> <span class=nb>int32</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>    
-    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>v</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>buf</span><span class=p>[:</span><span class=nx>r</span><span class=p>]</span> <span class=p>{</span>        
-       <span class=k>for</span> <span class=nx>v</span> <span class=o>!=</span> <span class=mi>0</span> <span class=p>{</span>
-            <span class=nx>n</span> <span class=o>+=</span> <span class=nb>int32</span><span class=p>(</span><span class=nx>v</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span>
-            <span class=nx>v</span> <span class=o>&gt;&gt;=</span> <span class=mi>1</span>
-        <span class=p>}</span>
-    <span class=p>}</span>    
-    <span class=k>if</span> <span class=nx>n</span> <span class=o>==</span> <span class=mi>0</span> <span class=p>{</span>
-       <span class=nx>n</span> <span class=p>=</span> <span class=mi>1</span>
-    <span class=p>}</span>    
-    <span class=k>return</span> <span class=nx>n</span>
-<span class=p>}</span>
-<span class=c1>// 一个进程默认被绑定在所有CPU核上,返回所有CPU core。
-</span><span class=c1>// 获取进程的CPU亲和性掩码系统调用
-</span><span class=c1>// rax 204                          ; 系统调用码
-</span><span class=c1>// system_call sys_sched_getaffinity; 系统调用名称
-</span><span class=c1>// rid  pid                         ; 进程号
-</span><span class=c1>// rsi unsigned int len             
-</span><span class=c1>// rdx unsigned long *user_mask_ptr
-</span><span class=c1></span><span class=nx>sys_linux_amd64</span><span class=p>.</span><span class=nx>s</span><span class=p>:</span>
-<span class=nx>TEXT</span> <span class=nx>runtime</span><span class=err>·</span><span class=nf>sched_getaffinity</span><span class=p>(</span><span class=nx>SB</span><span class=p>),</span><span class=nx>NOSPLIT</span><span class=p>,</span><span class=err>$</span><span class=mi>0</span>
-    <span class=nx>MOVQ</span>    <span class=nx>pid</span><span class=o>+</span><span class=mi>0</span><span class=p>(</span><span class=nx>FP</span><span class=p>),</span> <span class=nx>DI</span>
-    <span class=nx>MOVQ</span>    <span class=nx>len</span><span class=o>+</span><span class=mi>8</span><span class=p>(</span><span class=nx>FP</span><span class=p>),</span> <span class=nx>SI</span>
-    <span class=nx>MOVQ</span>    <span class=nx>buf</span><span class=o>+</span><span class=mi>16</span><span class=p>(</span><span class=nx>FP</span><span class=p>),</span> <span class=nx>DX</span>
-    <span class=nx>MOVL</span>    <span class=err>$</span><span class=nx>SYS_sched_getaffinity</span><span class=p>,</span> <span class=nx>AX</span>
-    <span class=nx>SYSCALL</span>
-    <span class=nx>MOVL</span>    <span class=nx>AX</span><span class=p>,</span> <span class=nx>ret</span><span class=o>+</span><span class=mi>24</span><span class=p>(</span><span class=nx>FP</span><span class=p>)</span>
-    <span class=nx>RET</span>
-</code></pre></td></tr></table>
-</div>
-</div><h4 id=调度过程>调度过程</h4>
-<p>首先创建一个G对象，G对象保存到P本地队列或者是全局队列。P此时去唤醒一个M。P继续执行它的执行序。M寻找是否有空闲的P，如果有则将该G对象移动到它本身。接下来M执行一个调度循环(调用G对象->执行->清理线程→继续找新的Goroutine执行)。</p>
-<p>M执行过程中，随时会发生上下文切换。当发生上线文切换时，需要对执行现场进行保护，以便下次被调度执行时进行现场恢复。Go调度器M的栈保存在G对象上，只需要将M所需要的寄存器(SP、PC等)保存到G对象上就可以实现现场保护。当这些寄存器数据被保护起来，就随时可以做上下文切换了，在中断之前把现场保存起来。如果此时G任务还没有执行完，M可以将任务重新丢到P的任务队列，等待下一次被调度执行。当再次被调度执行时，M通过访问G的vdsoSP、vdsoPC寄存器进行现场恢复(从上次中断位置继续执行)。</p>
-<h5 id=多个线程下如何调度>多个线程下如何调度</h5>
-<p>抛出一个问题：每个P里面的G执行时间是不可控的，如果多个P同时在执行，会不会出现有的P里面的G执行不完，有的P里面几乎没有G可执行呢？</p>
-<p>这就要从M的自循环过程中如何获取G、归还G的行为说起了</p>
-<p>有两种途径：1.借助全局队列 sched.runq 作为中介，本地P里的G太多的话就放全局里，G太少的话就从全局取。
-2.全局列表里没有的话直接从P1里偷取(steal)。(更多M在执行的话，同样的原理，这里就只拿2个来举例)</p>
-<h5 id=调度循环中如何让出cpu>调度循环中如何让出CPU</h5>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 自定义设置GOMAXPROCS数量
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nf>GOMAXPROCS</span><span class=p>(</span><span class=nx>n</span> <span class=kt>int</span><span class=p>)</span> <span class=kt>int</span> <span class=p>{</span>    
+</span></span><span class=line><span class=cl>    <span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>        1.  GOMAXPROCS设置可执行的CPU的最大数量,同时返回之前的设置。
+</span></span></span><span class=line><span class=cl><span class=cm>        2.  如果n &lt; 1,则不更改当前的值。
+</span></span></span><span class=line><span class=cl><span class=cm>    */</span>
+</span></span><span class=line><span class=cl>    <span class=nx>ret</span> <span class=o>:=</span> <span class=nb>int</span><span class=p>(</span><span class=nx>gomaxprocs</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nf>stopTheWorld</span><span class=p>(</span><span class=s>&#34;GOMAXPROCS&#34;</span><span class=p>)</span>    
+</span></span><span class=line><span class=cl>    <span class=c1>// startTheWorld启动时,使用newprocs。
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>newprocs</span> <span class=p>=</span> <span class=nb>int32</span><span class=p>(</span><span class=nx>n</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nf>startTheWorld</span><span class=p>()</span>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>ret</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=c1>// 默认P被绑定到所有CPU核上
+</span></span></span><span class=line><span class=cl><span class=c1>// P == cpu.cores
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>getproccount</span><span class=p>()</span> <span class=kt>int32</span> <span class=p>{</span>    
+</span></span><span class=line><span class=cl>    <span class=kd>const</span> <span class=nx>maxCPUs</span> <span class=p>=</span> <span class=mi>64</span> <span class=o>*</span> <span class=mi>1024</span>
+</span></span><span class=line><span class=cl>    <span class=kd>var</span> <span class=nx>buf</span> <span class=p>[</span><span class=nx>maxCPUs</span> <span class=o>/</span> <span class=mi>8</span><span class=p>]</span><span class=kt>byte</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 获取CPU Core
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>r</span> <span class=o>:=</span> <span class=nf>sched_getaffinity</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=nx>unsafe</span><span class=p>.</span><span class=nf>Sizeof</span><span class=p>(</span><span class=nx>buf</span><span class=p>),</span> <span class=o>&amp;</span><span class=nx>buf</span><span class=p>[</span><span class=mi>0</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>n</span> <span class=o>:=</span> <span class=nb>int32</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>    
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>v</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>buf</span><span class=p>[:</span><span class=nx>r</span><span class=p>]</span> <span class=p>{</span>        
+</span></span><span class=line><span class=cl>       <span class=k>for</span> <span class=nx>v</span> <span class=o>!=</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>n</span> <span class=o>+=</span> <span class=nb>int32</span><span class=p>(</span><span class=nx>v</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=nx>v</span> <span class=o>&gt;&gt;=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>    
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>n</span> <span class=o>==</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>       <span class=nx>n</span> <span class=p>=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>n</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=c1>// 一个进程默认被绑定在所有CPU核上,返回所有CPU core。
+</span></span></span><span class=line><span class=cl><span class=c1>// 获取进程的CPU亲和性掩码系统调用
+</span></span></span><span class=line><span class=cl><span class=c1>// rax 204                          ; 系统调用码
+</span></span></span><span class=line><span class=cl><span class=c1>// system_call sys_sched_getaffinity; 系统调用名称
+</span></span></span><span class=line><span class=cl><span class=c1>// rid  pid                         ; 进程号
+</span></span></span><span class=line><span class=cl><span class=c1>// rsi unsigned int len             
+</span></span></span><span class=line><span class=cl><span class=c1>// rdx unsigned long *user_mask_ptr
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>sys_linux_amd64</span><span class=p>.</span><span class=nx>s</span><span class=p>:</span>
+</span></span><span class=line><span class=cl><span class=nx>TEXT</span> <span class=nx>runtime</span><span class=err>·</span><span class=nf>sched_getaffinity</span><span class=p>(</span><span class=nx>SB</span><span class=p>),</span><span class=nx>NOSPLIT</span><span class=p>,</span><span class=err>$</span><span class=mi>0</span>
+</span></span><span class=line><span class=cl>    <span class=nx>MOVQ</span>    <span class=nx>pid</span><span class=o>+</span><span class=mi>0</span><span class=p>(</span><span class=nx>FP</span><span class=p>),</span> <span class=nx>DI</span>
+</span></span><span class=line><span class=cl>    <span class=nx>MOVQ</span>    <span class=nx>len</span><span class=o>+</span><span class=mi>8</span><span class=p>(</span><span class=nx>FP</span><span class=p>),</span> <span class=nx>SI</span>
+</span></span><span class=line><span class=cl>    <span class=nx>MOVQ</span>    <span class=nx>buf</span><span class=o>+</span><span class=mi>16</span><span class=p>(</span><span class=nx>FP</span><span class=p>),</span> <span class=nx>DX</span>
+</span></span><span class=line><span class=cl>    <span class=nx>MOVL</span>    <span class=err>$</span><span class=nx>SYS_sched_getaffinity</span><span class=p>,</span> <span class=nx>AX</span>
+</span></span><span class=line><span class=cl>    <span class=nx>SYSCALL</span>
+</span></span><span class=line><span class=cl>    <span class=nx>MOVL</span>    <span class=nx>AX</span><span class=p>,</span> <span class=nx>ret</span><span class=o>+</span><span class=mi>24</span><span class=p>(</span><span class=nx>FP</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>RET</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=调度过程>调度过程</h4><p>首先创建一个G对象，G对象保存到P本地队列或者是全局队列。P此时去唤醒一个M。P继续执行它的执行序。M寻找是否有空闲的P，如果有则将该G对象移动到它本身。接下来M执行一个调度循环(调用G对象->执行->清理线程→继续找新的Goroutine执行)。</p><p>M执行过程中，随时会发生上下文切换。当发生上线文切换时，需要对执行现场进行保护，以便下次被调度执行时进行现场恢复。Go调度器M的栈保存在G对象上，只需要将M所需要的寄存器(SP、PC等)保存到G对象上就可以实现现场保护。当这些寄存器数据被保护起来，就随时可以做上下文切换了，在中断之前把现场保存起来。如果此时G任务还没有执行完，M可以将任务重新丢到P的任务队列，等待下一次被调度执行。当再次被调度执行时，M通过访问G的vdsoSP、vdsoPC寄存器进行现场恢复(从上次中断位置继续执行)。</p><h5 id=多个线程下如何调度>多个线程下如何调度</h5><p>抛出一个问题：每个P里面的G执行时间是不可控的，如果多个P同时在执行，会不会出现有的P里面的G执行不完，有的P里面几乎没有G可执行呢？</p><p>这就要从M的自循环过程中如何获取G、归还G的行为说起了</p><p>有两种途径：1.借助全局队列 sched.runq 作为中介，本地P里的G太多的话就放全局里，G太少的话就从全局取。
+2.全局列表里没有的话直接从P1里偷取(steal)。(更多M在执行的话，同样的原理，这里就只拿2个来举例)</p><h5 id=调度循环中如何让出cpu>调度循环中如何让出CPU</h5><ul>
+<li>正常完成让出CPU</li><li>主动让出CPU
 <ul>
-<li>正常完成让出CPU</li>
-<li>主动让出CPU
-<ul>
-<li>time.Sleep(),IO阻塞等</li>
-</ul>
-</li>
-<li>抢占让出CPU</li>
-</ul>
-<h4 id=抢占式调度>抢占式调度</h4>
-<p>概念：枚举所有的P 如果P在系统调用中(_Psyscall), 且经过了一次sysmon循环(20us~10ms), 则抢占这个P， 调用handoffp解除M和P之间的关联， 如果P在运行中(_Prunning), 且经过了一次sysmon循环并且G运行时间超过forcePreemptNS(10ms), 则抢占这个P</p>
-<p>并设置g.preempt = true，g.stackguard0 = stackPreempt。</p>
-<p>为什么设置了stackguard就可以实现抢占?</p>
-<p>因为这个值用于检查当前栈空间是否足够, go函数的开头会比对这个值判断是否需要扩张栈。</p>
-<p>newstack函数判断g.stackguard0等于stackPreempt, 就知道这是抢占触发的, 这时会再检查一遍是否要抢占。</p>
-<p>抢占机制保证了不会有一个G长时间的运行导致其他G无法运行的情况发生。</p>
-<h4 id=主动让出cpu>主动让出CPU</h4>
-<h5 id=timesleep>time.Sleep()</h5>
-<p>timeSleep 函数里通过 addtimerLocked 把定时器加入到 timer 管理器（timer 通过最小堆的数据结构存放每个定时器，在这不做详细说明）后，再通过 goparkunlock 实现把当前G休眠，这里看到了上面提到的 gopark 方法进行调度循环的上下文切换。</p>
-<p>在 addtimerLocked 方法的最下面有个逻辑在运行期间开启了&rsquo;全局时间事件驱动器&rsquo;timerproc,该方法会全程遍历最小堆，寻找最早进入 timer 管理器的定时器，然后唤醒。他是怎么找到要唤醒哪个G的？回头看下 timeSleep 方法里把当时正在执行的G以及唤醒方法 goroutineReady 带到了每个定时器里，而在 timerproc 则通过找到期的定时器执行f(arg, seq)</p>
-<p>即通过 goroutineReady 方法唤醒。方法调用过程: goroutineReady() -> ready()</p>
-<div class=highlight><div class=chroma>
+<li>time.Sleep(),IO阻塞等</li></ul></li><li>抢占让出CPU</li></ul><h4 id=抢占式调度>抢占式调度</h4><p>概念：枚举所有的P 如果P在系统调用中(_Psyscall), 且经过了一次sysmon循环(20us~10ms), 则抢占这个P， 调用handoffp解除M和P之间的关联， 如果P在运行中(_Prunning), 且经过了一次sysmon循环并且G运行时间超过forcePreemptNS(10ms), 则抢占这个P</p><p>并设置g.preempt = true，g.stackguard0 = stackPreempt。</p><p>为什么设置了stackguard就可以实现抢占?</p><p>因为这个值用于检查当前栈空间是否足够, go函数的开头会比对这个值判断是否需要扩张栈。</p><p>newstack函数判断g.stackguard0等于stackPreempt, 就知道这是抢占触发的, 这时会再检查一遍是否要抢占。</p><p>抢占机制保证了不会有一个G长时间的运行导致其他G无法运行的情况发生。</p><h4 id=主动让出cpu>主动让出CPU</h4><h5 id=timesleep>time.Sleep()</h5><p>timeSleep 函数里通过 addtimerLocked 把定时器加入到 timer 管理器（timer 通过最小堆的数据结构存放每个定时器，在这不做详细说明）后，再通过 goparkunlock 实现把当前G休眠，这里看到了上面提到的 gopark 方法进行调度循环的上下文切换。</p><p>在 addtimerLocked 方法的最下面有个逻辑在运行期间开启了&rsquo;全局时间事件驱动器&rsquo;timerproc,该方法会全程遍历最小堆，寻找最早进入 timer 管理器的定时器，然后唤醒。他是怎么找到要唤醒哪个G的？回头看下 timeSleep 方法里把当时正在执行的G以及唤醒方法 goroutineReady 带到了每个定时器里，而在 timerproc 则通过找到期的定时器执行f(arg, seq)</p><p>即通过 goroutineReady 方法唤醒。方法调用过程: goroutineReady() -> ready()</p><div class=highlight><div class=chroma>
 <table class=lntable><tr><td class=lntd>
 <pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -609,220 +310,73 @@ P决定了同时可以并发任务的数量，可通过GOMAXPROCS限制同时执
 </span><span class=lnt>18
 </span><span class=lnt>19
 </span><span class=lnt>20
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>// runtime/time.go
-</span><span class=c1></span>
-<span class=kd>func</span> <span class=nf>timeSleep</span><span class=p>(</span><span class=nx>ns</span> <span class=kt>int64</span><span class=p>)</span> <span class=p>{</span>
-  <span class=k>if</span> <span class=nx>ns</span> <span class=o>&lt;=</span> <span class=mi>0</span> <span class=p>{</span>
-    <span class=k>return</span>
-  <span class=p>}</span>
-
-  <span class=nx>t</span> <span class=o>:=</span> <span class=nf>getg</span><span class=p>().</span><span class=nx>timer</span>
-  <span class=k>if</span> <span class=nx>t</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
-    <span class=nx>t</span> <span class=p>=</span> <span class=nb>new</span><span class=p>(</span><span class=nx>timer</span><span class=p>)</span>
-    <span class=nf>getg</span><span class=p>().</span><span class=nx>timer</span> <span class=p>=</span> <span class=nx>t</span>
-  <span class=p>}</span>
-  <span class=o>*</span><span class=nx>t</span> <span class=p>=</span> <span class=nx>timer</span><span class=p>{}</span> <span class=c1>// 每个定时任务都创建一个timer
-</span><span class=c1></span>  <span class=nx>t</span><span class=p>.</span><span class=nx>when</span> <span class=p>=</span> <span class=nf>nanotime</span><span class=p>()</span> <span class=o>+</span> <span class=nx>ns</span>
-  <span class=nx>t</span><span class=p>.</span><span class=nx>f</span> <span class=p>=</span> <span class=nx>goroutineReady</span> <span class=c1>// 记录唤醒该G的方法,唤醒时通过该方法执行唤醒
-</span><span class=c1></span>  <span class=nx>t</span><span class=p>.</span><span class=nx>arg</span> <span class=p>=</span> <span class=nf>getg</span><span class=p>()</span>       <span class=c1>// 把timer与当前G关联,时间到了唤醒时通过该参数找到所在的G
-</span><span class=c1></span>  <span class=nf>lock</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>timers</span><span class=p>.</span><span class=nx>lock</span><span class=p>)</span>
-  <span class=nf>addtimerLocked</span><span class=p>(</span><span class=nx>t</span><span class=p>)</span>                                      <span class=c1>// 把timer添加到最小堆里
-</span><span class=c1></span>  <span class=nf>goparkunlock</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>timers</span><span class=p>.</span><span class=nx>lock</span><span class=p>,</span> <span class=s>&#34;sleep&#34;</span><span class=p>,</span> <span class=nx>traceEvGoSleep</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span> <span class=c1>// 切到G0让出CPU,进入休眠
-</span><span class=c1></span><span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>总结：time.Sleep 想要进入阻塞(休眠)状态，其实是通过 gopark 方法给自己标记个_Gwaiting 状态，然后把自己所占用的CPU线程资源给释放出来，继续执行调度任务，调度其它的G来运行。而唤醒是通过把G更改回_Grunnable 状态后，然后把G放入到P的待运行队列里等待执行。通过这点还可以看出休眠中的G其实并不占用 CPU 资源，最多是占用内存，是个很轻量级的阻塞。</p>
-<h5 id=mutex>Mutex</h5>
-<p>Mutex.Lock 方法通过调用 runtime_SemacquireMutex 最终还是调用 goparkunlock 实现把G进入到休眠状态。在进入休眠之前先把自己加入到队列里 root.queue(addr, s, lifo)，在 queue 方法里，记录了当前的G，以便以后找到并唤醒。</p>
-<p>Mutex. Unlock 方法通过调用 runtime_Semrelease 最终还是调用 goready 实现把G唤醒。</p>
-<h5 id=channel>Channel</h5>
-<p><strong>发送端：</strong></p>
-<p>当给一个 chan 发送消息的时候，实质触发的方法是 chansend。在该方法里不是先进入休眠状态。</p>
-<p>1）如果此时有接收者接收这个 chan 的消息则直接把数据通过 send 方法扔给接收者，并唤醒接收者的G，然后当前G则继续执行。</p>
-<p>2）如果没有接收者，就把数据 copy 到 chan 的临时内存里，且内存没有满就继续执行当前G。</p>
-<p>3）如果没有接收者且 chan 满了，依然是通过 goparkunlock 方法进入休眠。在休眠前把当前的G相关信息存到队列（sendq）以便有接收者接收数据的时候唤醒当前G。</p>
-<p><strong>接收端：</strong></p>
-<p>chanrecv 方法是在 chan 接收者的地方调用的方法。</p>
-<p>1）如果有发送者被休眠，则取出数据然后唤醒发送者，当前接收者的G拿到数据继续执行。</p>
-<p>2）如果没有等待的发送者就看下有没有发送的数据还没被接收，有的话就直接取出数据然后返回，当前接收者的G拿到数据继续执行。（注意：这里取的数据不是正在等待的 sender 的数据，而是从 chan 的开头的内存取，如果是 sender 的数据则读出来的数据顺序就乱了）</p>
-<p>3）如果即没有发送者，chan 里也没数据就通过 goparkunlock 进行休眠，在休眠之前把当前的G相关信息存到 recvq 里面，以便有数据时找到要唤醒的G。</p>
-<h4 id=qa>QA</h4>
-<p>1.为什么p的local queue 可无锁访问 任务窃取的时候需要加锁嘛？
-答：原子操作。</p>
-<h3 id=垃圾回收>垃圾回收</h3>
-<ul>
-<li><a href=https://segmentfault.com/a/1190000020086769 target=_blank rel="noopener noreffer">三色标记</a></li>
-<li>哪些情况下不被垃圾回收？</li>
-<li>强三色和弱三色</li>
-<li>写屏障</li>
-</ul>
-<h3 id=channel-1>channel</h3>
-<h3 id=slice>slice</h3>
-<h3 id=map>map</h3>
-<ul>
-<li>怎么解决读写并发（除了锁）</li>
-<li>sync.Map 了解一下</li>
-</ul>
-<h3 id=http库>http库</h3>
-<h3 id=interface>interface</h3>
-<ul>
+</span></code></pre></td><td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// runtime/time.go
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>timeSleep</span><span class=p>(</span><span class=nx>ns</span> <span class=kt>int64</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=nx>ns</span> <span class=o>&lt;=</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=nx>t</span> <span class=o>:=</span> <span class=nf>getg</span><span class=p>().</span><span class=nx>timer</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=nx>t</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>t</span> <span class=p>=</span> <span class=nb>new</span><span class=p>(</span><span class=nx>timer</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nf>getg</span><span class=p>().</span><span class=nx>timer</span> <span class=p>=</span> <span class=nx>t</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=o>*</span><span class=nx>t</span> <span class=p>=</span> <span class=nx>timer</span><span class=p>{}</span> <span class=c1>// 每个定时任务都创建一个timer
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>t</span><span class=p>.</span><span class=nx>when</span> <span class=p>=</span> <span class=nf>nanotime</span><span class=p>()</span> <span class=o>+</span> <span class=nx>ns</span>
+</span></span><span class=line><span class=cl>  <span class=nx>t</span><span class=p>.</span><span class=nx>f</span> <span class=p>=</span> <span class=nx>goroutineReady</span> <span class=c1>// 记录唤醒该G的方法,唤醒时通过该方法执行唤醒
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>t</span><span class=p>.</span><span class=nx>arg</span> <span class=p>=</span> <span class=nf>getg</span><span class=p>()</span>       <span class=c1>// 把timer与当前G关联,时间到了唤醒时通过该参数找到所在的G
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nf>lock</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>timers</span><span class=p>.</span><span class=nx>lock</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=nf>addtimerLocked</span><span class=p>(</span><span class=nx>t</span><span class=p>)</span>                                      <span class=c1>// 把timer添加到最小堆里
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nf>goparkunlock</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>timers</span><span class=p>.</span><span class=nx>lock</span><span class=p>,</span> <span class=s>&#34;sleep&#34;</span><span class=p>,</span> <span class=nx>traceEvGoSleep</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span> <span class=c1>// 切到G0让出CPU,进入休眠
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>总结：time.Sleep 想要进入阻塞(休眠)状态，其实是通过 gopark 方法给自己标记个_Gwaiting 状态，然后把自己所占用的CPU线程资源给释放出来，继续执行调度任务，调度其它的G来运行。而唤醒是通过把G更改回_Grunnable 状态后，然后把G放入到P的待运行队列里等待执行。通过这点还可以看出休眠中的G其实并不占用 CPU 资源，最多是占用内存，是个很轻量级的阻塞。</p><h5 id=mutex>Mutex</h5><p>Mutex.Lock 方法通过调用 runtime_SemacquireMutex 最终还是调用 goparkunlock 实现把G进入到休眠状态。在进入休眠之前先把自己加入到队列里 root.queue(addr, s, lifo)，在 queue 方法里，记录了当前的G，以便以后找到并唤醒。</p><p>Mutex. Unlock 方法通过调用 runtime_Semrelease 最终还是调用 goready 实现把G唤醒。</p><h5 id=channel>Channel</h5><p><strong>发送端：</strong></p><p>当给一个 chan 发送消息的时候，实质触发的方法是 chansend。在该方法里不是先进入休眠状态。</p><p>1）如果此时有接收者接收这个 chan 的消息则直接把数据通过 send 方法扔给接收者，并唤醒接收者的G，然后当前G则继续执行。</p><p>2）如果没有接收者，就把数据 copy 到 chan 的临时内存里，且内存没有满就继续执行当前G。</p><p>3）如果没有接收者且 chan 满了，依然是通过 goparkunlock 方法进入休眠。在休眠前把当前的G相关信息存到队列（sendq）以便有接收者接收数据的时候唤醒当前G。</p><p><strong>接收端：</strong></p><p>chanrecv 方法是在 chan 接收者的地方调用的方法。</p><p>1）如果有发送者被休眠，则取出数据然后唤醒发送者，当前接收者的G拿到数据继续执行。</p><p>2）如果没有等待的发送者就看下有没有发送的数据还没被接收，有的话就直接取出数据然后返回，当前接收者的G拿到数据继续执行。（注意：这里取的数据不是正在等待的 sender 的数据，而是从 chan 的开头的内存取，如果是 sender 的数据则读出来的数据顺序就乱了）</p><p>3）如果即没有发送者，chan 里也没数据就通过 goparkunlock 进行休眠，在休眠之前把当前的G相关信息存到 recvq 里面，以便有数据时找到要唤醒的G。</p><h4 id=qa>QA</h4><p>1.为什么p的local queue 可无锁访问 任务窃取的时候需要加锁嘛？
+答：原子操作。</p><h3 id=垃圾回收>垃圾回收</h3><ul>
+<li><a href=https://segmentfault.com/a/1190000020086769 target=_blank rel="noopener noreffer">三色标记</a></li><li>哪些情况下不被垃圾回收？</li><li>强三色和弱三色</li><li>写屏障</li></ul><h3 id=channel-1>channel</h3><h3 id=slice>slice</h3><h3 id=map>map</h3><ul>
+<li>怎么解决读写并发（除了锁）</li><li>sync.Map 了解一下</li></ul><h3 id=http库>http库</h3><h3 id=interface>interface</h3><ul>
 <li>iface
 <ul>
-<li>有方法的interface{}</li>
-</ul>
-</li>
-<li>eface
+<li>有方法的interface{}</li></ul></li><li>eface
 <ul>
-<li>没有方法的interface{}</li>
-</ul>
-</li>
-</ul>
-<h3 id=其他>其他</h3>
-<h4 id=变量逃逸>变量逃逸</h4>
-<h2 id=项目经验>项目经验</h2>
-<h3 id=微服务>微服务</h3>
-<h3 id=服务限流限速熔断>服务限流限速熔断</h3>
-<p><a href=https://mp.weixin.qq.com/s/n9wpL6uSjza2nEprLbJDKw target=_blank rel="noopener noreffer">服务熔断</a></p>
-<h3 id=提现个人能力的点>提现个人能力的点</h3>
+<li>没有方法的interface{}</li></ul></li></ul><h3 id=其他>其他</h3><h4 id=变量逃逸>变量逃逸</h4><h2 id=项目经验>项目经验</h2><h3 id=微服务>微服务</h3><h3 id=服务限流限速熔断>服务限流限速熔断</h3><p><a href=https://mp.weixin.qq.com/s/n9wpL6uSjza2nEprLbJDKw target=_blank rel="noopener noreffer">服务熔断</a></p><h3 id=提现个人能力的点>提现个人能力的点</h3><ul>
+<li>引入 etcd，基于 etcd 开发服务间通信的基础库 解决服务间通信和服务选举问题</li><li>引入nsq 修改源码 支持延迟消息持久化，二次开发 SDK 支持连接池</li><li>开发项目基础架构，一键生成新项目</li><li>开发基础 lib 包，wechat 包 ，common 包， eventbus-lib ，htlog-go 提高开发效率</li><li>规范化项目开发+上线流程，规范化架构</li><li>开发统一的内部消息服务，规范内服飞书/企业微信消息的发送</li><li>后台服务单点登录功能</li><li>服务拆解 向微服务方向改进</li><li>敏感词 建立词库结构（B-tree）黑白名单的缓存</li><li>自我介绍：
 <ul>
-<li>引入 etcd，基于 etcd 开发服务间通信的基础库 解决服务间通信和服务选举问题</li>
-<li>引入nsq 修改源码 支持延迟消息持久化，二次开发 SDK 支持连接池</li>
-<li>开发项目基础架构，一键生成新项目</li>
-<li>开发基础 lib 包，wechat 包 ，common 包， eventbus-lib ，htlog-go 提高开发效率</li>
-<li>规范化项目开发+上线流程，规范化架构</li>
-<li>开发统一的内部消息服务，规范内服飞书/企业微信消息的发送</li>
-<li>后台服务单点登录功能</li>
-<li>服务拆解 向微服务方向改进</li>
-<li>敏感词 建立词库结构（B-tree）黑白名单的缓存</li>
-<li>自我介绍：
-<ul>
-<li>部门内的定位：后端开发+基础服务搭建</li>
-<li>关注新技术 表现出持续学习</li>
-<li>岗位匹配度</li>
-</ul>
-</li>
-</ul>
-<h3 id=系统设计>系统设计</h3>
-<p><a href=https://github.com/donnemartin/system-design-primer/blob/master/README-zh-Hans.md target=_blank rel="noopener noreffer">系统设计</a></p>
-<h2 id=算法>算法</h2>
-<p><a href=https://github.com/yusank/leetcode target=_blank rel="noopener noreffer">github项目</a></p>
-<h3 id=堆>堆</h3>
-<ul>
-<li>最小堆/最大堆</li>
-<li>topK 算法的实现： hash 加 小顶堆</li>
-<li>堆排序</li>
-</ul>
-<h3 id=链表>链表</h3>
-<ul>
-<li>单向链表/双向链表</li>
-<li>链表找环（快慢指针）</li>
-<li>链表局部/全部旋转（即修改方向）</li>
-</ul>
-<p>问题：查找倒数第 K 个节点</p>
-<h3 id=二叉树>二叉树</h3>
-<ul>
+<li>部门内的定位：后端开发+基础服务搭建</li><li>关注新技术 表现出持续学习</li><li>岗位匹配度</li></ul></li></ul><h3 id=系统设计>系统设计</h3><p><a href=https://github.com/donnemartin/system-design-primer/blob/master/README-zh-Hans.md target=_blank rel="noopener noreffer">系统设计</a></p><h2 id=算法>算法</h2><p><a href=https://github.com/yusank/leetcode target=_blank rel="noopener noreffer">github项目</a></p><h3 id=堆>堆</h3><ul>
+<li>最小堆/最大堆</li><li>topK 算法的实现： hash 加 小顶堆</li><li>堆排序</li></ul><h3 id=链表>链表</h3><ul>
+<li>单向链表/双向链表</li><li>链表找环（快慢指针）</li><li>链表局部/全部旋转（即修改方向）</li></ul><p>问题：查找倒数第 K 个节点</p><h3 id=二叉树>二叉树</h3><ul>
 <li>
-<p>二叉树的五种遍历</p>
-<ul>
-<li>前序 根-左-右</li>
-<li>中序 左-根-右</li>
-<li>后序 左-右-根</li>
-<li>层次遍历 一层一层从左到右</li>
-<li>锯齿遍历（s型遍历）每一层换方向</li>
-</ul>
-</li>
-<li>
-<p>二叉树查找</p>
-<ul>
-<li>查找最近路劲</li>
-<li>查找共同祖先（最近祖先）</li>
-</ul>
-</li>
-<li>
-<p>二叉树的转换</p>
-<ul>
-<li>左右转换</li>
-</ul>
-</li>
-<li>
-<p>其他</p>
-<ul>
-<li>打印右视图左视图（即打印每一层的最右边或最左边）</li>
-</ul>
-</li>
-</ul>
-<h3 id=回溯法递归法>回溯法递归法</h3>
-<p>理解回溯递归的每一层堆栈情况，学会什么情况下使用回溯/递归</p>
-<h3 id=动态规划dp>动态规划（DP）</h3>
-<p>找路线数量，爬台阶，背包问题
-数组等和分组问题</p>
-<h2 id=计算机基础>计算机基础</h2>
-<h3 id=基础概念>基础概念</h3>
-<p>问题：查看当前服务器的性能&查看 go 开的线程数？</p>
-<p>问题：进程线程协程的区别？</p>
-<p>问题：select poll epoll 的区别？</p>
-<ul>
-<li>select 有大小限制 效率低 对 socket 是线性扫描 同步多路复用 O(n)</li>
-<li>poll 与 select 类似 但是用的链表结构 所以没有大小限制 同步多路复用 O(n)</li>
-<li>epoll可以理解为event poll，不同于忙轮询和无差别轮询，epoll会把哪个流发生了怎样的I/O事件通知我们。所以我们说epoll实际上是事件驱动（每个事件关联上fd）的，此时我们对这些流的操作都是有意义的。（复杂度降低到了O(1)）</li>
-</ul>
-<p><a href=https://www.cnblogs.com/aspirant/p/9166944.html target=_blank rel="noopener noreffer">相关链接</a></p>
-<h3 id=tcpudp>tcp/udp</h3>
-<p><a href=https://mp.weixin.qq.com/s/THQ9zAJ4yso1knGtwKcw_Q target=_blank rel="noopener noreffer">tcp必备</a></p>
-<p>问题：tcp time await 发生在哪端？</p>
-<p>A: 发生在四次挥手时客户端，最后会等2MSL。</p>
-<p>问题：为什么客户端最后还要等待2MSL？</p>
-<p>答：MSL（Maximum Segment Lifetime），TCP允许不同的实现可以设置不同的MSL值。第一，保证客户端发送的最后一个ACK报文能够到达服务器，因为这个ACK报文可能丢失。站在服务器的角度看来，我已经发送了FIN+ACK报文请求断开了，客户端还没有给我回应，应该是我发送的请求断开报文它没有收到，于是服务器又会重新发送一次，而客户端就能在这个2MSL时间段内收到这个重传的报文，接着给出回应报文，并且会重启2MSL计时器。如果客户端收到服务端的FIN+ACK报文后，发送一个ACK给服务端之后就“自私”地立马进入CLOSED状态，可能会导致服务端无法确认收到最后的ACK指令，也就无法进入CLOSED状态，这是客户端不负责任的表现。第二，防止失效请求。防止类似与“三次握手”中提到了的“已经失效的连接请求报文段”出现在本连接中。客户端发送完最后一个确认报文后，在这个2MSL时间中，就可以使本连接持续的时间内所产生的所有报文段都从网络中消失。这样新的连接中不会出现旧连接的请求报文。</p>
-<p>在TIME_WAIT状态无法真正释放句柄资源，在此期间，Socket中使用的本地端口在默认情况下不能再被使用。该限制对于客户端机器来说是无所谓的，但对于高并发服务器来说，会极大地限制有效连接的创建数量，称为性能瓶颈。所以建议将高并发服务器TIME_WAIT超时时间调小。RFC793中规定MSL为2分钟。但是在当前的高速网络中，2分钟的等待时间会造成资源的极大浪费，在高并发服务器上通常会使用更小的值。</p>
-<h3 id=http>http</h3>
-<p><a href="https://zhuanlan.zhihu.com/p/159274359?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io" target=_blank rel="noopener noreffer">谈谈HTTP</a></p>
-<p>https 相关</p>
-<h3 id=grpc>grpc</h3>
-<h2 id=其他qa>其他QA</h2>
-<ul>
-<li>Q: 解释graceful 平滑重启？</li>
-<li>Q：</li>
-</ul>
-</div><div class=post-footer id=post-footer>
+<p>二叉树的五种遍历</p><ul>
+<li>前序 根-左-右</li><li>中序 左-根-右</li><li>后序 左-右-根</li><li>层次遍历 一层一层从左到右</li><li>锯齿遍历（s型遍历）每一层换方向</li></ul></li><li>
+<p>二叉树查找</p><ul>
+<li>查找最近路劲</li><li>查找共同祖先（最近祖先）</li></ul></li><li>
+<p>二叉树的转换</p><ul>
+<li>左右转换</li></ul></li><li>
+<p>其他</p><ul>
+<li>打印右视图左视图（即打印每一层的最右边或最左边）</li></ul></li></ul><h3 id=回溯法递归法>回溯法递归法</h3><p>理解回溯递归的每一层堆栈情况，学会什么情况下使用回溯/递归</p><h3 id=动态规划dp>动态规划（DP）</h3><p>找路线数量，爬台阶，背包问题
+数组等和分组问题</p><h2 id=计算机基础>计算机基础</h2><h3 id=基础概念>基础概念</h3><p>问题：查看当前服务器的性能&查看 go 开的线程数？</p><p>问题：进程线程协程的区别？</p><p>问题：select poll epoll 的区别？</p><ul>
+<li>select 有大小限制 效率低 对 socket 是线性扫描 同步多路复用 O(n)</li><li>poll 与 select 类似 但是用的链表结构 所以没有大小限制 同步多路复用 O(n)</li><li>epoll可以理解为event poll，不同于忙轮询和无差别轮询，epoll会把哪个流发生了怎样的I/O事件通知我们。所以我们说epoll实际上是事件驱动（每个事件关联上fd）的，此时我们对这些流的操作都是有意义的。（复杂度降低到了O(1)）</li></ul><p><a href=https://www.cnblogs.com/aspirant/p/9166944.html target=_blank rel="noopener noreffer">相关链接</a></p><h3 id=tcpudp>tcp/udp</h3><p><a href=https://mp.weixin.qq.com/s/THQ9zAJ4yso1knGtwKcw_Q target=_blank rel="noopener noreffer">tcp必备</a></p><p>问题：tcp time await 发生在哪端？</p><p>A: 发生在四次挥手时客户端，最后会等2MSL。</p><p>问题：为什么客户端最后还要等待2MSL？</p><p>答：MSL（Maximum Segment Lifetime），TCP允许不同的实现可以设置不同的MSL值。第一，保证客户端发送的最后一个ACK报文能够到达服务器，因为这个ACK报文可能丢失。站在服务器的角度看来，我已经发送了FIN+ACK报文请求断开了，客户端还没有给我回应，应该是我发送的请求断开报文它没有收到，于是服务器又会重新发送一次，而客户端就能在这个2MSL时间段内收到这个重传的报文，接着给出回应报文，并且会重启2MSL计时器。如果客户端收到服务端的FIN+ACK报文后，发送一个ACK给服务端之后就“自私”地立马进入CLOSED状态，可能会导致服务端无法确认收到最后的ACK指令，也就无法进入CLOSED状态，这是客户端不负责任的表现。第二，防止失效请求。防止类似与“三次握手”中提到了的“已经失效的连接请求报文段”出现在本连接中。客户端发送完最后一个确认报文后，在这个2MSL时间中，就可以使本连接持续的时间内所产生的所有报文段都从网络中消失。这样新的连接中不会出现旧连接的请求报文。</p><p>在TIME_WAIT状态无法真正释放句柄资源，在此期间，Socket中使用的本地端口在默认情况下不能再被使用。该限制对于客户端机器来说是无所谓的，但对于高并发服务器来说，会极大地限制有效连接的创建数量，称为性能瓶颈。所以建议将高并发服务器TIME_WAIT超时时间调小。RFC793中规定MSL为2分钟。但是在当前的高速网络中，2分钟的等待时间会造成资源的极大浪费，在高并发服务器上通常会使用更小的值。</p><h3 id=http>http</h3><p><a href="https://zhuanlan.zhihu.com/p/159274359?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io" target=_blank rel="noopener noreffer">谈谈HTTP</a></p><p>https 相关</p><h3 id=grpc>grpc</h3><h2 id=其他qa>其他QA</h2><ul>
+<li>Q: 解释graceful 平滑重启？</li><li>Q：</li></ul></div><div class=post-footer id=post-footer>
 <div class=post-info>
 <div class=post-info-line>
 <div class=post-info-mod>
 <span>更新于 2021-11-22</span>
-</div>
-<div class=post-info-license></div>
-</div>
-<div class=post-info-line>
+</div><div class=post-info-license></div></div><div class=post-info-line>
 <div class=post-info-md><span>
 <a class=link-to-markdown href=/posts/go-interview/index.md target=_blank>阅读原始文档</a>
-</span></div>
-<div class=post-info-share>
+</span></div><div class=post-info-share>
 <span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/go-interview/ data-title="Go 面试总结" data-hashtags=面试><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/go-interview/ data-hashtag=面试><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/go-interview/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/go-interview/ data-title="Go 面试总结" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/go-interview/ data-title="Go 面试总结"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/go-interview/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/go-interview/ data-title="Go 面试总结"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/line.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/go-interview/ data-title="Go 面试总结" data-ralateuid=yusann><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/posts/go-interview/ data-title="Go 面试总结" data-description><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/myspace.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/go-interview/ data-title="Go 面试总结" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/go-interview/ data-title="Go 面试总结"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/baidu.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/go-interview/ data-title="Go 面试总结"><i class="fab fa-evernote fa-fw"></i></a></span>
-</div>
-</div>
-</div>
-<div class=post-info-more>
-<section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/%E9%9D%A2%E8%AF%95/>面试</a></section>
-<section>
+</div></div></div><div class=post-info-more>
+<section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/%E9%9D%A2%E8%AF%95/>面试</a></section><section>
 <span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span>
-</section>
-</div>
-<div class=post-nav><a href=/posts/go-standard/ class=prev rel=prev title="Go 语言开发及常用库的使用规范(语言篇)"><i class="fas fa-angle-left fa-fw"></i>Go 语言开发及常用库的使用规范(语言篇)</a>
-<a href=/posts/go-micro-1/ class=next rel=next title="Go-Micro 的架构及其使用（一）">Go-Micro 的架构及其使用（一）<i class="fas fa-angle-right fa-fw"></i></a></div>
-</div>
-<div id=comments><div id=utterances></div><noscript>
+</section></div><div class=post-nav><a href=/posts/go-standard/ class=prev rel=prev title="Go 语言开发及常用库的使用规范(语言篇)"><i class="fas fa-angle-left fa-fw"></i>Go 语言开发及常用库的使用规范(语言篇)</a>
+<a href=/posts/go-micro-1/ class=next rel=next title="Go-Micro 的架构及其使用（一）">Go-Micro 的架构及其使用（一）<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=utterances></div><noscript>
 Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>Utterances</a>.
-</noscript></div></article></div>
-</main><footer class=footer>
-<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.92.2">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
-</div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div>
-</div>
-</footer></div>
-<div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部>
+</noscript></div></article></div></main><footer class=footer>
+<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.93.1">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+</div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部>
 <i class="fas fa-arrow-up fa-fw"></i>
 </a><a href=# id=view-comments class=fixed-button title=查看评论>
 <i class="fas fa-comment fa-fw"></i>
 </a>
-</div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@7.0.4/dist/typeit.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:70}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-24P8ZSJHCQ',{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body>
-</html>
+</div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@7.0.4/dist/typeit.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:70}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-24P8ZSJHCQ",{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body></html>
