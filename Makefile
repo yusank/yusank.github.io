@@ -22,6 +22,6 @@ docker-run: ## run latest docker image localy
 docker-push: docker-build ## bulid and push newest docker image
 	docker push docker.io/yusank/hugo_blog:$(TAG)
 
-.PHONY: docker-release
-docker-release: docker-push ## relaese newest version of image to aliyun
+.PHONY: release
+release: docker-push ## relaese newest version of image to aliyun
 	ssh aliyun_d1 "./restart.sh latest"
