@@ -1,93 +1,26 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta name=viewport content="width=device-width,initial-scale=1">
-<meta name=robots content="noodp">
-<meta http-equiv=x-ua-compatible content="IE=edge, chrome=1">
-<title>Go 泛型提前尝试 - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="Go 泛型提前尝试">
-<meta property="og:description" content="
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>Go 泛型提前尝试 - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="Go 泛型提前尝试"><meta property="og:description" content="
 Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1.18 正式版，到目前为止泛型相关规范已确定且可以在开发分支的 go 版本中尝试使用了，这篇文章带你领略 go 的泛型.
-">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://yusank.github.io/posts/go-generic/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts">
-<meta property="article:published_time" content="2021-12-09T10:40:00+08:00">
-<meta property="article:modified_time" content="2021-12-24T18:25:08+08:00">
-<meta name=twitter:card content="summary_large_image">
-<meta name=twitter:image content="https://yusank.github.io/logo.png">
-<meta name=twitter:title content="Go 泛型提前尝试">
-<meta name=twitter:description content="
+"><meta property="og:type" content="article"><meta property="og:url" content="https://yusank.github.io/posts/go-generic/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-12-09T10:40:00+08:00"><meta property="article:modified_time" content="2021-12-24T18:25:08+08:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://yusank.github.io/logo.png"><meta name=twitter:title content="Go 泛型提前尝试"><meta name=twitter:description content="
 Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1.18 正式版，到目前为止泛型相关规范已确定且可以在开发分支的 go 版本中尝试使用了，这篇文章带你领略 go 的泛型.
-">
-<meta name=application-name content="Yusank's Site">
-<meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/go-generic/><link rel=prev href=https://yusank.github.io/posts/redis-server-network/><link rel=next href=https://yusank.github.io/posts/redeis-server-list/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go 泛型提前尝试","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/go-generic\/"},"genre":"posts","keywords":"go1.18, 泛型","wordcount":1835,"url":"https:\/\/yusank.github.io\/posts\/go-generic\/","datePublished":"2021-12-09T10:40:00+08:00","dateModified":"2021-12-24T18:25:08+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script>
-<div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
-<div class=header-wrapper>
-<div class=header-title>
-<a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-1 class=typeit></span></a>
-</div><div class=menu>
-<div class=menu-inner><a class=menu-item href=/posts/> 文章 </a><a class=menu-item href=/categories/> 分类 </a><a class=menu-item href=/tags/> 标签 </a><a class=menu-item href=/about/> 关于 </a><a class=menu-item href=/links/> 友链 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
-<i class="fas fa-adjust fa-fw"></i>
-</a>
-</div></div></div></header><header class=mobile id=header-mobile>
-<div class=header-container>
-<div class=header-wrapper>
-<div class=header-title>
-<a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-2 class=typeit></span></a>
-</div><div class=menu-toggle id=menu-toggle-mobile>
-<span></span><span></span><span></span>
-</div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
-<i class="fas fa-adjust fa-fw"></i>
-</a></div></div></header><div class="search-dropdown desktop">
-<div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile">
-<div id=search-dropdown-mobile></div></div><main class=main>
-<div class=container><div class=toc id=toc-auto>
-<h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Go 泛型提前尝试</h1><div class=post-meta>
-<div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/go/><i class="far fa-folder fa-fw"></i>Go</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2021-12-09>2021-12-09</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 1835 字&nbsp;
-<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 4 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept>
-<div class="details-summary toc-title">
-<span>目录</span>
-<span><i class="details-icon fas fa-angle-right"></i></span>
-</div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
-<ul>
-<li><a href=#安装-go-开发版>安装 go 开发版</a></li><li><a href=#泛型>泛型</a>
-<ul>
-<li><a href=#基础用法>基础用法</a></li><li><a href=#花式玩法>花式玩法</a>
-<ul>
-<li><a href=#slice>slice</a></li><li><a href=#map>map</a></li><li><a href=#chan>chan</a></li></ul></li></ul></li><li><a href=#总结>总结</a></li><li><a href=#参考文档>参考文档</a></li></ul></nav></div></div><div class=content id=content><blockquote>
-<p><code>Go</code> 已经确实在 <code>1.18</code> 版本支持泛型了，预计 2022 年 2 月份发布 1.18 正式版，到目前为止泛型相关规范已确定且可以在开发分支的 go 版本中尝试使用了，这篇文章带你领略 <code>go</code> 的泛型.</p></blockquote><h2 id=安装-go-开发版>安装 go 开发版</h2><div class="details admonition question open">
-<div class="details-summary admonition-title">
-<i class="icon fas fa-question-circle fa-fw"></i>没有发版我怎么提前尝试呢？<i class="details-icon fas fa-angle-right fa-fw"></i>
-</div><div class=details-content>
-<div class=admonition-content>在这里分享一个小技巧，学会了之后以后每个新版本发布前都可以提前尝试新版的特性，提前学习好。</div></div></div><p>可以通过下面的命令安装最新的 <code>master</code> 分支：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+"><meta name=application-name content="Yusank's Site"><meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/go-generic/><link rel=prev href=https://yusank.github.io/posts/redis-server-network/><link rel=next href=https://yusank.github.io/posts/redeis-server-list/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go 泛型提前尝试","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/go-generic\/"},"genre":"posts","keywords":"go1.18, 泛型","wordcount":1835,"url":"https:\/\/yusank.github.io\/posts\/go-generic\/","datePublished":"2021-12-09T10:40:00+08:00","dateModified":"2021-12-24T18:25:08+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-1 class=typeit></span></a></div><div class=menu><div class=menu-inner><a class=menu-item href=/posts/>文章 </a><a class=menu-item href=/categories/>分类 </a><a class=menu-item href=/tags/>标签 </a><a class=menu-item href=/about/>关于 </a><a class=menu-item href=/links/>友链 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-2 class=typeit></span></a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Go 泛型提前尝试</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/go/><i class="far fa-folder fa-fw"></i>Go</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2021-12-09>2021-12-09</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 1835 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 4 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#安装-go-开发版>安装 go 开发版</a></li><li><a href=#泛型>泛型</a><ul><li><a href=#基础用法>基础用法</a></li><li><a href=#花式玩法>花式玩法</a><ul><li><a href=#slice>slice</a></li><li><a href=#map>map</a></li><li><a href=#chan>chan</a></li></ul></li></ul></li><li><a href=#总结>总结</a></li><li><a href=#参考文档>参考文档</a></li></ul></nav></div></div><div class=content id=content><blockquote><p><code>Go</code> 已经确实在 <code>1.18</code> 版本支持泛型了，预计 2022 年 2 月份发布 1.18 正式版，到目前为止泛型相关规范已确定且可以在开发分支的 go 版本中尝试使用了，这篇文章带你领略 <code>go</code> 的泛型.</p></blockquote><h2 id=安装-go-开发版>安装 go 开发版</h2><div class="details admonition question open"><div class="details-summary admonition-title"><i class="icon fas fa-question-circle fa-fw"></i>没有发版我怎么提前尝试呢？<i class="details-icon fas fa-angle-right fa-fw"></i></div><div class=details-content><div class=admonition-content>在这里分享一个小技巧，学会了之后以后每个新版本发布前都可以提前尝试新版的特性，提前学习好。</div></div></div><p>可以通过下面的命令安装最新的 <code>master</code> 分支：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>go install golang.org/dl/gotip
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>go install golang.org/dl/gotip
 </span></span><span class=line><span class=cl>gotip download
-</span></span></code></pre></td></tr></table></div></div><p>现在可以把 <code>gotip</code> 这个命令当做 go 命令来使用了，</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></span></code></pre></td></tr></table></div></div><p>现在可以把 <code>gotip</code> 这个命令当做 go 命令来使用了，</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>gotip version
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>gotip version
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>go version devel go1.18-d6c4583 Wed Dec <span class=m>8</span> 23:38:20 <span class=m>2021</span> +0000 linux/amd64
-</span></span></code></pre></td></tr></table></div></div><div class="details admonition tip open">
-<div class="details-summary admonition-title">
-<i class="icon fas fa-lightbulb fa-fw"></i>灵活使用 bash alias<i class="details-icon fas fa-angle-right fa-fw"></i>
-</div><div class=details-content>
-<div class=admonition-content><p><code>gotip</code> 敲起来麻烦，总是习惯性打 go build/run , 我就在 <code>.bashrc</code> 添加了一行配置</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></span></code></pre></td></tr></table></div></div><div class="details admonition tip open"><div class="details-summary admonition-title"><i class="icon fas fa-lightbulb fa-fw"></i>灵活使用 bash alias<i class="details-icon fas fa-angle-right fa-fw"></i></div><div class=details-content><div class=admonition-content><p><code>gotip</code> 敲起来麻烦，总是习惯性打 go build/run , 我就在 <code>.bashrc</code> 添加了一行配置</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=nb>alias</span> <span class=nv>go18</span><span class=o>=</span><span class=s2>&#34;gotip&#34;</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=nb>alias</span> <span class=nv>go18</span><span class=o>=</span><span class=s2>&#34;gotip&#34;</span>
 </span></span><span class=line><span class=cl><span class=c1># 如果你有单独的 workspace 直接用 go=&#34;gotip&#34; 也可以</span>
-</span></span></code></pre></td></tr></table></div></div></div></div></div><h2 id=泛型>泛型</h2><h3 id=基础用法>基础用法</h3><p><strong>终于可以不用为 <code>int/uint/int8/int16/int32/int64</code> 写一堆代码类似的代码了！</strong></p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div></div></div></div><h2 id=泛型>泛型</h2><h3 id=基础用法>基础用法</h3><p><strong>终于可以不用为 <code>int/uint/int8/int16/int32/int64</code> 写一堆代码类似的代码了！</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -104,8 +37,7 @@ Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1
 </span><span class=lnt>15
 </span><span class=lnt>16
 </span><span class=lnt>17
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Integer</span> <span class=kd>interface</span><span class=p>{</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Integer</span> <span class=kd>interface</span><span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=err>~</span><span class=kt>uint</span><span class=p>|</span><span class=err>~</span><span class=kt>uint8</span><span class=p>|</span><span class=err>~</span><span class=kt>uint16</span><span class=p>|</span><span class=err>~</span><span class=kt>uint32</span><span class=p>|</span><span class=err>~</span><span class=kt>uint64</span><span class=p>|</span><span class=err>~</span><span class=kt>int</span><span class=p>|</span><span class=err>~</span><span class=kt>int8</span><span class=p>|</span><span class=err>~</span><span class=kt>int16</span><span class=p>|</span><span class=err>~</span><span class=kt>int32</span><span class=p>|</span><span class=err>~</span><span class=kt>int64</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
 </span></span><span class=line><span class=cl>
@@ -122,9 +54,7 @@ Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nf>Max</span><span class=p>(</span><span class=nb>uint</span><span class=p>(</span><span class=mi>1</span><span class=p>),</span> <span class=nb>uint</span><span class=p>(</span><span class=mi>2</span><span class=p>)))</span> <span class=c1>// uint(2)
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nf>Max</span><span class=p>(</span><span class=nb>int64</span><span class=p>(</span><span class=mi>1</span><span class=p>),</span> <span class=nb>int64</span><span class=p>(</span><span class=mi>2</span><span class=p>)))</span> <span class=c1>// 2
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>定义支持的类型 <code>Integer</code>, <code>|</code> 表示并集， <code>~</code> 表示底层是该类型也可以(<code>type CustomInt int</code> 这种情况)。这个就是最基础的基于泛型的代码了，是不是看着都不太像 go 代码了，哈哈。</p><p>其实， <code>Integer</code> 类型不需要我们定义了，go 官方新增了 <code>constraints</code> 包，放了一些常用的泛型类型，后期应该也会扩展。</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>定义支持的类型 <code>Integer</code>, <code>|</code> 表示并集， <code>~</code> 表示底层是该类型也可以(<code>type CustomInt int</code> 这种情况)。这个就是最基础的基于泛型的代码了，是不是看着都不太像 go 代码了，哈哈。</p><p>其实， <code>Integer</code> 类型不需要我们定义了，go 官方新增了 <code>constraints</code> 包，放了一些常用的泛型类型，后期应该也会扩展。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -174,8 +104,7 @@ Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1
 </span><span class=lnt>48
 </span><span class=lnt>49
 </span><span class=lnt>50
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Copyright 2021 The Go Authors. All rights reserved.
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Copyright 2021 The Go Authors. All rights reserved.
 </span></span></span><span class=line><span class=cl><span class=c1>// Use of this source code is governed by a BSD-style
 </span></span></span><span class=line><span class=cl><span class=c1>// license that can be found in the LICENSE file.
 </span></span></span><span class=line><span class=cl><span class=c1></span>
@@ -225,9 +154,7 @@ Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Ordered</span> <span class=kd>interface</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=nx>Integer</span> <span class=p>|</span> <span class=nx>Float</span> <span class=p>|</span> <span class=err>~</span><span class=kt>string</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>上面的代码可以简化为如下：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>上面的代码可以简化为如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -244,8 +171,7 @@ Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1
 </span><span class=lnt>15
 </span><span class=lnt>16
 </span><span class=lnt>17
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>import</span> <span class=p>(</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>import</span> <span class=p>(</span>
 </span></span><span class=line><span class=cl>    <span class=s>&#34;constraints&#34;</span>
 </span></span><span class=line><span class=cl><span class=p>)</span>
 </span></span><span class=line><span class=cl>
@@ -262,18 +188,13 @@ Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nf>Max</span><span class=p>(</span><span class=nb>uint</span><span class=p>(</span><span class=mi>1</span><span class=p>),</span> <span class=nb>uint</span><span class=p>(</span><span class=mi>2</span><span class=p>)))</span> <span class=c1>// uint(2)
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nf>Max</span><span class=p>(</span><span class=nb>int64</span><span class=p>(</span><span class=mi>1</span><span class=p>),</span> <span class=nb>int64</span><span class=p>(</span><span class=mi>2</span><span class=p>)))</span> <span class=c1>// 2
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>当然如果想扩展也是完全可以，比如上面的 Max 方法要支持 <code>float</code> 类型的话，自己定义一个新的 <code>interface</code> 即可。</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></span></code></pre></td></tr></table></div></div><p>当然如果想扩展也是完全可以，比如上面的 Max 方法要支持 <code>float</code> 类型的话，自己定义一个新的 <code>interface</code> 即可。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Number</span> <span class=kd>interface</span><span class=p>{</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Number</span> <span class=kd>interface</span><span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=nx>constraints</span><span class=p>.</span><span class=nx>Integer</span> <span class=p>|</span> <span class=nx>constraints</span><span class=p>.</span><span class=nx>Float</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><h3 id=花式玩法>花式玩法</h3><h4 id=slice>slice</h4><p>如果你写 go 的时间长的话， 应该经历过写很多长得很像排序算法，也应该羡慕过<code>python/js</code>的直接 <code>string.sort()</code>这种写法的，现在用泛型也可以玩出同样的姿势了。废话不多说直接上货：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h3 id=花式玩法>花式玩法</h3><h4 id=slice>slice</h4><p>如果你写 go 的时间长的话， 应该经历过写很多长得很像排序算法，也应该羡慕过<code>python/js</code>的直接 <code>string.sort()</code>这种写法的，现在用泛型也可以玩出同样的姿势了。废话不多说直接上货：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -291,8 +212,7 @@ Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1
 </span><span class=lnt>16
 </span><span class=lnt>17
 </span><span class=lnt>18
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Slice</span><span class=p>[</span><span class=nx>T</span> <span class=nx>constraints</span><span class=p>.</span><span class=nx>Ordered</span><span class=p>]</span> <span class=p>[]</span><span class=nx>T</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Slice</span><span class=p>[</span><span class=nx>T</span> <span class=nx>constraints</span><span class=p>.</span><span class=nx>Ordered</span><span class=p>]</span> <span class=p>[]</span><span class=nx>T</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>s</span> <span class=nx>Slice</span><span class=p>[</span><span class=nx>T</span><span class=p>])</span> <span class=nf>Sort</span><span class=p>()</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=nx>sort</span><span class=p>.</span><span class=nf>Slice</span><span class=p>(</span><span class=nx>s</span><span class=p>,</span><span class=kd>func</span> <span class=p>(</span><span class=nx>i</span><span class=p>,</span><span class=nx>j</span> <span class=kt>int</span><span class=p>)</span>  <span class=kt>bool</span> <span class=p>{</span>
@@ -310,9 +230,7 @@ Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1
 </span></span><span class=line><span class=cl>    <span class=nx>is</span><span class=p>.</span><span class=nf>Sort</span><span class=p>()</span>
 </span></span><span class=line><span class=cl>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>is</span><span class=p>)</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>这块代码运行成功后，我反正是很爽的，以后起码少些很多长得像功能还一样的代码了，等正式发版后可以搞一波支持泛型的基础库了。</p><h4 id=map>map</h4><p><code>map</code> 的 <code>key-value</code> 均可以指定泛型，从而灵活的做一些处理，下面以返回某个 map 的 key 作为数组的例子：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>这块代码运行成功后，我反正是很爽的，以后起码少些很多长得像功能还一样的代码了，等正式发版后可以搞一波支持泛型的基础库了。</p><h4 id=map>map</h4><p><code>map</code> 的 <code>key-value</code> 均可以指定泛型，从而灵活的做一些处理，下面以返回某个 map 的 key 作为数组的例子：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -332,8 +250,7 @@ Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1
 </span><span class=lnt>18
 </span><span class=lnt>19
 </span><span class=lnt>20
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 定义一个 key 可以做对比的类型 value 作为任意类型
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 定义一个 key 可以做对比的类型 value 作为任意类型
 </span></span></span><span class=line><span class=cl><span class=c1>// 注： any == interface{}
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Map</span><span class=p>[</span><span class=nx>K</span> <span class=nx>constraints</span><span class=p>.</span><span class=nx>Ordered</span><span class=p>,</span> <span class=nx>V</span> <span class=nx>any</span><span class=p>]</span> <span class=kd>map</span><span class=p>[</span><span class=nx>K</span><span class=p>]</span><span class=nx>V</span>
 </span></span><span class=line><span class=cl>
@@ -353,9 +270,7 @@ Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1
 </span></span><span class=line><span class=cl>    <span class=nx>im</span> <span class=o>:=</span> <span class=nx>Map</span><span class=p>[</span><span class=kt>int</span><span class=p>,</span><span class=kt>string</span><span class=p>]{</span><span class=mi>1</span><span class=p>:</span><span class=s>&#34;a&#34;</span><span class=p>,</span><span class=mi>2</span><span class=p>:</span><span class=s>&#34;b&#34;</span><span class=p>}</span>
 </span></span><span class=line><span class=cl>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>im</span><span class=p>.</span><span class=nf>Keys</span><span class=p>())</span> <span class=c1>// [1, 2]
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>这样减少了很多类型判断类型转换的过程了，只要初始化的时候声明好了后返回的就是对应类型的数组而不是 <code>[]interface{}</code> .</p><h4 id=chan>chan</h4><p><code>chan</code> 作为在高并发异步编程中非常常用的特性，之前也面领着同样类型转换类型判断的困扰，设想一个场景，如果我有个需求，将数组转换成 channel，异步的去处理这组数据，如果数组类型是单个还好 如果我又有 string 的又有 int 的未来可能还会有别的类型，那只能一个类型一个方法或者统一 <code>interface</code> 然后使用时类型转换。如果用泛型实现呢？</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>这样减少了很多类型判断类型转换的过程了，只要初始化的时候声明好了后返回的就是对应类型的数组而不是 <code>[]interface{}</code> .</p><h4 id=chan>chan</h4><p><code>chan</code> 作为在高并发异步编程中非常常用的特性，之前也面领着同样类型转换类型判断的困扰，设想一个场景，如果我有个需求，将数组转换成 channel，异步的去处理这组数据，如果数组类型是单个还好 如果我又有 string 的又有 int 的未来可能还会有别的类型，那只能一个类型一个方法或者统一 <code>interface</code> 然后使用时类型转换。如果用泛型实现呢？</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -378,8 +293,7 @@ Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1
 </span><span class=lnt>21
 </span><span class=lnt>22
 </span><span class=lnt>23
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 类型也可以按需求限制在 Ordered 或 comparable 等范围
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 类型也可以按需求限制在 Ordered 或 comparable 等范围
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nx>convertChan</span><span class=p>[</span><span class=nx>T</span> <span class=nx>any</span><span class=p>](</span><span class=nx>slice</span> <span class=p>[]</span><span class=nx>T</span><span class=p>)</span> <span class=kd>chan</span> <span class=nx>T</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=nx>ch</span> <span class=o>:=</span> <span class=nb>make</span><span class=p>(</span><span class=kd>chan</span> <span class=nx>T</span><span class=p>,</span> <span class=mi>1</span><span class=p>)</span>
 </span></span><span class=line><span class=cl>    <span class=k>go</span> <span class=kd>func</span><span class=p>()</span> <span class=p>{</span>
@@ -402,36 +316,6 @@ Go 已经确实在 1.18 版本支持泛型了，预计 2022 年 2 月份发布 1
 </span></span><span class=line><span class=cl>    <span class=p>}</span>
 </span></span><span class=line><span class=cl>    <span class=c1>// a, b, c
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><h2 id=总结>总结</h2><div class="details admonition note open">
-<div class="details-summary admonition-title">
-<i class="icon fas fa-pencil-alt fa-fw"></i>总结<i class="details-icon fas fa-angle-right fa-fw"></i>
-</div><div class=details-content>
-<div class=admonition-content><p>整体而言，新增的泛型我觉得利大于弊的，看起来是语法复杂了很多其实并没有，定义的时候限制一些可用的基础类型或者直接用 <code>any</code> 来表示接受任何类型的参数即可。</p><p>对于开发者来说绝对会减少一部分重复代码的，也可以做一些更好的抽象，从长远来说对开发者还是好处很多的。</p><p><code>1.18</code>是第一个支持泛型的版本，肯定会谨慎一些，之后的版本该功能说不定会得到更多的扩展和支持，所以还是很期待的。</p></div></div></div><div class="details admonition question open">
-<div class="details-summary admonition-title">
-<i class="icon fas fa-question-circle fa-fw"></i>最后<i class="details-icon fas fa-angle-right fa-fw"></i>
-</div><div class=details-content>
-<div class=admonition-content>如果你对泛型有自己不一样的看法或者用法，也可以来讨论讨论。</div></div></div><h2 id=参考文档>参考文档</h2><ul>
-<li><a href=https://bitfieldconsulting.com/golang/generics target=_blank rel="noopener noreffer">https://bitfieldconsulting.com/golang/generics</a></li><li><a href=https://colobu.com/2021/10/24/go-generic-eliding-interface/ target=_blank rel="noopener noreffer">https://colobu.com/2021/10/24/go-generic-eliding-interface/</a></li></ul></div><div class=post-footer id=post-footer>
-<div class=post-info>
-<div class=post-info-line>
-<div class=post-info-mod>
-<span>更新于 2021-12-24</span>
-</div><div class=post-info-license></div></div><div class=post-info-line>
-<div class=post-info-md><span>
-<a class=link-to-markdown href=/posts/go-generic/index.md target=_blank>阅读原始文档</a>
-</span></div><div class=post-info-share>
-<span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试" data-hashtags=go1.18,泛型><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/go-generic/ data-hashtag=go1.18><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/go-generic/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/go-generic/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/line.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试" data-ralateuid=yusann><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试" data-description><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/myspace.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/baidu.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试"><i class="fab fa-evernote fa-fw"></i></a></span>
-</div></div></div><div class=post-info-more>
-<section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/go1.18/>go1.18</a>,&nbsp;<a href=/tags/%E6%B3%9B%E5%9E%8B/>泛型</a></section><section>
-<span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span>
-</section></div><div class=post-nav><a href=/posts/redis-server-network/ class=prev rel=prev title="[系列]Redis Server 实现·服务管理篇"><i class="fas fa-angle-left fa-fw"></i>[系列]Redis Server 实现·服务管理篇</a>
-<a href=/posts/redeis-server-list/ class=next rel=next title="[系列]Redis Server 实现·链表篇">[系列]Redis Server 实现·链表篇<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=utterances></div><noscript>
-Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>Utterances</a>.
-</noscript></div></article></div></main><footer class=footer>
-<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.93.1">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
-</div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部>
-<i class="fas fa-arrow-up fa-fw"></i>
-</a><a href=# id=view-comments class=fixed-button title=查看评论>
-<i class="fas fa-comment fa-fw"></i>
-</a>
-</div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@7.0.4/dist/typeit.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:70}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-24P8ZSJHCQ",{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body></html>
+</span></span></code></pre></td></tr></table></div></div><h2 id=总结>总结</h2><div class="details admonition note open"><div class="details-summary admonition-title"><i class="icon fas fa-pencil-alt fa-fw"></i>总结<i class="details-icon fas fa-angle-right fa-fw"></i></div><div class=details-content><div class=admonition-content><p>整体而言，新增的泛型我觉得利大于弊的，看起来是语法复杂了很多其实并没有，定义的时候限制一些可用的基础类型或者直接用 <code>any</code> 来表示接受任何类型的参数即可。</p><p>对于开发者来说绝对会减少一部分重复代码的，也可以做一些更好的抽象，从长远来说对开发者还是好处很多的。</p><p><code>1.18</code>是第一个支持泛型的版本，肯定会谨慎一些，之后的版本该功能说不定会得到更多的扩展和支持，所以还是很期待的。</p></div></div></div><div class="details admonition question open"><div class="details-summary admonition-title"><i class="icon fas fa-question-circle fa-fw"></i>最后<i class="details-icon fas fa-angle-right fa-fw"></i></div><div class=details-content><div class=admonition-content>如果你对泛型有自己不一样的看法或者用法，也可以来讨论讨论。</div></div></div><h2 id=参考文档>参考文档</h2><ul><li><a href=https://bitfieldconsulting.com/golang/generics target=_blank rel="noopener noreffer">https://bitfieldconsulting.com/golang/generics</a></li><li><a href=https://colobu.com/2021/10/24/go-generic-eliding-interface/ target=_blank rel="noopener noreffer">https://colobu.com/2021/10/24/go-generic-eliding-interface/</a></li></ul></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>更新于 2021-12-24</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=/posts/go-generic/index.md target=_blank>阅读原始文档</a></span></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试" data-hashtags=go1.18,泛型><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/go-generic/ data-hashtag=go1.18><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/go-generic/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/go-generic/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/line.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试" data-ralateuid=yusann><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试" data-description><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/myspace.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/baidu.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/go-generic/ data-title="Go 泛型提前尝试"><i class="fab fa-evernote fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/go1.18/>go1.18</a>,&nbsp;<a href=/tags/%E6%B3%9B%E5%9E%8B/>泛型</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span></section></div><div class=post-nav><a href=/posts/redis-server-network/ class=prev rel=prev title="[系列]Redis Server 实现·服务管理篇"><i class="fas fa-angle-left fa-fw"></i>[系列]Redis Server 实现·服务管理篇</a>
+<a href=/posts/redeis-server-list/ class=next rel=next title="[系列]Redis Server 实现·链表篇">[系列]Redis Server 实现·链表篇<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=utterances></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>Utterances</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.94.0">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部><i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title=查看评论><i class="fas fa-comment fa-fw"></i></a></div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@7.0.4/dist/typeit.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:70}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-24P8ZSJHCQ",{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body></html>

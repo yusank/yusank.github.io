@@ -1,56 +1,8 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta name=viewport content="width=device-width,initial-scale=1">
-<meta name=robots content="noodp">
-<meta http-equiv=x-ua-compatible content="IE=edge, chrome=1">
-<title>Go-Micro 的架构及其使用（一） - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="Go-Micro 的架构及其使用（一）">
-<meta property="og:description" content="关于如何使用go的微服务框架 go-micro/v3 的使用和其插件的自定义。第一部分将框架的架构大致了">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://yusank.github.io/posts/go-micro-1/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts">
-<meta property="article:published_time" content="2021-06-11T18:22:00+08:00">
-<meta property="article:modified_time" content="2021-11-22T15:22:33+08:00">
-<meta name=twitter:card content="summary_large_image">
-<meta name=twitter:image content="https://yusank.github.io/logo.png">
-<meta name=twitter:title content="Go-Micro 的架构及其使用（一）">
-<meta name=twitter:description content="关于如何使用go的微服务框架 go-micro/v3 的使用和其插件的自定义。第一部分将框架的架构大致了">
-<meta name=application-name content="Yusank's Site">
-<meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/go-micro-1/><link rel=prev href=https://yusank.github.io/posts/go-interview/><link rel=next href=https://yusank.github.io/posts/use-nacos-with-go-micro/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go-Micro 的架构及其使用（一）","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/go-micro-1\/"},"genre":"posts","keywords":"go, go-micro","wordcount":3874,"url":"https:\/\/yusank.github.io\/posts\/go-micro-1\/","datePublished":"2021-06-11T18:22:00+08:00","dateModified":"2021-11-22T15:22:33+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script>
-<div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
-<div class=header-wrapper>
-<div class=header-title>
-<a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-1 class=typeit></span></a>
-</div><div class=menu>
-<div class=menu-inner><a class=menu-item href=/posts/> 文章 </a><a class=menu-item href=/categories/> 分类 </a><a class=menu-item href=/tags/> 标签 </a><a class=menu-item href=/about/> 关于 </a><a class=menu-item href=/links/> 友链 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
-<i class="fas fa-adjust fa-fw"></i>
-</a>
-</div></div></div></header><header class=mobile id=header-mobile>
-<div class=header-container>
-<div class=header-wrapper>
-<div class=header-title>
-<a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-2 class=typeit></span></a>
-</div><div class=menu-toggle id=menu-toggle-mobile>
-<span></span><span></span><span></span>
-</div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
-<i class="fas fa-adjust fa-fw"></i>
-</a></div></div></header><div class="search-dropdown desktop">
-<div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile">
-<div id=search-dropdown-mobile></div></div><main class=main>
-<div class=container><div class=toc id=toc-auto>
-<h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Go-Micro 的架构及其使用（一）</h1><div class=post-meta>
-<div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/microservice/><i class="far fa-folder fa-fw"></i>microservice</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2021-06-11>2021-06-11</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 3874 字&nbsp;
-<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 8 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept>
-<div class="details-summary toc-title">
-<span>目录</span>
-<span><i class="details-icon fas fa-angle-right"></i></span>
-</div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
-<ul>
-<li><a href=#架构>架构</a>
-<ul>
-<li><a href=#api>API</a></li><li><a href=#config>Config</a></li><li><a href=#logger>Logger</a></li><li><a href=#plugins>plugins</a></li><li><a href=#registry>Registry</a></li><li><a href=#selector>Selector</a></li><li><a href=#server>Server</a></li><li><a href=#store>Store</a></li><li><a href=#sync>Sync</a></li></ul></li></ul></nav></div></div><div class=content id=content><p>关于如何使用go的微服务框架 <code>go-micro/v3</code> 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。</p><h2 id=架构>架构</h2><blockquote>
-<p>以 <code>v3.5.1</code> 分支为例</p></blockquote><p><code>go-micor</code> 项目的目录结构如下：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>Go-Micro 的架构及其使用（一） - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="Go-Micro 的架构及其使用（一）"><meta property="og:description" content="关于如何使用go的微服务框架 go-micro/v3 的使用和其插件的自定义。第一部分将框架的架构大致了"><meta property="og:type" content="article"><meta property="og:url" content="https://yusank.github.io/posts/go-micro-1/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-06-11T18:22:00+08:00"><meta property="article:modified_time" content="2021-11-22T15:22:33+08:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://yusank.github.io/logo.png"><meta name=twitter:title content="Go-Micro 的架构及其使用（一）"><meta name=twitter:description content="关于如何使用go的微服务框架 go-micro/v3 的使用和其插件的自定义。第一部分将框架的架构大致了"><meta name=application-name content="Yusank's Site"><meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/go-micro-1/><link rel=prev href=https://yusank.github.io/posts/go-interview/><link rel=next href=https://yusank.github.io/posts/use-nacos-with-go-micro/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go-Micro 的架构及其使用（一）","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/go-micro-1\/"},"genre":"posts","keywords":"go, go-micro","wordcount":3874,"url":"https:\/\/yusank.github.io\/posts\/go-micro-1\/","datePublished":"2021-06-11T18:22:00+08:00","dateModified":"2021-11-22T15:22:33+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-1 class=typeit></span></a></div><div class=menu><div class=menu-inner><a class=menu-item href=/posts/>文章 </a><a class=menu-item href=/categories/>分类 </a><a class=menu-item href=/tags/>标签 </a><a class=menu-item href=/about/>关于 </a><a class=menu-item href=/links/>友链 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-2 class=typeit></span></a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Go-Micro 的架构及其使用（一）</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/microservice/><i class="far fa-folder fa-fw"></i>microservice</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2021-06-11>2021-06-11</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 3874 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 8 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#架构>架构</a><ul><li><a href=#api>API</a></li><li><a href=#config>Config</a></li><li><a href=#logger>Logger</a></li><li><a href=#plugins>plugins</a></li><li><a href=#registry>Registry</a></li><li><a href=#selector>Selector</a></li><li><a href=#server>Server</a></li><li><a href=#store>Store</a></li><li><a href=#sync>Sync</a></li></ul></li></ul></nav></div></div><div class=content id=content><p>关于如何使用go的微服务框架 <code>go-micro/v3</code> 的使用和其插件的自定义。第一部分将框架的架构大致了解一遍。</p><h2 id=架构>架构</h2><blockquote><p>以 <code>v3.5.1</code> 分支为例</p></blockquote><p><code>go-micor</code> 项目的目录结构如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -75,8 +27,7 @@
 </span><span class=lnt>23
 </span><span class=lnt>24
 </span><span class=lnt>25
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree -L <span class=m>2</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree -L <span class=m>2</span>
 </span></span><span class=line><span class=cl>.
 </span></span><span class=line><span class=cl>├── LICENSE
 </span></span><span class=line><span class=cl>├── README.md
@@ -101,10 +52,7 @@
 </span></span><span class=line><span class=cl>├── sync 
 </span></span><span class=line><span class=cl>├── transport // 请求转发
 </span></span><span class=line><span class=cl>└── util // 工具类
-</span></span></code></pre></td></tr></table></div></div><p>下面按目录将 <code>go-micro</code> 的主要核心模块过一遍。</p><h3 id=api>API</h3><blockquote>
-<p><code>api</code> 层为定义和实现基于http/gRPC的api service。即http请求处理 路由处理 路由注册等。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>下面按目录将 <code>go-micro</code> 的主要核心模块过一遍。</p><h3 id=api>API</h3><blockquote><p><code>api</code> 层为定义和实现基于http/gRPC的api service。即http请求处理 路由处理 路由注册等。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -116,8 +64,7 @@
 </span><span class=lnt>10
 </span><span class=lnt>11
 </span><span class=lnt>12
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Api</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Api</span> <span class=kd>interface</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>	<span class=c1>// Initialise options
 </span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
 </span></span><span class=line><span class=cl>	<span class=c1>// Get the options
@@ -129,9 +76,7 @@
 </span></span><span class=line><span class=cl>	<span class=c1>// Implemenation of api
 </span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>目录结构：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>目录结构：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -166,8 +111,7 @@
 </span><span class=lnt>33
 </span><span class=lnt>34
 </span><span class=lnt>35
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree
 </span></span><span class=line><span class=cl>.
 </span></span><span class=line><span class=cl>├── api.go
 </span></span><span class=line><span class=cl>├── api_test.go
@@ -202,10 +146,7 @@
 </span></span><span class=line><span class=cl>    ├── http
 </span></span><span class=line><span class=cl>    ├── options.go
 </span></span><span class=line><span class=cl>    └── server.go
-</span></span></code></pre></td></tr></table></div></div><h3 id=config>Config</h3><blockquote>
-<p><code>config</code> 作为动态配置中心的接口定义和实现。支持动态加载、插件式配置源、配置合并和观察配置变化。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h3 id=config>Config</h3><blockquote><p><code>config</code> 作为动态配置中心的接口定义和实现。支持动态加载、插件式配置源、配置合并和观察配置变化。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -276,8 +217,7 @@
 </span><span class=lnt>69
 </span><span class=lnt>70
 </span><span class=lnt>71
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Config is an interface abstraction for dynamic configuration
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Config is an interface abstraction for dynamic configuration
 </span></span></span><span class=line><span class=cl><span class=c1>// 配置接口定义
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Config</span> <span class=kd>interface</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>	<span class=c1>// provide the reader.Values interface
@@ -348,9 +288,7 @@
 </span></span><span class=line><span class=cl>	<span class=nf>Scan</span><span class=p>(</span><span class=nx>val</span> <span class=kd>interface</span><span class=p>{})</span> <span class=kt>error</span>
 </span></span><span class=line><span class=cl>	<span class=nf>Bytes</span><span class=p>()</span> <span class=p>[]</span><span class=kt>byte</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>目录结构：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>目录结构：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -384,8 +322,7 @@
 </span><span class=lnt>32
 </span><span class=lnt>33
 </span><span class=lnt>34
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree -L <span class=m>2</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree -L <span class=m>2</span>
 </span></span><span class=line><span class=cl>.
 </span></span><span class=line><span class=cl>├── README.md
 </span></span><span class=line><span class=cl>├── config.go // Config 接口定义
@@ -419,28 +356,21 @@
 </span></span><span class=line><span class=cl>│   ├── options.go
 </span></span><span class=line><span class=cl>│   └── source.go
 </span></span><span class=line><span class=cl>└── value.go
-</span></span></code></pre></td></tr></table></div></div><p><code>plugins/config/encoder</code> 目录:</p><blockquote>
-<p>实现Encoder接口</p></blockquote><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></span></code></pre></td></tr></table></div></div><p><code>plugins/config/encoder</code> 目录:</p><blockquote><p>实现Encoder接口</p></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
 </span><span class=lnt>5
 </span><span class=lnt>6
 </span><span class=lnt>7
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree
 </span></span><span class=line><span class=cl>plugins/config/encoder
 </span></span><span class=line><span class=cl>├── cue
 </span></span><span class=line><span class=cl>├── hcl
 </span></span><span class=line><span class=cl>├── toml
 </span></span><span class=line><span class=cl>├── xml
 </span></span><span class=line><span class=cl>└── yaml
-</span></span></code></pre></td></tr></table></div></div><p><code>plugins/config/source</code> 目录：</p><blockquote>
-<p>实现Source接口</p></blockquote><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p><code>plugins/config/source</code> 目录：</p><blockquote><p>实现Source接口</p></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -451,8 +381,7 @@
 </span><span class=lnt> 9
 </span><span class=lnt>10
 </span><span class=lnt>11
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree
 </span></span><span class=line><span class=cl>plugins/config/source
 </span></span><span class=line><span class=cl>├── configmap
 </span></span><span class=line><span class=cl>├── consul
@@ -463,10 +392,7 @@
 </span></span><span class=line><span class=cl>├── runtimevar
 </span></span><span class=line><span class=cl>├── url
 </span></span><span class=line><span class=cl>└── vault
-</span></span></code></pre></td></tr></table></div></div><h3 id=logger>Logger</h3><blockquote>
-<p><code>Logger</code> 包为全局日志库，默认实现了一套，并在<code>plugins</code> 内实现了基于 logrus，zap的个主流的日志的实现。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h3 id=logger>Logger</h3><blockquote><p><code>Logger</code> 包为全局日志库，默认实现了一套，并在<code>plugins</code> 内实现了基于 logrus，zap的个主流的日志的实现。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -481,8 +407,7 @@
 </span><span class=lnt>13
 </span><span class=lnt>14
 </span><span class=lnt>15
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Logger is a generic logging interface
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Logger is a generic logging interface
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Logger</span> <span class=kd>interface</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>	<span class=c1>// Init initialises options
 </span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=nx>options</span> <span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
@@ -497,12 +422,9 @@
 </span></span><span class=line><span class=cl>	<span class=c1>// String returns the name of logger
 </span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>若需要自己定义日志格式和日志库，可以实现上面接口，并初始化的时候指定即可。</p><h3 id=plugins>plugins</h3><blockquote>
-<p>该目录作为插件目录，实现了大部分预定义的接口，方便使用的时候替换成默认实现的模块代码。
+</span></span></code></pre></td></tr></table></div></div><p>若需要自己定义日志格式和日志库，可以实现上面接口，并初始化的时候指定即可。</p><h3 id=plugins>plugins</h3><blockquote><p>该目录作为插件目录，实现了大部分预定义的接口，方便使用的时候替换成默认实现的模块代码。
 该目录下所有子目录均可以作为go mod package 导入使用
-在之后讲如何使用是 同时演示如何使用插件</p></blockquote><p>目录结构：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>  1
+在之后讲如何使用是 同时演示如何使用插件</p></blockquote><p>目录结构：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
 </span><span class=lnt>  2
 </span><span class=lnt>  3
 </span><span class=lnt>  4
@@ -617,8 +539,7 @@
 </span><span class=lnt>113
 </span><span class=lnt>114
 </span><span class=lnt>115
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tree
 </span></span><span class=line><span class=cl>plugins
 </span></span><span class=line><span class=cl>├── LICENSE
 </span></span><span class=line><span class=cl>├── README.md
@@ -733,10 +654,7 @@
 </span></span><span class=line><span class=cl>    ├── service
 </span></span><span class=line><span class=cl>    ├── trace // 链路追踪
 </span></span><span class=line><span class=cl>    └── validator // 参数校验（处理请求时 可以统一参数校验等工作）
-</span></span></code></pre></td></tr></table></div></div><h3 id=registry>Registry</h3><blockquote>
-<p>服务发现/服务注册相关逻辑均在 <code>registry</code> 包内实现。</p></blockquote><p>核心接口定义：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h3 id=registry>Registry</h3><blockquote><p>服务发现/服务注册相关逻辑均在 <code>registry</code> 包内实现。</p></blockquote><p>核心接口定义：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -762,8 +680,7 @@
 </span><span class=lnt>24
 </span><span class=lnt>25
 </span><span class=lnt>26
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// The registry provides an interface for service discovery
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// The registry provides an interface for service discovery
 </span></span></span><span class=line><span class=cl><span class=c1>// and an abstraction over varying implementations
 </span></span></span><span class=line><span class=cl><span class=c1>// {consul, etcd, zookeeper, ...}
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Registry</span> <span class=kd>interface</span> <span class=p>{</span>
@@ -789,10 +706,7 @@
 </span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Next</span><span class=p>()</span> <span class=p>(</span><span class=o>*</span><span class=nx>Result</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
 </span></span><span class=line><span class=cl>	<span class=nf>Stop</span><span class=p>()</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><h3 id=selector>Selector</h3><blockquote>
-<p>负载均衡逻辑，即客户端请求其他服务时如何选取服务节点都是在该包内实现。可以通过option指定策略，随机，轮询等。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h3 id=selector>Selector</h3><blockquote><p>负载均衡逻辑，即客户端请求其他服务时如何选取服务节点都是在该包内实现。可以通过option指定策略，随机，轮询等。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -813,8 +727,7 @@
 </span><span class=lnt>19
 </span><span class=lnt>20
 </span><span class=lnt>21
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Selector builds on the registry as a mechanism to pick nodes
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Selector builds on the registry as a mechanism to pick nodes
 </span></span></span><span class=line><span class=cl><span class=c1>// and mark their status. This allows host pools and other things
 </span></span></span><span class=line><span class=cl><span class=c1>// to be built using various algorithms.
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Selector</span> <span class=kd>interface</span> <span class=p>{</span>
@@ -835,10 +748,7 @@
 </span></span><span class=line><span class=cl><span class=c1>// Next is a function that returns the next node
 </span></span></span><span class=line><span class=cl><span class=c1>// based on the selector&#39;s strategy
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Next</span> <span class=kd>func</span><span class=p>()</span> <span class=p>(</span><span class=o>*</span><span class=nx>registry</span><span class=p>.</span><span class=nx>Node</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-</span></span></code></pre></td></tr></table></div></div><h3 id=server>Server</h3><blockquote>
-<p>server 包为定义和实现管理服务相关逻辑。</p></blockquote><p>server的定义：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h3 id=server>Server</h3><blockquote><p>server 包为定义和实现管理服务相关逻辑。</p></blockquote><p>server的定义：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -869,8 +779,7 @@
 </span><span class=lnt>29
 </span><span class=lnt>30
 </span><span class=lnt>31
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Server is a simple micro server abstraction
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Server is a simple micro server abstraction
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Server</span> <span class=kd>interface</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>	<span class=c1>// Initialise options
 </span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
@@ -901,10 +810,7 @@
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 处理 http/rpc 请求
 </span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>ServeRequest</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>Request</span><span class=p>,</span> <span class=nx>Response</span><span class=p>)</span> <span class=kt>error</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>默认实现了rpc和消息队列，http服务 可以使用<code>plugins/server/http</code> 包。</p><h3 id=store>Store</h3><blockquote>
-<p>该包定义了数据存储的接口。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>默认实现了rpc和消息队列，http服务 可以使用<code>plugins/server/http</code> 包。</p><h3 id=store>Store</h3><blockquote><p>该包定义了数据存储的接口。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -923,8 +829,7 @@
 </span><span class=lnt>17
 </span><span class=lnt>18
 </span><span class=lnt>19
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Store is a data storage interface
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Store is a data storage interface
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Store</span> <span class=kd>interface</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>	<span class=c1>// Init initialises the store. It must perform any required setup on the backing storage implementation and check that it is ready for use, returning any errors.
 </span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
@@ -943,10 +848,7 @@
 </span></span><span class=line><span class=cl>	<span class=c1>// String returns the name of the implementation.
 </span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>String</span><span class=p>()</span> <span class=kt>string</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>具体使用数据库类型，在<code>plugins/store</code> 内初始化对应的实例。</p><h3 id=sync>Sync</h3><blockquote>
-<p><code>sync</code> 包为定义分布式选举和分布式锁的定义。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>具体使用数据库类型，在<code>plugins/store</code> 内初始化对应的实例。</p><h3 id=sync>Sync</h3><blockquote><p><code>sync</code> 包为定义分布式选举和分布式锁的定义。</p></blockquote><p>接口定义：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -975,8 +877,7 @@
 </span><span class=lnt>27
 </span><span class=lnt>28
 </span><span class=lnt>29
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Sync is an interface for distributed synchronization
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Sync is an interface for distributed synchronization
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Sync</span> <span class=kd>interface</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>	<span class=c1>// Initialise options
 </span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Init</span><span class=p>(</span><span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=kt>error</span>
@@ -1005,27 +906,6 @@
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 在leader 状态失去时，channel内可读取
 </span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>Status</span><span class=p>()</span> <span class=kd>chan</span> <span class=kt>bool</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div></div><div class=post-footer id=post-footer>
-<div class=post-info>
-<div class=post-info-line>
-<div class=post-info-mod>
-<span>更新于 2021-11-22</span>
-</div><div class=post-info-license></div></div><div class=post-info-line>
-<div class=post-info-md><span>
-<a class=link-to-markdown href=/posts/go-micro-1/index.md target=_blank>阅读原始文档</a>
-</span></div><div class=post-info-share>
-<span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-hashtags=go,go-micro><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/go-micro-1/ data-hashtag=go><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/go-micro-1/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/go-micro-1/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/line.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-ralateuid=yusann><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-description><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/myspace.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/baidu.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）"><i class="fab fa-evernote fa-fw"></i></a></span>
-</div></div></div><div class=post-info-more>
-<section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/go/>go</a>,&nbsp;<a href=/tags/go-micro/>go-micro</a></section><section>
-<span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span>
-</section></div><div class=post-nav><a href=/posts/go-interview/ class=prev rel=prev title="Go 面试总结"><i class="fas fa-angle-left fa-fw"></i>Go 面试总结</a>
-<a href=/posts/use-nacos-with-go-micro/ class=next rel=next title="Go-Micro 中使用Nacos">Go-Micro 中使用Nacos<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=utterances></div><noscript>
-Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>Utterances</a>.
-</noscript></div></article></div></main><footer class=footer>
-<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.93.1">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
-</div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部>
-<i class="fas fa-arrow-up fa-fw"></i>
-</a><a href=# id=view-comments class=fixed-button title=查看评论>
-<i class="fas fa-comment fa-fw"></i>
-</a>
-</div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@7.0.4/dist/typeit.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:70}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-24P8ZSJHCQ",{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body></html>
+</span></span></code></pre></td></tr></table></div></div></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>更新于 2021-11-22</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=/posts/go-micro-1/index.md target=_blank>阅读原始文档</a></span></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-hashtags=go,go-micro><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/go-micro-1/ data-hashtag=go><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/go-micro-1/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/go-micro-1/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/line.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-ralateuid=yusann><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-description><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/myspace.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/baidu.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/go-micro-1/ data-title="Go-Micro 的架构及其使用（一）"><i class="fab fa-evernote fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/go/>go</a>,&nbsp;<a href=/tags/go-micro/>go-micro</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span></section></div><div class=post-nav><a href=/posts/go-interview/ class=prev rel=prev title="Go 面试总结"><i class="fas fa-angle-left fa-fw"></i>Go 面试总结</a>
+<a href=/posts/use-nacos-with-go-micro/ class=next rel=next title="Go-Micro 中使用Nacos">Go-Micro 中使用Nacos<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=utterances></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>Utterances</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.94.0">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部><i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title=查看评论><i class="fas fa-comment fa-fw"></i></a></div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@7.0.4/dist/typeit.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:70}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-24P8ZSJHCQ",{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body></html>

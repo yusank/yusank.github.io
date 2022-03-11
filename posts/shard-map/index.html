@@ -1,66 +1,12 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta name=viewport content="width=device-width,initial-scale=1">
-<meta name=robots content="noodp">
-<meta http-equiv=x-ua-compatible content="IE=edge, chrome=1">
-<title>go 语言中的分片 map 的实现 - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="go 语言中的分片 map 的实现">
-<meta property="og:description" content="
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>go 语言中的分片 map 的实现 - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="go 语言中的分片 map 的实现"><meta property="og:description" content="
 本篇分享一个分片式的 map 结构，在一些场景下该结构比原生 syncMap 更有优势，本文会对该结构的实现，原理以及时候的场景进行详细的介绍。
-">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://yusank.github.io/posts/shard-map/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts">
-<meta property="article:published_time" content="2022-01-13T10:50:00+08:00">
-<meta property="article:modified_time" content="2022-01-17T11:35:44+08:00">
-<meta name=twitter:card content="summary_large_image">
-<meta name=twitter:image content="https://yusank.github.io/logo.png">
-<meta name=twitter:title content="go 语言中的分片 map 的实现">
-<meta name=twitter:description content="
+"><meta property="og:type" content="article"><meta property="og:url" content="https://yusank.github.io/posts/shard-map/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-01-13T10:50:00+08:00"><meta property="article:modified_time" content="2022-01-17T11:35:44+08:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://yusank.github.io/logo.png"><meta name=twitter:title content="go 语言中的分片 map 的实现"><meta name=twitter:description content="
 本篇分享一个分片式的 map 结构，在一些场景下该结构比原生 syncMap 更有优势，本文会对该结构的实现，原理以及时候的场景进行详细的介绍。
-">
-<meta name=application-name content="Yusank's Site">
-<meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/shard-map/><link rel=prev href=https://yusank.github.io/posts/redis-server-zset/><link rel=next href=https://yusank.github.io/posts/hpa-controller/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"go 语言中的分片 map 的实现","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/shard-map\/"},"genre":"posts","keywords":"go, map, 数据结构","wordcount":2911,"url":"https:\/\/yusank.github.io\/posts\/shard-map\/","datePublished":"2022-01-13T10:50:00+08:00","dateModified":"2022-01-17T11:35:44+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script>
-<div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
-<div class=header-wrapper>
-<div class=header-title>
-<a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-1 class=typeit></span></a>
-</div><div class=menu>
-<div class=menu-inner><a class=menu-item href=/posts/> 文章 </a><a class=menu-item href=/categories/> 分类 </a><a class=menu-item href=/tags/> 标签 </a><a class=menu-item href=/about/> 关于 </a><a class=menu-item href=/links/> 友链 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
-<i class="fas fa-adjust fa-fw"></i>
-</a>
-</div></div></div></header><header class=mobile id=header-mobile>
-<div class=header-container>
-<div class=header-wrapper>
-<div class=header-title>
-<a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-2 class=typeit></span></a>
-</div><div class=menu-toggle id=menu-toggle-mobile>
-<span></span><span></span><span></span>
-</div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
-<i class="fas fa-adjust fa-fw"></i>
-</a></div></div></header><div class="search-dropdown desktop">
-<div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile">
-<div id=search-dropdown-mobile></div></div><main class=main>
-<div class=container><div class=toc id=toc-auto>
-<h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">go 语言中的分片 map 的实现</h1><div class=post-meta>
-<div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/%E4%BB%A3%E7%A0%81%E6%8A%80%E5%B7%A7/><i class="far fa-folder fa-fw"></i>代码技巧</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2022-01-13>2022-01-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 2911 字&nbsp;
-<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 6 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept>
-<div class="details-summary toc-title">
-<span>目录</span>
-<span><i class="details-icon fas fa-angle-right"></i></span>
-</div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
-<ul>
-<li><a href=#1-背景>1. 背景</a></li><li><a href=#2-实现>2. 实现</a>
-<ul>
-<li><a href=#21-数据结构>2.1. 数据结构</a></li><li><a href=#22-元素定位>2.2. 元素定位</a></li><li><a href=#23-增改删查>2.3. 增改删查</a></li><li><a href=#24-高级用法>2.4. 高级用法</a></li></ul></li><li><a href=#3-场景--压测>3. 场景 & 压测</a>
-<ul>
-<li><a href=#31-使用场景>3.1. 使用场景</a></li><li><a href=#32-压测>3.2. 压测</a></li></ul></li><li><a href=#4-总结>4. 总结</a></li><li><a href=#5-链接>5. 链接🔗</a></li></ul></nav></div></div><div class=content id=content><blockquote>
-<p>本篇分享一个分片式的 map 结构，在一些场景下该结构比原生 <code>syncMap</code> 更有优势，本文会对该结构的实现，原理以及时候的场景进行详细的介绍。</p></blockquote><h2 id=1-背景>1. 背景</h2><p><code>map</code> 作为一个基础的数据结构，在编程过程中可以说是无处不在，应用场景十分广泛。在大部分场景下用原生的 <code>map</code> 就能解决当前的问题。如果是高并发场景可以加入 <code>sync.RWMutex</code> 来控制并发读写或者直接使用 <code>sync.Map</code> 来减少手动写锁的处理逻辑。如果作为一个应用的基础数据结构，性能可以说是非常的高了，绝大部分场景下是完全足够的。但是总有人在优化性能这块想做到极致（包括我自己），即便是原生的数据结构也会有人想优化。既然想优化 map，那首先得了解 map 在什么情况下性能会受损或者性能不够高呢？</p><p>对 map 结构熟悉的同学应该都知道，map 又称之为哈希表，key 是按照哈希值存储的，map 在元素增多/减少的过程在 go 里叫 <code>grow</code>,而这个过程中有个非常关键的步骤 <code>rehash</code>。即会对 map 内的数据进行重新哈希计算和移动位置，在数据量比较大的时候，map 的写性能会有一定的受损的。</p><p>如果我有个对性能要求很高的程序（其实如果对性能要求极高其实可以考虑 C 或者 rust 的，这里就不考虑了），想在 map 上做进一步的优化的，应该如何优化，从什么地方入手呢？</p><p>在我之前几篇文章都在讲用 go 语言实现 Redis server 的过程，在实际开发过程中我最开始也是直接用的 <code>syncMap</code> 作为底层的哈希表的，但是最后压测的时候，结果不是很满意。尤其是写入操作数据量大的时候，tps 下降比较厉害，所以就开始搜查相关的优化方案。首先遇到了一个开源库<a href=https://github.com/orcaman/concurrent-map target=_blank rel="noopener noreffer">orcaman/concurrent-map</a>,其 README 中的一句话吸引到我了</p><div class="details admonition quote open">
-<div class="details-summary admonition-title">
-<i class="icon fas fa-quote-right fa-fw"></i>orcaman/concurrent-map.README<i class="details-icon fas fa-angle-right fa-fw"></i>
-</div><div class=details-content>
-<div class=admonition-content>Prior to Go 1.9, there was no concurrent map implementation in the stdlib. In Go 1.9, <code>sync.Map</code> was introduced. The new <code>sync.Map</code> has a few key differences from this map. The stdlib <code>sync.Map</code> is designed for append-only scenarios. <strong>So if you want to use the map for something more like in-memory db, you might benefit from using our version</strong></div></div></div><p>这不就是在说我吗？所以马上clone 下来进行 benchmark 测试，与 <code>syncMap</code> 进行对比。仅对基础读写能力进行一个压测对比，结果如下：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+"><meta name=application-name content="Yusank's Site"><meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/shard-map/><link rel=prev href=https://yusank.github.io/posts/redis-server-zset/><link rel=next href=https://yusank.github.io/posts/hpa-controller/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"go 语言中的分片 map 的实现","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/shard-map\/"},"genre":"posts","keywords":"go, map, 数据结构","wordcount":2911,"url":"https:\/\/yusank.github.io\/posts\/shard-map\/","datePublished":"2022-01-13T10:50:00+08:00","dateModified":"2022-01-17T11:35:44+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-1 class=typeit></span></a></div><div class=menu><div class=menu-inner><a class=menu-item href=/posts/>文章 </a><a class=menu-item href=/categories/>分类 </a><a class=menu-item href=/tags/>标签 </a><a class=menu-item href=/about/>关于 </a><a class=menu-item href=/links/>友链 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-2 class=typeit></span></a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">go 语言中的分片 map 的实现</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/%E4%BB%A3%E7%A0%81%E6%8A%80%E5%B7%A7/><i class="far fa-folder fa-fw"></i>代码技巧</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2022-01-13>2022-01-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 2911 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 6 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#1-背景>1. 背景</a></li><li><a href=#2-实现>2. 实现</a><ul><li><a href=#21-数据结构>2.1. 数据结构</a></li><li><a href=#22-元素定位>2.2. 元素定位</a></li><li><a href=#23-增改删查>2.3. 增改删查</a></li><li><a href=#24-高级用法>2.4. 高级用法</a></li></ul></li><li><a href=#3-场景--压测>3. 场景 & 压测</a><ul><li><a href=#31-使用场景>3.1. 使用场景</a></li><li><a href=#32-压测>3.2. 压测</a></li></ul></li><li><a href=#4-总结>4. 总结</a></li><li><a href=#5-链接>5. 链接🔗</a></li></ul></nav></div></div><div class=content id=content><blockquote><p>本篇分享一个分片式的 map 结构，在一些场景下该结构比原生 <code>syncMap</code> 更有优势，本文会对该结构的实现，原理以及时候的场景进行详细的介绍。</p></blockquote><h2 id=1-背景>1. 背景</h2><p><code>map</code> 作为一个基础的数据结构，在编程过程中可以说是无处不在，应用场景十分广泛。在大部分场景下用原生的 <code>map</code> 就能解决当前的问题。如果是高并发场景可以加入 <code>sync.RWMutex</code> 来控制并发读写或者直接使用 <code>sync.Map</code> 来减少手动写锁的处理逻辑。如果作为一个应用的基础数据结构，性能可以说是非常的高了，绝大部分场景下是完全足够的。但是总有人在优化性能这块想做到极致（包括我自己），即便是原生的数据结构也会有人想优化。既然想优化 map，那首先得了解 map 在什么情况下性能会受损或者性能不够高呢？</p><p>对 map 结构熟悉的同学应该都知道，map 又称之为哈希表，key 是按照哈希值存储的，map 在元素增多/减少的过程在 go 里叫 <code>grow</code>,而这个过程中有个非常关键的步骤 <code>rehash</code>。即会对 map 内的数据进行重新哈希计算和移动位置，在数据量比较大的时候，map 的写性能会有一定的受损的。</p><p>如果我有个对性能要求很高的程序（其实如果对性能要求极高其实可以考虑 C 或者 rust 的，这里就不考虑了），想在 map 上做进一步的优化的，应该如何优化，从什么地方入手呢？</p><p>在我之前几篇文章都在讲用 go 语言实现 Redis server 的过程，在实际开发过程中我最开始也是直接用的 <code>syncMap</code> 作为底层的哈希表的，但是最后压测的时候，结果不是很满意。尤其是写入操作数据量大的时候，tps 下降比较厉害，所以就开始搜查相关的优化方案。首先遇到了一个开源库<a href=https://github.com/orcaman/concurrent-map target=_blank rel="noopener noreffer">orcaman/concurrent-map</a>,其 README 中的一句话吸引到我了</p><div class="details admonition quote open"><div class="details-summary admonition-title"><i class="icon fas fa-quote-right fa-fw"></i>orcaman/concurrent-map.README<i class="details-icon fas fa-angle-right fa-fw"></i></div><div class=details-content><div class=admonition-content>Prior to Go 1.9, there was no concurrent map implementation in the stdlib. In Go 1.9, <code>sync.Map</code> was introduced. The new <code>sync.Map</code> has a few key differences from this map. The stdlib <code>sync.Map</code> is designed for append-only scenarios. <strong>So if you want to use the map for something more like in-memory db, you might benefit from using our version</strong></div></div></div><p>这不就是在说我吗？所以马上clone 下来进行 benchmark 测试，与 <code>syncMap</code> 进行对比。仅对基础读写能力进行一个压测对比，结果如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -79,8 +25,7 @@
 </span><span class=lnt>17
 </span><span class=lnt>18
 </span><span class=lnt>19
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>/*
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>/*
 </span></span><span class=line><span class=cl> * goos: darwin
 </span></span><span class=line><span class=cl> * goarch: amd64
 </span></span><span class=line><span class=cl> * pkg: github.com/yusank/godis/datastruct
@@ -99,10 +44,7 @@
 </span></span><span class=line><span class=cl> * Benchmark_sync_map_sRem-12                <span class=m>15768998</span>        76.62 ns/op
 </span></span><span class=line><span class=cl> * PASS
 </span></span><span class=line><span class=cl> */
-</span></span></code></pre></td></tr></table></div></div><blockquote>
-<p>查询元素和删除元素前，提前 insert 50000 条数据进行的压测</p></blockquote><p>对比结果确实让我有些惊讶，我以为这个开源库应该也就大概能达到 <code>sync.Map</code> 80-90% 的性能，没想到写入性能比 <code>sync.Map</code> 高出 60%，我决定用这个开源库替代<code>sync.Map</code>。</p><p>但是我在看该库的源码的时候发现让我不是很爽的一个地方，就是读取全量数据的时候会进行一次 buffer，再从 buffer 往外吐出元素，导致全量数据的读取或者遍历变得非常的慢，当然这个作者可能有自己的顾虑，但是对我来说说不可接受。所以我决定对这个库进行一个自定义，下面就把库的实现逻辑和自己自定义的部分一起分享一下。</p><h2 id=2-实现>2. 实现</h2><h3 id=21-数据结构>2.1. 数据结构</h3><p>我们先从数据结构的定义入手看看这个库为什么能做到这么高的性能。</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>查询元素和删除元素前，提前 insert 50000 条数据进行的压测</p></blockquote><p>对比结果确实让我有些惊讶，我以为这个开源库应该也就大概能达到 <code>sync.Map</code> 80-90% 的性能，没想到写入性能比 <code>sync.Map</code> 高出 60%，我决定用这个开源库替代<code>sync.Map</code>。</p><p>但是我在看该库的源码的时候发现让我不是很爽的一个地方，就是读取全量数据的时候会进行一次 buffer，再从 buffer 往外吐出元素，导致全量数据的读取或者遍历变得非常的慢，当然这个作者可能有自己的顾虑，但是对我来说说不可接受。所以我决定对这个库进行一个自定义，下面就把库的实现逻辑和自己自定义的部分一起分享一下。</p><h2 id=2-实现>2. 实现</h2><h3 id=21-数据结构>2.1. 数据结构</h3><p>我们先从数据结构的定义入手看看这个库为什么能做到这么高的性能。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -122,8 +64,7 @@
 </span><span class=lnt>18
 </span><span class=lnt>19
 </span><span class=lnt>20
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>var</span> <span class=nx>SHARD_COUNT</span> <span class=p>=</span> <span class=mi>32</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>var</span> <span class=nx>SHARD_COUNT</span> <span class=p>=</span> <span class=mi>32</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=c1>// A &#34;thread&#34; safe map of type string:Anything.
 </span></span></span><span class=line><span class=cl><span class=c1>// To avoid lock bottlenecks this map is dived to several (SHARD_COUNT) map shards.
@@ -143,9 +84,7 @@
 </span></span><span class=line><span class=cl>    <span class=p>}</span>
 </span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>m</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p><code>ConcurrentMap</code> 是一个 32 个分片的 map 结构，每个分片内是一个 map-lock 的组合。这个 <code>SHARD_COUNT</code> 可能是为了方便后期可以通过编译过程注入的方式扩展分片大小而定义的变量。我目前没有这个需求，而且其他变量名觉得有点啰嗦，所以稍微改了一下：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p><code>ConcurrentMap</code> 是一个 32 个分片的 map 结构，每个分片内是一个 map-lock 的组合。这个 <code>SHARD_COUNT</code> 可能是为了方便后期可以通过编译过程注入的方式扩展分片大小而定义的变量。我目前没有这个需求，而且其他变量名觉得有点啰嗦，所以稍微改了一下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -166,8 +105,7 @@
 </span><span class=lnt>19
 </span><span class=lnt>20
 </span><span class=lnt>21
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>const</span> <span class=nx>shardCount</span> <span class=p>=</span> <span class=mi>32</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>const</span> <span class=nx>shardCount</span> <span class=p>=</span> <span class=mi>32</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=c1>// Map -
 </span></span></span><span class=line><span class=cl><span class=c1>// 直接定义32 长度的数组
@@ -188,9 +126,7 @@
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>m</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><h3 id=22-元素定位>2.2. 元素定位</h3><p>从上述结构可以看出，元素分布于多个 <code>Shard</code> 内的 map 中，那么如何确定某个元素在哪个分片上呢？答案是： 哈希取模的方式定位元素的分片。</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h3 id=22-元素定位>2.2. 元素定位</h3><p>从上述结构可以看出，元素分布于多个 <code>Shard</code> 内的 map 中，那么如何确定某个元素在哪个分片上呢？答案是： 哈希取模的方式定位元素的分片。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -206,8 +142,7 @@
 </span><span class=lnt>14
 </span><span class=lnt>15
 </span><span class=lnt>16
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// GetShard returns shard under given key
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// GetShard returns shard under given key
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>m</span> <span class=nx>Map</span><span class=p>)</span> <span class=nf>GetShard</span><span class=p>(</span><span class=nx>key</span> <span class=kt>string</span><span class=p>)</span> <span class=o>*</span><span class=nx>Shard</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>m</span><span class=p>[</span><span class=nb>uint</span><span class=p>(</span><span class=nf>fnv32</span><span class=p>(</span><span class=nx>key</span><span class=p>))</span><span class=o>%</span><span class=nb>uint</span><span class=p>(</span><span class=nx>shardCount</span><span class=p>)]</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
@@ -223,9 +158,7 @@
 </span></span><span class=line><span class=cl>    <span class=p>}</span>
 </span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>hash</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><h3 id=23-增改删查>2.3. 增改删查</h3><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h3 id=23-增改删查>2.3. 增改删查</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -266,8 +199,7 @@
 </span><span class=lnt>39
 </span><span class=lnt>40
 </span><span class=lnt>41
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>m</span> <span class=nx>Map</span><span class=p>)</span> <span class=nf>Get</span><span class=p>(</span><span class=nx>key</span> <span class=kt>string</span><span class=p>)</span> <span class=p>(</span><span class=kd>interface</span><span class=p>{},</span> <span class=kt>bool</span><span class=p>)</span> <span class=p>{</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>m</span> <span class=nx>Map</span><span class=p>)</span> <span class=nf>Get</span><span class=p>(</span><span class=nx>key</span> <span class=kt>string</span><span class=p>)</span> <span class=p>(</span><span class=kd>interface</span><span class=p>{},</span> <span class=kt>bool</span><span class=p>)</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=nx>shard</span> <span class=o>:=</span> <span class=nx>m</span><span class=p>.</span><span class=nf>GetShard</span><span class=p>(</span><span class=nx>key</span><span class=p>)</span>
 </span></span><span class=line><span class=cl>    <span class=nx>shard</span><span class=p>.</span><span class=nf>RLock</span><span class=p>()</span>
 </span></span><span class=line><span class=cl>    <span class=k>defer</span> <span class=nx>shard</span><span class=p>.</span><span class=nf>RUnlock</span><span class=p>()</span>
@@ -308,9 +240,7 @@
 </span></span><span class=line><span class=cl>    <span class=nx>shard</span><span class=p>.</span><span class=nx>items</span><span class=p>[</span><span class=nx>key</span><span class=p>]</span> <span class=p>=</span> <span class=nx>res</span>
 </span></span><span class=line><span class=cl>    <span class=k>return</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>有了基础的方法之后，可以补充一些更方便的方法封装，如 <code>Exists</code>, <code>SetIfNotExists</code>, <code>DeleteAndLoad</code> 等等。</p><h3 id=24-高级用法>2.4. 高级用法</h3><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>有了基础的方法之后，可以补充一些更方便的方法封装，如 <code>Exists</code>, <code>SetIfNotExists</code>, <code>DeleteAndLoad</code> 等等。</p><h3 id=24-高级用法>2.4. 高级用法</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -369,8 +299,7 @@
 </span><span class=lnt>57
 </span><span class=lnt>58
 </span><span class=lnt>59
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>m</span> <span class=nx>Map</span><span class=p>)</span> <span class=nf>SetIfAbsent</span><span class=p>(</span><span class=nx>key</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>value</span> <span class=kd>interface</span><span class=p>{})</span> <span class=kt>bool</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=nx>shard</span> <span class=o>:=</span> <span class=nx>m</span><span class=p>.</span><span class=nf>GetShard</span><span class=p>(</span><span class=nx>key</span><span class=p>)</span>
 </span></span><span class=line><span class=cl>    <span class=nx>shard</span><span class=p>.</span><span class=nf>Lock</span><span class=p>()</span>
@@ -429,11 +358,7 @@
 </span></span><span class=line><span class=cl>        <span class=p>}</span>
 </span></span><span class=line><span class=cl>    <span class=p>}</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><h2 id=3-场景--压测>3. 场景 & 压测</h2><h3 id=31-使用场景>3.1. 使用场景</h3><blockquote>
-<p>该结构的特点就是写操作比 <code>sync.Map</code> 高大概 60% 左右，所以使用场景的选择的基础的在于以下两点：</p></blockquote><ul>
-<li>对性能要求比较高，否则 <code>sync.Map</code> 完成足够</li><li>数据量大。在数据量比较少的情况下，该结构的优势不够明显</li></ul><p>综上述，比较合适的使用场景的应该是 <code>内存数据库</code>。对性能要求高，且数据量会很大，整体性能不会因为数据量高而会下降。</p><h3 id=32-压测>3.2. 压测</h3><p>压测源码：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h2 id=3-场景--压测>3. 场景 & 压测</h2><h3 id=31-使用场景>3.1. 使用场景</h3><blockquote><p>该结构的特点就是写操作比 <code>sync.Map</code> 高大概 60% 左右，所以使用场景的选择的基础的在于以下两点：</p></blockquote><ul><li>对性能要求比较高，否则 <code>sync.Map</code> 完成足够</li><li>数据量大。在数据量比较少的情况下，该结构的优势不够明显</li></ul><p>综上述，比较合适的使用场景的应该是 <code>内存数据库</code>。对性能要求高，且数据量会很大，整体性能不会因为数据量高而会下降。</p><h3 id=32-压测>3.2. 压测</h3><p>压测源码：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -500,8 +425,7 @@
 </span><span class=lnt>65
 </span><span class=lnt>66
 </span><span class=lnt>67
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=nf>BenchmarkShardMap_Set</span><span class=p>(</span><span class=nx>b</span> <span class=o>*</span><span class=nx>testing</span><span class=p>.</span><span class=nx>B</span><span class=p>)</span> <span class=p>{</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=nf>BenchmarkShardMap_Set</span><span class=p>(</span><span class=nx>b</span> <span class=o>*</span><span class=nx>testing</span><span class=p>.</span><span class=nx>B</span><span class=p>)</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=nx>m</span> <span class=o>:=</span> <span class=nf>New</span><span class=p>()</span>
 </span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=nx>i</span> <span class=o>:=</span> <span class=mi>0</span><span class=p>;</span> <span class=nx>i</span> <span class=p>&lt;</span> <span class=nx>b</span><span class=p>.</span><span class=nx>N</span><span class=p>;</span> <span class=nx>i</span><span class=o>++</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>        <span class=nx>k</span> <span class=o>:=</span> <span class=nx>strconv</span><span class=p>.</span><span class=nf>Itoa</span><span class=p>(</span><span class=nx>i</span><span class=p>)</span>
@@ -568,14 +492,7 @@
 </span></span><span class=line><span class=cl>        <span class=nx>m</span><span class=p>.</span><span class=nf>Delete</span><span class=p>(</span><span class=nx>k</span><span class=p>)</span>
 </span></span><span class=line><span class=cl>    <span class=p>}</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><blockquote>
-<p>分别对 <code>sync.Map</code>, <code>ShardMap</code> 进行大量的读写删操作,下面看看压测结果</p></blockquote><div class="details admonition example">
-<div class="details-summary admonition-title">
-<i class="icon fas fa-list-ol fa-fw"></i>原始结果<i class="details-icon fas fa-angle-right fa-fw"></i>
-</div><div class=details-content>
-<div class=admonition-content><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>分别对 <code>sync.Map</code>, <code>ShardMap</code> 进行大量的读写删操作,下面看看压测结果</p></blockquote><div class="details admonition example"><div class="details-summary admonition-title"><i class="icon fas fa-list-ol fa-fw"></i>原始结果<i class="details-icon fas fa-angle-right fa-fw"></i></div><div class=details-content><div class=admonition-content><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -592,8 +509,7 @@
 </span><span class=lnt>15
 </span><span class=lnt>16
 </span><span class=lnt>17
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>goos: darwin
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>goos: darwin
 </span></span><span class=line><span class=cl>goarch: amd64
 </span></span><span class=line><span class=cl>pkg: github.com/yusank/godis/lib/shard_map
 </span></span><span class=line><span class=cl>cpu: Intel<span class=o>(</span>R<span class=o>)</span> Core<span class=o>(</span>TM<span class=o>)</span> i7-9750H CPU @ 2.60GHz
@@ -610,40 +526,6 @@
 </span></span><span class=line><span class=cl>BenchmarkSyncMap_Del
 </span></span><span class=line><span class=cl>BenchmarkSyncMap_Del-12       <span class=m>480789</span>      <span class=m>2209</span> ns/op
 </span></span><span class=line><span class=cl>PASS
-</span></span></code></pre></td></tr></table></div></div></div></div></div><div class="details admonition example open">
-<div class="details-summary admonition-title">
-<i class="icon fas fa-list-ol fa-fw"></i>结果对比<i class="details-icon fas fa-angle-right fa-fw"></i>
-</div><div class=details-content>
-<div class=admonition-content><p>结果如下(单位：<code>ns/op</code>)：</p><table>
-<thead>
-<tr>
-<th style=text-align:left>数据结构</th><th style=text-align:right><code>Set</code></th><th style=text-align:right><code>Get</code></th><th style=text-align:right><code>Del</code></th></tr></thead><tbody>
-<tr>
-<td style=text-align:left><code>ShardMap</code></td><td style=text-align:right>481.3</td><td style=text-align:right>385.3</td><td style=text-align:right>384.8</td></tr><tr>
-<td style=text-align:left><code>sync.Map</code></td><td style=text-align:right>736.1</td><td style=text-align:right>1409</td><td style=text-align:right>2209</td></tr></tbody></table><p>不难发现，在数据量大的情况下（百万级别）<code>sync.Map</code> 的性能会下降很多，这个与 <code>sync.Map</code> 的设计和内部结构有关，感兴趣的朋友可以去阅读一下 <code>sync.Map</code> 的源码。</p><blockquote>
-<p><strong>注意：这里文章最开始时的压测结果差距很大的原因是 数据量不一样，第一个压测结果是基于 50000 个元素之上进行的，所以查询和删除的性能上看上去很高。而这里的压测时基于 3000000 个元素之上进行的。</strong></p></blockquote></div></div></div><h2 id=4-总结>4. 总结</h2><p>本篇介绍了一个基于 <code>map</code> 的分片式数据结构 &ndash; <code>ShardMap</code>。 该结构可以在数据量比较大的使用替代<code>sync.Map</code> 从而保持比较高的性能。我在自己的 <code>godis</code> 项目内也是用该结构作为基础的哈希表，但是由于<code>godis</code> 单进程处理数据，所以我把其中的读写锁去掉 从而获得更高的性能。</p><p>本篇主要内容：</p><ul>
-<li>认识 <code>ShardMap</code></li><li>了解到 <code>sync.Map</code> 也存在性能问题</li><li>了解到 map 在数据量大的情况下，性能会因为 reshah 机制的存在而有所下降</li><li>通过分片的方式，降低单个 map 的数据量，从而减少 rehash 带来的性能的降低</li><li>实现和压测 <code>ShardMap</code></li></ul><h2 id=5-链接>5. 链接🔗</h2><ul>
-<li><a href=https://github.com/orcaman/concurrent-map target=_blank rel="noopener noreffer">orcaman/concurrent-map</a></li><li><a href=https://github.com/yusank/godis target=_blank rel="noopener noreffer">godis</a></li><li><a href=https://github.com/yusank/godis/blob/master/lib/shard_map/shard_map.go target=_blank rel="noopener noreffer">godis/shard_map</a></li></ul></div><div class=post-footer id=post-footer>
-<div class=post-info>
-<div class=post-info-line>
-<div class=post-info-mod>
-<span>更新于 2022-01-17</span>
-</div><div class=post-info-license></div></div><div class=post-info-line>
-<div class=post-info-md><span>
-<a class=link-to-markdown href=/posts/shard-map/index.md target=_blank>阅读原始文档</a>
-</span></div><div class=post-info-share>
-<span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现" data-hashtags=go,map,数据结构><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/shard-map/ data-hashtag=go><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/shard-map/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/shard-map/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/line.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现" data-ralateuid=yusann><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现" data-description><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/myspace.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/baidu.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现"><i class="fab fa-evernote fa-fw"></i></a></span>
-</div></div></div><div class=post-info-more>
-<section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/go/>go</a>,&nbsp;<a href=/tags/map/>map</a>,&nbsp;<a href=/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/>数据结构</a></section><section>
-<span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span>
-</section></div><div class=post-nav><a href=/posts/redis-server-zset/ class=prev rel=prev title="[系列]Redis Server 实现·有序集合篇"><i class="fas fa-angle-left fa-fw"></i>[系列]Redis Server 实现·有序集合篇</a>
-<a href=/posts/hpa-controller/ class=next rel=next title="HPA controller 源码解读">HPA controller 源码解读<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=utterances></div><noscript>
-Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>Utterances</a>.
-</noscript></div></article></div></main><footer class=footer>
-<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.93.1">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
-</div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部>
-<i class="fas fa-arrow-up fa-fw"></i>
-</a><a href=# id=view-comments class=fixed-button title=查看评论>
-<i class="fas fa-comment fa-fw"></i>
-</a>
-</div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@7.0.4/dist/typeit.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:70}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-24P8ZSJHCQ",{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body></html>
+</span></span></code></pre></td></tr></table></div></div></div></div></div><div class="details admonition example open"><div class="details-summary admonition-title"><i class="icon fas fa-list-ol fa-fw"></i>结果对比<i class="details-icon fas fa-angle-right fa-fw"></i></div><div class=details-content><div class=admonition-content><p>结果如下(单位：<code>ns/op</code>)：</p><table><thead><tr><th style=text-align:left>数据结构</th><th style=text-align:right><code>Set</code></th><th style=text-align:right><code>Get</code></th><th style=text-align:right><code>Del</code></th></tr></thead><tbody><tr><td style=text-align:left><code>ShardMap</code></td><td style=text-align:right>481.3</td><td style=text-align:right>385.3</td><td style=text-align:right>384.8</td></tr><tr><td style=text-align:left><code>sync.Map</code></td><td style=text-align:right>736.1</td><td style=text-align:right>1409</td><td style=text-align:right>2209</td></tr></tbody></table><p>不难发现，在数据量大的情况下（百万级别）<code>sync.Map</code> 的性能会下降很多，这个与 <code>sync.Map</code> 的设计和内部结构有关，感兴趣的朋友可以去阅读一下 <code>sync.Map</code> 的源码。</p><blockquote><p><strong>注意：这里文章最开始时的压测结果差距很大的原因是 数据量不一样，第一个压测结果是基于 50000 个元素之上进行的，所以查询和删除的性能上看上去很高。而这里的压测时基于 3000000 个元素之上进行的。</strong></p></blockquote></div></div></div><h2 id=4-总结>4. 总结</h2><p>本篇介绍了一个基于 <code>map</code> 的分片式数据结构 &ndash; <code>ShardMap</code>。 该结构可以在数据量比较大的使用替代<code>sync.Map</code> 从而保持比较高的性能。我在自己的 <code>godis</code> 项目内也是用该结构作为基础的哈希表，但是由于<code>godis</code> 单进程处理数据，所以我把其中的读写锁去掉 从而获得更高的性能。</p><p>本篇主要内容：</p><ul><li>认识 <code>ShardMap</code></li><li>了解到 <code>sync.Map</code> 也存在性能问题</li><li>了解到 map 在数据量大的情况下，性能会因为 reshah 机制的存在而有所下降</li><li>通过分片的方式，降低单个 map 的数据量，从而减少 rehash 带来的性能的降低</li><li>实现和压测 <code>ShardMap</code></li></ul><h2 id=5-链接>5. 链接🔗</h2><ul><li><a href=https://github.com/orcaman/concurrent-map target=_blank rel="noopener noreffer">orcaman/concurrent-map</a></li><li><a href=https://github.com/yusank/godis target=_blank rel="noopener noreffer">godis</a></li><li><a href=https://github.com/yusank/godis/blob/master/lib/shard_map/shard_map.go target=_blank rel="noopener noreffer">godis/shard_map</a></li></ul></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>更新于 2022-01-17</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=/posts/shard-map/index.md target=_blank>阅读原始文档</a></span></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现" data-hashtags=go,map,数据结构><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/shard-map/ data-hashtag=go><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/shard-map/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/shard-map/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/line.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现" data-ralateuid=yusann><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现" data-description><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/myspace.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/baidu.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/shard-map/ data-title="go 语言中的分片 map 的实现"><i class="fab fa-evernote fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/go/>go</a>,&nbsp;<a href=/tags/map/>map</a>,&nbsp;<a href=/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/>数据结构</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span></section></div><div class=post-nav><a href=/posts/redis-server-zset/ class=prev rel=prev title="[系列]Redis Server 实现·有序集合篇"><i class="fas fa-angle-left fa-fw"></i>[系列]Redis Server 实现·有序集合篇</a>
+<a href=/posts/hpa-controller/ class=next rel=next title="HPA controller 源码解读">HPA controller 源码解读<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=utterances></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>Utterances</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.94.0">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部><i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title=查看评论><i class="fas fa-comment fa-fw"></i></a></div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@7.0.4/dist/typeit.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:70}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-24P8ZSJHCQ",{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body></html>

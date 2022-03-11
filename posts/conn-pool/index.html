@@ -1,64 +1,12 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta name=viewport content="width=device-width,initial-scale=1">
-<meta name=robots content="noodp">
-<meta http-equiv=x-ua-compatible content="IE=edge, chrome=1">
-<title>Go 语言实现连接池 - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="Go 语言实现连接池">
-<meta property="og:description" content="
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>Go 语言实现连接池 - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="Go 语言实现连接池"><meta property="og:description" content="
 本篇介绍一个用 go 实现的连接池，针对连接的生命周期的管理十分有帮助。本篇从连接池的设计到实现以及常用场景进行详解。
-">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://yusank.github.io/posts/conn-pool/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts">
-<meta property="article:published_time" content="2022-02-22T10:50:00+08:00">
-<meta property="article:modified_time" content="2022-02-22T21:57:58+08:00">
-<meta name=twitter:card content="summary_large_image">
-<meta name=twitter:image content="https://yusank.github.io/logo.png">
-<meta name=twitter:title content="Go 语言实现连接池">
-<meta name=twitter:description content="
+"><meta property="og:type" content="article"><meta property="og:url" content="https://yusank.github.io/posts/conn-pool/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-02-22T10:50:00+08:00"><meta property="article:modified_time" content="2022-02-22T21:57:58+08:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://yusank.github.io/logo.png"><meta name=twitter:title content="Go 语言实现连接池"><meta name=twitter:description content="
 本篇介绍一个用 go 实现的连接池，针对连接的生命周期的管理十分有帮助。本篇从连接池的设计到实现以及常用场景进行详解。
-">
-<meta name=application-name content="Yusank's Site">
-<meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/conn-pool/><link rel=prev href=https://yusank.github.io/posts/go-project-experience/><link rel=next href=https://yusank.github.io/posts/pdf-reader/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go 语言实现连接池","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/conn-pool\/"},"genre":"posts","keywords":"go, 连接池","wordcount":3256,"url":"https:\/\/yusank.github.io\/posts\/conn-pool\/","datePublished":"2022-02-22T10:50:00+08:00","dateModified":"2022-02-22T21:57:58+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script>
-<div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
-<div class=header-wrapper>
-<div class=header-title>
-<a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-1 class=typeit></span></a>
-</div><div class=menu>
-<div class=menu-inner><a class=menu-item href=/posts/> 文章 </a><a class=menu-item href=/categories/> 分类 </a><a class=menu-item href=/tags/> 标签 </a><a class=menu-item href=/about/> 关于 </a><a class=menu-item href=/links/> 友链 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
-<i class="fas fa-adjust fa-fw"></i>
-</a>
-</div></div></div></header><header class=mobile id=header-mobile>
-<div class=header-container>
-<div class=header-wrapper>
-<div class=header-title>
-<a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-2 class=typeit></span></a>
-</div><div class=menu-toggle id=menu-toggle-mobile>
-<span></span><span></span><span></span>
-</div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
-<i class="fas fa-adjust fa-fw"></i>
-</a></div></div></header><div class="search-dropdown desktop">
-<div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile">
-<div id=search-dropdown-mobile></div></div><main class=main>
-<div class=container><div class=toc id=toc-auto>
-<h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Go 语言实现连接池</h1><div class=post-meta>
-<div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/%E4%BB%A3%E7%A0%81%E6%8A%80%E5%B7%A7/><i class="far fa-folder fa-fw"></i>代码技巧</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2022-02-22>2022-02-22</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 3256 字&nbsp;
-<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 7 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept>
-<div class="details-summary toc-title">
-<span>目录</span>
-<span><i class="details-icon fas fa-angle-right"></i></span>
-</div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents>
-<ul>
-<li><a href=#1-背景>1. 背景</a></li><li><a href=#2-设计>2. 设计</a></li><li><a href=#3-实现>3. 实现</a>
-<ul>
-<li><a href=#31-结构体>3.1. 结构体</a></li><li><a href=#32-初始化>3.2. 初始化</a></li><li><a href=#33-获取连接>3.3. 获取连接</a></li><li><a href=#34-连接放回>3.4. 连接放回</a></li><li><a href=#35-释放连接>3.5. 释放连接</a></li><li><a href=#36-其他方法>3.6. 其他方法</a></li></ul></li><li><a href=#4-实际使用场景>4. 实际使用场景</a>
-<ul>
-<li><a href=#41-初始化>4.1. 初始化</a></li><li><a href=#42-使用>4.2. 使用</a></li></ul></li><li><a href=#5-总结>5. 总结</a></li></ul></nav></div></div><div class=content id=content><blockquote>
-<p>本篇介绍一个用 go 实现的连接池，针对连接的生命周期的管理十分有帮助。本篇从连接池的设计到实现以及常用场景进行详解。</p></blockquote><h2 id=1-背景>1. 背景</h2><p><code>连接池</code> 可以说是在开发中非常的常见，各类我们需要与远端保持长连接从而提高服务性能（减少建立连接过程）。</p><p>如：</p><ul>
-<li>数据库连接池（MySQL，Redis等）</li><li>消息队列的连接池（即producer端提前建立连接，提升消息产生速率）</li><li>与其他远端服务保持长连接</li></ul><p>如果使用一些常见的组件，其 client 端其实已经做好连接池了，我们初始化的时候仅需要设计池子大小，空闲时间等参数就可以用了。如果我们用的客户端没有做连接池或者因为种种原因我们需要一个连接池的时候应该怎么，怎么说设计好呢？</p><p>下面我们开始讲如何设计以及如何实现一个连接池。</p><h2 id=2-设计>2. 设计</h2><p>我们先梳理我的需求，连接池都有什么功能，应该有哪些接口可调用呢？</p><ul>
-<li><code>Get</code> 获取一个连接</li><li><code>Put</code> 连接放回去</li><li><code>Close</code> 释放/关闭连接</li></ul><p>这两个属于是核心的能力了，我能拿到一个可用的连接，并且用完放回去或者我需要的话 这个连接能被关闭。除此之外，应该还有一个整个连接池释放的能力，程序退出是需要释放所有的连接。</p><p>那我们定义一下这个 <code>interface</code>:</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+"><meta name=application-name content="Yusank's Site"><meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/conn-pool/><link rel=prev href=https://yusank.github.io/posts/go-project-experience/><link rel=next href=https://yusank.github.io/posts/pdf-reader/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Go 语言实现连接池","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/conn-pool\/"},"genre":"posts","keywords":"go, 连接池","wordcount":3256,"url":"https:\/\/yusank.github.io\/posts\/conn-pool\/","datePublished":"2022-02-22T10:50:00+08:00","dateModified":"2022-02-22T21:57:58+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-1 class=typeit></span></a></div><div class=menu><div class=menu-inner><a class=menu-item href=/posts/>文章 </a><a class=menu-item href=/categories/>分类 </a><a class=menu-item href=/tags/>标签 </a><a class=menu-item href=/about/>关于 </a><a class=menu-item href=/links/>友链 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-2 class=typeit></span></a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Go 语言实现连接池</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/%E4%BB%A3%E7%A0%81%E6%8A%80%E5%B7%A7/><i class="far fa-folder fa-fw"></i>代码技巧</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2022-02-22>2022-02-22</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 3256 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 7 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#1-背景>1. 背景</a></li><li><a href=#2-设计>2. 设计</a></li><li><a href=#3-实现>3. 实现</a><ul><li><a href=#31-结构体>3.1. 结构体</a></li><li><a href=#32-初始化>3.2. 初始化</a></li><li><a href=#33-获取连接>3.3. 获取连接</a></li><li><a href=#34-连接放回>3.4. 连接放回</a></li><li><a href=#35-释放连接>3.5. 释放连接</a></li><li><a href=#36-其他方法>3.6. 其他方法</a></li></ul></li><li><a href=#4-实际使用场景>4. 实际使用场景</a><ul><li><a href=#41-初始化>4.1. 初始化</a></li><li><a href=#42-使用>4.2. 使用</a></li></ul></li><li><a href=#5-总结>5. 总结</a></li></ul></nav></div></div><div class=content id=content><blockquote><p>本篇介绍一个用 go 实现的连接池，针对连接的生命周期的管理十分有帮助。本篇从连接池的设计到实现以及常用场景进行详解。</p></blockquote><h2 id=1-背景>1. 背景</h2><p><code>连接池</code> 可以说是在开发中非常的常见，各类我们需要与远端保持长连接从而提高服务性能（减少建立连接过程）。</p><p>如：</p><ul><li>数据库连接池（MySQL，Redis等）</li><li>消息队列的连接池（即producer端提前建立连接，提升消息产生速率）</li><li>与其他远端服务保持长连接</li></ul><p>如果使用一些常见的组件，其 client 端其实已经做好连接池了，我们初始化的时候仅需要设计池子大小，空闲时间等参数就可以用了。如果我们用的客户端没有做连接池或者因为种种原因我们需要一个连接池的时候应该怎么，怎么说设计好呢？</p><p>下面我们开始讲如何设计以及如何实现一个连接池。</p><h2 id=2-设计>2. 设计</h2><p>我们先梳理我的需求，连接池都有什么功能，应该有哪些接口可调用呢？</p><ul><li><code>Get</code> 获取一个连接</li><li><code>Put</code> 连接放回去</li><li><code>Close</code> 释放/关闭连接</li></ul><p>这两个属于是核心的能力了，我能拿到一个可用的连接，并且用完放回去或者我需要的话 这个连接能被关闭。除此之外，应该还有一个整个连接池释放的能力，程序退出是需要释放所有的连接。</p><p>那我们定义一下这个 <code>interface</code>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -71,8 +19,7 @@
 </span><span class=lnt>11
 </span><span class=lnt>12
 </span><span class=lnt>13
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Pool 基本方法
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Pool 基本方法
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Pool</span> <span class=kd>interface</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=c1>// 获取资源
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>Get</span><span class=p>()</span> <span class=p>(</span><span class=kd>interface</span><span class=p>{},</span> <span class=kt>error</span><span class=p>)</span>
@@ -85,13 +32,7 @@
 </span></span><span class=line><span class=cl>    <span class=c1>// 返回当前池子内有效连接数量
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>Len</span><span class=p>()</span> <span class=kt>int</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>这个就是一个连接池应该对外提供的能力，对于使用者来说足矣。</p><div class="details admonition question open">
-<div class="details-summary admonition-title">
-<i class="icon fas fa-question-circle fa-fw"></i>问<i class="details-icon fas fa-angle-right fa-fw"></i>
-</div><div class=details-content>
-<div class=admonition-content>从连接池拿到的连接是从哪儿来的？</div></div></div><p>这个问题是不是也非常重要，光有连接池还不够，需要一个<code>工厂</code>可以生成一个新的连接，我需要的时候能从这个<code>工厂</code>生成一个连接并放入连接池供使用者获取。</p><p>定义一个<code>工厂</code>的 <code>interface</code>:</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></span></code></pre></td></tr></table></div></div><p>这个就是一个连接池应该对外提供的能力，对于使用者来说足矣。</p><div class="details admonition question open"><div class="details-summary admonition-title"><i class="icon fas fa-question-circle fa-fw"></i>问<i class="details-icon fas fa-angle-right fa-fw"></i></div><div class=details-content><div class=admonition-content>从连接池拿到的连接是从哪儿来的？</div></div></div><p>这个问题是不是也非常重要，光有连接池还不够，需要一个<code>工厂</code>可以生成一个新的连接，我需要的时候能从这个<code>工厂</code>生成一个连接并放入连接池供使用者获取。</p><p>定义一个<code>工厂</code>的 <code>interface</code>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
@@ -100,8 +41,7 @@
 </span><span class=lnt>7
 </span><span class=lnt>8
 </span><span class=lnt>9
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// ConnectionFactory 连接工厂
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// ConnectionFactory 连接工厂
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>ConnectionFactory</span> <span class=kd>interface</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=c1>//生成连接的方法
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>Factory</span><span class=p>()</span> <span class=p>(</span><span class=kd>interface</span><span class=p>{},</span> <span class=kt>error</span><span class=p>)</span>
@@ -110,9 +50,7 @@
 </span></span><span class=line><span class=cl>    <span class=c1>//检查连接是否有效的方法
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>Ping</span><span class=p>(</span><span class=kd>interface</span><span class=p>{})</span> <span class=kt>error</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>工厂的定义很简单，只需要一个产生连接的方法，并且能关闭这个连接和能对这个连接进行探活的方法即可。</p><p>定义了 <code>interface</code> 之后好处在于，我们可以自己实现连接池和工厂，也可以只实现连接池，工厂由使用者去实现，这样我们的连接池变得更加灵活通用。</p><h2 id=3-实现>3. 实现</h2><p>实现连接池我们需要考虑的问题比设计更全面，不能光考虑能拿/放连接就行，还得考虑管理这些连接并且支持最大连接数、最大空闲连接数、初始连接数以及连接的超时不可用等情况。</p><h3 id=31-结构体>3.1. 结构体</h3><p>下面先设计数据结构：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>工厂的定义很简单，只需要一个产生连接的方法，并且能关闭这个连接和能对这个连接进行探活的方法即可。</p><p>定义了 <code>interface</code> 之后好处在于，我们可以自己实现连接池和工厂，也可以只实现连接池，工厂由使用者去实现，这样我们的连接池变得更加灵活通用。</p><h2 id=3-实现>3. 实现</h2><p>实现连接池我们需要考虑的问题比设计更全面，不能光考虑能拿/放连接就行，还得考虑管理这些连接并且支持最大连接数、最大空闲连接数、初始连接数以及连接的超时不可用等情况。</p><h3 id=31-结构体>3.1. 结构体</h3><p>下面先设计数据结构：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -128,8 +66,7 @@
 </span><span class=lnt>14
 </span><span class=lnt>15
 </span><span class=lnt>16
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// channelPool 存放连接信息
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// channelPool 存放连接信息
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>channelPool</span> <span class=kd>struct</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=nx>mu</span>                       <span class=nx>sync</span><span class=p>.</span><span class=nx>RWMutex</span>
 </span></span><span class=line><span class=cl>    <span class=nx>conns</span>                    <span class=kd>chan</span> <span class=o>*</span><span class=nx>idleConn</span> <span class=c1>// 存储最大空闲连接
@@ -145,9 +82,7 @@
 </span></span><span class=line><span class=cl>    <span class=nx>conn</span> <span class=kd>interface</span><span class=p>{}</span>
 </span></span><span class=line><span class=cl>    <span class=nx>t</span>    <span class=nx>time</span><span class=p>.</span><span class=nx>Time</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>不难发现，没有字段去存所有的连接，仅存了<strong>最大空闲连接数</strong>，也就是拿的连接超过最大空闲连接数的时候，只会产生一个新的连接返回给使用者，但是不会在任何字段去存这个新的产生的连接。为什么这么做呢？</p><p>答：<strong>最大空闲连接数</strong> 这个概念就很明确，我最多只会保留这么多空闲连接，超过这个数的空闲连接直接释放。但是不影响我使用更多的连接，限制最大连接数的字段是 <code>maxActive</code>,总连接数在这个限制之下可以一直产生使用。使用的时候可以配置最大连接数 1000，而最大空闲设置为 10，这样空闲时刻不会占用太多的资源，而使用高峰的时候又可以产生达到 1000 个的连接来用。</p><h3 id=32-初始化>3.2. 初始化</h3><p>下面实现初始化连接池相关能力：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>不难发现，没有字段去存所有的连接，仅存了<strong>最大空闲连接数</strong>，也就是拿的连接超过最大空闲连接数的时候，只会产生一个新的连接返回给使用者，但是不会在任何字段去存这个新的产生的连接。为什么这么做呢？</p><p>答：<strong>最大空闲连接数</strong> 这个概念就很明确，我最多只会保留这么多空闲连接，超过这个数的空闲连接直接释放。但是不影响我使用更多的连接，限制最大连接数的字段是 <code>maxActive</code>,总连接数在这个限制之下可以一直产生使用。使用的时候可以配置最大连接数 1000，而最大空闲设置为 10，这样空闲时刻不会占用太多的资源，而使用高峰的时候又可以产生达到 1000 个的连接来用。</p><h3 id=32-初始化>3.2. 初始化</h3><p>下面实现初始化连接池相关能力：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -192,8 +127,7 @@
 </span><span class=lnt>43
 </span><span class=lnt>44
 </span><span class=lnt>45
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// PoolConfig 连接池相关配置
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// PoolConfig 连接池相关配置
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>PoolConfig</span> <span class=kd>struct</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=c1>//连接池中拥有的最小连接数
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>InitialCap</span> <span class=kt>int</span>
@@ -238,9 +172,7 @@
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>c</span><span class=p>,</span> <span class=kc>nil</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>上面我们定义了一个配置的结构体，方便外部传参。不仅支持了最大连接数、空闲连接数、连接超时，还支持了初始连接数，方便初始化快速使用。</p><h3 id=33-获取连接>3.3. 获取连接</h3><p>现在实现获取连接的过程：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>上面我们定义了一个配置的结构体，方便外部传参。不仅支持了最大连接数、空闲连接数、连接超时，还支持了初始连接数，方便初始化快速使用。</p><h3 id=33-获取连接>3.3. 获取连接</h3><p>现在实现获取连接的过程：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -311,8 +243,7 @@
 </span><span class=lnt>69
 </span><span class=lnt>70
 </span><span class=lnt>71
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Get 从pool中取一个连接
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Get 从pool中取一个连接
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>channelPool</span><span class=p>)</span> <span class=nf>Get</span><span class=p>()</span> <span class=p>(</span><span class=kd>interface</span><span class=p>{},</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=nx>conns</span> <span class=o>:=</span> <span class=nx>c</span><span class=p>.</span><span class=nf>getConns</span><span class=p>()</span>
 </span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>conns</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
@@ -383,9 +314,7 @@
 </span></span><span class=line><span class=cl>        <span class=p>}</span>
 </span></span><span class=line><span class=cl>    <span class=p>}</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><p>需要注意 <code>if c.openingConns >= c.maxActive {</code> 这块的逻辑，当连接数达到上限时，不用马上报错，可以通过 <code>connReqs</code> 来复用用完还没 release 的连接，从而节约一个连接 release 然后重新建立连接的时间和资源。</p><h3 id=34-连接放回>3.4. 连接放回</h3><p>设计连接池的时候设计了放回连接的接口，当使用者拿到一个连接用完后需要放回去，这个连接根据情况会立刻给新的获取连接请求使用，也可能放到空闲连接的缓存或者释放。</p><p>实现代码如下：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><p>需要注意 <code>if c.openingConns >= c.maxActive {</code> 这块的逻辑，当连接数达到上限时，不用马上报错，可以通过 <code>connReqs</code> 来复用用完还没 release 的连接，从而节约一个连接 release 然后重新建立连接的时间和资源。</p><h3 id=34-连接放回>3.4. 连接放回</h3><p>设计连接池的时候设计了放回连接的接口，当使用者拿到一个连接用完后需要放回去，这个连接根据情况会立刻给新的获取连接请求使用，也可能放到空闲连接的缓存或者释放。</p><p>实现代码如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -418,8 +347,7 @@
 </span><span class=lnt>31
 </span><span class=lnt>32
 </span><span class=lnt>33
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Put 将连接放回pool中
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Put 将连接放回pool中
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>channelPool</span><span class=p>)</span> <span class=nf>Put</span><span class=p>(</span><span class=nx>conn</span> <span class=kd>interface</span><span class=p>{})</span> <span class=kt>error</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>conn</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>errors</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=s>&#34;connection is nil. rejecting&#34;</span><span class=p>)</span>
@@ -452,9 +380,7 @@
 </span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>return</span> <span class=nx>c</span><span class=p>.</span><span class=nf>Close</span><span class=p>(</span><span class=nx>conn</span><span class=p>)</span>
 </span></span><span class=line><span class=cl>    <span class=p>}</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><h3 id=35-释放连接>3.5. 释放连接</h3><p>释放连接有两种情况，释放单个连接和释放整个连接池，而底层只实现释放单个连接的逻辑，释放连接池则一个个调用这个释放方法即可。</p><p>实现逻辑如下：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h3 id=35-释放连接>3.5. 释放连接</h3><p>释放连接有两种情况，释放单个连接和释放整个连接池，而底层只实现释放单个连接的逻辑，释放连接池则一个个调用这个释放方法即可。</p><p>实现逻辑如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -488,8 +414,7 @@
 </span><span class=lnt>32
 </span><span class=lnt>33
 </span><span class=lnt>34
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Close 关闭单条连接
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Close 关闭单条连接
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>channelPool</span><span class=p>)</span> <span class=nf>Close</span><span class=p>(</span><span class=nx>conn</span> <span class=kd>interface</span><span class=p>{})</span> <span class=kt>error</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>conn</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>errors</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=s>&#34;connection is nil. rejecting&#34;</span><span class=p>)</span>
@@ -523,9 +448,7 @@
 </span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nx>_</span> <span class=p>=</span> <span class=nx>c</span><span class=p>.</span><span class=nx>factory</span><span class=p>.</span><span class=nf>Close</span><span class=p>(</span><span class=nx>wrapConn</span><span class=p>.</span><span class=nx>conn</span><span class=p>)</span>
 </span></span><span class=line><span class=cl>    <span class=p>}</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><h3 id=36-其他方法>3.6. 其他方法</h3><p>实现连接池的 <code>Ping</code> 和 <code>Len</code> 方法也很简单 直接上代码。</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h3 id=36-其他方法>3.6. 其他方法</h3><p>实现连接池的 <code>Ping</code> 和 <code>Len</code> 方法也很简单 直接上代码。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -538,8 +461,7 @@
 </span><span class=lnt>11
 </span><span class=lnt>12
 </span><span class=lnt>13
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Ping 检查单条连接是否有效
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Ping 检查单条连接是否有效
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>channelPool</span><span class=p>)</span> <span class=nf>Ping</span><span class=p>(</span><span class=nx>conn</span> <span class=kd>interface</span><span class=p>{})</span> <span class=kt>error</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>conn</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>errors</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=s>&#34;connection is nil. rejecting&#34;</span><span class=p>)</span>
@@ -552,9 +474,7 @@
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>channelPool</span><span class=p>)</span> <span class=nf>Len</span><span class=p>()</span> <span class=kt>int</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>len</span><span class=p>(</span><span class=nx>c</span><span class=p>.</span><span class=nf>getConns</span><span class=p>())</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><h2 id=4-实际使用场景>4. 实际使用场景</h2><p>以一个消息队列的 producer 的连接池为例，下面说明如何使用。</p><h3 id=41-初始化>4.1. 初始化</h3><p>初始化指定配置参数即可：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h2 id=4-实际使用场景>4. 实际使用场景</h2><p>以一个消息队列的 producer 的连接池为例，下面说明如何使用。</p><h3 id=41-初始化>4.1. 初始化</h3><p>初始化指定配置参数即可：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -566,8 +486,7 @@
 </span><span class=lnt>10
 </span><span class=lnt>11
 </span><span class=lnt>12
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=nx>pc</span> <span class=o>:=</span> <span class=o>&amp;</span><span class=nx>util</span><span class=p>.</span><span class=nx>PoolConfig</span><span class=p>{</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=nx>pc</span> <span class=o>:=</span> <span class=o>&amp;</span><span class=nx>util</span><span class=p>.</span><span class=nx>PoolConfig</span><span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=nx>InitialCap</span><span class=p>:</span>  <span class=nb>int</span><span class=p>(</span><span class=nx>cfg</span><span class=p>.</span><span class=nx>ProducerConnPoolSize</span><span class=p>),</span>
 </span></span><span class=line><span class=cl>    <span class=nx>MaxCap</span><span class=p>:</span>      <span class=nb>int</span><span class=p>(</span><span class=nx>cfg</span><span class=p>.</span><span class=nx>ProducerConnPoolSize</span><span class=p>),</span>
 </span></span><span class=line><span class=cl>    <span class=nx>MaxIdle</span><span class=p>:</span>     <span class=nb>int</span><span class=p>(</span><span class=nx>cfg</span><span class=p>.</span><span class=nx>ProducerConnPoolSize</span><span class=p>),</span>
@@ -579,9 +498,7 @@
 </span></span><span class=line><span class=cl><span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=k>return</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><h3 id=42-使用>4.2. 使用</h3><p>使用方法如下：</p><div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h3 id=42-使用>4.2. 使用</h3><p>使用方法如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -620,8 +537,7 @@
 </span><span class=lnt>37
 </span><span class=lnt>38
 </span><span class=lnt>39
-</span></code></pre></td><td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>Client</span><span class=p>)</span> <span class=nf>getProducer</span><span class=p>()</span> <span class=p>(</span><span class=nx>p</span> <span class=o>*</span><span class=nx>mq</span><span class=p>.</span><span class=nx>Producer</span><span class=p>,</span> <span class=nx>err</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>Client</span><span class=p>)</span> <span class=nf>getProducer</span><span class=p>()</span> <span class=p>(</span><span class=nx>p</span> <span class=o>*</span><span class=nx>mq</span><span class=p>.</span><span class=nx>Producer</span><span class=p>,</span> <span class=nx>err</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>c</span><span class=p>.</span><span class=nx>producerPool</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>        <span class=nx>err</span> <span class=p>=</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Errorf</span><span class=p>(</span><span class=s>&#34;producer pool is not initialized&#34;</span><span class=p>)</span>
 </span></span><span class=line><span class=cl>        <span class=k>return</span>
@@ -660,34 +576,6 @@
 </span></span><span class=line><span class=cl>    <span class=nx>c</span><span class=p>.</span><span class=nx>producerPool</span><span class=p>.</span><span class=nf>Release</span><span class=p>()</span>
 </span></span><span class=line><span class=cl>    <span class=nx>c</span><span class=p>.</span><span class=nx>producerPool</span> <span class=p>=</span> <span class=kc>nil</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><div class="details admonition warning open">
-<div class="details-summary admonition-title">
-<i class="icon fas fa-exclamation-triangle fa-fw"></i>注意<i class="details-icon fas fa-angle-right fa-fw"></i>
-</div><div class=details-content>
-<div class=admonition-content>连接池使用完或者程序退出时，务必释放连接池资源。</div></div></div><h2 id=5-总结>5. 总结</h2><p>本篇介绍了一个 go 语言实现的连接池的设计、实现以及如何使用。连接池作为程序开发中非常常用的功能模块，即便是不需要自己实现也应该对其底层的实现有个大概的认知。</p><ul>
-<li>了解连接池的概念</li><li>了解连接池的主要能力</li><li>了解工厂模式</li><li>设计一个连接池</li><li>根据设计实现连接池
-<ul>
-<li>加入了连接数的控制</li><li>接入连接超时校验</li></ul></li><li>学会使用连接池</li></ul></div><div class=post-footer id=post-footer>
-<div class=post-info>
-<div class=post-info-line>
-<div class=post-info-mod>
-<span>更新于 2022-02-22</span>
-</div><div class=post-info-license></div></div><div class=post-info-line>
-<div class=post-info-md><span>
-<a class=link-to-markdown href=/posts/conn-pool/index.md target=_blank>阅读原始文档</a>
-</span></div><div class=post-info-share>
-<span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池" data-hashtags=go,连接池><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/conn-pool/ data-hashtag=go><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/conn-pool/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/conn-pool/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/line.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池" data-ralateuid=yusann><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池" data-description><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/myspace.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/baidu.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池"><i class="fab fa-evernote fa-fw"></i></a></span>
-</div></div></div><div class=post-info-more>
-<section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/go/>go</a>,&nbsp;<a href=/tags/%E8%BF%9E%E6%8E%A5%E6%B1%A0/>连接池</a></section><section>
-<span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span>
-</section></div><div class=post-nav><a href=/posts/go-project-experience/ class=prev rel=prev title="Go 项目开发和维护经验之谈"><i class="fas fa-angle-left fa-fw"></i>Go 项目开发和维护经验之谈</a>
-<a href=/posts/pdf-reader/ class=next rel=next title="Go 语言实现读取 pdf 文件内容">Go 语言实现读取 pdf 文件内容<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=utterances></div><noscript>
-Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>Utterances</a>.
-</noscript></div></article></div></main><footer class=footer>
-<div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.93.1">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
-</div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部>
-<i class="fas fa-arrow-up fa-fw"></i>
-</a><a href=# id=view-comments class=fixed-button title=查看评论>
-<i class="fas fa-comment fa-fw"></i>
-</a>
-</div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@7.0.4/dist/typeit.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:70}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-24P8ZSJHCQ",{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body></html>
+</span></span></code></pre></td></tr></table></div></div><div class="details admonition warning open"><div class="details-summary admonition-title"><i class="icon fas fa-exclamation-triangle fa-fw"></i>注意<i class="details-icon fas fa-angle-right fa-fw"></i></div><div class=details-content><div class=admonition-content>连接池使用完或者程序退出时，务必释放连接池资源。</div></div></div><h2 id=5-总结>5. 总结</h2><p>本篇介绍了一个 go 语言实现的连接池的设计、实现以及如何使用。连接池作为程序开发中非常常用的功能模块，即便是不需要自己实现也应该对其底层的实现有个大概的认知。</p><ul><li>了解连接池的概念</li><li>了解连接池的主要能力</li><li>了解工厂模式</li><li>设计一个连接池</li><li>根据设计实现连接池<ul><li>加入了连接数的控制</li><li>接入连接超时校验</li></ul></li><li>学会使用连接池</li></ul></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>更新于 2022-02-22</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=/posts/conn-pool/index.md target=_blank>阅读原始文档</a></span></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池" data-hashtags=go,连接池><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/conn-pool/ data-hashtag=go><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/conn-pool/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池"><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/conn-pool/><i class="fab fa-reddit fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/line.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池" data-ralateuid=yusann><i class="fab fa-weibo fa-fw"></i></a><a href=javascript:void(0); title="分享到 Myspace" data-sharer=myspace data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池" data-description><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/myspace.svg></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池" data-description><i class="fab fa-blogger fa-fw"></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/baidu.svg></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/conn-pool/ data-title="Go 语言实现连接池"><i class="fab fa-evernote fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/go/>go</a>,&nbsp;<a href=/tags/%E8%BF%9E%E6%8E%A5%E6%B1%A0/>连接池</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span></section></div><div class=post-nav><a href=/posts/go-project-experience/ class=prev rel=prev title="Go 项目开发和维护经验之谈"><i class="fas fa-angle-left fa-fw"></i>Go 项目开发和维护经验之谈</a>
+<a href=/posts/pdf-reader/ class=next rel=next title="Go 语言实现读取 pdf 文件内容">Go 语言实现读取 pdf 文件内容<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=utterances></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>Utterances</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.94.0">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部><i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title=查看评论><i class="fas fa-comment fa-fw"></i></a></div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@7.0.4/dist/typeit.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:100},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:70}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-24P8ZSJHCQ",{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body></html>
