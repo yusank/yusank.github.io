@@ -31,6 +31,6 @@ tags: ["redis", "系列篇"]
 - [数据结构·链表篇](../redis-server-list)
 - [数据结构·跳表篇](../redis-server-zset)
 - [数据结构·哈希表篇](../shard-map)
-- [日志篇(未发布)](https://yusank.github.io)
-- [项目经验总结(未发布)](../go-project-experience)
+<!-- - [日志篇(未发布)](https://yusank.github.io) -->
+- [项目经验总结](../go-project-experience)
 - 待补充
