@@ -79,6 +79,14 @@ paginate = 7
     url = "https://github.com/yusank"
     title = "GitHub"
     weight = 6
+  [[menu.main]]
+    identifier = "goim"
+    pre = "<i class='far fa-share-square'></i>"
+    post = ""
+    name = "GoIM"
+    url = "https://yusank.github.io/goim"
+    title = "GoIM"
+    weight = 7
 
 [params]
   #  LoveIt 主题版本
@@ -321,7 +329,7 @@ paginate = 7
       # 是否显示代码块的复制按钮
       copy = true
       # 默认展开显示的代码行数
-      maxShownLines = 100
+      maxShownLines = 50
     #  KaTeX 数学公式
     [params.page.math]
       enable = true
