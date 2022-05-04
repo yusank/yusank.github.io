@@ -3,7 +3,7 @@ title: "Docker 环境部署 RocketMQ"
 subtitle: "记录在 Docker 环境下部署 RocketMQ 的过程"
 date: 2022-03-14T10:10:00+08:00
 lastmod: 2022-03-14T10:10:00+08:00
-categories: ["rocketmq"]
+categories: ["Docker"]
 tags: ["docker","rocketmq"]
 ---
 

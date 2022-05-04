@@ -3,7 +3,7 @@ title: "Golang 开发 mac app"
 subtitle: "记录如何用 go 语言开发 mac app 的过程"
 date: 2022-03-23T10:10:00+08:00
 lastmod: 2022-03-23T10:10:00+08:00
-categories: ["其他"]
+categories: ["Go"]
 tags: ["mac-app","go"]
 ---
 

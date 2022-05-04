@@ -2,7 +2,7 @@
 title: "Docker 基础知识和基本操作"
 date: 2017-07-17T15:52:00+08:00
 lastmod: 2017-07-17T15:52:01+08:00
-categories: ["技术环境"]
+categories: ["Docker"]
 tags: ["go", "docker"]
 ---
 

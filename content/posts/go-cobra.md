@@ -1,7 +1,7 @@
 ---
 date: 2021-06-30T18:22:00+08:00
 title: "如何编写自己的第一个命令行工具"
-categories: ["工具开发"]
+categories: ["Go"]
 tags: ["go", "cobra"]
 ---
 
