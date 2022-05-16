@@ -575,7 +575,7 @@ paginate = 7
   # 目录设置
   [markup.tableOfContents]
     startLevel = 2
-    endLevel = 6
+    endLevel = 4
 
 # 作者配置
 [author]
