@@ -1,0 +1,15 @@
+.onote {font-size: 0.85em; color: gray; font-family: 'Palatino Linotype', 'Palatino', 'FreeSerif', '楷体',
+	'楷体-简', serif;}/*行内原注*/
+.onote::before{content: "[";}
+.onote::after{content: "]";}
+
+.copyright {
+	width: 85%;
+	margin: 0 auto;
+	font-family: 'Palatino Linotype', 'Palatino', 'FreeSerif', '楷体',
+	  '楷体-简', serif;
+	color: #8f0000;
+	text-indent: 0em;
+	font-size: 0.7em;
+  } /*版权信息*/
+  
