@@ -83,7 +83,7 @@ paginate = 7
     pre = "<i class='far fa-share-square'></i>"
     post = ""
     name = "GoIM"
-    url = "https://yusank.github.io/goim"
+    url = "https://go-goim.github.io"
     title = "GoIM"
     weight = 7
 
