@@ -1,0 +1,596 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><title>[系列]微服务·如何通过 protobuf 定义数据和服务 - Yusank`s Site</title><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="[系列]微服务·如何通过 protobuf 定义数据和服务"><meta property="og:description" content="
+本文为系列篇微服务的关于 protobuf 定义数据和服务的文章。本篇将会介绍如何通过 pb 定义数据结构和服务以及 pb 的一些另类玩法。
+"><meta property="og:type" content="article"><meta property="og:url" content="https://yusank.github.io/posts/microservices-protobuf/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-06-15T12:10:00+08:00"><meta property="article:modified_time" content="2022-06-16T17:58:21+08:00"><meta property="og:site_name" content="My cool site"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://yusank.github.io/logo.png"><meta name=twitter:title content="[系列]微服务·如何通过 protobuf 定义数据和服务"><meta name=twitter:description content="
+本文为系列篇微服务的关于 protobuf 定义数据和服务的文章。本篇将会介绍如何通过 pb 定义数据结构和服务以及 pb 的一些另类玩法。
+"><meta name=application-name content="Yusank's Site"><meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://yusank.github.io/images/logo.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/microservices-protobuf/><link rel=prev href=https://yusank.github.io/posts/brog-in-google/><link rel=stylesheet href=/css/style.min.css><link rel=preload href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css></noscript><link rel=preload href=https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css></noscript><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"[系列]微服务·如何通过 protobuf 定义数据和服务","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/microservices-protobuf\/"},"genre":"posts","keywords":"微服务, 系列篇, protobuf, grpc","wordcount":6022,"url":"https:\/\/yusank.github.io\/posts\/microservices-protobuf\/","datePublished":"2022-06-15T12:10:00+08:00","dateModified":"2022-06-16T17:58:21+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head><body data-header-desktop=fixed data-header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':'auto'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'auto'==='dark')&&document.body.setAttribute('theme','dark')</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-1 class=typeit></span></a></div><div class=menu><div class=menu-inner><a class=menu-item href=/posts/>文章 </a><a class=menu-item href=/categories/>分类 </a><a class=menu-item href=/tags/>标签 </a><a class=menu-item href=/about/>关于 </a><a class=menu-item href=/links/>友链 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class='fab fa-github fa-fw'></i> </a><a class=menu-item href=https://go-goim.github.io title=GoIM rel="noopener noreffer" target=_blank><i class='far fa-share-square'></i> GoIM </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw" aria-hidden=true></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-2 class=typeit></span></a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class='fab fa-github fa-fw'></i></a><a class=menu-item href=https://go-goim.github.io title=GoIM rel="noopener noreffer" target=_blank><i class='far fa-share-square'></i>GoIM</a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw" aria-hidden=true></i></a></div></div></header><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">[系列]微服务·如何通过 protobuf 定义数据和服务</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw" aria-hidden=true></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/microservice/><i class="far fa-folder fa-fw" aria-hidden=true></i>microservice</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw" aria-hidden=true></i>&nbsp;<time datetime=2022-06-15>2022-06-15</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden=true></i>&nbsp;约 6022 字&nbsp;
+<i class="far fa-clock fa-fw" aria-hidden=true></i>&nbsp;预计阅读 13 分钟&nbsp;</div></div><div class="details toc" id=toc-static data-kept><div class="details-summary toc-title"><span>目录</span>
+<span><i class="details-icon fas fa-angle-right" aria-hidden=true></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#1-前言>1. 前言</a></li><li><a href=#2-数据定义>2. 数据定义</a><ul><li><a href=#21-基础用法>2.1 基础用法</a><ul><li><a href=#211-枚举>2.1.1 枚举</a></li><li><a href=#212-消息>2.1.2 消息</a></li></ul></li><li><a href=#22-高级玩法>2.2 高级玩法</a><ul><li><a href=#221-组合使用>2.2.1 组合使用</a></li><li><a href=#222-项目内-proto-的引用>2.2.2 项目内 proto 的引用</a></li><li><a href=#223-引用第三方包>2.2.3 引用第三方包</a></li></ul></li><li><a href=#23-消息校验>2.3 消息校验</a><ul><li><a href=#231-基础类型>2.3.1 基础类型</a></li><li><a href=#232-高级类型>2.3.2 高级类型</a></li><li><a href=#233-扩展类型>2.3.3 扩展类型</a></li></ul></li></ul></li><li><a href=#3-服务定义>3. 服务定义</a><ul><li><a href=#31-常规服务定义>3.1 常规服务定义</a></li><li><a href=#32-stream-流服务定义>3.2 stream 流服务定义</a></li><li><a href=#33-服务定义中嵌套-http-定义>3.3 服务定义中嵌套 http 定义</a></li></ul></li><li><a href=#4-总结>4. 总结</a></li><li><a href=#5-链接>5. 链接🔗</a></li></ul></nav></div></div><div class=content id=content><blockquote><p>本文为系列篇<code>微服务</code>的关于 protobuf 定义数据和服务的文章。本篇将会介绍如何通过 pb 定义数据结构和服务以及 pb 的一些另类玩法。</p></blockquote><h2 id=1-前言>1. 前言</h2><div class="details admonition note open"><div class="details-summary admonition-title"><i class="icon fas fa-pencil-alt fa-fw" aria-hidden=true></i>Definition by Google<i class="details-icon fas fa-angle-right fa-fw" aria-hidden=true></i></div><div class=details-content><div class=admonition-content><p>  Protocol buffers provide a language-neutral, platform-neutral, extensible mechanism for serializing structured data in a forward-compatible and backward-compatible way. It’s like JSON, except it&rsquo;s smaller and faster, and it generates native language bindings.</p><p>  Protocol buffers are a combination of the definition language (created in .proto files), the code that the proto compiler generates to interface with data, language-specific runtime libraries, and the serialization format for data that is written to a file (or sent across a network connection).</p></div></div></div><p><code>Protocol buffer</code>(下面使用 pb 来代替) 是一个 接口定义语言(<code>Interface Definition Language -- IDL</code>)和消息编码格式。旨在提供一种简单、易于使用、可扩展的方式来定义数据结构和服务。pb 是一种纯文本格式，而其内部是纯二进制格式，比其他编码格式(如：json，xml)更加精炼。pb 包含一个或多个消息类型，每个消息类型包含一个或多个字段。其主要特性为：</p><ul><li>编码速度快</li><li>编码后数据更小</li><li>根据 pb 生成各个语言代码(本文以 Go 为例)</li><li>支持类型定义</li><li>支持定义服务</li><li>语法简单</li></ul><p>而 <code>gRPC</code> 作为 Google 推出的 rpc 协议，将 pb 作为默认的数据传输格式，也说明了 pb 作为消息编码格式的优秀性。</p><div class="details admonition question open"><div class="details-summary admonition-title"><i class="icon fas fa-question-circle fa-fw" aria-hidden=true></i>Pb 解决了什么问题？<i class="details-icon fas fa-angle-right fa-fw" aria-hidden=true></i></div><div class=details-content><div class=admonition-content><ol><li>pb 提供序列化的消息格式定义，适用于短连接和长连接</li><li>适用于微服务中服务之间通信和数据落盘</li><li>消息格式由服务提供者定义，而使用者可根据自身条件生成不同语言的代码，免去编码和解码的工作和其中可能出现各类问题</li><li>消息定义可以随时修改，而不会影响使用者的代码，使用者只需要保持最新的 pb 文件即可</li></ol></div></div></div><p>下面我们从简单到复杂的介绍，如何使用 pb 定义数据结构和服务。</p><h2 id=2-数据定义>2. 数据定义</h2><p>首先，我们需要看一下 pb 支持的数据类型有哪些，以及这些数据类型生成的代码中的类型的对照。</p><table><thead><tr><th style=text-align:left>Pb</th><th style=text-align:left>Go</th></tr></thead><tbody><tr><td style=text-align:left>double</td><td style=text-align:left>float64</td></tr><tr><td style=text-align:left>float</td><td style=text-align:left>float32</td></tr><tr><td style=text-align:left>int32</td><td style=text-align:left>int32</td></tr><tr><td style=text-align:left>int64</td><td style=text-align:left>int64</td></tr><tr><td style=text-align:left>uint32</td><td style=text-align:left>uint32</td></tr><tr><td style=text-align:left>uint64</td><td style=text-align:left>uint64</td></tr><tr><td style=text-align:left>sint32</td><td style=text-align:left>int32</td></tr><tr><td style=text-align:left>sint64</td><td style=text-align:left>int64</td></tr><tr><td style=text-align:left>fixed32</td><td style=text-align:left>uint32</td></tr><tr><td style=text-align:left>fixed64</td><td style=text-align:left>uint64</td></tr><tr><td style=text-align:left>sfixed32</td><td style=text-align:left>int32</td></tr><tr><td style=text-align:left>sfixed64</td><td style=text-align:left>int64</td></tr><tr><td style=text-align:left>bool</td><td style=text-align:left>bool</td></tr><tr><td style=text-align:left>string</td><td style=text-align:left>string</td></tr><tr><td style=text-align:left>bytes</td><td style=text-align:left>[]byte</td></tr><tr><td style=text-align:left>map</td><td style=text-align:left>map</td></tr><tr><td style=text-align:left>enum</td><td style=text-align:left>int32</td></tr><tr><td style=text-align:left>message</td><td style=text-align:left>struct</td></tr></tbody></table><p>可以看出 pb 定义的数据类型几乎与大部分编程语言很相似，因此入门 pb 的门口可以说是很低。</p><h3 id=21-基础用法>2.1 基础用法</h3><p>下面分别以枚举和消息的角度，来介绍 pb 的基本用法。</p><div class="details admonition warning open"><div class="details-summary admonition-title"><i class="icon fas fa-exclamation-triangle fa-fw" aria-hidden=true></i>注意<i class="details-icon fas fa-angle-right fa-fw" aria-hidden=true></i></div><div class=details-content><div class=admonition-content><ol><li>下面所有提到的 pb 定义均是以 <code>proto3</code>为准，本文不讨论 <code>proto2</code> 以及 <code>proto2</code> 与 <code>proto3</code> 的区别。</li><li>下面提到的代码生成规则均是基于 <code>Go 语言</code>版本的，且经过本人测试验证，但是<strong>不会对其他语言生成代码规则做任何保证。</strong></li><li>写本文时，使用的工具版本如下：<ol><li><code>protoc --version</code> :<code>libprotoc 3.19.4</code></li><li><code>protoc-gen-go</code> : <code>v1.28.0</code></li></ol></li></ol></div></div></div><p>在定义数据之前，先说一下 <code>.proto</code> 文件的头部规则：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=n>syntax</span> <span class=o>=</span> <span class=s>&#34;proto3&#34;</span><span class=p>;</span> <span class=c1>// 表示使用 proto3 的语法
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c1>// 包名，如果其他 proto 文件引用该文件时，使用该值去引用， 如：
+</span></span></span><span class=line><span class=cl><span class=c1>//  import &#34;api.user.v1.proto&#34;;
+</span></span></span><span class=line><span class=cl><span class=c1>//  message xxx {
+</span></span></span><span class=line><span class=cl><span class=c1>//    api.user.v1.Person person= 1;
+</span></span></span><span class=line><span class=cl><span class=c1>//    ...
+</span></span></span><span class=line><span class=cl><span class=c1>//  } 
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kn>package</span> <span class=nn>api</span><span class=o>.</span><span class=n>user.v1</span><span class=p>;</span> <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c1>// go 的包名，可以根据在当前项目的路径定义，需要注意的时，如果其他包引入当前 proto 文件，
+</span></span></span><span class=line><span class=cl><span class=c1>// 则其他 proto 文件生成 go 代码时，会以 go_package 作为包包名引入使用,因此如果当前项目的 proto 文件会被其他项目引入
+</span></span></span><span class=line><span class=cl><span class=c1>// 或者 项目包名是以 github.com/xx/xx 的方式定义，那这里也按这个格式定义完整的路径
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>option</span> <span class=n>go_package</span> <span class=o>=</span> <span class=s>&#34;api/user/v1&#34;</span><span class=p>;</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=211-枚举>2.1.1 枚举</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=kd>enum</span> <span class=n>Sex</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=n>Unknown</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=n>Male</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=n>Female</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=n>Other</span> <span class=o>=</span> <span class=mi>3</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=n>Alien</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>上面我们定义了一个枚举类型(<code>enum</code>) <code>Sex</code> ，并定义了几个枚举值。这个枚举类型可以作为一个数据类型，可以在当前 proto 文件内被引用。定义使用枚举有几点需要注意：</p><ol><li>枚举的值只能是整数</li><li>枚举值不能重复</li><li>枚举的第一个元素的值必需是 0，且不能不定义</li><li>从第二个元素开始，其值可以为任意整数，不需要严格的递增，甚至可以定义为负数</li></ol><p>通过 <code>protoc</code> 命令行工具，我们可以根据 <code>.proto</code> 文件不同语言的代码，下面是根据上述定义的枚举值生成的代码一部分：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Sex</span> <span class=kt>int32</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>const</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Sex_Unknown</span> <span class=nx>Sex</span> <span class=p>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Sex_Male</span>    <span class=nx>Sex</span> <span class=p>=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Sex_Female</span>  <span class=nx>Sex</span> <span class=p>=</span> <span class=mi>2</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Sex_Other</span>   <span class=nx>Sex</span> <span class=p>=</span> <span class=mi>3</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Sex_Alien</span>   <span class=nx>Sex</span> <span class=p>=</span> <span class=o>-</span><span class=mi>1</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Enum value maps for Sex.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>var</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Sex_name</span> <span class=p>=</span> <span class=kd>map</span><span class=p>[</span><span class=kt>int32</span><span class=p>]</span><span class=kt>string</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=mi>0</span><span class=p>:</span>  <span class=s>&#34;Unknown&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=mi>1</span><span class=p>:</span>  <span class=s>&#34;Male&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=mi>2</span><span class=p>:</span>  <span class=s>&#34;Female&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=mi>3</span><span class=p>:</span>  <span class=s>&#34;Other&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=o>-</span><span class=mi>1</span><span class=p>:</span> <span class=s>&#34;Alien&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Sex_value</span> <span class=p>=</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kt>int32</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=s>&#34;Unknown&#34;</span><span class=p>:</span> <span class=mi>0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s>&#34;Male&#34;</span><span class=p>:</span>    <span class=mi>1</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s>&#34;Female&#34;</span><span class=p>:</span>  <span class=mi>2</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s>&#34;Other&#34;</span><span class=p>:</span>   <span class=mi>3</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s>&#34;Alien&#34;</span><span class=p>:</span>   <span class=o>-</span><span class=mi>1</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 还会生成 Sex 的 String() Type() 等方法，这里忽略不贴代码了
+</span></span></span></code></pre></td></tr></table></div></div><p>可以看到定义 <code>const</code> 类型和值之外，还会生成两个 map，枚举的名字和值可互相转换。这里也可以更加确定为什么枚举值不能重复的原因了。</p><h4 id=212-消息>2.1.2 消息</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=kd>message</span> <span class=nc>Person</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=n>name</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>Sex</span> <span class=n>sex</span> <span class=o>=</span> <span class=mi>3</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>int32</span> <span class=n>age</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>float</span> <span class=n>score</span> <span class=o>=</span> <span class=mi>4</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>map</span><span class=p>&lt;</span><span class=kt>string</span><span class=p>,</span><span class=kt>bytes</span><span class=p>&gt;</span> <span class=n>extra_data</span> <span class=o>=</span> <span class=mi>5</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>我们定义了一个简单的消息(<code>message</code>)为 <code>Person</code> 并且包含了上面定义的枚举值。定义消息也是有一套自己的规则：</p><ol><li>消息的名字必须以字母开头，后面可以跟字母、数字、下划线，且大小写不明感，生成的代码中会自动将消息名字转换为大写</li><li>消息字段定义是，先指定类型，再指定字段名，最后需要指定索引值</li><li>消息索引值必须是整数，且不重复即可，无需要严格的递增</li><li>消息字段名可以是<code>小写</code> 或 <code>snake case</code>,生成的代码会转换成首字母大写的 <code>Camel Case</code></li></ol><p>下面看一下基于这个消息结构生成的代码：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Person</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>state</span>         <span class=nx>protoimpl</span><span class=p>.</span><span class=nx>MessageState</span>
+</span></span><span class=line><span class=cl>  <span class=nx>sizeCache</span>     <span class=nx>protoimpl</span><span class=p>.</span><span class=nx>SizeCache</span>
+</span></span><span class=line><span class=cl>  <span class=nx>unknownFields</span> <span class=nx>protoimpl</span><span class=p>.</span><span class=nx>UnknownFields</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=nx>Name</span>      <span class=kt>string</span>            <span class=s>`protobuf:&#34;bytes,1,opt,name=name,proto3&#34; json:&#34;name,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Sex</span>       <span class=nx>Sex</span>               <span class=s>`protobuf:&#34;varint,3,opt,name=sex,proto3,enum=api.user.session.v1.Sex&#34; json:&#34;sex,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Age</span>       <span class=kt>int32</span>             <span class=s>`protobuf:&#34;varint,2,opt,name=age,proto3&#34; json:&#34;age,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Score</span>     <span class=kt>float32</span>           <span class=s>`protobuf:&#34;fixed32,4,opt,name=score,proto3&#34; json:&#34;score,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>ExtraData</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>][]</span><span class=kt>byte</span> <span class=s>`protobuf:&#34;bytes,5,rep,name=extra_data,json=extraData,proto3&#34; json:&#34;extra_data,omitempty&#34; protobuf_key:&#34;bytes,1,opt,name=key,proto3&#34; protobuf_val:&#34;bytes,2,opt,name=value,proto3&#34;`</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 同时会生成一堆方法，这里忽略不贴代码了
+</span></span></span></code></pre></td></tr></table></div></div><p>可以看到，消息会生成一个结构体，并每个字段都会带上 <code>protobuf</code> 和 <code>json</code> 的 tag，方便序列化更方便。<code>protobuf</code> tag 会详细记录字段的在 <code>proto</code> 文件定义的名字，索引值、proto 版本等信息，用于编码和解码。而 <code>json</code> tag 仅记录字段名。</p><h3 id=22-高级玩法>2.2 高级玩法</h3><h4 id=221-组合使用>2.2.1 组合使用</h4><p>上面定义了些简单的使用方式，但是实际开发过程中需要更复杂的场景，下面我们以一个比较复杂的场景为例，讲解如何定义复杂的消息类型。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=kd>enum</span> <span class=n>Sex</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>Unknown</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>Male</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>Female</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>Other</span> <span class=o>=</span> <span class=mi>3</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>Alien</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=kd>message</span> <span class=nc>School</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=n>name</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=n>grade</span>  <span class=o>=</span> <span class=mi>2</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>int64</span> <span class=n>graduated_at</span> <span class=o>=</span> <span class=mi>3</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=k>repeated</span> <span class=kt>string</span> <span class=n>teachers</span> <span class=o>=</span> <span class=mi>4</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=kd>message</span> <span class=nc>Person</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=k>optional</span> <span class=kt>string</span> <span class=n>name</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>Sex</span> <span class=n>sex</span> <span class=o>=</span> <span class=mi>3</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>int32</span> <span class=n>age</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>float</span> <span class=n>score</span> <span class=o>=</span> <span class=mi>4</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>map</span><span class=p>&lt;</span><span class=kt>string</span><span class=p>,</span><span class=kt>bytes</span><span class=p>&gt;</span> <span class=n>extra_data</span> <span class=o>=</span> <span class=mi>5</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=k>repeated</span> <span class=n>School</span> <span class=n>schools</span> <span class=o>=</span> <span class=mi>6</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=k>oneof</span> <span class=n>contact</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=kt>string</span> <span class=n>email</span> <span class=o>=</span> <span class=mi>7</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=kt>string</span> <span class=n>phone</span> <span class=o>=</span> <span class=mi>8</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=p>}</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kd>message</span> <span class=nc>Company</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=kt>string</span> <span class=n>name</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=kt>string</span> <span class=n>address</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=kt>int32</span> <span class=n>salary</span> <span class=o>=</span> <span class=mi>3</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=k>repeated</span> <span class=kt>string</span> <span class=n>employees</span> <span class=o>=</span> <span class=mi>4</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=p>}</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>Company</span> <span class=n>company</span> <span class=o>=</span> <span class=mi>9</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>在之前的 <code>Person</code> 基础上做了一个更复杂的消息结构，新增了<code>学校</code>、<code>联系方式</code>、<code>公司</code>三个字段，并且各个字段的类型并不相同，下面一个个进行讲解。</p><p><strong>school</strong> 这个字段引入了两个特性，第一个是 <code>repeated</code> ，表示这个字段是一个数组，而数组的元素类型就是 <code>repeated</code> 之后的值 <code>School</code>。第二个特性是消息的嵌套，可以看到上面已经定义了一个 <code>School</code> 的消息，然后在<code>Person</code> 消息内嵌套使用。</p><p><strong>contact</strong> 这个字段引入了 <code>oneof</code> 这个特性，<code>oneof</code> 可以看做是一个 <code>switch</code> 的语句，它的作用是根据 <code>contact</code> 字段的值，来选择使用哪个字段。你可以赋值 <code>email</code> 也可以赋值 <code>phone</code> 或者均不赋值，在生成的代码里，是有 <code>GetEmail()</code>, <code>GetPhone</code> 方法来获取这个字段的值。</p><p><strong>company</strong> 字段引入了一个特性，也就是可以在消息内定义另一个消息并用在某个字段上。最终生成的代码里会有一个 <code>Person_Company</code> 的结构体，表示这个结构体属于 <code>Person</code>.</p><p>除此之外， <code>name</code> 字段也加了一个 <code>option</code> 的标识，在生成代码时会生成 <code>*string</code> 的类型，可以区分nil 和空值。</p><p>下面我们看一下，生成的代码（仅展现核心部分,忽略其他无关部分）：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>School</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// ...ignored...
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>Name</span>        <span class=kt>string</span>   <span class=s>`protobuf:&#34;bytes,1,opt,name=name,proto3&#34; json:&#34;name,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Grade</span>       <span class=kt>string</span>   <span class=s>`protobuf:&#34;bytes,2,opt,name=grade,proto3&#34; json:&#34;grade,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>GraduatedAt</span> <span class=kt>int64</span>    <span class=s>`protobuf:&#34;varint,3,opt,name=graduated_at,json=graduatedAt,proto3&#34; json:&#34;graduated_at,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Teachers</span>    <span class=p>[]</span><span class=kt>string</span> <span class=s>`protobuf:&#34;bytes,4,rep,name=teachers,proto3&#34; json:&#34;teachers,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Person</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// ...ignored...
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>Name</span>      <span class=o>*</span><span class=kt>string</span>           <span class=s>`protobuf:&#34;bytes,1,opt,name=name,proto3,oneof&#34; json:&#34;name,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Sex</span>       <span class=nx>Sex</span>               <span class=s>`protobuf:&#34;varint,3,opt,name=sex,proto3,enum=api.user.session.v1.Sex&#34; json:&#34;sex,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Age</span>       <span class=kt>int32</span>             <span class=s>`protobuf:&#34;varint,2,opt,name=age,proto3&#34; json:&#34;age,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Score</span>     <span class=kt>float32</span>           <span class=s>`protobuf:&#34;fixed32,4,opt,name=score,proto3&#34; json:&#34;score,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>ExtraData</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>][]</span><span class=kt>byte</span> <span class=s>`protobuf:&#34;bytes,5,rep,name=extra_data,json=extraData,proto3&#34; json:&#34;extra_data,omitempty&#34; protobuf_key:&#34;bytes,1,opt,name=key,proto3&#34; protobuf_val:&#34;bytes,2,opt,name=value,proto3&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Schools</span>   <span class=p>[]</span><span class=o>*</span><span class=nx>School</span>         <span class=s>`protobuf:&#34;bytes,6,rep,name=schools,proto3&#34; json:&#34;schools,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// Types that are assignable to Contact:
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=c1>// *Person_Email
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=c1>// *Person_Phone
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>Contact</span> <span class=nx>isPerson_Contact</span> <span class=s>`protobuf_oneof:&#34;contact&#34;`</span> <span class=c1>// 注意这个字段
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>Company</span> <span class=o>*</span><span class=nx>Person_Company</span>  <span class=s>`protobuf:&#34;bytes,9,opt,name=company,proto3&#34; json:&#34;company,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>isPerson_Contact</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nf>isPerson_Contact</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Person_Email</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Email</span> <span class=kt>string</span> <span class=s>`protobuf:&#34;bytes,7,opt,name=email,proto3,oneof&#34;`</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Person_Phone</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Phone</span> <span class=kt>string</span> <span class=s>`protobuf:&#34;bytes,8,opt,name=phone,proto3,oneof&#34;`</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=o>*</span><span class=nx>Person_Email</span><span class=p>)</span> <span class=nf>isPerson_Contact</span><span class=p>()</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=o>*</span><span class=nx>Person_Phone</span><span class=p>)</span> <span class=nf>isPerson_Contact</span><span class=p>()</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Person_Company</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// ...ignored...
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>Name</span>      <span class=kt>string</span>   <span class=s>`protobuf:&#34;bytes,1,opt,name=name,proto3&#34; json:&#34;name,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Address</span>   <span class=kt>string</span>   <span class=s>`protobuf:&#34;bytes,2,opt,name=address,proto3&#34; json:&#34;address,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Salary</span>    <span class=kt>int32</span>    <span class=s>`protobuf:&#34;varint,3,opt,name=salary,proto3&#34; json:&#34;salary,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Employees</span> <span class=p>[]</span><span class=kt>string</span> <span class=s>`protobuf:&#34;bytes,4,rep,name=employees,proto3&#34; json:&#34;employees,omitempty&#34;`</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><div class="details admonition tip open"><div class="details-summary admonition-title"><i class="icon fas fa-lightbulb fa-fw" aria-hidden=true></i>关于 oneof<i class="details-icon fas fa-angle-right fa-fw" aria-hidden=true></i></div><div class=details-content><div class=admonition-content><p>需要注意的时上面生成的 contact 的字段值 <code>isPerson_Contact</code> 是一个接口定义，它的实现是 <code>Person_Email</code> 和 <code>Person_Phone</code> 两个结构体。
+而 <code>Person</code> 结构会同时生成一下代码，从而实现了 <code>oneof</code> 的功能：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>m</span> <span class=o>*</span><span class=nx>Person</span><span class=p>)</span> <span class=nf>GetContact</span><span class=p>()</span> <span class=nx>isPerson_Contact</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=nx>m</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>m</span><span class=p>.</span><span class=nx>Contact</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>x</span> <span class=o>*</span><span class=nx>Person</span><span class=p>)</span> <span class=nf>GetEmail</span><span class=p>()</span> <span class=kt>string</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=nx>x</span><span class=p>,</span> <span class=nx>ok</span> <span class=o>:=</span> <span class=nx>x</span><span class=p>.</span><span class=nf>GetContact</span><span class=p>().(</span><span class=o>*</span><span class=nx>Person_Email</span><span class=p>);</span> <span class=nx>ok</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>x</span><span class=p>.</span><span class=nx>Email</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=s>&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>x</span> <span class=o>*</span><span class=nx>Person</span><span class=p>)</span> <span class=nf>GetPhone</span><span class=p>()</span> <span class=kt>string</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=nx>x</span><span class=p>,</span> <span class=nx>ok</span> <span class=o>:=</span> <span class=nx>x</span><span class=p>.</span><span class=nf>GetContact</span><span class=p>().(</span><span class=o>*</span><span class=nx>Person_Phone</span><span class=p>);</span> <span class=nx>ok</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>x</span><span class=p>.</span><span class=nx>Phone</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=s>&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div></div></div></div><h4 id=222-项目内-proto-的引用>2.2.2 项目内 proto 的引用</h4><p>作为一个合格的程序员，代码是需要根据功能、类型等因素进行拆分的，每个文件/模块 负责一部分的逻辑，各个模块之间可以有相互的依赖关系。</p><blockquote><p>因此引进来一个问题是，我不同的 proto 文件之间如何相互引用？如果有第三方的 proto 文件又怎么引入使用呢？</p></blockquote><p>答案是，pb 是支持 import 能力的。自己的 proto 文件之间可以互相引用，也可以引入其他 proto 文件。但是需要注意不要在不同 package 之间循环引用（写 go 的都知道这个是坑，不用过多解释）。</p><p><strong>先说一下引入自己项目内的其他 proto 文件的情况。</strong></p><p>假设我现在有两个 proto 文件，其路径入下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>api
+</span></span><span class=line><span class=cl><span class=p>|</span>--user
+</span></span><span class=line><span class=cl><span class=p>|</span>   <span class=p>|</span>--user.proto
+</span></span><span class=line><span class=cl><span class=p>|</span>-- order
+</span></span><span class=line><span class=cl><span class=p>|</span>   <span class=p>|</span>--order.proto
+</span></span></code></pre></td></tr></table></div></div><p>而这个项目的 go mod 定义是 <code>github.com/a/b</code>, <code>order.proto</code> 要引入使用 <code>user.proto</code> 定义的消息。</p><p>user.proto 的头部定义的应该是这样的：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=n>syntax</span> <span class=o>=</span> <span class=s>&#34;proto3&#34;</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=kn>package</span> <span class=nn>api</span><span class=o>.</span><span class=n>user</span><span class=p>;</span> <span class=c1>// 项目根目录到当前文件，这样定义方便引入，但是不是固定规则
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>option</span> <span class=n>go_package</span> <span class=o>=</span> <span class=s>&#34;github.com/a/b/user&#34;</span><span class=p>;</span> <span class=c1>// 这里请确保你的项目根目录到当前文件的路径是一致的，否则会导致引入失败
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=kd>message</span> <span class=nc>User</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=n>name</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>order.proto 的头部定义的应该是这样的：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=n>syntax</span> <span class=o>=</span> <span class=s>&#34;proto3&#34;</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=kn>package</span> <span class=nn>api</span><span class=o>.</span><span class=n>order</span><span class=p>;</span> <span class=c1>// 项目根目录到当前文件，这样定义方便引入，但是不是固定规则
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>option</span> <span class=n>go_package</span> <span class=o>=</span> <span class=s>&#34;github.com/a/b/order&#34;</span><span class=p>;</span> <span class=c1>// 这里请确保你的项目根目录到当前文件的路径是一致的，否则会导致引入失败
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>import</span> <span class=s>&#34;api.user.proto&#34;</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=kd>message</span> <span class=nc>Order</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>api.user.User</span> <span class=n>user</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=c1>// ...
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>这种方式就可以实现项目不同包之间的引用，<code>order.proto</code> 生成引入包代码如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>import</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// ...
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>user</span> <span class=s>&#34;github.com/a/b/user&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// ...
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=223-引用第三方包>2.2.3 引用第三方包</h4><p>如果你对 pb 比较熟悉的话，应该对 pb 官方开源的这个项目不陌生：<a href=https://github.com/protocolbuffers/protobuf target=_blank rel="noopener noreffer">https://github.com/protocolbuffers/protobuf</a>,该项目为 pb 的源码。当然这里不介绍源码相关的东西，但是在其 <code>src/google/protobuf</code> 目录下，定义了很多高级数据类型，方便我们日常使用。</p><p>下面以 <code>Duration 为例</code>：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=k>import</span> <span class=s>&#34;google/protobuf/duration.proto&#34;</span><span class=p>;</span> <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c1>// 需要注意的是，protoc 命令里需要指定该包所在目录。我是放到项目内 `third_party` 目录下,并在生成代码的名利指定
+</span></span></span><span class=line><span class=cl><span class=c1>//  `--proto_path=./third_party` 参数。
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=kd>message</span> <span class=nc>Config</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=n>addr</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>google.protobuf.Duration</span> <span class=n>timeout</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span> <span class=c1>// 定义一个超时
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>此时生成代码的时候会发现，生成字段类型并非是原生 <code>time.Duration</code>，而是 <code>google.protobuf.Duration</code>。这里需要注意下，但是这个类型有个
+<code>AsDuration()</code> 的方法，会返回原生 <code>time.Duration</code>。</p><p>与此同时，<code>Google</code> 的这个扩展包，提供了很多其他的数据类型，比如<code>Timestamp</code>、<code>FieldMask</code>、<code>StringValue</code>、<code>BytesValue</code> 等等。用法与上面一致，引入对应的包即可，具体有哪些类型，可从官方文档查阅：<a href=https://developers.google.com/protocol-buffers/docs/reference/google.protobuf target=_blank rel="noopener noreffer">https://developers.google.com/protocol-buffers/docs/reference/google.protobuf</a> 。</p><h3 id=23-消息校验>2.3 消息校验</h3><p>在业务正常的业务开发中，我们需要对接口传参的数据进行数据合法性验证，一般是通过结构体注入 tag 的方式统一处理。大家最熟悉的应该是 <code>github.com/go-playground/validator</code> 这个包，通过在 tag 上定义验证规则，然后用统一的方法进行规则验证。用习惯了可以说是很方便，而且很多主流的http 框架也对这个库进行支持的（比如 gin）。</p><p>但是在基于 gRPC & pb 的场景下，这个库就只是个摆设了，因为代码是自动生成的，没办法改动，更没办法注入 tag 信息（当然不能说不行，你可以自己开发一个 <code>protoc</code> 的插件去做这个事儿，但是这个过程比你想想的要麻烦多，可以看一下 <a href=../go-protoc-http/ rel>如何自定义 protoc 插件</a> 这篇文件）。</p><p>所以想验证数据的合法性好像只能挨个字段去去判断，为了解决这个问题，出现另一个非常 nb 的插件 &ndash; <a href=https://github.com/envoyproxy/protoc-gen-validate target=_blank rel="noopener noreffer">github.com/envoyproxy/protoc-gen-validate</a>。</p><p>该库定义了每个基础类型（包括 Google 提供 <code>duration</code>, <code>timestamp</code> 等类型）的验证规则，并生成对应的代码。使用时直接调用结构体的 <code>Validate()</code> 方法即可。</p><h4 id=231-基础类型>2.3.1 基础类型</h4><p>对于<strong>基础类型</strong>，比如 int32、int64、string、bool 等等，会有大于小于等于，必需，非必需，空，非空等等的验证规则。</p><p>如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=kd>message</span> <span class=nc>UpdateUserRequest</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=n>uid</span> <span class=o>=</span> <span class=mi>1</span> <span class=p>[(</span><span class=n>validate.rules</span><span class=p>)</span><span class=o>.</span><span class=kt>string</span> <span class=o>=</span> <span class=p>{</span><span class=n>min_len</span><span class=o>:</span> <span class=mi>20</span><span class=p>,</span> <span class=n>max_len</span><span class=o>:</span> <span class=mi>24</span><span class=p>}];</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=n>name</span> <span class=o>=</span> <span class=mi>2</span> <span class=p>[(</span><span class=n>validate.rules</span><span class=p>)</span><span class=o>.</span><span class=kt>string</span> <span class=o>=</span> <span class=p>{</span><span class=n>min_len</span><span class=o>:</span> <span class=mi>2</span><span class=p>,</span> <span class=n>max_len</span><span class=o>:</span> <span class=mi>20</span><span class=p>,</span> <span class=n>ignore_empty</span><span class=o>:</span> <span class=kc>true</span><span class=p>}];</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=n>email</span> <span class=o>=</span> <span class=mi>3</span> <span class=p>[(</span><span class=n>validate.rules</span><span class=p>)</span><span class=o>.</span><span class=kt>string</span> <span class=o>=</span> <span class=p>{</span><span class=n>email</span><span class=o>:</span> <span class=kc>true</span><span class=p>,</span><span class=n>ignore_empty</span><span class=o>:</span> <span class=kc>true</span><span class=p>}];</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=n>phone</span> <span class=o>=</span> <span class=mi>4</span> <span class=p>[(</span><span class=n>validate.rules</span><span class=p>)</span><span class=o>.</span><span class=kt>string</span> <span class=o>=</span> <span class=p>{</span><span class=n>pattern</span><span class=o>:</span> <span class=s>&#34;^1[3-9]\\d{9}$&#34;</span><span class=p>,</span> <span class=n>ignore_empty</span><span class=o>:</span> <span class=kc>true</span><span class=p>}];</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=n>avatar</span> <span class=o>=</span> <span class=mi>5</span> <span class=p>[(</span><span class=n>validate.rules</span><span class=p>)</span><span class=o>.</span><span class=kt>string</span> <span class=o>=</span> <span class=p>{</span><span class=n>max_len</span><span class=o>:</span><span class=mi>128</span><span class=p>,</span> <span class=n>ignore_empty</span><span class=o>:</span> <span class=kc>true</span><span class=p>}];</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>生成的代码比较多，就不再这里展示。但是生成代码逻辑是，一个个判断字段上的规则，不符合规则时，会返回很详细的错误信息，包括字段名，规则等，一眼就能看出哪个字段不符合哪个规则。</p><p>其他基础类型也类似，建议阅读官方文档或者直接看 proto 文件，因为 proto 文件比文档看起来更简单明了。</p><h4 id=232-高级类型>2.3.2 高级类型</h4><p>对于 <code>oneof</code>, <code>message</code> 这种<strong>高级用法</strong>，他也有对应的检验规则，这里提一下 <code>oneof</code>。因为原生的 <code>oneof</code> 可以传其中一个字段或者不传，但是我们希望我定义了 n 个，你必选传其中一个，这个时候只需要在 <code>oneof</code> 上第一行加上 <code>option (validate.required) = true;</code> 即可。如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=k>oneof</span> <span class=n>id</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=c1>// either x, y, or z must be set.
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=k>option</span> <span class=p>(</span><span class=n>validate.required</span><span class=p>)</span> <span class=o>=</span> <span class=kc>true</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=n>x</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>int32</span>  <span class=n>y</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>Person</span> <span class=n>z</span> <span class=o>=</span> <span class=mi>3</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=233-扩展类型>2.3.3 扩展类型</h4><p>对于<strong>第三方包</strong>（如 <code>google/protobuf/duration</code>, <code>google/protobuf/timestamps</code>）也支持了规则配置，可以要求必传，可以要求传的值必需等于某个指定值或者是在一定的时间范围内。如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=kd>message</span> <span class=nc>config</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=c1>// range [10ms, 10s]
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=n>google.protobuf.Duration</span> <span class=n>dial_timeout_sec</span> <span class=o>=</span> <span class=mi>3</span> <span class=p>[(</span><span class=n>validate.rules</span><span class=p>)</span><span class=o>.</span><span class=n>duration</span> <span class=o>=</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=n>gte</span><span class=o>:</span> <span class=p>{</span><span class=n>nanos</span><span class=o>:</span> <span class=mi>1000000</span><span class=p>,</span> <span class=n>seconds</span><span class=o>:</span> <span class=mi>0</span><span class=p>},</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=n>lte</span><span class=o>:</span>  <span class=p>{</span><span class=n>seconds</span><span class=o>:</span> <span class=mi>10</span><span class=p>}</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=p>}];</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>该包的能力比较强，由于篇幅只讲了几个类型，所以不再展示。这个库的潜力我个人认为是很大的，强烈推荐大家使用。</p><h2 id=3-服务定义>3. 服务定义</h2><h3 id=31-常规服务定义>3.1 常规服务定义</h3><p>聊了这么多 pb 中消息的定义，现在聊一聊 pb 中的服务定义，毕竟服务才是核心部分。</p><p>pb 中服务定义是定义一个服务和其下面的方法，而这些方法需要一个请求和一个响应。如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=kd>service</span> <span class=n>UserService</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=k>rpc</span> <span class=n>CreateUser</span><span class=p>(</span><span class=n>CreateUserRequest</span><span class=p>)</span> <span class=k>returns</span> <span class=p>(</span><span class=n>CreateUserResponse</span><span class=p>);</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=c1>// ...
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=kd>message</span> <span class=nc>CreateUserRequest</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>Person</span> <span class=n>person</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=kd>message</span> <span class=nc>CreateUserResponse</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=n>id</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>这是一个最简的服务定义，其包含一个创建用户的方法，输入输出也分别定义了。需要注意的是，方法必需要有输入输出且不支持多个参数，如果需要多个参数，请嵌套一个结构体。如果方法没有返回值，则可以定义一个空的 <code>message</code> 即可。而我的做法是定义一个通用的 response，在没有返回值的方法返回这个 response，有返回值的方法则嵌套一层，response 作为参数。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=c1>// BaseResponse use as define response code and message
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>message</span> <span class=nc>BaseResponse</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=n>Code</span> <span class=n>code</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=n>reason</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=kt>string</span> <span class=kd>message</span> <span class=o>=</span> <span class=mi>3</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=32-stream-流服务定义>3.2 stream 流服务定义</h3><p>处了上述的定义服务之外，还可以定义输入或输出位 stream 的方法，如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=kd>service</span> <span class=n>UserService</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=k>rpc</span> <span class=n>CreateUser1</span><span class=p>(</span><span class=n>stream</span> <span class=n>CreateUserRequest</span><span class=p>)</span> <span class=k>returns</span> <span class=p>(</span><span class=n>CreateUserResponse</span><span class=p>);</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=k>rpc</span> <span class=n>CreateUser2</span><span class=p>(</span><span class=n>CreateUserRequest</span><span class=p>)</span> <span class=k>returns</span> <span class=p>(</span><span class=n>stream</span> <span class=n>CreateUserResponse</span><span class=p>);</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=k>rpc</span> <span class=n>CreateUser3</span><span class=p>(</span><span class=n>stream</span> <span class=n>CreateUserRequest</span><span class=p>)</span> <span class=k>returns</span> <span class=p>(</span><span class=n>stream</span> <span class=n>CreateUserResponse</span><span class=p>);</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>表示请求或响应可以是个 stream 流，而不同的 stream 的定义生成的代码也不一样，如(以 client 端代码为例)：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>UserServiceClient</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nf>CreateUser1</span><span class=p>(</span><span class=nx>ctx</span> <span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>grpc</span><span class=p>.</span><span class=nx>CallOption</span><span class=p>)</span> <span class=p>(</span><span class=nx>UserService_CreateUser1Client</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=nf>CreateUser2</span><span class=p>(</span><span class=nx>ctx</span> <span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>in</span> <span class=o>*</span><span class=nx>CreateUserRequest</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>grpc</span><span class=p>.</span><span class=nx>CallOption</span><span class=p>)</span> <span class=p>(</span><span class=nx>UserService_CreateUser2Client</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=nf>CreateUser3</span><span class=p>(</span><span class=nx>ctx</span> <span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>grpc</span><span class=p>.</span><span class=nx>CallOption</span><span class=p>)</span> <span class=p>(</span><span class=nx>UserService_CreateUser3Client</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>UserService_CreateUser1Client</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nf>Send</span><span class=p>(</span><span class=o>*</span><span class=nx>CreateUserRequest</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>  <span class=nf>CloseAndRecv</span><span class=p>()</span> <span class=p>(</span><span class=o>*</span><span class=nx>CreateUserResponse</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=nx>grpc</span><span class=p>.</span><span class=nx>ClientStream</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>UserService_CreateUser2Client</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nf>Recv</span><span class=p>()</span> <span class=p>(</span><span class=o>*</span><span class=nx>CreateUserResponse</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=nx>grpc</span><span class=p>.</span><span class=nx>ClientStream</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>UserService_CreateUser3Client</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nf>Send</span><span class=p>(</span><span class=o>*</span><span class=nx>CreateUserRequest</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>  <span class=nf>Recv</span><span class=p>()</span> <span class=p>(</span><span class=o>*</span><span class=nx>CreateUserResponse</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=nx>grpc</span><span class=p>.</span><span class=nx>ClientStream</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>三个方法返回的值均不一样，分别为：发送端为 stream 流，接收端为 stream 流，双向 stream 流。同样的 server 端实现这些方式时，也需要实现相应的接口。</p><h3 id=33-服务定义中嵌套-http-定义>3.3 服务定义中嵌套 http 定义</h3><p>在 <code>google/api/annotations.proto</code> 库的支持下， pb 支持服务中嵌套 http 定义，如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=k>import</span> <span class=s>&#34;google/api/annotations.proto&#34;</span><span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=kd>service</span> <span class=n>Hello</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=k>rpc</span> <span class=n>Add</span><span class=p>(</span><span class=n>AddRequest</span><span class=p>)</span> <span class=k>returns</span> <span class=p>(</span><span class=n>AddResponse</span><span class=p>)</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=k>option</span> <span class=p>(</span><span class=n>google.api.http</span><span class=p>)</span> <span class=o>=</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>      <span class=n>post</span><span class=o>:</span> <span class=s>&#34;/api/hello/service/v1/add&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>      <span class=n>body</span><span class=o>:</span> <span class=s>&#34;*&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=p>};</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=p>}</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=k>rpc</span> <span class=n>Get</span><span class=p>(</span><span class=n>GetRequest</span><span class=p>)</span> <span class=k>returns</span> <span class=p>(</span><span class=n>GetResponse</span><span class=p>)</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=k>option</span> <span class=p>(</span><span class=n>google.api.http</span><span class=p>)</span> <span class=o>=</span> <span class=p>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>      <span class=n>get</span><span class=o>:</span> <span class=s>&#34;/api/hello/service/v1/get&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    <span class=p>};</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=p>}</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=p>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>可以通过 <code>grpc-gateway</code> (官方项目)生成对应的 http 接口并注册到 <code>grpc-gateway</code> 中。也可以通过其他插件去生成 http 代码。而 <code>kratos</code> 这个框架就做了这个事儿，单独生成 <code>.http.go</code> 文件，可以将生成的路由注册到 <code>kratos</code> 中。我之前也写过类似的插件，可以参考这篇文章：<a href=../go-protoc-http/ rel>如何自定义 protoc 插件</a>。</p><p>不管那种方式，最终目标都是多生产一套 http 接口，方便调试或者对外提供 grpc & http 服务。</p><h2 id=4-总结>4. 总结</h2><p>到这里本篇文章就结束了，基本讲完我对 pb 的理解和使用上遇到的经验都写出来了。当然由于篇幅原因，没有讲述太多 grpc 相关的问题，因为 grpc 也算是个大头，我想以后单独写一篇讲述 grpc 的原理和通信以及使用的文章。</p><p>本篇主要讲述了：</p><ul><li>pb 的定义和解决的问题</li><li>pb 的基础类型定义和花样玩法</li><li>pb 类型的数据校验（介绍了一个第三方库：<a href=https://github.com/envoyproxy/protoc-gen-validate target=_blank rel="noopener noreffer">protoc-gen-validate</a>）</li><li>pb 定义普通服务</li><li>pb 定义 stream 流服务</li><li>pb 定义 http 服务</li></ul><p>如果你有任何问题或者有不一样的想法，请通过评论区或者邮件联系我。</p><div class="details admonition tip open"><div class="details-summary admonition-title"><i class="icon fas fa-lightbulb fa-fw" aria-hidden=true></i>如果在使用 pb 过程中有什么不明白的<i class="details-icon fas fa-angle-right fa-fw" aria-hidden=true></i></div><div class=details-content><div class=admonition-content><p>本文中的知识点，大部分都是我在写项目的时候积累下来的，如果你有什么不明白的地方，可以参考我的一个项目: <a href=https://github.com/go-goim/api target=_blank rel="noopener noreffer">goim/api</a>。</p><p>本文提到的能力我在这个项目基本都用到了，你可以同时看代码和本文，应该对你有一定的帮助。</p></div></div></div><h2 id=5-链接>5. 链接🔗</h2><ul><li><a href=../../categories/microservice/ rel>系列篇</a></li><li><a href=../go-protoc-http/ rel>如何自定义 protoc 插件</a></li><li><a href=https://developers.google.com/protocol-buffers/docs/overview target=_blank rel="noopener noreffer">https://developers.google.com/protocol-buffers/docs/overview</a></li><li><a href=https://www.grpc.io/docs/what-is-grpc/introduction/ target=_blank rel="noopener noreffer">https://www.grpc.io/docs/what-is-grpc/introduction/</a></li><li><a href=https://github.com/envoyproxy/protoc-gen-validate target=_blank rel="noopener noreffer">https://github.com/envoyproxy/protoc-gen-validate</a></li></ul></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>更新于 2022-06-16</span></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=/posts/microservices-protobuf/index.md target=_blank>阅读原始文档</a></span></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/microservices-protobuf/ data-title="[系列]微服务·如何通过 protobuf 定义数据和服务" data-hashtags=微服务,系列篇,protobuf,grpc><i class="fab fa-twitter fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/microservices-protobuf/ data-hashtag=微服务><i class="fab fa-facebook-square fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/microservices-protobuf/><i class="fab fa-linkedin fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/microservices-protobuf/ data-title="[系列]微服务·如何通过 protobuf 定义数据和服务" data-web><i class="fab fa-whatsapp fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/microservices-protobuf/ data-title="[系列]微服务·如何通过 protobuf 定义数据和服务"><i class="fab fa-hacker-news fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/microservices-protobuf/><i class="fab fa-reddit fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/microservices-protobuf/ data-title="[系列]微服务·如何通过 protobuf 定义数据和服务"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@6.20.0/icons/line.svg aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/microservices-protobuf/ data-title="[系列]微服务·如何通过 protobuf 定义数据和服务" data-ralateuid=yusann><i class="fab fa-weibo fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/microservices-protobuf/ data-title="[系列]微服务·如何通过 protobuf 定义数据和服务" data-description><i class="fab fa-blogger fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/microservices-protobuf/ data-title="[系列]微服务·如何通过 protobuf 定义数据和服务"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@6.20.0/icons/baidu.svg aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/microservices-protobuf/ data-title="[系列]微服务·如何通过 protobuf 定义数据和服务"><i class="fab fa-evernote fa-fw" aria-hidden=true></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw" aria-hidden=true></i>&nbsp;<a href=/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/>微服务</a>,&nbsp;<a href=/tags/%E7%B3%BB%E5%88%97%E7%AF%87/>系列篇</a>,&nbsp;<a href=/tags/protobuf/>protobuf</a>,&nbsp;<a href=/tags/grpc/>grpc</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span></section></div><div class=post-nav><a href=/posts/brog-in-google/ class=prev rel=prev title=[译]使用Borg在Google管理大规模集群><i class="fas fa-angle-left fa-fw" aria-hidden=true></i>[译]使用Borg在Google管理大规模集群</a></div></div><div id=comments><div id=utterances class=comment></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>utterances</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.100.2">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden=true></i> LoveIt</a></div><div class=footer-line itemscope itemtype=http://schema.org/CreativeWork><i class="far fa-copyright fa-fw" aria-hidden=true></i><span itemprop=copyrightYear>2017 - 2022</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部><i class="fas fa-arrow-up fa-fw" aria-hidden=true></i>
+</a><a href=# id=view-comments class=fixed-button title=查看评论><i class="fas fa-comment fa-fw" aria-hidden=true></i></a></div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/copy-tex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.3.1/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@8.5.4/dist/index.umd.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:50},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!0,left:"\\begin{equation}",right:"\\end{equation}"},{display:!0,left:"\\begin{equation*}",right:"\\end{equation*}"},{display:!0,left:"\\begin{align}",right:"\\end{align}"},{display:!0,left:"\\begin{align*}",right:"\\end{align*}"},{display:!0,left:"\\begin{alignat}",right:"\\end{alignat}"},{display:!0,left:"\\begin{alignat*}",right:"\\end{alignat*}"},{display:!0,left:"\\begin{gather}",right:"\\end{gather}"},{display:!0,left:"\\begin{CD}",right:"\\end{CD}"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:70}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-24P8ZSJHCQ',{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body></html>
