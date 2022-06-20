@@ -9,7 +9,7 @@
             <i class="icon fas fa-quote-right fa-fw" aria-hidden="true"></i>说明<i class="details-icon fas fa-angle-right fa-fw" aria-hidden="true"></i>
         </div>
         <div class="details-content">
-            <div class="admonition-content">本文章为该系列的<code>协议篇</code>，如果需要阅读其他相关文章， 请点击<a href="https://yusank.github.io/posts/redeis-server-introduction/" target="_blank" rel="noopener noreffer">这里</a>跳转查看</div>
+            <div class="admonition-content">本文章为该系列的<code>协议篇</code>，如果需要阅读其他相关文章， 请点击<a href="https://yusank.github.io/posts/redeis-server-introduction/" target="_blank" rel="noopener noreffer ">这里</a>跳转查看</div>
         </div>
     </div>]]></description></item><item><title>[系列]Redis Server 实现·前言</title><link>https://yusank.github.io/posts/redeis-server-introduction/</link><pubDate>Mon, 22 Nov 2021 10:50:00 +0800</pubDate><author>Yusank</author><guid>https://yusank.github.io/posts/redeis-server-introduction/</guid><description><![CDATA[<blockquote>
 <p>本文系列篇<code>Redis Server 实现</code>的开篇文章，将列出本系列篇讲述的内容和实现的功能做简单的描述。</p>

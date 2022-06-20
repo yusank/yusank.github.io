@@ -3,7 +3,7 @@
             <i class="icon fas fa-quote-right fa-fw" aria-hidden="true"></i>转载<i class="details-icon fas fa-angle-right fa-fw" aria-hidden="true"></i>
         </div>
         <div class="details-content">
-            <div class="admonition-content"><strong>原文链接： <a href="https://yusank.github.io/goim/posts/worker_pool" target="_blank" rel="noopener noreffer">实现异步并发 worker 队列</a></strong></div>
+            <div class="admonition-content"><strong>原文链接： <a href="https://yusank.github.io/goim/posts/worker_pool" target="_blank" rel="noopener noreffer ">实现异步并发 worker 队列</a></strong></div>
         </div>
     </div>
 <p>在开发 broadcast 功能的时候，碰到一个比较棘手的问题，需要并发执行多个 worker 来讲 broadcast 消息推送到所有在线用户，同时我希望能控制并发数量。</p>]]></description></item></channel></rss>
