@@ -120,6 +120,8 @@ paginate = 7
     iconColor = "#5bbad5"
     # Windows v8-10磁贴颜色
     tileColor = "#da532c"
+    # headScript 
+    headScript = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7859878302610774" crossorigin="anonymous"></script>'
 
   #  搜索配置
   [params.search]
@@ -540,6 +542,10 @@ paginate = 7
     polyfill = false
     # 是否使用 object-fit-images 来兼容旧式浏览器
     objectFit = false
+  [params.adsbygoogle]
+    enable = true
+    # 广告代码
+    code = "ca-pub-7859878302610774"
 
 # Hugo 解析文档的配置
 [markup]
