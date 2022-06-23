@@ -541,6 +541,10 @@ paginate = 7
     polyfill = false
     # 是否使用 object-fit-images 来兼容旧式浏览器
     objectFit = false
+  [params.adsbygoogle]
+    enable = true
+    # 广告代码
+    code = "ca-pub-7859878302610774"
 
 # Hugo 解析文档的配置
 [markup]
