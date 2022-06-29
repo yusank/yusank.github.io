@@ -113,15 +113,13 @@ paginate = 7
     # 是否隐藏网站图标资源链接
     noFavicon = false
     # 更现代的 SVG 网站图标, 可替代旧的 .png 和 .ico 文件
-    svgFavicon = "https://yusank.github.io/images/logo.svg"
+    svgFavicon = ""
     # Android 浏览器主题色
     themeColor = "#ffffff"
     # Safari 图标颜色
     iconColor = "#5bbad5"
     # Windows v8-10磁贴颜色
     tileColor = "#da532c"
-    # headScript 
-    headScript = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7859878302610774" crossorigin="anonymous"></script>'
 
   #  搜索配置
   [params.search]
@@ -220,7 +218,7 @@ paginate = 7
       # 是否显示社交账号
       social = true
       #  免责声明 (支持 HTML 格式)
-      disclaimer = "本网站内所有内容均为作者本人原创，若转发请标注出处并带上原文链接。<br><b>支持原创，尊重原创，谢谢!</b>"
+      disclaimer = "本网站内所有<b>非标注为转载</b>的内容均为作者本人原创，若转发请标注出处并带上原文链接。<br><b>支持原创，尊重原创，谢谢!</b>"
     # 主页文章列表
     [params.home.posts]
       enable = true
