@@ -13,7 +13,7 @@ gRPC 作为一个 Google 开源的 RPC 框架，由于其优异的性能和支�
 
 然而，我上家我所在部门的业务几乎没有涉及到 gRPC 的开发，因此这些理解只是变成一个知道的概念，并没有在实际开发工作中提到实际的应用。但是从那次分享后，我对 gRPC 有了一些迷恋现象，想做一些实际的 gRPC 相关项目，从实际项目中提炼自己的知识面。
 
-到现在，我回过头来看，以及参与了几个基于 gRPC 通信的项目以及基于 gRPC 的微服务框架，最近也在写一个比较完整的微服务项目，也是基于 gRPC 通信。的确从实践中提炼到了一定的知识，自己对整体的理解也有了一定的提升。
+到现在，我回过头来看，已经参与了几个基于 gRPC 通信的项目以及基于 gRPC 的微服务框架，最近也在写一个比较完整的微服务项目，也是基于 gRPC 通信。的确从实践中提炼到了一定的知识，自己对整体的理解也有了一定的提升。
 
 今天想写这篇文章的原因有两个，其一是我前前后后对 gRPC 有了很多的交集并且也在上家极力推荐使用（但是能力不够，没能推广起来），我对这块有了一些自己的看法和观点，但是一直没有一个比较完整的记录。其二是之前与大学同学做一次线上分享的时候，有人提问关于 gRPC 的性能问题（由于其基于 `HTTP/2`,所以对其性能持怀疑态度），我觉得这个问题确实也是需要一个深究的问题，所以这篇文章也会提到相关内容。
 
@@ -63,7 +63,7 @@ service OrderService {
 }
 ```
 
-我们执行 `protoc --go_out=paths=source_relative:. --go-grpc_out=paths=source_relative:. proto_file` 命令，生成代码后，我们可以看到在当前目录下会生成两个文件，分别是 `order_service.pb.go` 和 `order_service_grpc.pb.go`。第一个文件包含所以定义的 enum, message 以及 pb 文件的信息所对应的 Go 代码，第二个文件包含所以定义的 service 所对应的 Go 代码。本篇不讨论第一个文件内容。我们现在来看一下 `order_service_grpc.pb.go` 文件和核心内容（篇幅原因会忽略一些非必要代码的展示）。
+我们执行 `protoc --go_out=paths=source_relative:. --go-grpc_out=paths=source_relative:. proto_file` 命令，生成代码后，我们可以看到在当前目录下会生成两个文件，分别是 `order_service.pb.go` 和 `order_service_grpc.pb.go`。第一个文件包含定义的 enum, message 以及 pb 文件的信息所对应的 Go 代码，第二个文件包含定义的 service 所对应的 Go 代码。本篇不讨论第一个文件内容。我们现在来看一下 `order_service_grpc.pb.go` 文件和核心内容（篇幅原因会忽略一些非必要代码的展示）。
 
 #### 3.1.1 客户端相关代码
 
@@ -102,10 +102,10 @@ func (c *orderServiceClient) CreateOrder(ctx context.Context, in *Empty, opts ..
 }
 ```
 
-我们在自己程序内如果需要调用第三发服务的话，只需要通过 `NewOrderServiceClient` 函数生成 `OrderServiceClient` 实例，然后调用对应的方法即可。如：
+我们在自己程序内如果需要调用第三方服务的话，只需要通过 `NewOrderServiceClient` 函数生成 `OrderServiceClient` 实例，然后调用对应的方法即可。如：
 
 ```go
-// conn 为 grpc connection，可以通过 grpc.Dial 来生成或大部分微服务狂框架都提供了连接方法
+// conn 为 grpc connection，可以通过 grpc.Dial 来生成或大部分微服务框架都提供了连接方法
 resp,err := NewOrderServiceClient(conn).GetOrder(context.Background(), &Empty{})
 if err != nil {
     fmt.Println(err)
@@ -257,7 +257,7 @@ grpc 编程模型可以从大体上分为两种情况，分别是应答模式，
 
 #### 4.1.1 使用
 
-该方式的使用我们在上面其实以及演示过了，这里不再赘述。点击这里[跳回查看](#311-客户端相关代码)
+该方式的使用我们在上面其实已经演示过了，这里不再赘述。点击这里[跳回查看](#311-客户端相关代码)
 
 #### 4.1.2 实现
 
@@ -555,6 +555,6 @@ st.HandleStreams(func(stream *transport.Stream) {
 本篇主要讲述了：
 
 1. grpc 的概念
-2. grpc 的在 go 语言环境下的使用
+2. grpc 在 go 语言环境下的使用
 3. grpc 的常见编程模式之一的应答模式的使用和实现源码解析
 
