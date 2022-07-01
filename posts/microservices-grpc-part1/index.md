@@ -548,7 +548,7 @@ st.HandleStreams(func(stream *transport.Stream) {
 
 {{< image src="grpc-handle.png" caption="服务端请求处理(点击放大)" width="1200" >}}
 
-## 7. 总结
+## 5. 总结
 
 > 由于篇幅原因，本篇将在这里结束，关于 grpc 的数据流变成模式和相关实现以及其他更多关于 grpc 的内容，请持续关注，我会在下一篇中进行详细的介绍。
 
