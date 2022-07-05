@@ -508,7 +508,7 @@ paginate = 7
     enable = true
     # Google Analytics
     [params.analytics.google]
-      id = "G-0MJ0QL97R1"
+      id = "G-1085SLT660"
       # 是否匿名化用户 IP
       anonymizeIP = true
     # Fathom Analytics
