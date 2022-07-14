@@ -408,25 +408,25 @@ paginate = 7
         clientSecret = ""
       # Valine 评论系统设置
       [params.page.comment.valine]
-        enable = false
-        appId = ""
-        appKey = ""
+        enable = true
+        appId = "PU7OIOExBdMOjqRb4xm2Q27u-MdYXbMMI"
+        appKey = "xOlCURz52lYd4ltxtqeT2Odc"
         placeholder = ""
-        avatar = "mp"
+        avatar = "wavatar"
         meta= ""
         pageSize = 10
         lang = ""
         visitor = true
         recordIP = true
         highlight = true
-        enableQQ = false
-        serverURLs = ""
+        enableQQ = true
+        serverURLs = "https://pu7oioex.api.lncldglobal.com"
         #  emoji 数据文件名称, 默认是 "google.yml"
         # ("apple.yml", "google.yml", "facebook.yml", "twitter.yml")
         # 位于 "themes/LoveIt/assets/data/emoji/" 目录
         # 可以在你的项目下相同路径存放你自己的数据文件:
         # "assets/data/emoji/"
-        emoji = "apple.yaml"
+        emoji = "apple.yml"
       # Facebook 评论系统设置
       [params.page.comment.facebook]
         enable = false
@@ -449,7 +449,7 @@ paginate = 7
         enable = false
       #  Utterances 评论系统设置
       [params.page.comment.utterances]
-        enable = true
+        enable = false
         # owner/repo
         repo = "yusank/yusank.github.io"
         issueTerm = "pathname"
