@@ -1,0 +1,501 @@
+baseURL: 'https://yusank.github.io/'
+title: Yusank`s Site
+defaultContentLanguage: zh-cn
+theme: LoveIt
+summaryLength: 40
+enableEmoji: true
+enableGitInfo: true
+enableRobotsTXT: true
+paginate: 7
+languages:
+  en:
+    weight: 1
+    title: Yusank`s Site
+    languageCode: en
+    languageName: English
+    menu:
+      main:
+        - weight: 1
+          identifier: posts
+          pre: ''
+          post: ''
+          name: Posts
+          url: /posts/
+          title: ''
+        - weight: 2
+          identifier: tags
+          pre: ''
+          post: ''
+          name: Tags
+          url: /tags/
+          title: ''
+        - weight: 3
+          identifier: categories
+          pre: ''
+          post: ''
+          name: Categories
+          url: /categories/
+          title: ''
+        - weight: 4
+          identifier: about
+          pre: ''
+          post: ''
+          name: About Me
+          url: /about/
+          title: ''
+        - identifier: github
+          pre: <i class='fab fa-github fa-fw'></i>
+          post: ''
+          name: ''
+          url: 'https://github.com/yusank'
+          title: GitHub
+          weight: 5
+    params:
+      version: 0.2.X
+      description: 'This is my personal blog, I''ll share posts about tech in here.'
+      keywords:
+        - yusank
+        - Tech
+      defaultTheme: auto
+      gitRepo: ''
+      fingerprint: ''
+      dateFormat: '2006-01-02'
+      images:
+        - /logo.png
+      home:
+        rss: 10
+        profile:
+          enable: true
+          gravatarEmail: ''
+          avatarURL: 'https://yusank.github.io/images/avatar.png'
+          title: Yusank
+          subtitle: 'This is my personal blog, I''ll share posts about tech in here.'
+          typeit: true
+          social: true
+          disclaimer: 'All the article in this website are written by myself, except if it marked as <b>Forwarded</b>. All articles are welcome to be shared on other sites, but please remember to include the original URL when doing so.<br><b>Please respect the effort that the author makes, Thank You!</b>'
+        posts:
+          enable: true
+          paginate: 6
+          defaultHiddenFromHomePage: false
+  zh-cn:
+    weight: 2
+    languageCode: zh-CN
+    title: Yusank`s Site
+    languageName: Chinese
+    hasCJKLanguage: true
+    menu:
+      main:
+        - identifier: posts
+          pre: ''
+          post: ''
+          name: 文章
+          url: /posts/
+          title: ''
+          weight: 1
+        - identifier: tags
+          pre: ''
+          post: ''
+          name: 标签
+          url: /tags/
+          title: ''
+          weight: 3
+        - identifier: categories
+          pre: ''
+          post: ''
+          name: 分类
+          url: /categories/
+          title: ''
+          weight: 2
+        - identifier: about
+          pre: ''
+          post: ''
+          name: 关于
+          url: /about/
+          title: ''
+          weight: 4
+        - identifier: links
+          pre: ''
+          post: ''
+          name: 友链
+          url: /links/
+          title: ''
+          weight: 5
+        - identifier: github
+          pre: <i class='fab fa-github fa-fw'></i>
+          post: ''
+          name: ''
+          url: 'https://github.com/yusank'
+          title: GitHub
+          weight: 6
+        - identifier: goim
+          pre: <i class='far fa-share-square'></i>
+          post: ''
+          name: GoIM
+          url: 'https://go-goim.github.io'
+          title: GoIM
+          weight: 7
+params:
+  version: 0.2.X
+  description: 这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验.
+  keywords:
+    - yusank
+    - Tech
+  defaultTheme: auto
+  gitRepo: ''
+  fingerprint: ''
+  dateFormat: '2006-01-02'
+  images:
+    - /logo.png
+  app:
+    title: Yusank's Site
+    noFavicon: false
+    svgFavicon: ''
+    themeColor: '#ffffff'
+    iconColor: '#5bbad5'
+    tileColor: '#da532c'
+  search:
+    enable: true
+    type: lunr
+    contentLength: 4000
+    placeholder: ''
+    maxResultLength: 10
+    snippetLength: 50
+    highlightTag: em
+    absoluteURL: false
+    algolia:
+      index: ''
+      appID: ''
+      searchKey: ''
+  header:
+    desktopMode: fixed
+    mobileMode: auto
+    title:
+      logo: 'https://yusank.github.io/images/logo.svg'
+      name: usank`s Site
+      pre: ''
+      post: ''
+      typeit: true
+  footer:
+    enable: true
+    custom: Keep learning and stay with lights.<br>❤ yusank<br>
+    hugo: true
+    copyright: true
+    author: false
+    since: 2017
+    icp: ''
+    license: >-
+      <a rel="license external nofollow noopener noreffer"
+      href="https://creativecommons.org/licenses/by/4.0/deed.zh"
+      target="_blank">CC BY-NC 4.0</a>
+  section:
+    paginate: 20
+    dateFormat: 01-02
+    rss: 10
+  list:
+    paginate: 20
+    dateFormat: 01-02
+    rss: 10
+  home:
+    rss: 10
+    profile:
+      enable: true
+      gravatarEmail: ''
+      avatarURL: 'https://yusank.github.io/images/avatar.png'
+      title: Yusank
+      subtitle: 这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验.
+      typeit: true
+      social: true
+      disclaimer: 本网站内所有<b>非标注为转载</b>的内容均为作者本人原创，若转发请标注出处并带上原文链接。<br><b>支持原创，尊重原创，谢谢!</b>
+    posts:
+      enable: true
+      paginate: 6
+      defaultHiddenFromHomePage: false
+  social:
+    GitHub: yusank
+    Linkedin: yusan-kurban-037a31a7
+    Twitter: 'yusankurban'
+    Instagram: ''
+    Facebook: ''
+    Telegram: ''
+    Medium: ''
+    Gitlab: ''
+    Youtubelegacy: ''
+    Youtubecustom: ''
+    Youtubechannel: ''
+    Tumblr: ''
+    Quora: ''
+    Keybase: ''
+    Pinterest: ''
+    Reddit: ''
+    Codepen: ''
+    FreeCodeCamp: ''
+    Bitbucket: ''
+    Stackoverflow: ''
+    Weibo: yusann
+    Odnoklassniki: ''
+    VK: ''
+    Flickr: ''
+    Xing: ''
+    Snapchat: ''
+    Soundcloud: ''
+    Spotify: ''
+    Bandcamp: ''
+    Paypal: ''
+    Fivehundredpx: ''
+    Mix: ''
+    Goodreads: ''
+    Lastfm: ''
+    Foursquare: ''
+    Hackernews: ''
+    Kickstarter: ''
+    Patreon: ''
+    Steam: yusan8
+    Twitch: ''
+    Strava: ''
+    Skype: ''
+    Whatsapp: ''
+    Zhihu: wu-fa-cha-kan-id
+    Douban: ''
+    Angellist: ''
+    Slidershare: ''
+    Jsfiddle: ''
+    Deviantart: ''
+    Behance: ''
+    Dribbble: ''
+    Wordpress: ''
+    Vine: ''
+    Googlescholar: ''
+    Researchgate: ''
+    Mastodon: ''
+    Thingiverse: ''
+    Devto: ''
+    Gitea: ''
+    XMPP: ''
+    Matrix: ''
+    Bilibili: ''
+    Email: yusankurban@gmail.com
+    RSS: true
+  page:
+    hiddenFromHomePage: false
+    hiddenFromSearch: false
+    twemoji: false
+    lightgallery: false
+    ruby: true
+    fraction: true
+    fontawesome: true
+    linkToMarkdown: true
+    rssFullText: false
+    toc:
+      enable: true
+      keepStatic: false
+      auto: true
+    code:
+      copy: true
+      maxShownLines: 50
+    math:
+      enable: true
+      blockLeftDelimiter: ''
+      blockRightDelimiter: ''
+      inlineLeftDelimiter: ''
+      inlineRightDelimiter: ''
+      copyTex: true
+      mhchem: true
+    mapbox:
+      accessToken: ''
+      lightStyle: 'mapbox://styles/mapbox/light-v9'
+      darkStyle: 'mapbox://styles/mapbox/dark-v9'
+      navigation: true
+      geolocate: true
+      scale: true
+      fullscreen: true
+    share:
+      enable: true
+      Twitter: true
+      Facebook: true
+      Linkedin: true
+      Whatsapp: true
+      Pinterest: false
+      Tumblr: false
+      HackerNews: true
+      Reddit: true
+      VK: false
+      Buffer: false
+      Xing: false
+      Line: true
+      Instapaper: false
+      Pocket: false
+      Digg: false
+      Stumbleupon: false
+      Flipboard: false
+      Weibo: true
+      Renren: false
+      Myspace: true
+      Blogger: true
+      Baidu: true
+      Odnoklassniki: false
+      Evernote: true
+      Skype: false
+      Trello: false
+      Mix: false
+    comment:
+      enable: true
+      disqus:
+        enable: false
+        shortname: yusank
+      gitalk:
+        enable: false
+        owner: ''
+        repo: ''
+        clientId: ''
+        clientSecret: ''
+      valine:
+        enable: false
+        appId: ''
+        appKey: ''
+        placeholder: ''
+        avatar: wavatar
+        meta: ''
+        pageSize: 10
+        lang: ''
+        visitor: true
+        recordIP: true
+        highlight: true
+        enableQQ: true
+        serverURLs: ''
+        emoji: apple.yml
+      facebook:
+        enable: false
+        width: 100%
+        numPosts: 10
+        appId: ''
+        languageCode: zh_CN
+      telegram:
+        enable: false
+        siteID: ''
+        limit: 5
+        height: ''
+        color: ''
+        colorful: true
+        dislikes: false
+        outlined: false
+      commento:
+        enable: false
+      utterances:
+        enable: true
+        repo: yusank/yusank.github.io
+        issueTerm: pathname
+        label: Comment
+        lightTheme: github-light
+        darkTheme: github-dark
+    library:
+      css: {}
+      js: {}
+    seo:
+      images: []
+      publisher:
+        name: ''
+        logoUrl: ''
+  typeit:
+    speed: 90
+    cursorSpeed: 1000
+    cursorChar: '|'
+    duration: -1
+  verification:
+    google: ''
+    bing: ''
+    yandex: ''
+    pinterest: ''
+    baidu: ''
+  seo:
+    image: ''
+    thumbnailUrl: ''
+  analytics:
+    enable: true
+    google:
+      id: G-24P8ZSJHCQ
+      anonymizeIP: true
+    fathom:
+      id: ''
+      server: ''
+  cookieconsent:
+    enable: false
+    content:
+      message: ''
+      dismiss: ''
+      link: ''
+  cdn:
+    data: jsdelivr.yml
+  compatibility:
+    polyfill: false
+    objectFit: false
+  adsbygoogle:
+    enable: true
+    code: ca-pub-7859878302610774
+markup:
+  highlight:
+    codeFences: true
+    guessSyntax: true
+    lineNos: true
+    lineNumbersInTable: true
+    noClasses: false
+  goldmark:
+    extensions:
+      definitionList: true
+      footnote: true
+      linkify: true
+      strikethrough: true
+      table: true
+      taskList: true
+      typographer: true
+    parser:
+      attribute: true
+      autoHeadingID: true
+      autoHeadingIDType: github
+    renderer:
+      unsafe: true
+      hardWraps: false
+      xHTML: false
+  tableOfContents:
+    startLevel: 2
+    endLevel: 4
+author:
+  name: Yusank
+  email: yusankuban@gmail.com
+  link: 'https://github.com/yusank'
+sitemap:
+  changefreq: weekly
+  filename: sitemap.xml
+  priority: 0.5
+Permalinks:
+  posts: 'posts/:filename'
+privacy:
+  googleAnalytics: {}
+  twitter:
+    enableDNT: true
+  youtube:
+    privacyEnhanced: true
+mediaTypes:
+  text/plain:
+    suffixes:
+      - md
+outputFormats:
+  MarkDown:
+    mediaType: text/plain
+    isPlainText: true
+    isHTML: false
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
+  page:
+    - HTML
+    - MarkDown
+  section:
+    - HTML
+    - RSS
+  taxonomy:
+    - HTML
+    - RSS
+  taxonomyTerm:
+    - HTML
