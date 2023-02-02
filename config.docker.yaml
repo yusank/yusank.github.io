@@ -1,10 +1,12 @@
-baseURL: 'https://yusank.github.io/'
+baseURL: 'https://yusank.space/'
 title: Yusank`s Site
 defaultContentLanguage: zh-cn
+languageCode: zh-CN
+hasCJKLanguage: true
 theme: LoveIt
 summaryLength: 40
 enableEmoji: true
-enableGitInfo: true
+enableGitInfo: false
 enableRobotsTXT: true
 paginate: 7
 languages:
@@ -136,10 +138,13 @@ languages:
           weight: 7
 params:
   version: 0.2.X
-  description: 这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验.
+  description: 这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验。见证从小白到大牛的成长过程。
   keywords:
     - yusank
-    - Tech
+    - tech
+    - go
+    - golang
+    - blog
   defaultTheme: auto
   gitRepo: ''
   fingerprint: ''
@@ -147,7 +152,7 @@ params:
   images:
     - /logo.png
   app:
-    title: Yusank's Site
+    title: Yusank`s Site
     noFavicon: false
     svgFavicon: ''
     themeColor: '#ffffff'
@@ -170,19 +175,19 @@ params:
     desktopMode: fixed
     mobileMode: auto
     title:
-      logo: 'https://yusank.github.io/images/logo.svg'
+      logo: 'https://yusank.space/images/logo.svg'
       name: usank`s Site
       pre: ''
       post: ''
       typeit: true
   footer:
     enable: true
-    custom: Keep learning and stay with lights.<br>❤ yusank<br>
+    custom: Keep learning and stay with lights.<br>❤ Yusank<br>
     hugo: true
     copyright: true
     author: false
     since: 2017
-    icp: ''
+    icp: '<a href=''https://beian.miit.gov.cn''>京ICP备2022000567号-1</a>'
     license: >-
       <a rel="license external nofollow noopener noreffer"
       href="https://creativecommons.org/licenses/by/4.0/deed.zh"
@@ -200,12 +205,12 @@ params:
     profile:
       enable: true
       gravatarEmail: ''
-      avatarURL: 'https://yusank.github.io/images/avatar.png'
+      avatarURL: 'https://yusank.space/images/avatar.png'
       title: Yusank
-      subtitle: 这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验.
+      subtitle: 这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验。见证从小白到大牛的成长过程。
       typeit: true
       social: true
-      disclaimer: 本网站内所有<b>非标注为转载</b>的内容均为作者本人原创，若转发请标注出处并带上原文链接。<br><b>支持原创，尊重原创，谢谢!</b>
+      disclaimer: 本网站内所有内容均为作者本人原创，若转发请标注出处并带上原文链接。<br><b>支持原创，尊重原创，谢谢!</b>
     posts:
       enable: true
       paginate: 6
@@ -213,7 +218,7 @@ params:
   social:
     GitHub: yusank
     Linkedin: yusan-kurban-037a31a7
-    Twitter: 'yusankurban'
+    Twitter: ''
     Instagram: ''
     Facebook: ''
     Telegram: ''
@@ -291,7 +296,7 @@ params:
       auto: false
     code:
       copy: true
-      maxShownLines: 70
+      maxShownLines: 50
     math:
       enable: true
       blockLeftDelimiter: ''
@@ -349,9 +354,9 @@ params:
         clientId: ''
         clientSecret: ''
       valine:
-        enable: false
-        appId: ''
-        appKey: ''
+        enable: true
+        appId: PU7OIOExBdMOjqRb4xm2Q27u-MdYXbMMI
+        appKey: xOlCURz52lYd4ltxtqeT2Odc
         placeholder: ''
         avatar: wavatar
         meta: ''
@@ -361,7 +366,7 @@ params:
         recordIP: true
         highlight: true
         enableQQ: true
-        serverURLs: ''
+        serverURLs: 'https://leancloud.yusank.space'
         emoji: apple.yml
       facebook:
         enable: false
@@ -381,7 +386,7 @@ params:
       commento:
         enable: false
       utterances:
-        enable: true
+        enable: false
         repo: yusank/yusank.github.io
         issueTerm: pathname
         label: Comment
@@ -396,7 +401,7 @@ params:
         name: ''
         logoUrl: ''
   typeit:
-    speed: 90
+    speed: 70
     cursorSpeed: 1000
     cursorChar: '|'
     duration: -1
@@ -412,7 +417,7 @@ params:
   analytics:
     enable: true
     google:
-      id: G-24P8ZSJHCQ
+      id: G-1085SLT660
       anonymizeIP: true
     fathom:
       id: ''

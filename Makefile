@@ -4,15 +4,15 @@ help:  ## Display this help
 .PHONY: docker-build
 docker-build: ## build docker image
 	## change config
-	cat config.toml > config.backup.toml
-	rm -f config.toml
-	mv config.docker.toml config.toml
+	cat config.yaml > config.backup.yaml
+	rm -f config.yaml
+	mv config.docker.yaml config.yaml
 	
 	docker build -t yusank/hugo_blog:$(TAG) .
 	# recover
-	mv config.toml config.docker.toml
-	cat config.backup.toml > config.toml
-	rm -f config.backup.toml
+	mv config.yaml config.docker.yaml
+	cat config.backup.yaml > config.yaml
+	rm -f config.backup.yaml
 .PHONY: docker-run
 docker-run: ## run latest docker image localy
 	docker rm -f blog
