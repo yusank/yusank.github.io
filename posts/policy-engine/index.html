@@ -1,0 +1,940 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><title>基于策略的 kubernetes admission webhook · 一 - Yusank`s Site</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7859878302610774" crossorigin=anonymous></script><meta name=Description content="这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验."><meta property="og:title" content="基于策略的 kubernetes admission webhook · 一"><meta property="og:description" content="
+本篇介绍一款基于策略/规则的 kubernetes webhook - kinitiras, 一个轻量，强大且可编程的策略引擎。该引擎提供强大的编程和模板能力，可以通过规则完成绝大部分的对 webhook 的需求。
+"><meta property="og:type" content="article"><meta property="og:url" content="https://yusank.github.io/posts/policy-engine/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-02-01T10:50:00+08:00"><meta property="article:modified_time" content="2023-02-02T17:48:06+08:00"><meta property="og:site_name" content="Yusank`s Site"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://yusank.github.io/logo.png"><meta name=twitter:title content="基于策略的 kubernetes admission webhook · 一"><meta name=twitter:description content="
+本篇介绍一款基于策略/规则的 kubernetes webhook - kinitiras, 一个轻量，强大且可编程的策略引擎。该引擎提供强大的编程和模板能力，可以通过规则完成绝大部分的对 webhook 的需求。
+"><meta name=application-name content="Yusank's Site"><meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/posts/policy-engine/><link rel=prev href=https://yusank.github.io/posts/microservices-grpc-part2/><link rel=stylesheet href=/css/style.min.css><link rel=preload href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css as=style onload='this.onload=null,this.rel="stylesheet"'><noscript><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css></noscript><link rel=preload href=https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css as=style onload='this.onload=null,this.rel="stylesheet"'><noscript><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css></noscript><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"基于策略的 kubernetes admission webhook · 一","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/posts\/policy-engine\/"},"genre":"posts","keywords":"kubernetes, 策略引擎, webhook","wordcount":7143,"url":"https:\/\/yusank.github.io\/posts\/policy-engine\/","datePublished":"2023-02-01T10:50:00+08:00","dateModified":"2023-02-02T17:48:06+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head><body data-header-desktop=fixed data-header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-1 class=typeit></span></a></div><div class=menu><div class=menu-inner><a class=menu-item href=/posts/>文章 </a><a class=menu-item href=/categories/>分类 </a><a class=menu-item href=/tags/>标签 </a><a class=menu-item href=/about/>关于 </a><a class=menu-item href=/links/>友链 </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class='fab fa-github fa-fw'></i> </a><a class=menu-item href=https://go-goim.github.io title=GoIM rel="noopener noreffer" target=_blank><i class='far fa-share-square'></i> GoIM </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item language" title=选择语言>Chinese<i class="fas fa-chevron-right fa-fw" aria-hidden=true></i>
+<select class=language-select id=language-select-desktop onchange="location=this.value"><option value=/en/posts/policy-engine/>English</option><option value=/posts/policy-engine/ selected>Chinese</option></select>
+</a><span class="menu-item search" id=search-desktop><input type=text placeholder=搜索文章标题或内容... id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=搜索><i class="fas fa-search fa-fw" aria-hidden=true></i></a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=清空><i class="fas fa-times-circle fa-fw" aria-hidden=true></i></a>
+<span class="search-button search-loading" id=search-loading-desktop><i class="fas fa-spinner fa-fw fa-spin" aria-hidden=true></i></span>
+</span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题><i class="fas fa-adjust fa-fw" aria-hidden=true></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-2 class=typeit></span></a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><div class=search-wrapper><div class="search mobile" id=search-mobile><input type=text placeholder=搜索文章标题或内容... id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=搜索><i class="fas fa-search fa-fw" aria-hidden=true></i></a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=清空><i class="fas fa-times-circle fa-fw" aria-hidden=true></i></a>
+<span class="search-button search-loading" id=search-loading-mobile><i class="fas fa-spinner fa-fw fa-spin" aria-hidden=true></i></span></div><a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>取消</a></div><a class=menu-item href=/posts/ title>文章</a><a class=menu-item href=/categories/ title>分类</a><a class=menu-item href=/tags/ title>标签</a><a class=menu-item href=/about/ title>关于</a><a class=menu-item href=/links/ title>友链</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class='fab fa-github fa-fw'></i></a><a class=menu-item href=https://go-goim.github.io title=GoIM rel="noopener noreffer" target=_blank><i class='far fa-share-square'></i>GoIM</a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw" aria-hidden=true></i>
+</a><a href=javascript:void(0); class=menu-item title=选择语言>Chinese<i class="fas fa-chevron-right fa-fw" aria-hidden=true></i>
+<select class=language-select onchange="location=this.value"><option value=/en/posts/policy-engine/>English</option><option value=/posts/policy-engine/ selected>Chinese</option></select></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>目录</h2><div class="toc-content always-active" id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">基于策略的 kubernetes admission webhook · 一</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw" aria-hidden=true></i>Yusank</a></span>&nbsp;<span class=post-category>收录于 <a href=/categories/kubernetes/><i class="far fa-folder fa-fw" aria-hidden=true></i>kubernetes</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw" aria-hidden=true></i>&nbsp;<time datetime=2023-02-01>2023-02-01</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden=true></i>&nbsp;约 7143 字&nbsp;
+<i class="far fa-clock fa-fw" aria-hidden=true></i>&nbsp;预计阅读 15 分钟&nbsp;</div></div><div class="details toc" id=toc-static data-kept><div class="details-summary toc-title"><span>目录</span>
+<span><i class="details-icon fas fa-angle-right" aria-hidden=true></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#1背景>1.背景</a></li><li><a href=#2能力>2.能力</a><ul><li><a href=#21-校验资源>2.1 校验资源</a></li><li><a href=#22-修改资源>2.2 修改资源</a></li></ul></li><li><a href=#3设计>3.设计</a><ul><li><a href=#31-基础概念>3.1 基础概念</a></li><li><a href=#32-核心逻辑>3.2 核心逻辑</a></li><li><a href=#33-api-definition>3.3 Api definition</a><ul><li><a href=#331-resource-selector>3.3.1 Resource selector</a></li><li><a href=#332-validate-rule>3.3.2 Validate rule</a></li><li><a href=#333-override-rule>3.3.3 Override rule</a></li></ul></li></ul></li><li><a href=#4实现>4.实现</a><ul><li><a href=#41-kinitiras>4.1 kinitiras</a><ul><li><a href=#412-初始化>4.1.2 初始化</a></li><li><a href=#412-admission-handler>4.1.2 admission handler</a></li></ul></li><li><a href=#42-pkg>4.2 pkg</a><ul><li><a href=#421-interrupter>4.2.1 interrupter</a></li><li><a href=#422-渲染>4.2.2 渲染</a></li><li><a href=#423-策略命中>4.2.3 策略命中</a></li><li><a href=#424-策略执行>4.2.4 策略执行</a></li></ul></li></ul></li><li><a href=#5总结>5.总结</a></li><li><a href=#6链接>6.链接🔗</a></li></ul></nav></div></div><div class=content id=content><blockquote><p>本篇介绍一款基于策略/规则的 kubernetes webhook - <code>kinitiras</code>, 一个轻量，强大且可编程的策略引擎。该引擎提供强大的编程和模板能力，可以通过规则完成绝大部分的对 webhook 的需求。</p></blockquote><h2 id=1背景>1.背景</h2><div class="details admonition quote open"><div class="details-summary admonition-title"><i class="icon fas fa-quote-right fa-fw" aria-hidden=true></i>Definition<i class="details-icon fas fa-angle-right fa-fw" aria-hidden=true></i></div><div class=details-content><div class=admonition-content><p>准入 Webhook 是一种用于接收准入请求并对其进行处理的 HTTP 回调机制。 可以定义两种类型的准入 webhook，即 <code>验证性质的准入</code> Webhook 和 <code>修改性质的准入</code> Webhook。 <code>修改性质的准入 Webhook 会先被调用</code>。它们可以更改发送到 API 服务器的对象以执行自定义的设置默认值操作。</p><p>在完成了所有对象修改并且 API 服务器也验证了所传入的对象之后， 验证性质的 Webhook 会被调用，并通过拒绝请求的方式来强制实施自定义的策略。</p></div></div></div><p>以上是 kubernetes 给出的定义，简单来说，k8s 的 webhook 分为两类 <code>validating</code> 和 <code>mutating</code> 分别用于校验和修改 k8s 资源的修改操作。当用户创建 or 修改资源时，<code>apiserver</code> 会调用(http)已注册的 <code>validating</code> 和 <code>mutating</code> webhook，在这些 webhook 响应后才真正处理这次修改操作。</p><figure><a class=lightgallery href=/posts/policy-engine/webhook-process.png title=/posts/policy-engine/webhook-process.png data-thumbnail=/posts/policy-engine/webhook-process.png data-sub-html="<h2>执行流程</h2>"><img class=lazyload src=/svg/loading.min.svg data-src=/posts/policy-engine/webhook-process.png data-srcset="/posts/policy-engine/webhook-process.png, /posts/policy-engine/webhook-process.png 1.5x, /posts/policy-engine/webhook-process.png 2x" data-sizes=auto alt=/posts/policy-engine/webhook-process.png width=800 height=328></a><figcaption class=image-caption>执行流程</figcaption></figure><p>对于熟悉云原生开发或熟悉 k8s 的开发来说，webhook 应该是非常熟悉的一块，也应该写过多多少少的相关代码。作为 k8s 原生提供的能力，目前的 webhook 开发/使用方式可以说是非常不友好且很原始，k8s 很多能力都可以通过修改已有的对象或 CRD 的信息达到目的（如更新镜像，滚动升级等），唯有 webhook 需要写代码开发且注册到 <code>apiserver</code> 并运行程序来达到目的。</p><p>然而在日常开发中，大多数对于 webhook 的需求仅限于很简单的一些能力，比如校验某些对象的字段和合法性、修改特定的对象的信息（打 label、annotation or 修改资源规格等），这就导致了每次新增需求或者修改需求时都需要开发改代码打包发版。这使得整个过程效率很低，同时会存在一个集群内注册了过多的 webhook 使 apiserver 的响应时间被拉长，可靠性降低。</p><p>为了解决以上的提到的这些问题，我们开发了一套全新的基于规则的可编程的 webhook &ndash; <a href=https://github.com/k-cloud-labs/kinitiras target=_blank rel="noopener noreffer">kinitiras</a>，希望能通过该组件来代替集群内所有的 webhook 并且所有的需求可以通过该组件来解决无需自己开发新的 webhook，提升效率的同时减少因多个 webhook 带来的安全隐患。</p><h2 id=2能力>2.能力</h2><figure><a class=lightgallery href=/posts/policy-engine/kinitiras.org.png title=/posts/policy-engine/kinitiras.org.png data-thumbnail=/posts/policy-engine/kinitiras.org.png data-sub-html="<h2>特性</h2>"><img class=lazyload src=/svg/loading.min.svg data-src=/posts/policy-engine/kinitiras.org.png data-srcset="/posts/policy-engine/kinitiras.org.png, /posts/policy-engine/kinitiras.org.png 1.5x, /posts/policy-engine/kinitiras.org.png 2x" data-sizes=auto alt=/posts/policy-engine/kinitiras.org.png width=800 height=1838></a><figcaption class=image-caption>特性</figcaption></figure><p>在讲述其设计与实现之前，这里先讲述一下 kinitiras 能干什么，具备哪些能力。</p><h3 id=21-校验资源>2.1 校验资源</h3><p><a href=https://k-cloud-labs.github.io/kinitiras-doc/usage/basic-usage/#clustervalidatepolicy target=_blank rel="noopener noreffer">策略例子</a></p><p>我们可以对不同的资源配置不同的策略，从而减少出现一些不可控情况或者限制一些特殊操作，比如：</p><ul><li>对于创建更新操作，可以对资源的一些字段进行限制（不可空 或者 其值等于不等于指定的值等等）</li><li>限制更新或删除操作。可以对一些特定的资源（ns or deployment）进行禁止删除或者二次确认机制（只有存在指定的 annotation 才允许删除）</li><li>字段校验</li></ul><p>这些校验的字段和值可以为当前的 object 的值 也可以跟其他 object 的值（比如与 cm 或者 secret 等其他 object 对比）也为第三方 http 服务获取的数据进行对比校验。</p><h3 id=22-修改资源>2.2 修改资源</h3><p><a href=https://k-cloud-labs.github.io/kinitiras-doc/usage/basic-usage/#overridepolicy target=_blank rel="noopener noreffer">策略例子</a></p><p>对于修改资源，我们的策略可以配置很多不同场景，满足不同的需求，比如：</p><ul><li>给资源统一打标签打 annotation</li><li>修改资源规格</li><li>修改资源的 affinity toleration 等</li></ul><p>而这个修改的值，均可以为动态的，可以从别的 object 获取（比如把 owner 的属性写到 pod 上）也可以从第三方 http 服务获取（我自己有类似的需求）。</p><h2 id=3设计>3.设计</h2><p><code>Kinitiras</code> 是来自希腊语 <code>κινητήρας (kini̱tí̱ras)</code>，意思为发动机（engine/motor），该项目的核心能力也是一个基于策略/规则的引擎，提供高效强大的能力。</p><h3 id=31-基础概念>3.1 基础概念</h3><table><thead><tr><th style=text-align:left>概念</th><th style=text-align:left>意义</th><th style=text-align:left>说明</th></tr></thead><tbody><tr><td style=text-align:left><code>validating</code></td><td style=text-align:left>校验</td><td style=text-align:left>验证资源对象的合法性</td></tr><tr><td style=text-align:left><code>mutating</code></td><td style=text-align:left>修改</td><td style=text-align:left>修改资源对象的字段</td></tr><tr><td style=text-align:left><code>policy</code></td><td style=text-align:left>策略/规则</td><td style=text-align:left>一条可执行的策略/规则</td></tr><tr><td style=text-align:left><code>override policy</code></td><td style=text-align:left>修改策略</td><td style=text-align:left>表示用于修改资源的策略</td></tr><tr><td style=text-align:left><code>validate policy</code></td><td style=text-align:left>校验策略</td><td style=text-align:left>表示用于校验资源的策略</td></tr><tr><td style=text-align:left><code>cue</code></td><td style=text-align:left>cue 语言</td><td style=text-align:left>是一个开源的可编程的 json 超集，<a href=https://cuelang.org target=_blank rel="noopener noreffer">https://cuelang.org</a></td></tr></tbody></table><h3 id=32-核心逻辑>3.2 核心逻辑</h3><p>kinitiras 核心逻辑如下：</p><ol><li>分别定义 validating 和 mutating 对应的 crd 表示一条策略（policy），记录策略生效的范围（指定资源名称或 label）和执行规则（校验或修改内容）</li><li>注册统一的 webhook configuration，默认订阅所有带有特定 label 的资源的修改删除事件（安装时可自定义该配置）</li><li>在收到 apiserver 的回调时，当前被修改的资源和已有的策略匹配筛选命中的策略列表</li><li>按循序执行策略</li></ol><figure><a class=lightgallery href=/posts/policy-engine/engine-process.png title=/posts/policy-engine/engine-process.png data-thumbnail=/posts/policy-engine/engine-process.png data-sub-html="<h2>策略引擎核心逻辑(流程中步骤 3 和步骤 4 标反了)</h2>"><img class=lazyload src=/svg/loading.min.svg data-src=/posts/policy-engine/engine-process.png data-srcset="/posts/policy-engine/engine-process.png, /posts/policy-engine/engine-process.png 1.5x, /posts/policy-engine/engine-process.png 2x" data-sizes=auto alt=/posts/policy-engine/engine-process.png width=800 height=618></a><figcaption class=image-caption>策略引擎核心逻辑(流程中步骤 3 和步骤 4 标反了)</figcaption></figure><h3 id=33-api-definition>3.3 Api definition</h3><p>本项目定义了三个 CRD：</p><ul><li><a href=https://doc.crds.dev/github.com/k-cloud-labs/pkg/policy.kcloudlabs.io/OverridePolicy/v1alpha1@v0.4.3 target=_blank rel="noopener noreffer">OverridePolicy</a>: 用来修改资源信息（namespace 级别）</li><li><a href=https://doc.crds.dev/github.com/k-cloud-labs/pkg/policy.kcloudlabs.io/ClusterOverridePolicy/v1alpha1@v0.4.3 target=_blank rel="noopener noreffer">ClusterOverridePolicy</a>: 用来修改资源信息（cluster 级别）</li><li><a href=https://doc.crds.dev/github.com/k-cloud-labs/pkg/policy.kcloudlabs.io/ClusterValidatePolicy/v1alpha1@v0.4.3 target=_blank rel="noopener noreffer">ClusterValidatePolicy</a>: 用来校验资源信息（cluster 级别）</li></ul><p>下面将定义的 crd 的核心部分简单讲解一下。</p><h4 id=331-resource-selector>3.3.1 Resource selector</h4><p>ResourceSelector the resources will be selected.</p><table><thead><tr><th style=text-align:left>Field</th><th style=text-align:left>type</th><th style=text-align:center>required</th><th style=text-align:left>Description</th></tr></thead><tbody><tr><td style=text-align:left>apiVersion</td><td style=text-align:left>string</td><td style=text-align:center>Y</td><td style=text-align:left>APIVersion represents the API version of the target resources.</td></tr><tr><td style=text-align:left>kind</td><td style=text-align:left>string</td><td style=text-align:center>Y</td><td style=text-align:left>Kind represents the Kind of the target resources.</td></tr><tr><td style=text-align:left>namespace</td><td style=text-align:left>string</td><td style=text-align:center>N</td><td style=text-align:left>Namespace of the target resource. Default is empty, which means inherit from the parent object scope.</td></tr><tr><td style=text-align:left>name</td><td style=text-align:left>string</td><td style=text-align:center>N</td><td style=text-align:left>Name of the target resource. Default is empty, which means selecting all resources.</td></tr><tr><td style=text-align:left>labelSelector</td><td style=text-align:left><a href=https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#labelselector-v1-meta target=_blank rel="noopener noreffer">Kubernetes meta/v1.LabelSelector</a></td><td style=text-align:center>N</td><td style=text-align:left>A label query over a set of resources. If name is not empty, labelSelector will be ignored.</td></tr><tr><td style=text-align:left>fieldSelector</td><td style=text-align:left><a href=https://k-cloud-labs.github.io/kinitiras-doc/CRD/api-reference/#policy.kcloudlabs.io/v1alpha1.FieldSelector target=_blank rel="noopener noreffer">FieldSelector</a></td><td style=text-align:center>N</td><td style=text-align:left>A field query over a set of resources. If name is not empty, fieldSelector wil be ignored.</td></tr></tbody></table><p>该结构是用于选择策略匹配资源，可以指定特定的某个资源，也可以选择指定 label 或 field 的方式对一组资源都生效。</p><p>for example:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># match with all the pod which contains label webhook:enabled</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>resourceSelectors</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Pod</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>labelSelector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>webhook</span><span class=p>:</span><span class=w> </span><span class=l>enabled</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=332-validate-rule>3.3.2 Validate rule</h4><p>Defines validate rules on operations.</p><table><thead><tr><th style=text-align:left>Field</th><th style=text-align:left>type</th><th style=text-align:center>required</th><th style=text-align:left>Description</th></tr></thead><tbody><tr><td style=text-align:left>targetOperations</td><td style=text-align:left><a href=https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#operation-v1-admission target=_blank rel="noopener noreffer">[]Kubernetes admission/v1.Operation</a></td><td style=text-align:center>Y</td><td style=text-align:left>Operations is the operations the admission hook cares about - CREATE, UPDATE, DELETE, CONNECT or <code>*</code> for all of those operations and any future admission operations that are added. If <code>*</code> is present, the length of the slice must be one.</td></tr><tr><td style=text-align:left>cue</td><td style=text-align:left>string</td><td style=text-align:center>N</td><td style=text-align:left>Cue represents validate rules defined with cue code.</td></tr><tr><td style=text-align:left>template</td><td style=text-align:left><a href=https://k-cloud-labs.github.io/kinitiras-doc/CRD/api-reference/#policy.kcloudlabs.io/v1alpha1.ValidateRuleTemplate target=_blank rel="noopener noreffer">ValidateRuleTemplate</a></td><td style=text-align:center>N</td><td style=text-align:left>Template of condition which defines validate cond, and it will be rendered to CUE and store in RenderedCue field, so if there are any data added manually will be erased.</td></tr><tr><td style=text-align:left>renderedCue</td><td style=text-align:left>string</td><td style=text-align:center>N</td><td style=text-align:left>RenderedCue represents validate rule defined by Template. Don’t modify the value of this field, modify Rules instead of.</td></tr></tbody></table><p>这里是定义 validate 策略的执行逻辑相关信息。</p><ul><li>targetOperations：表示生效的操作类型，即可以定义只对创建 or delete 事件生效</li><li>cue：该字段可填写一段 cue 代码，会在命中策略后执行该代码，请看下面 Example</li><li>template：定义了一个简单的模板，将一些常见的校验常见模板化（无需写 cue 了）</li><li>renderedCue：模板最终会自动渲染成 cue 代码并存储到该字段上。</li></ul><p>cue example：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>validateRules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># 这段代码表示，检查当前资源的 label 如果有不可删除的标识，则拒绝这次删除操作</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>cue</span><span class=p>:</span><span class=w> </span><span class=p>|-</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>    object: _ @tag(object)
+</span></span></span><span class=line><span class=cl><span class=sd>    reject: object.metadata.labels != null &amp;&amp; object.metadata.labels[&#34;xxx.io/no-delete&#34;] == &#34;true&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>    validate: {
+</span></span></span><span class=line><span class=cl><span class=sd>        if reject{
+</span></span></span><span class=line><span class=cl><span class=sd>                reason: &#34;operation rejected&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>        }
+</span></span></span><span class=line><span class=cl><span class=sd>        if !reject{
+</span></span></span><span class=line><span class=cl><span class=sd>                reason: &#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>        }
+</span></span></span><span class=line><span class=cl><span class=sd>        valid: !reject
+</span></span></span><span class=line><span class=cl><span class=sd>    }</span><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>targetOperations</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>   </span>- <span class=l>DELETE</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>template example:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># 表示 存在 no-delete annotation 时 拒绝本次删除操作</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>validateRules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>targetOperations</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>DELETE</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>condition</span><span class=w> </span><span class=c># 当前只有 condition 一个类型，后续扩展</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>condition</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>affectMode</span><span class=p>:</span><span class=w> </span><span class=l>reject</span><span class=w> </span><span class=c># 表示命中该规则是拒绝，可以设置为 allow 表示只有命中时才准入，默认是 reject</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>cond</span><span class=p>:</span><span class=w> </span><span class=l>Exist</span><span class=w> </span><span class=c># 支持存在 不存在 大于 小于 等操作</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>message</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;cannot delete this ns&#34;</span><span class=w> </span><span class=c># 命中时返回的信息</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>dataRef</span><span class=p>:</span><span class=w> </span><span class=c># 校验的数据来源</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>from</span><span class=p>:</span><span class=w> </span><span class=l>current</span><span class=w> </span><span class=c># current 表示当前 object 中获取，支持从当前集群的其他资源或者通过 http 请求获取数据</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/metadata/annotations/no-delete&#34;</span><span class=w> </span><span class=c># 数据 path</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>这种模板化的方式，可以减少学习 cue 的成本，能满足大部分判断字段是否存在，与其他字段做大小对比等场景。</p><h4 id=333-override-rule>3.3.3 Override rule</h4><p>Overriders offers various alternatives to represent the override rules.</p><p>If more than one alternative exist, they will be applied with following order:</p><ul><li>RenderCue</li><li>Cue</li><li>Plaintext</li></ul><table><thead><tr><th style=text-align:left>Field</th><th style=text-align:left>type</th><th style=text-align:center>required</th><th style=text-align:left>Description</th></tr></thead><tbody><tr><td style=text-align:left>plaintext</td><td style=text-align:left><a href=https://k-cloud-labs.github.io/kinitiras-doc/CRD/api-reference/#policy.kcloudlabs.io/v1alpha1.PlaintextOverrider target=_blank rel="noopener noreffer">[]PlaintextOverrider</a></td><td style=text-align:center>N</td><td style=text-align:left>Plaintext represents override rules defined with plaintext overriders.</td></tr><tr><td style=text-align:left>cue</td><td style=text-align:left>string</td><td style=text-align:center>N</td><td style=text-align:left>Cue represents override rules defined with cue code.</td></tr><tr><td style=text-align:left>template</td><td style=text-align:left><a href=https://k-cloud-labs.github.io/kinitiras-doc/CRD/api-reference/#policy.kcloudlabs.io/v1alpha1.OverrideRuleTemplate target=_blank rel="noopener noreffer">OverrideRuleTemplate</a></td><td style=text-align:center>N</td><td style=text-align:left>Template of rule which defines override rule, and it will be rendered to CUE and store in RenderedCue field, so if there are any data added manually will be erased.</td></tr><tr><td style=text-align:left>renderedCue</td><td style=text-align:left>string</td><td style=text-align:center>N</td><td style=text-align:left>RenderedCue represents override rule defined by Template. Don’t modify the value of this field, modify Rules instead of.</td></tr></tbody></table><p>这里定义 Override policy 的核心部分，即修改资源信息策略，其含义如下：</p><ul><li>plaintext：为简单的修改方式，填写操作的字段和值即可</li><li>cue：该字段可填写一段 cue 代码，会在命中策略后执行该代码，请看下面 Example</li><li>template：定义了一个简单的模板，将一些常见的修改模板化（无需写 cue 了）</li><li>renderedCue：模板最终会自动渲染成 cue 代码并存储到该字段上。</li></ul><p>plaintext example：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=w>  </span><span class=nt>overrideRules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>targetOperations</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=l>CREATE</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>overriders</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>plaintext</span><span class=p>:</span><span class=w> </span><span class=c># 为数组，可同时修改多个字段值，会直接 apply 到对象上</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span>- <span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=l>/metadata/annotations/added-by</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>op</span><span class=p>:</span><span class=w> </span><span class=l>add</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>value</span><span class=p>:</span><span class=w> </span><span class=l>op</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>cue example:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=w>  </span><span class=nt>overrideRules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>targetOperations</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=l>CREATE</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>overriders</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c># cue 部分，可以写相关逻辑，可以先判断当前 object 的值再进行操作，只要写入到 patches 的数组即可，可有多个</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>cue</span><span class=p>:</span><span class=w> </span><span class=p>|-</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>          object: _ @tag(object)
+</span></span></span><span class=line><span class=cl><span class=sd>          patches: [
+</span></span></span><span class=line><span class=cl><span class=sd>            if object.metadata.annotations == _|_ {
+</span></span></span><span class=line><span class=cl><span class=sd>              {
+</span></span></span><span class=line><span class=cl><span class=sd>                op: &#34;add&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>                path: &#34;/metadata/annotations&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>                value: {}
+</span></span></span><span class=line><span class=cl><span class=sd>              }
+</span></span></span><span class=line><span class=cl><span class=sd>            },
+</span></span></span><span class=line><span class=cl><span class=sd>            {
+</span></span></span><span class=line><span class=cl><span class=sd>              op: &#34;add&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>              path: &#34;/metadata/annotations/added-by&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>              value: &#34;cue&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>            }
+</span></span></span><span class=line><span class=cl><span class=sd>          ]</span><span class=w>          
+</span></span></span></code></pre></td></tr></table></div></div><p>template example:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># 对当前资源进行超卖，即修改资源的request为 limit * factor，从而可以达到集群内资源超卖的效果</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>overrideRules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>targetOperations</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>CREATE</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>overriders</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>resourcesOversell</span><span class=w> </span><span class=c># 以超售为例</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>operation</span><span class=p>:</span><span class=w> </span><span class=l>replace</span><span class=w> </span><span class=c># set remove to reset oversell</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>resourcesOversell</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=nt>cpuFactor</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;0.5&#34;</span><span class=w> </span><span class=c># use half of limit / set 0 as placeholder when it needed remove</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=nt>memoryFactor</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;0.2&#34;</span><span class=w> </span><span class=c># use 1/5 of limit</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=nt>diskFactor</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;0.1&#34;</span><span class=w> </span><span class=c># use 1/10 of limit</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>以上展示的 template 只是实现的一部分，更多使用方式可以查看官网的例子，<a href=https://k-cloud-labs.github.io/kinitiras-doc/usage/basic-usage/ target=_blank rel="noopener noreffer">点击跳转</a></p><h2 id=4实现>4.实现</h2><p>上面把 kinitiras 的工作原理和核心概念进行了讲述，从这里开始将其核心能力的实现镜像简单的描述，方便使用时debug 或了解底层实现。</p><div class="details admonition abstract open"><div class="details-summary admonition-title"><i class="icon fas fa-list-ul fa-fw" aria-hidden=true></i>项目结构<i class="details-icon fas fa-angle-right fa-fw" aria-hidden=true></i></div><div class=details-content><div class=admonition-content>项目整体来说分三个 repo，分别是 <code>kinitiras</code>, <code>pkg</code>, <code>pidalio</code>。每个 repo 的定位不同，其中 <code>kinitiras</code> 为比较常规的 webhook 项目，负责将自己注册到 apiserver，处理回调，<code>pkg</code>则为核心模块的实现，比如 api 定义，执行策略等。而 <code>pidalio</code> 为 client-go 的 transport 中间件，可以在客户端拦截请求执行策略的应用。本篇重点讲述前两个 repo 的核心实现。</div></div></div><h3 id=41-kinitiras>4.1 kinitiras</h3><p>项目地址：<a href=https://github.com/k-cloud-labs/kinitiras target=_blank rel="noopener noreffer">https://github.com/k-cloud-labs/kinitiras</a></p><p>本项目作为一个 webhook，核心逻辑就是，初始化各个参数和将自己注册到 apiserver，然后在回调函数里调用 <code>pkg</code> 提供的统一处理方法即可。</p><h4 id=412-初始化>4.1.2 初始化</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Run runs the webhook server with options. This should never exit.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nf>Run</span><span class=p>(</span><span class=nx>ctx</span> <span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>*</span><span class=nx>options</span><span class=p>.</span><span class=nx>Options</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>klog</span><span class=p>.</span><span class=nf>InfoS</span><span class=p>(</span><span class=s>&#34;kinitiras webhook starting.&#34;</span><span class=p>,</span> <span class=s>&#34;version&#34;</span><span class=p>,</span> <span class=nx>version</span><span class=p>.</span><span class=nf>Get</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>    <span class=nx>config</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>controllerruntime</span><span class=p>.</span><span class=nf>GetConfig</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=nx>config</span><span class=p>.</span><span class=nx>QPS</span><span class=p>,</span> <span class=nx>config</span><span class=p>.</span><span class=nx>Burst</span> <span class=p>=</span> <span class=nx>opts</span><span class=p>.</span><span class=nx>KubeAPIQPS</span><span class=p>,</span> <span class=nx>opts</span><span class=p>.</span><span class=nx>KubeAPIBurst</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>hookManager</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>controllerruntime</span><span class=p>.</span><span class=nf>NewManager</span><span class=p>(</span><span class=nx>config</span><span class=p>,</span> <span class=nx>controllerruntime</span><span class=p>.</span><span class=nx>Options</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// ... set options
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;failed to build webhook server.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// init clients, informer, lister
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>sm</span> <span class=o>:=</span> <span class=o>&amp;</span><span class=nx>setupManager</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>sm</span><span class=p>.</span><span class=nf>init</span><span class=p>(</span><span class=nx>hookManager</span><span class=p>,</span> <span class=nx>ctx</span><span class=p>.</span><span class=nf>Done</span><span class=p>());</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;init setup manager failed&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>sm</span><span class=p>.</span><span class=nf>waitForCacheSync</span><span class=p>(</span><span class=nx>ctx</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;wait for cache sync failed&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>sm</span><span class=p>.</span><span class=nf>setupInterrupter</span><span class=p>();</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;setup interrupter failed&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>setupCh</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>cert</span><span class=p>.</span><span class=nf>SetupCertRotator</span><span class=p>(</span><span class=nx>hookManager</span><span class=p>,</span> <span class=nx>cert</span><span class=p>.</span><span class=nx>Options</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// ... set options
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;failed to setup cert rotator controller.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>go</span> <span class=kd>func</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=o>&lt;-</span><span class=nx>setupCh</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1>// register handler here
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nx>hookServer</span> <span class=o>:=</span> <span class=nx>hookManager</span><span class=p>.</span><span class=nf>GetWebhookServer</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=nx>hookServer</span><span class=p>.</span><span class=nf>Register</span><span class=p>(</span><span class=s>&#34;/mutate&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>webhook</span><span class=p>.</span><span class=nx>Admission</span><span class=p>{</span><span class=nx>Handler</span><span class=p>:</span> <span class=nx>pkgwebhook</span><span class=p>.</span><span class=nf>NewMutatingAdmissionHandler</span><span class=p>(</span><span class=nx>sm</span><span class=p>.</span><span class=nx>overrideManager</span><span class=p>,</span> <span class=nx>sm</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>)})</span>
+</span></span><span class=line><span class=cl>        <span class=nx>hookServer</span><span class=p>.</span><span class=nf>Register</span><span class=p>(</span><span class=s>&#34;/validate&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>webhook</span><span class=p>.</span><span class=nx>Admission</span><span class=p>{</span><span class=nx>Handler</span><span class=p>:</span> <span class=nx>pkgwebhook</span><span class=p>.</span><span class=nf>NewValidatingAdmissionHandler</span><span class=p>(</span><span class=nx>sm</span><span class=p>.</span><span class=nx>validateManager</span><span class=p>,</span> <span class=nx>sm</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>)})</span>
+</span></span><span class=line><span class=cl>        <span class=nx>hookServer</span><span class=p>.</span><span class=nx>WebhookMux</span><span class=p>.</span><span class=nf>Handle</span><span class=p>(</span><span class=s>&#34;/readyz&#34;</span><span class=p>,</span> <span class=nx>http</span><span class=p>.</span><span class=nf>StripPrefix</span><span class=p>(</span><span class=s>&#34;/readyz&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>healthz</span><span class=p>.</span><span class=nx>Handler</span><span class=p>{}))</span>
+</span></span><span class=line><span class=cl>    <span class=p>}()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// blocks until the context is done.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>hookManager</span><span class=p>.</span><span class=nf>Start</span><span class=p>(</span><span class=nx>ctx</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;webhook server exits unexpectedly.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// never reach here
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>return</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>上述代码比较常规，只有 <code>sm.setupInterrupter()</code> 这块单独说一下。本 webhook 自定义了几个 CRD 作为策略的载体，而策略本身也需要进行校验和修改，尤其是提供了模板化(<code>template</code>)后，模板需要渲染成 <code>cue</code> 脚本，为了能够在策略创建时进行校验和渲染，引进了 <code>interrupter</code>的概念。<code>Interrupter</code> 顾名思义 &ndash; 拦截器，用来拦截策略并对策略的特定字段进行校验和对模版进行渲染，这些逻辑与常规的对象的校验和修改不太一样，因此不走普通的逻辑，只经过 <code>interrupter</code>的逻辑部分。而上述的的 <code>sm.setupInterrupter()</code> 是用来初始化这些 <code>interrupter</code> 的，代码如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>setupManager</span><span class=p>)</span> <span class=nf>setupInterrupter</span><span class=p>()</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 初始化模板 -- 模板渲染是基于 go.tmpl 实现的，因此这里初始化 tmpl
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>otm</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>templatemanager</span><span class=p>.</span><span class=nf>NewOverrideTemplateManager</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>templatemanager</span><span class=p>.</span><span class=nx>TemplateSource</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Content</span><span class=p>:</span>      <span class=nx>templates</span><span class=p>.</span><span class=nx>OverrideTemplate</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>TemplateName</span><span class=p>:</span> <span class=s>&#34;BaseTemplate&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;failed to setup mutating template manager.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 初始化模板 -- 模板渲染是基于 go.tmpl 实现的，因此这里初始化 tmpl
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>vtm</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>templatemanager</span><span class=p>.</span><span class=nf>NewValidateTemplateManager</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>templatemanager</span><span class=p>.</span><span class=nx>TemplateSource</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Content</span><span class=p>:</span>      <span class=nx>templates</span><span class=p>.</span><span class=nx>ValidateTemplate</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>TemplateName</span><span class=p>:</span> <span class=s>&#34;BaseTemplate&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;failed to setup validate template manager.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// base
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>baseInterrupter</span> <span class=o>:=</span> <span class=nx>interrupter</span><span class=p>.</span><span class=nf>NewBaseInterrupter</span><span class=p>(</span><span class=nx>otm</span><span class=p>,</span> <span class=nx>vtm</span><span class=p>,</span> <span class=nx>templatemanager</span><span class=p>.</span><span class=nf>NewCueManager</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// op
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>overridePolicyInterrupter</span> <span class=o>:=</span> <span class=nx>interrupter</span><span class=p>.</span><span class=nf>NewOverridePolicyInterrupter</span><span class=p>(</span><span class=nx>baseInterrupter</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>tokenManager</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>client</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>opLister</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// register interrupter to manager
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>s</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>.</span><span class=nf>AddInterrupter</span><span class=p>(</span><span class=nx>schema</span><span class=p>.</span><span class=nx>GroupVersionKind</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Group</span><span class=p>:</span>   <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Group</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Version</span><span class=p>:</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Version</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Kind</span><span class=p>:</span>    <span class=s>&#34;OverridePolicy&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span> <span class=nx>overridePolicyInterrupter</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// cop
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>s</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>.</span><span class=nf>AddInterrupter</span><span class=p>(</span><span class=nx>schema</span><span class=p>.</span><span class=nx>GroupVersionKind</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Group</span><span class=p>:</span>   <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Group</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Version</span><span class=p>:</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Version</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Kind</span><span class=p>:</span>    <span class=s>&#34;ClusterOverridePolicy&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span> <span class=nx>interrupter</span><span class=p>.</span><span class=nf>NewClusterOverridePolicyInterrupter</span><span class=p>(</span><span class=nx>overridePolicyInterrupter</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>copLister</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// cvp
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>s</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>.</span><span class=nf>AddInterrupter</span><span class=p>(</span><span class=nx>schema</span><span class=p>.</span><span class=nx>GroupVersionKind</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Group</span><span class=p>:</span>   <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Group</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Version</span><span class=p>:</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Version</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Kind</span><span class=p>:</span>    <span class=s>&#34;ClusterValidatePolicy&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span> <span class=nx>interrupter</span><span class=p>.</span><span class=nf>NewClusterValidatePolicyInterrupter</span><span class=p>(</span><span class=nx>baseInterrupter</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>tokenManager</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>client</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>cvpLister</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>s</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>.</span><span class=nf>OnStartUp</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=412-admission-handler>4.1.2 admission handler</h4><p>再来看看，注册的 handler 的逻辑了具体干了什么？</p><p>以 mutating 为例：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>a</span> <span class=o>*</span><span class=nx>MutatingAdmission</span><span class=p>)</span> <span class=nf>Handle</span><span class=p>(</span><span class=nx>ctx</span> <span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>req</span> <span class=nx>admission</span><span class=p>.</span><span class=nx>Request</span><span class=p>)</span> <span class=nx>admission</span><span class=p>.</span><span class=nx>Response</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>obj</span><span class=p>,</span> <span class=nx>oldObj</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>decodeObj</span><span class=p>(</span><span class=nx>a</span><span class=p>.</span><span class=nx>decoder</span><span class=p>,</span> <span class=nx>req</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>Errored</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusBadRequest</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>newObj</span> <span class=o>:=</span> <span class=nx>obj</span><span class=p>.</span><span class=nf>DeepCopy</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// if obj is known policy, then run policy interrupter
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 这里先调用拦截器逻辑，内部识别是否为已知的策略 crd 以及是否需要对其进行模版渲染等
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>patches</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>a</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>.</span><span class=nf>OnMutating</span><span class=p>(</span><span class=nx>newObj</span><span class=p>,</span> <span class=nx>oldObj</span><span class=p>,</span> <span class=nx>req</span><span class=p>.</span><span class=nx>Operation</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>Errored</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusInternalServerError</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 如果有需要修改的信息，则以 patches 的形式返回，这里就确定是已知的 crd，打 patch
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=nx>patches</span><span class=p>)</span> <span class=o>!=</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>V</span><span class=p>(</span><span class=mi>4</span><span class=p>).</span><span class=nf>InfoS</span><span class=p>(</span><span class=s>&#34;patches for policy&#34;</span><span class=p>,</span> <span class=s>&#34;policy&#34;</span><span class=p>,</span> <span class=nx>obj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>(),</span> <span class=s>&#34;patchesCount&#34;</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=nx>patches</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// patch data
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nx>patchedObj</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>json</span><span class=p>.</span><span class=nf>Marshal</span><span class=p>(</span><span class=nx>newObj</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>Errored</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusInternalServerError</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>PatchResponseFromRaw</span><span class=p>(</span><span class=nx>req</span><span class=p>.</span><span class=nx>Object</span><span class=p>.</span><span class=nx>Raw</span><span class=p>,</span> <span class=nx>patchedObj</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 其他资源或当前策略crd
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 这里是另一个核心点，匹配&amp;&amp;执行 策略
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>cops</span><span class=p>,</span> <span class=nx>ops</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>a</span><span class=p>.</span><span class=nx>overrideManager</span><span class=p>.</span><span class=nf>ApplyOverridePolicies</span><span class=p>(</span><span class=nx>newObj</span><span class=p>,</span> <span class=nx>oldObj</span><span class=p>,</span> <span class=nx>req</span><span class=p>.</span><span class=nx>Operation</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>Errored</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusInternalServerError</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>req</span><span class=p>.</span><span class=nx>Operation</span> <span class=o>==</span> <span class=nx>admissionv1</span><span class=p>.</span><span class=nx>Delete</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>Allowed</span><span class=p>(</span><span class=s>&#34;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>patchedObj</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>json</span><span class=p>.</span><span class=nf>Marshal</span><span class=p>(</span><span class=nx>newObj</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>Errored</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusInternalServerError</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>PatchResponseFromRaw</span><span class=p>(</span><span class=nx>req</span><span class=p>.</span><span class=nx>Object</span><span class=p>.</span><span class=nx>Raw</span><span class=p>,</span> <span class=nx>patchedObj</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>到这里为止，<code>kinitiras</code> 的核心逻辑基本讲述完毕，他的职责就是初始化，注册，并把回调请求引导到已实现的处理方法里，这些处理方法均由 <code>pkg</code> 项目来实现的。</p><h3 id=42-pkg>4.2 pkg</h3><p>项目地址： <a href=https://github.com/k-cloud-labs/pkg target=_blank rel="noopener noreffer">https://github.com/k-cloud-labs/pkg</a></p><p><code>pkg</code> 包含了大部分逻辑的实现，同时也包含了 crd 的定义和生成的 client 代码。接上面的提到的内容，这里主要讲述<code>interrupter</code>的实现部分和策略的命中和执行部分。</p><h4 id=421-interrupter>4.2.1 interrupter</h4><p>先看定义:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// PolicyInterrupterManager manage multi PolicyInterrupter and decide which one to use by gvk.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>PolicyInterrupterManager</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>PolicyInterrupter</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// AddInterrupter add a PolicyInterrupter to manager,
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//  it will replace interrupter if already add with same gvk.s
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>AddInterrupter</span><span class=p>(</span><span class=nx>gvk</span> <span class=nx>schema</span><span class=p>.</span><span class=nx>GroupVersionKind</span><span class=p>,</span> <span class=nx>pi</span> <span class=nx>PolicyInterrupter</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// PolicyInterrupter defines interrupt process for policy change
+</span></span></span><span class=line><span class=cl><span class=c1>// It validate and mutate policy.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>PolicyInterrupter</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// OnMutating called on &#34;/mutating&#34; api to complete policy
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// return nil means obj is not defined policy
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OnMutating</span><span class=p>(</span><span class=nx>obj</span><span class=p>,</span> <span class=nx>oldObj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>operation</span> <span class=nx>admissionv1</span><span class=p>.</span><span class=nx>Operation</span><span class=p>)</span> <span class=p>([]</span><span class=nx>jsonpatchv2</span><span class=p>.</span><span class=nx>JsonPatchOperation</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// OnValidating called on &#34;/validating&#34; api to validate policy
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// return nil means obj is not defined policy or no invalid field
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OnValidating</span><span class=p>(</span><span class=nx>obj</span><span class=p>,</span> <span class=nx>oldObj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>operation</span> <span class=nx>admissionv1</span><span class=p>.</span><span class=nx>Operation</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// OnStartUp called when webhook process initialize
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// return error if initial phase get any error
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OnStartUp</span><span class=p>()</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><code>PolicyInterrupterManager</code> 继承了 <code>PolicyInterrupter</code> 并新增一个添加 interrupter 的方法，用来管理多个 interrupter。而每一个 interrupter 都会实现下面的三个方法：</p><ul><li>OnMutating: 在 apiserver 回调 <code>/mutating</code> 接口时调用，主要用来渲染和补充策略信息</li><li>OnValidating: 在 apiserver 回调 <code>/validating</code> 接口时调用，主要用来校验策略信息</li><li>OnStartUp: 在 webhook 启动阶段调用，可做一些初始化工作（拉取缓存等）</li></ul><p>而 manager 的实现与实际 interrupter 不同，它首先识别当前的资源是不是我们定义的策略 crd，然后从内存找有没有对应的注册的 interrupter 再去调用该 interrupter 的对应方法。代码如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>policyInterrupterManagerImpl</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>interrupters</span> <span class=nx>sync</span><span class=p>.</span><span class=nx>Map</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>p</span> <span class=o>*</span><span class=nx>policyInterrupterManagerImpl</span><span class=p>)</span> <span class=nf>OnValidating</span><span class=p>(</span><span class=nx>obj</span><span class=p>,</span> <span class=nx>oldObj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>operation</span> <span class=nx>admissionv1</span><span class=p>.</span><span class=nx>Operation</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>interrupter</span> <span class=o>:=</span> <span class=nx>p</span><span class=p>.</span><span class=nf>getInterrupter</span><span class=p>(</span><span class=nx>obj</span><span class=p>);</span> <span class=nx>interrupter</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>interrupter</span><span class=p>.</span><span class=nf>OnValidating</span><span class=p>(</span><span class=nx>obj</span><span class=p>,</span> <span class=nx>oldObj</span><span class=p>,</span> <span class=nx>operation</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>p</span> <span class=o>*</span><span class=nx>policyInterrupterManagerImpl</span><span class=p>)</span> <span class=nf>getInterrupter</span><span class=p>(</span><span class=nx>obj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>)</span> <span class=nx>PolicyInterrupter</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>!</span><span class=nx>p</span><span class=p>.</span><span class=nf>isKnownPolicy</span><span class=p>(</span><span class=nx>obj</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>V</span><span class=p>(</span><span class=mi>5</span><span class=p>).</span><span class=nf>InfoS</span><span class=p>(</span><span class=s>&#34;unknown policy&#34;</span><span class=p>,</span> <span class=s>&#34;gvk&#34;</span><span class=p>,</span> <span class=nx>obj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>i</span><span class=p>,</span> <span class=nx>ok</span> <span class=o>:=</span> <span class=nx>p</span><span class=p>.</span><span class=nx>interrupters</span><span class=p>.</span><span class=nf>Load</span><span class=p>(</span><span class=nx>obj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>ok</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>V</span><span class=p>(</span><span class=mi>4</span><span class=p>).</span><span class=nf>InfoS</span><span class=p>(</span><span class=s>&#34;sub interrupter found&#34;</span><span class=p>,</span> <span class=s>&#34;gvk&#34;</span><span class=p>,</span> <span class=nx>obj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>i</span><span class=p>.(</span><span class=nx>PolicyInterrupter</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>p</span> <span class=o>*</span><span class=nx>policyInterrupterManagerImpl</span><span class=p>)</span> <span class=nf>isKnownPolicy</span><span class=p>(</span><span class=nx>obj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>)</span> <span class=kt>bool</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>group</span> <span class=o>:=</span> <span class=nx>strings</span><span class=p>.</span><span class=nf>Split</span><span class=p>(</span><span class=nx>obj</span><span class=p>.</span><span class=nf>GetAPIVersion</span><span class=p>(),</span> <span class=s>&#34;/&#34;</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>group</span> <span class=o>==</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Group</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=422-渲染>4.2.2 渲染</h4><p>渲染这个事儿前面已经提了无数遍，这里将一次性将渲染相关的设计和实现都讲清楚。</p><p><strong>先说背景。</strong></p><p>本项目在早期就支持了用户手写 cue 的方式在策略中执行复杂逻辑，从而满足不同的需求。但是写 cue 需要对这个语言的语法和特性有一定了解加上没有比较好的验证 cue 脚本合法性的机制，导致上手难度比较高，因此想到了把一些常见的情况抽象出来一个结构化的模板，使用者只需要在模板填写必要的参数，由 webhook 本身把这个模板翻译成 cue 脚本。</p><p>为了能够将结构化数据翻译成 cue 脚本，我们写了一个比较复杂的 <code>go/tmpl</code> (<a href=https://github.com/k-cloud-labs/pkg/tree/main/utils/templatemanager/templates target=_blank rel="noopener noreffer">template link</a>)，然后继续翻译。流程如下：</p><ol><li>interrupter 检查是否填写模板信息</li><li>根据模板类型进行渲染(tmpl.Execute) 生成 cue 脚本</li><li>对结果进行 format 和 lint 检查</li></ol><p>这个过程被称之为<code>渲染</code>。</p><p><strong>再说实现。</strong></p><p>由于相关模板和代码比较多，这里不进行展示，只把核心实现进行说明：</p><ol><li>为不同的 policy 写了不同的 <code>tmpl</code>。由于 validate 和 override 策略的 cue 执行结果的结构要求不同，因此写了两份 <code>tmpl</code> 根据 policy 去执行不同的渲染。<a href=https://github.com/k-cloud-labs/pkg/blob/main/utils/templatemanager/templatemanager.go target=_blank rel="noopener noreffer">code link</a></li><li>使用 cue 官方提供的 go package 进行 format 和 lint。cue 底层是 go 语言实现的，因此对 go 的支持比较友好，提供了相关 package，可以在代码中直接 format 和 lint cue 脚本，确保渲染后后的 cue 脚本时合法可运行的。<a href=https://github.com/k-cloud-labs/pkg/blob/main/utils/templatemanager/cuemanager.go target=_blank rel="noopener noreffer">code link</a></li></ol><h4 id=423-策略命中>4.2.3 策略命中</h4><p>当前 object 和策略的匹配过程如下：</p><ol><li>列出当前所有的策略。这块从 informer 内存读取，且根据当前是 validating 还是 mutating 的情况读取相对应的 policy 列表。</li><li>对于没有设置 resource selector 的策略，默认认为命中。</li><li>对于设置 resource selector 的策略，进行策略匹配（代码下面会展示。）</li><li>再对命中的策略中设置操作类型与当前 object 的操作类型进行匹配。</li><li>匹配完成。</li></ol><p>resource selector 匹配规则：</p><p><em>any means no matter if it&rsquo;s empty or not</em></p><table><thead><tr><th style=text-align:left>name</th><th style=text-align:left>label selector</th><th style=text-align:left>field selector</th><th style=text-align:left>result</th></tr></thead><tbody><tr><td style=text-align:left>not empty</td><td style=text-align:left>any</td><td style=text-align:left>any</td><td style=text-align:left>match name only</td></tr><tr><td style=text-align:left>empty</td><td style=text-align:left>empty</td><td style=text-align:left>empty</td><td style=text-align:left>match all</td></tr><tr><td style=text-align:left>empty</td><td style=text-align:left>not empty</td><td style=text-align:left>empty</td><td style=text-align:left>match labels only</td></tr><tr><td style=text-align:left>empty</td><td style=text-align:left>empty</td><td style=text-align:left>not empty</td><td style=text-align:left>match fields only</td></tr><tr><td style=text-align:left>empty</td><td style=text-align:left>not empty</td><td style=text-align:left>not empty</td><td style=text-align:left>match both labels and fields</td></tr></tbody></table><p>相关代码：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// ResourceMatchSelectors tells if the specific resource matches the selectors.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nf>ResourceMatchSelectors</span><span class=p>(</span><span class=nx>resource</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>selectors</span> <span class=o>...</span><span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>ResourceSelector</span><span class=p>)</span> <span class=kt>bool</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>rs</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>selectors</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 一个策略可以配置多个 selector，只要其中任意一个命中即可
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>if</span> <span class=nf>ResourceMatches</span><span class=p>(</span><span class=nx>resource</span><span class=p>,</span> <span class=nx>rs</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>true</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// ResourceMatches tells if the specific resource matches the selector.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nf>ResourceMatches</span><span class=p>(</span><span class=nx>resource</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>rs</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>ResourceSelector</span><span class=p>)</span> <span class=kt>bool</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>resource</span><span class=p>.</span><span class=nf>GetAPIVersion</span><span class=p>()</span> <span class=o>!=</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>APIVersion</span> <span class=o>||</span>
+</span></span><span class=line><span class=cl>        <span class=nx>resource</span><span class=p>.</span><span class=nf>GetKind</span><span class=p>()</span> <span class=o>!=</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>Kind</span> <span class=o>||</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=nx>rs</span><span class=p>.</span><span class=nx>Namespace</span><span class=p>)</span> <span class=p>&gt;</span> <span class=mi>0</span> <span class=o>&amp;&amp;</span> <span class=nx>resource</span><span class=p>.</span><span class=nf>GetNamespace</span><span class=p>()</span> <span class=o>!=</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>Namespace</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// name not empty, don&#39;t need to consult selector.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=nx>rs</span><span class=p>.</span><span class=nx>Name</span><span class=p>)</span> <span class=p>&gt;</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>Name</span> <span class=o>==</span> <span class=nx>resource</span><span class=p>.</span><span class=nf>GetName</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// all empty, matches all
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>LabelSelector</span> <span class=o>==</span> <span class=kc>nil</span> <span class=o>&amp;&amp;</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>FieldSelector</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>true</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// matches with field selector
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>FieldSelector</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>match</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>FieldSelector</span><span class=p>.</span><span class=nf>MatchObject</span><span class=p>(</span><span class=nx>resource</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;match fields failed&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>!</span><span class=nx>match</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=c1>// return false if not match
+</span></span></span><span class=line><span class=cl><span class=c1></span>            <span class=k>return</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// matches with selector
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>LabelSelector</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kd>var</span> <span class=nx>s</span> <span class=nx>labels</span><span class=p>.</span><span class=nx>Selector</span>
+</span></span><span class=line><span class=cl>        <span class=kd>var</span> <span class=nx>err</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>s</span><span class=p>,</span> <span class=nx>err</span> <span class=p>=</span> <span class=nx>metav1</span><span class=p>.</span><span class=nf>LabelSelectorAsSelector</span><span class=p>(</span><span class=nx>rs</span><span class=p>.</span><span class=nx>LabelSelector</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=c1>// should not happen because all resource selector should be fully validated by webhook.
+</span></span></span><span class=line><span class=cl><span class=c1></span>            <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;match labels failed&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>s</span><span class=p>.</span><span class=nf>Matches</span><span class=p>(</span><span class=nx>labels</span><span class=p>.</span><span class=nf>Set</span><span class=p>(</span><span class=nx>resource</span><span class=p>.</span><span class=nf>GetLabels</span><span class=p>()))</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kc>true</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=424-策略执行>4.2.4 策略执行</h4><p>在上一步命中策略后，会将这批策略进行一次字典排序然后按顺序执行，而执行过程根据每个策略的配置的规则进行。流程如下（以 Override 策略为例）：</p><ol><li>检查是否配置模板且已渲染完成，如果是 则执行 cue 脚本</li></ol><div class="details admonition note open"><div class="details-summary admonition-title"><i class="icon fas fa-pencil-alt fa-fw" aria-hidden=true></i>关于执行渲染后 cue 执行<i class="details-icon fas fa-angle-right fa-fw" aria-hidden=true></i></div><div class=details-content><div class=admonition-content><p>模板支持引用当前 object 或集群内其他 object 甚至外部 http 接口数据，因此在执行 cue 之前需要判断引用了哪些数据并提前准备好相关数据（即获取 object 或 请求 http 获取响应 body）</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=nf>BuildCueParamsViaOverridePolicy</span><span class=p>(</span><span class=nx>c</span> <span class=nx>dynamiclister</span><span class=p>.</span><span class=nx>DynamicResourceLister</span><span class=p>,</span> <span class=nx>curObject</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>tmpl</span> <span class=o>*</span><span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>OverrideRuleTemplate</span><span class=p>)</span> <span class=p>(</span><span class=o>*</span><span class=nx>CueParams</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kd>var</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=nx>cp</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>CueParams</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>ExtraParams</span><span class=p>:</span> <span class=nb>make</span><span class=p>(</span><span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=nx>any</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>V</span><span class=p>(</span><span class=mi>2</span><span class=p>).</span><span class=nf>InfoS</span><span class=p>(</span><span class=s>&#34;BuildCueParamsViaOverridePolicy value ref&#34;</span><span class=p>,</span> <span class=s>&#34;refFrom&#34;</span><span class=p>,</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span><span class=p>.</span><span class=nx>From</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span><span class=p>.</span><span class=nx>From</span> <span class=o>==</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>FromOwnerReference</span> <span class=p>{</span> <span class=c1>// 引用 owner，如 pod 的 owner 为 replicaset
+</span></span></span><span class=line><span class=cl><span class=c1></span>            <span class=nx>obj</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>getOwnerReference</span><span class=p>(</span><span class=nx>c</span><span class=p>,</span> <span class=nx>curObject</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=kc>nil</span><span class=p>,</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Errorf</span><span class=p>(</span><span class=s>&#34;getOwnerReference got error=%w&#34;</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=nx>cp</span><span class=p>.</span><span class=nx>ExtraParams</span><span class=p>[</span><span class=s>&#34;otherObject&#34;</span><span class=p>]</span> <span class=p>=</span> <span class=nx>obj</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span><span class=p>.</span><span class=nx>From</span> <span class=o>==</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>FromK8s</span> <span class=p>{</span> <span class=c1>// 引用当前集群其他 object
+</span></span></span><span class=line><span class=cl><span class=c1></span>            <span class=nx>obj</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>getObject</span><span class=p>(</span><span class=nx>c</span><span class=p>,</span> <span class=nx>curObject</span><span class=p>,</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span><span class=p>.</span><span class=nx>K8s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=kc>nil</span><span class=p>,</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Errorf</span><span class=p>(</span><span class=s>&#34;getObject got error=%w&#34;</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=nx>cp</span><span class=p>.</span><span class=nx>ExtraParams</span><span class=p>[</span><span class=s>&#34;otherObject&#34;</span><span class=p>]</span> <span class=p>=</span> <span class=nx>obj</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span><span class=p>.</span><span class=nx>From</span> <span class=o>==</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>FromHTTP</span> <span class=p>{</span> <span class=c1>// 引用 http 数据
+</span></span></span><span class=line><span class=cl><span class=c1></span>            <span class=nx>obj</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>getHttpResponse</span><span class=p>(</span><span class=kc>nil</span><span class=p>,</span> <span class=nx>curObject</span><span class=p>,</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span><span class=p>.</span><span class=nx>Http</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=kc>nil</span><span class=p>,</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Errorf</span><span class=p>(</span><span class=s>&#34;getHttpResponse got error=%w&#34;</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=nx>cp</span><span class=p>.</span><span class=nx>ExtraParams</span><span class=p>[</span><span class=s>&#34;http&#34;</span><span class=p>]</span> <span class=p>=</span> <span class=nx>obj</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>cp</span><span class=p>,</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div></div></div></div><p>执行 cue 脚本：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// applyPolicyOverriders applies OverridePolicy/ClusterOverridePolicy overriders to target object
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>o</span> <span class=o>*</span><span class=nx>overrideManagerImpl</span><span class=p>)</span> <span class=nf>applyPolicyOverriders</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=nx>oldObj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>p</span> <span class=nx>policyOverriders</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>policyName</span> <span class=o>:=</span> <span class=nx>p</span><span class=p>.</span><span class=nx>name</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>p</span><span class=p>.</span><span class=nx>namespace</span> <span class=o>!=</span> <span class=s>&#34;&#34;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>policyName</span> <span class=p>=</span> <span class=nx>p</span><span class=p>.</span><span class=nx>namespace</span> <span class=o>+</span> <span class=s>&#34;/&#34;</span> <span class=o>+</span> <span class=nx>p</span><span class=p>.</span><span class=nx>name</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>Template</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=o>&amp;&amp;</span> <span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>RenderedCue</span> <span class=o>!=</span> <span class=s>&#34;&#34;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>cp</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>cue</span><span class=p>.</span><span class=nf>BuildCueParamsViaOverridePolicy</span><span class=p>(</span><span class=nx>o</span><span class=p>.</span><span class=nx>dynamicLister</span><span class=p>,</span> <span class=nx>rawObj</span><span class=p>,</span> <span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>Template</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>metrics</span><span class=p>.</span><span class=nf>PolicyGotError</span><span class=p>(</span><span class=nx>policyName</span><span class=p>,</span> <span class=nx>rawObj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>(),</span> <span class=nx>metrics</span><span class=p>.</span><span class=nx>ErrTypePrepareCueParams</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Errorf</span><span class=p>(</span><span class=s>&#34;BuildCueParamsViaOverridePolicy error=%w&#34;</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=nx>cp</span><span class=p>.</span><span class=nx>Object</span> <span class=p>=</span> <span class=nx>rawObj</span>
+</span></span><span class=line><span class=cl>        <span class=nx>cp</span><span class=p>.</span><span class=nx>OldObject</span> <span class=p>=</span> <span class=nx>oldObj</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>cp</span><span class=p>.</span><span class=nx>OldObject</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>cp</span><span class=p>.</span><span class=nx>OldObject</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>{</span><span class=nx>Object</span><span class=p>:</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kd>interface</span><span class=p>{}{}}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=nx>params</span> <span class=o>:=</span> <span class=p>[]</span><span class=nx>cue</span><span class=p>.</span><span class=nx>Parameter</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=nx>Object</span><span class=p>:</span> <span class=nx>cp</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                <span class=nx>Name</span><span class=p>:</span>   <span class=nx>utils</span><span class=p>.</span><span class=nx>DataParameterName</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span> <span class=c1>// 该参数将传参到 cue 中，从而达到 cue 内引入外部数据
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>        <span class=nx>patches</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>executeCueV2</span><span class=p>(</span><span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>RenderedCue</span><span class=p>,</span> <span class=nx>params</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>metrics</span><span class=p>.</span><span class=nf>PolicyGotError</span><span class=p>(</span><span class=nx>policyName</span><span class=p>,</span> <span class=nx>rawObj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>(),</span> <span class=nx>metrics</span><span class=p>.</span><span class=nx>ErrorTypeCueExecute</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1>// 执行后可获取cue 内部的所有定义的数据，我们只取 patches 这个数组
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=nx>patches</span><span class=p>)</span> <span class=p>&gt;</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>metrics</span><span class=p>.</span><span class=nf>OverridePolicyOverride</span><span class=p>(</span><span class=nx>policyName</span><span class=p>,</span> <span class=nx>rawObj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>applyJSONPatch</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=nx>patches</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// ... ignore code
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>    
+</span></span></code></pre></td></tr></table></div></div><p>cue example:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// simple cue code
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>data</span><span class=p>:</span> <span class=nx>_</span> <span class=err>@</span><span class=nf>tag</span><span class=p>(</span><span class=nx>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nx>object</span> <span class=o>:=</span> <span class=nx>data</span><span class=p>.</span><span class=nx>object</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>patches</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>object</span><span class=p>.</span><span class=nx>metadata</span><span class=p>.</span><span class=nx>annotations</span> <span class=o>==</span> <span class=nx>_</span><span class=p>|</span><span class=nx>_</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>op</span><span class=p>:</span> <span class=s>&#34;add&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nx>path</span><span class=p>:</span> <span class=s>&#34;/metadata/annotations&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nx>value</span><span class=p>:</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>op</span><span class=p>:</span> <span class=s>&#34;add&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nx>path</span><span class=p>:</span> <span class=s>&#34;/metadata/annotations/added-by&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nx>value</span><span class=p>:</span> <span class=s>&#34;cue&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>]</span>
+</span></span></code></pre></td></tr></table></div></div><ol start=2><li>检查是否配置自定义的 cue 脚本，如果有 则执行</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// applyPolicyOverriders applies OverridePolicy/ClusterOverridePolicy overriders to target object
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>o</span> <span class=o>*</span><span class=nx>overrideManagerImpl</span><span class=p>)</span> <span class=nf>applyPolicyOverriders</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=nx>oldObj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>p</span> <span class=nx>policyOverriders</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// ...ignore code
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>Cue</span> <span class=o>!=</span> <span class=s>&#34;&#34;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 用户自定义 cue 脚本只传参当前 object 不支持引用外部 object
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nx>patches</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>executeCue</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>Cue</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>metrics</span><span class=p>.</span><span class=nf>PolicyGotError</span><span class=p>(</span><span class=nx>policyName</span><span class=p>,</span> <span class=nx>rawObj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>(),</span> <span class=nx>metrics</span><span class=p>.</span><span class=nx>ErrorTypeCueExecute</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>patches</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=o>&amp;&amp;</span> <span class=nb>len</span><span class=p>(</span><span class=o>*</span><span class=nx>patches</span><span class=p>)</span> <span class=p>&gt;</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>metrics</span><span class=p>.</span><span class=nf>OverridePolicyOverride</span><span class=p>(</span><span class=nx>policyName</span><span class=p>,</span> <span class=nx>rawObj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>applyJSONPatch</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=o>*</span><span class=nx>patches</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// ...ignore code
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ol start=3><li>检查是否配置 plaintext 形式的 patch， 如果有则直接 apply</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// applyPolicyOverriders applies OverridePolicy/ClusterOverridePolicy overriders to target object
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>o</span> <span class=o>*</span><span class=nx>overrideManagerImpl</span><span class=p>)</span> <span class=nf>applyPolicyOverriders</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=nx>oldObj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>p</span> <span class=nx>policyOverriders</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// ...ignore code
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>return</span> <span class=nf>applyJSONPatch</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=nf>parseJSONPatchesByPlaintext</span><span class=p>(</span><span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>Plaintext</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=5总结>5.总结</h2><p>本篇介绍了 <code>k-cloud-labs</code> 推出的 webhook 产品，其功能和实用性方面都非常优秀，我现在作为该项目的其中一个维护者 对项目进行了一定的特性增加和优化，后期将持续更新新的能力，解决更多的问题。</p><p>主要内容：</p><ul><li>介绍了开发该 webhook 的背景和其解决的问题</li><li>介绍了核心设计思路和 api 定义</li><li>介绍了其核心逻辑的实现</li></ul><p>关于更详细的设计细节和使用案例以及安装方法，请<a href=https://k-cloud-labs.github.io/kinitiras-doc/ target=_blank rel="noopener noreffer">点击这里跳转</a>官网去了解。</p><h2 id=6链接>6.链接🔗</h2><ul><li>官方：<a href=https://k-cloud-labs.github.io/kinitiras-doc/ target=_blank rel="noopener noreffer">https://k-cloud-labs.github.io/kinitiras-doc/</a></li><li>Github：<a href=https://github.com/k-cloud-labs target=_blank rel="noopener noreffer">https://github.com/k-cloud-labs</a></li></ul></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>更新于 2023-02-02</span></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=/posts/policy-engine/index.md target=_blank>阅读原始文档</a></span></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://yusank.github.io/posts/policy-engine/ data-title="基于策略的 kubernetes admission webhook · 一" data-via=yusankurban data-hashtags=kubernetes,策略引擎,webhook><i class="fab fa-twitter fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://yusank.github.io/posts/policy-engine/ data-hashtag=kubernetes><i class="fab fa-facebook-square fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/posts/policy-engine/><i class="fab fa-linkedin fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/posts/policy-engine/ data-title="基于策略的 kubernetes admission webhook · 一" data-web><i class="fab fa-whatsapp fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/posts/policy-engine/ data-title="基于策略的 kubernetes admission webhook · 一"><i class="fab fa-hacker-news fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Reddit" data-sharer=reddit data-url=https://yusank.github.io/posts/policy-engine/><i class="fab fa-reddit fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://yusank.github.io/posts/policy-engine/ data-title="基于策略的 kubernetes admission webhook · 一"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@7.0.0/icons/line.svg aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://yusank.github.io/posts/policy-engine/ data-title="基于策略的 kubernetes admission webhook · 一" data-ralateuid=yusann><i class="fab fa-weibo fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Blogger" data-sharer=blogger data-url=https://yusank.github.io/posts/policy-engine/ data-title="基于策略的 kubernetes admission webhook · 一" data-description><i class="fab fa-blogger fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 百度" data-sharer=baidu data-url=https://yusank.github.io/posts/policy-engine/ data-title="基于策略的 kubernetes admission webhook · 一"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@7.0.0/icons/baidu.svg aria-hidden=true></i></a><a href=javascript:void(0); title="分享到 Evernote" data-sharer=evernote data-url=https://yusank.github.io/posts/policy-engine/ data-title="基于策略的 kubernetes admission webhook · 一"><i class="fab fa-evernote fa-fw" aria-hidden=true></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw" aria-hidden=true></i>&nbsp;<a href=/tags/kubernetes/>kubernetes</a>,&nbsp;<a href=/tags/%E7%AD%96%E7%95%A5%E5%BC%95%E6%93%8E/>策略引擎</a>,&nbsp;<a href=/tags/webhook/>webhook</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span></section></div><div class=post-nav><a href=/posts/microservices-grpc-part2/ class=prev rel=prev title="[系列]微服务·深入了解gRPC Part2"><i class="fas fa-angle-left fa-fw" aria-hidden=true></i>[系列]微服务·深入了解gRPC Part2</a></div></div><div id=comments><div id=utterances class=comment></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>utterances</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.110.0">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden=true></i> LoveIt</a></div><div class=footer-line itemscope itemtype=http://schema.org/CreativeWork><i class="far fa-copyright fa-fw" aria-hidden=true></i><span itemprop=copyrightYear>2017 - 2023</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部><i class="fas fa-arrow-up fa-fw" aria-hidden=true></i>
+</a><a href=# id=view-comments class=fixed-button title=查看评论><i class="fas fa-comment fa-fw" aria-hidden=true></i></a></div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/autocomplete.js@0.38.1/dist/autocomplete.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js></script><script type=text/javascript src=/lib/lunr/lunr.stemmer.support.min.js></script><script type=text/javascript src=/lib/lunr/lunr.zh.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@8.6.0/dist/index.umd.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:70},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!0,left:"\\begin{equation}",right:"\\end{equation}"},{display:!0,left:"\\begin{equation*}",right:"\\end{equation*}"},{display:!0,left:"\\begin{align}",right:"\\end{align}"},{display:!0,left:"\\begin{align*}",right:"\\end{align*}"},{display:!0,left:"\\begin{alignat}",right:"\\end{alignat}"},{display:!0,left:"\\begin{alignat*}",right:"\\end{alignat*}"},{display:!0,left:"\\begin{gather}",right:"\\end{gather}"},{display:!0,left:"\\begin{CD}",right:"\\end{CD}"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},search:{highlightTag:"em",lunrIndexURL:"/index.json",lunrLanguageCode:"zh",lunrSegmentitURL:"/lib/lunr/lunr.segmentit.js",maxResultLength:10,noResultsFound:"没有找到结果",snippetLength:50,type:"lunr"},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:90}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-24P8ZSJHCQ",{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body></html>

@@ -1,0 +1,930 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><title>Policy based kubernetes admission webhook part 1 - Yusank`s Site</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7859878302610774" crossorigin=anonymous></script><meta name=Description content="This is my personal blog, I'll share posts about tech in here."><meta property="og:title" content="Policy based kubernetes admission webhook part 1"><meta property="og:description" content="
+A lightweight but powerful and programmable rule engine for kubernetes admission webhook called kinitiras powered by k-cloud-labs.
+"><meta property="og:type" content="article"><meta property="og:url" content="https://yusank.github.io/en/posts/policy-engine/"><meta property="og:image" content="https://yusank.github.io/logo.png"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-02-01T10:50:00+08:00"><meta property="article:modified_time" content="2023-02-02T17:48:06+08:00"><meta property="og:site_name" content="Yusank`s Site"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://yusank.github.io/logo.png"><meta name=twitter:title content="Policy based kubernetes admission webhook part 1"><meta name=twitter:description content="
+A lightweight but powerful and programmable rule engine for kubernetes admission webhook called kinitiras powered by k-cloud-labs.
+"><meta name=application-name content="Yusank's Site"><meta name=apple-mobile-web-app-title content="Yusank's Site"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://yusank.github.io/en/posts/policy-engine/><link rel=prev href=https://yusank.github.io/en/posts/start-up/><link rel=stylesheet href=/css/style.min.css><link rel=preload href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css as=style onload='this.onload=null,this.rel="stylesheet"'><noscript><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css></noscript><link rel=preload href=https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css as=style onload='this.onload=null,this.rel="stylesheet"'><noscript><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css></noscript><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Policy based kubernetes admission webhook part 1","inLanguage":"en","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/yusank.github.io\/en\/posts\/policy-engine\/"},"genre":"posts","keywords":"kubernetes, policy-engine, webhook","wordcount":4733,"url":"https:\/\/yusank.github.io\/en\/posts\/policy-engine\/","datePublished":"2023-02-01T10:50:00+08:00","dateModified":"2023-02-02T17:48:06+08:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Yusank"},"description":""}</script></head><body data-header-desktop=fixed data-header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/en/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-1 class=typeit></span></a></div><div class=menu><div class=menu-inner><a class=menu-item href=/en/posts/>Posts </a><a class=menu-item href=/en/tags/>Tags </a><a class=menu-item href=/en/categories/>Categories </a><a class=menu-item href=/en/about/>About Me </a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class='fab fa-github fa-fw'></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item language" title="Select Language">English<i class="fas fa-chevron-right fa-fw" aria-hidden=true></i>
+<select class=language-select id=language-select-desktop onchange="location=this.value"><option value=/en/posts/policy-engine/ selected>English</option><option value=/posts/policy-engine/>Chinese</option></select>
+</a><span class="menu-item search" id=search-desktop><input type=text placeholder="Search titles or contents..." id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=Search><i class="fas fa-search fa-fw" aria-hidden=true></i></a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=Clear><i class="fas fa-times-circle fa-fw" aria-hidden=true></i></a>
+<span class="search-button search-loading" id=search-loading-desktop><i class="fas fa-spinner fa-fw fa-spin" aria-hidden=true></i></span>
+</span><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme"><i class="fas fa-adjust fa-fw" aria-hidden=true></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/en/ title="Yusank`s Site"><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://yusank.github.io/images/logo.svg data-srcset="https://yusank.github.io/images/logo.svg, https://yusank.github.io/images/logo.svg 1.5x, https://yusank.github.io/images/logo.svg 2x" data-sizes=auto alt=https://yusank.github.io/images/logo.svg title=https://yusank.github.io/images/logo.svg><span id=id-2 class=typeit></span></a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><div class=search-wrapper><div class="search mobile" id=search-mobile><input type=text placeholder="Search titles or contents..." id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=Search><i class="fas fa-search fa-fw" aria-hidden=true></i></a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=Clear><i class="fas fa-times-circle fa-fw" aria-hidden=true></i></a>
+<span class="search-button search-loading" id=search-loading-mobile><i class="fas fa-spinner fa-fw fa-spin" aria-hidden=true></i></span></div><a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>Cancel</a></div><a class=menu-item href=/en/posts/ title>Posts</a><a class=menu-item href=/en/tags/ title>Tags</a><a class=menu-item href=/en/categories/ title>Categories</a><a class=menu-item href=/en/about/ title>About Me</a><a class=menu-item href=https://github.com/yusank title=GitHub rel="noopener noreffer" target=_blank><i class='fab fa-github fa-fw'></i></a><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme">
+<i class="fas fa-adjust fa-fw" aria-hidden=true></i>
+</a><a href=javascript:void(0); class=menu-item title="Select Language">English<i class="fas fa-chevron-right fa-fw" aria-hidden=true></i>
+<select class=language-select onchange="location=this.value"><option value=/en/posts/policy-engine/ selected>English</option><option value=/posts/policy-engine/>Chinese</option></select></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>Contents</h2><div class="toc-content always-active" id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">Policy based kubernetes admission webhook part 1</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=https://github.com/yusank title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw" aria-hidden=true></i>Yusank</a></span>&nbsp;<span class=post-category>included in <a href=/en/categories/kubernetes/><i class="far fa-folder fa-fw" aria-hidden=true></i>kubernetes</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw" aria-hidden=true></i>&nbsp;<time datetime=2023-02-01>2023-02-01</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden=true></i>&nbsp;4733 words&nbsp;
+<i class="far fa-clock fa-fw" aria-hidden=true></i>&nbsp;23 minutes&nbsp;</div></div><div class="details toc" id=toc-static data-kept><div class="details-summary toc-title"><span>Contents</span>
+<span><i class="details-icon fas fa-angle-right" aria-hidden=true></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#1background>1.Background</a></li><li><a href=#2ability>2.Ability</a><ul><li><a href=#21-validate-resources>2.1 Validate resources</a></li><li><a href=#22-mutate-resources>2.2 Mutate resources</a></li></ul></li><li><a href=#3design>3.Design</a><ul><li><a href=#31-basic-concept>3.1 Basic concept</a></li><li><a href=#32-core-logic>3.2 Core logic</a></li><li><a href=#33-api-definition>3.3 Api definition</a><ul><li><a href=#331-resource-selector>3.3.1 Resource selector</a></li><li><a href=#332-validate-rule>3.3.2 Validate rule</a></li><li><a href=#333-override-rule>3.3.3 Override rule</a></li></ul></li></ul></li><li><a href=#4implement>4.Implement</a><ul><li><a href=#41-kinitiras>4.1 kinitiras</a><ul><li><a href=#412-initialize>4.1.2 Initialize</a></li><li><a href=#412-admission-handler>4.1.2 admission handler</a></li></ul></li><li><a href=#42-pkg>4.2 pkg</a><ul><li><a href=#421-interrupter>4.2.1 interrupter</a></li><li><a href=#422-render>4.2.2 Render</a></li><li><a href=#423-how-to-match-with-policies>4.2.3 How to match with policies</a></li><li><a href=#424-how-to-execute-policies>4.2.4 How to execute policies</a></li></ul></li></ul></li><li><a href=#5summarize>5.Summarize</a></li><li><a href=#6links>6.Links🔗</a></li></ul></nav></div></div><div class=content id=content><blockquote><p>A lightweight but powerful and programmable rule engine for kubernetes admission webhook called <code>kinitiras</code> powered by <code>k-cloud-labs</code>.</p></blockquote><h2 id=1background>1.Background</h2><div class="details admonition quote open"><div class="details-summary admonition-title"><i class="icon fas fa-quote-right fa-fw" aria-hidden=true></i>Definition<i class="details-icon fas fa-angle-right fa-fw" aria-hidden=true></i></div><div class=details-content><div class=admonition-content><p>Admission webhooks are HTTP callbacks that receive admission requests and do something with them. You can define two types of admission webhooks, <code>validating admission webhook</code> and <code>mutating admission webhook</code>. Mutating admission webhooks are <code>invoked first</code>, and can modify objects sent to the API server to enforce custom defaults.</p><p>After all object modifications are complete, and after the incoming object is validated by the API server, validating admission webhooks are invoked and can reject requests to enforce custom policies.</p></div></div></div><p>The above is the definition given by kubernetes. In short, k8s webhooks are divided into two categories <code>validating</code> and <code>mutating</code> for verifying and modifying k8s resource modification operations, respectively. When a user creates or modifies a resource, the <code>apiserver</code> calls (http) the registered <code>validating</code> and <code>mutating</code> webhooks and does not actually process the modification until after the response of these webhooks.</p><figure><a class=lightgallery href=/en/posts/policy-engine/webhook-process.png title=/en/posts/policy-engine/webhook-process.png data-thumbnail=/en/posts/policy-engine/webhook-process.png data-sub-html="<h2>Process</h2>"><img class=lazyload src=/svg/loading.min.svg data-src=/en/posts/policy-engine/webhook-process.png data-srcset="/en/posts/policy-engine/webhook-process.png, /en/posts/policy-engine/webhook-process.png 1.5x, /en/posts/policy-engine/webhook-process.png 2x" data-sizes=auto alt=/en/posts/policy-engine/webhook-process.png width=800 height=328></a><figcaption class=image-caption>Process</figcaption></figure><p>For those who are familiar with cloud native development or k8s, webhook should be a very familiar component and should have written more or less relevant code. As a native capability of k8s, the current webhook development/use approach is very unfriendly and primitive. While many of the k8s capabilities can be achieved by modifying existing objects or CRD information (e.g., updating images, rolling upgrades, etc.), webhook requires code to be developed and registered to the <code>apiserver</code> and run to achieve the purpose.</p><p>However, in daily development, most of the requirements for webhook are limited to some simple capabilities, such as verifying the fields and legality of certain objects, modifying the information of specific objects (label, annotation or modifying resource specifications, etc.), which leads to the need for development to package and release the code every time new requirements are added or modified. This makes the whole process inefficient, and there are too many webhooks registered in a cluster to make the apiserver&rsquo;s response time longer and less reliable.</p><p>In order to solve these problems, we developed a new set of rule-based programmable webhooks &ndash; <a href=https://github.com/k-cloud-labs/kinitiras target=_blank rel="noopener noreffer">kinitiras</a>, hoping to replace all the webhooks in a cluster with this component and all the requirements. We hope to use this component to replace all the webhooks in the cluster and all the requirements can be solved by this component without developing new webhooks, improving efficiency and reducing the security risks caused by multiple webhooks.</p><h2 id=2ability>2.Ability</h2><figure><a class=lightgallery href=/en/posts/policy-engine/kinitiras.org.png title=/en/posts/policy-engine/kinitiras.org.png data-thumbnail=/en/posts/policy-engine/kinitiras.org.png data-sub-html="<h2>Feature overview</h2>"><img class=lazyload src=/svg/loading.min.svg data-src=/en/posts/policy-engine/kinitiras.org.png data-srcset="/en/posts/policy-engine/kinitiras.org.png, /en/posts/policy-engine/kinitiras.org.png 1.5x, /en/posts/policy-engine/kinitiras.org.png 2x" data-sizes=auto alt=/en/posts/policy-engine/kinitiras.org.png width=800 height=1838></a><figcaption class=image-caption>Feature overview</figcaption></figure><p>First, lets talk about what this webhook can do.</p><h3 id=21-validate-resources>2.1 Validate resources</h3><p><a href=https://k-cloud-labs.github.io/kinitiras-doc/usage/basic-usage/#clustervalidatepolicy target=_blank rel="noopener noreffer">Policy example</a></p><p>We can configure different policies for different resources to reduce the occurrence of some uncontrollable situations or to restrict some special operations, for example.</p><ul><li>For create update operations, some fields of the resource can be restricted (not null or with values equal to or not equal to the specified value, etc.)</li><li>Restrict update or delete operations. For some specific resources (ns or deployment), you can prohibit deletion or secondary confirmation mechanism (deletion is allowed only if the specified annotation exists)</li><li>Field validation</li></ul><p>The fields and values of these checks can be the value of the current object or the value of other objects (e.g., compared with other objects such as <code>cm</code> or <code>secret</code>), and the data obtained by third-party http services can be checked.</p><h3 id=22-mutate-resources>2.2 Mutate resources</h3><p><a href=https://k-cloud-labs.github.io/kinitiras-doc/usage/basic-usage/#overridepolicy target=_blank rel="noopener noreffer">Policy example</a></p><p>For modifying resources, our strategy can be configured for many different scenarios to meet different needs, such as</p><ul><li>Uniformly add label or annotation to resources.</li><li>Modify the pod resource of limit or request.</li><li>modify the affinity toleration of the resource, etc.</li></ul><p>The modified values can be dynamic and can be obtained from other objects (e.g., writing the owner&rsquo;s properties to the pod) or from third-party http services (I have similar needs myself).</p><h2 id=3design>3.Design</h2><p><code>Kinitiras</code> is from the Greek <code>κινητήρας (kini̱tí̱ras)</code>, meaning engine/motor, and the core capability of the project is also a rules-based engine that provides efficient and powerful capabilities.</p><h3 id=31-basic-concept>3.1 Basic concept</h3><table><thead><tr><th style=text-align:left>Concept</th><th style=text-align:left>Explain</th></tr></thead><tbody><tr><td style=text-align:left><code>validating</code></td><td style=text-align:left>Verifying the legitimacy of objects</td></tr><tr><td style=text-align:left><code>mutating</code></td><td style=text-align:left>Modifying objects info</td></tr><tr><td style=text-align:left><code>policy</code></td><td style=text-align:left>a crd object contains rules</td></tr><tr><td style=text-align:left><code>override policy</code></td><td style=text-align:left>policy contains mutate object rules</td></tr><tr><td style=text-align:left><code>validate policy</code></td><td style=text-align:left>policy contains validate object rules</td></tr><tr><td style=text-align:left><code>cue</code></td><td style=text-align:left>an open source program language，<a href=https://cuelang.org target=_blank rel="noopener noreffer">https://cuelang.org</a></td></tr></tbody></table><h3 id=32-core-logic>3.2 Core logic</h3><p>Here is the core logic of kinitiras：</p><ol><li>Define the crd corresponding to validating and mutating to represent a policy, record the scope of the policy (specified resource name or label) and the execution rules (verify or modify the content)</li><li>register a unified webhook configuration and subscribe to all modification and deletion events for resources with a specific label by default (you can customize this configuration during installation)</li><li>when receiving a callback from apiserver, the current modified resource and the existing policy match to filter the list of hit policies</li><li>execute policies in a sequential manner</li></ol><figure><a class=lightgallery href=/en/posts/policy-engine/engine-process.png title=/en/posts/policy-engine/engine-process.png data-thumbnail=/en/posts/policy-engine/engine-process.png data-sub-html="<h2>policy engine core logic(step 3 and step 4 had marked reversely)</h2>"><img class=lazyload src=/svg/loading.min.svg data-src=/en/posts/policy-engine/engine-process.png data-srcset="/en/posts/policy-engine/engine-process.png, /en/posts/policy-engine/engine-process.png 1.5x, /en/posts/policy-engine/engine-process.png 2x" data-sizes=auto alt=/en/posts/policy-engine/engine-process.png width=800 height=618></a><figcaption class=image-caption>policy engine core logic(step 3 and step 4 had marked reversely)</figcaption></figure><h3 id=33-api-definition>3.3 Api definition</h3><p>This project has defined three CRD:</p><ul><li><a href=https://doc.crds.dev/github.com/k-cloud-labs/pkg/policy.kcloudlabs.io/OverridePolicy/v1alpha1@v0.4.3 target=_blank rel="noopener noreffer">OverridePolicy</a>: mutate object info(namespace level)</li><li><a href=https://doc.crds.dev/github.com/k-cloud-labs/pkg/policy.kcloudlabs.io/ClusterOverridePolicy/v1alpha1@v0.4.3 target=_blank rel="noopener noreffer">ClusterOverridePolicy</a>: mutate object info(cluster level)</li><li><a href=https://doc.crds.dev/github.com/k-cloud-labs/pkg/policy.kcloudlabs.io/ClusterValidatePolicy/v1alpha1@v0.4.3 target=_blank rel="noopener noreffer">ClusterValidatePolicy</a>: validate object info(cluster level)</li></ul><p>Now, lets talk about core part of those CRDs.</p><h4 id=331-resource-selector>3.3.1 Resource selector</h4><p>ResourceSelector the resources will be selected.</p><table><thead><tr><th style=text-align:left>Field</th><th style=text-align:left>type</th><th style=text-align:center>required</th><th style=text-align:left>Description</th></tr></thead><tbody><tr><td style=text-align:left>apiVersion</td><td style=text-align:left>string</td><td style=text-align:center>Y</td><td style=text-align:left>APIVersion represents the API version of the target resources.</td></tr><tr><td style=text-align:left>kind</td><td style=text-align:left>string</td><td style=text-align:center>Y</td><td style=text-align:left>Kind represents the Kind of the target resources.</td></tr><tr><td style=text-align:left>namespace</td><td style=text-align:left>string</td><td style=text-align:center>N</td><td style=text-align:left>Namespace of the target resource. Default is empty, which means inherit from the parent object scope.</td></tr><tr><td style=text-align:left>name</td><td style=text-align:left>string</td><td style=text-align:center>N</td><td style=text-align:left>Name of the target resource. Default is empty, which means selecting all resources.</td></tr><tr><td style=text-align:left>labelSelector</td><td style=text-align:left><a href=https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#labelselector-v1-meta target=_blank rel="noopener noreffer">Kubernetes meta/v1.LabelSelector</a></td><td style=text-align:center>N</td><td style=text-align:left>A label query over a set of resources. If name is not empty, labelSelector will be ignored.</td></tr><tr><td style=text-align:left>fieldSelector</td><td style=text-align:left><a href=https://k-cloud-labs.github.io/kinitiras-doc/CRD/api-reference/#policy.kcloudlabs.io/v1alpha1.FieldSelector target=_blank rel="noopener noreffer">FieldSelector</a></td><td style=text-align:center>N</td><td style=text-align:left>A field query over a set of resources. If name is not empty, fieldSelector wil be ignored.</td></tr></tbody></table><p>This structure is used to select a policy to match a resource, either by specifying a particular resource, or by specifying a label or field to take effect for a group of resources.</p><p>for example:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># match with all the pod which contains label webhook:enabled</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>resourceSelectors</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Pod</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>labelSelector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>webhook</span><span class=p>:</span><span class=w> </span><span class=l>enabled</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=332-validate-rule>3.3.2 Validate rule</h4><p>Defines validate rules on operations.</p><table><thead><tr><th style=text-align:left>Field</th><th style=text-align:left>type</th><th style=text-align:center>required</th><th style=text-align:left>Description</th></tr></thead><tbody><tr><td style=text-align:left>targetOperations</td><td style=text-align:left><a href=https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#operation-v1-admission target=_blank rel="noopener noreffer">[]Kubernetes admission/v1.Operation</a></td><td style=text-align:center>Y</td><td style=text-align:left>Operations is the operations the admission hook cares about - CREATE, UPDATE, DELETE, CONNECT or <code>*</code> for all of those operations and any future admission operations that are added. If <code>*</code> is present, the length of the slice must be one.</td></tr><tr><td style=text-align:left>cue</td><td style=text-align:left>string</td><td style=text-align:center>N</td><td style=text-align:left>Cue represents validate rules defined with cue code.</td></tr><tr><td style=text-align:left>template</td><td style=text-align:left><a href=https://k-cloud-labs.github.io/kinitiras-doc/CRD/api-reference/#policy.kcloudlabs.io/v1alpha1.ValidateRuleTemplate target=_blank rel="noopener noreffer">ValidateRuleTemplate</a></td><td style=text-align:center>N</td><td style=text-align:left>Template of condition which defines validate cond, and it will be rendered to CUE and store in RenderedCue field, so if there are any data added manually will be erased.</td></tr><tr><td style=text-align:left>renderedCue</td><td style=text-align:left>string</td><td style=text-align:center>N</td><td style=text-align:left>RenderedCue represents validate rule defined by Template. Don’t modify the value of this field, modify Rules instead of.</td></tr></tbody></table><p>Here is the information that defines the execution logic of the validate policy.</p><ul><li>targetOperations: indicates the type of operation that will take effect, i.e., it can be defined to take effect only for create or delete events</li><li>cue: This field can be filled with a cue code, which will be executed after the policy is hit, see the following Example</li><li>template: defines a simple template that templates some common checks (no need to write a cue anymore)</li><li>renderedCue: the template will eventually be automatically rendered into cue code and stored on this field.</li></ul><p>cue example：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>validateRules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># This code means, if object has a label `xxx.io/no-delete:true` then reject the delete operation.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>cue</span><span class=p>:</span><span class=w> </span><span class=p>|-</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>    object: _ @tag(object)
+</span></span></span><span class=line><span class=cl><span class=sd>    reject: object.metadata.labels != null &amp;&amp; object.metadata.labels[&#34;xxx.io/no-delete&#34;] == &#34;true&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>    validate: {
+</span></span></span><span class=line><span class=cl><span class=sd>        if reject{
+</span></span></span><span class=line><span class=cl><span class=sd>                reason: &#34;operation rejected&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>        }
+</span></span></span><span class=line><span class=cl><span class=sd>        if !reject{
+</span></span></span><span class=line><span class=cl><span class=sd>                reason: &#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>        }
+</span></span></span><span class=line><span class=cl><span class=sd>        valid: !reject
+</span></span></span><span class=line><span class=cl><span class=sd>    }</span><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>targetOperations</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>   </span>- <span class=l>DELETE</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>template example:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># It means, it will reject the delete operation if there is a no-delete annotation</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>validateRules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>targetOperations</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>DELETE</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>condition</span><span class=w> </span><span class=c># Only one type now, will extend in the future.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>condition</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>affectMode</span><span class=p>:</span><span class=w> </span><span class=l>reject</span><span class=w> </span><span class=c># It means reject the operation if it hit this rule. Can set it to allow to allow the operation only if it hit this rule.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>cond</span><span class=p>:</span><span class=w> </span><span class=l>Exist</span><span class=w> </span><span class=c># Support Exist, NoExist, In, NotIn, Gt, Lt, etc.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>message</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;cannot delete this ns&#34;</span><span class=w> </span><span class=c># message when reject</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>dataRef</span><span class=p>:</span><span class=w> </span><span class=c># specify the data source</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>from</span><span class=p>:</span><span class=w> </span><span class=l>current</span><span class=w> </span><span class=c># It means get data from current object, also can get it from other object from current cluster.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/metadata/annotations/no-delete&#34;</span><span class=w> </span><span class=c># data path</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>This templated approach can reduce the cost of learning cue and can satisfy most scenarios such as determining whether a field exists and doing size comparison with other fields.</p><h4 id=333-override-rule>3.3.3 Override rule</h4><p>Overriders offers various alternatives to represent the override rules.</p><p>If more than one alternative exist, they will be applied with following order:</p><ul><li>RenderCue</li><li>Cue</li><li>Plaintext</li></ul><table><thead><tr><th style=text-align:left>Field</th><th style=text-align:left>type</th><th style=text-align:center>required</th><th style=text-align:left>Description</th></tr></thead><tbody><tr><td style=text-align:left>plaintext</td><td style=text-align:left><a href=https://k-cloud-labs.github.io/kinitiras-doc/CRD/api-reference/#policy.kcloudlabs.io/v1alpha1.PlaintextOverrider target=_blank rel="noopener noreffer">[]PlaintextOverrider</a></td><td style=text-align:center>N</td><td style=text-align:left>Plaintext represents override rules defined with plaintext overriders.</td></tr><tr><td style=text-align:left>cue</td><td style=text-align:left>string</td><td style=text-align:center>N</td><td style=text-align:left>Cue represents override rules defined with cue code.</td></tr><tr><td style=text-align:left>template</td><td style=text-align:left><a href=https://k-cloud-labs.github.io/kinitiras-doc/CRD/api-reference/#policy.kcloudlabs.io/v1alpha1.OverrideRuleTemplate target=_blank rel="noopener noreffer">OverrideRuleTemplate</a></td><td style=text-align:center>N</td><td style=text-align:left>Template of rule which defines override rule, and it will be rendered to CUE and store in RenderedCue field, so if there are any data added manually will be erased.</td></tr><tr><td style=text-align:left>renderedCue</td><td style=text-align:left>string</td><td style=text-align:center>N</td><td style=text-align:left>RenderedCue represents override rule defined by Template. Don’t modify the value of this field, modify Rules instead of.</td></tr></tbody></table><p>The core part of the Override policy is defined here, i.e. the modification of resource information policy, which means the following.</p><ul><li>plaintext: This is a simple modification method, just fill in the fields and values of the operation</li><li>cue: this field can be filled with a cue code, which will be executed after the policy is hit, see the following Example</li><li>template: defines a simple template that templates some common modifications (no need to write a cue anymore)</li><li>renderedCue: the template will eventually be automatically rendered into cue code and stored on this field.</li></ul><p>plaintext example：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=w>  </span><span class=nt>overrideRules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>targetOperations</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=l>CREATE</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>overriders</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>plaintext</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span>- <span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=l>/metadata/annotations/added-by</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>op</span><span class=p>:</span><span class=w> </span><span class=l>add</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>value</span><span class=p>:</span><span class=w> </span><span class=l>op</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>cue example:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=w>  </span><span class=nt>overrideRules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>targetOperations</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=l>CREATE</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>overriders</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>cue</span><span class=p>:</span><span class=w> </span><span class=p>|-</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>          object: _ @tag(object)
+</span></span></span><span class=line><span class=cl><span class=sd>          patches: [
+</span></span></span><span class=line><span class=cl><span class=sd>            if object.metadata.annotations == _|_ {
+</span></span></span><span class=line><span class=cl><span class=sd>              {
+</span></span></span><span class=line><span class=cl><span class=sd>                op: &#34;add&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>                path: &#34;/metadata/annotations&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>                value: {}
+</span></span></span><span class=line><span class=cl><span class=sd>              }
+</span></span></span><span class=line><span class=cl><span class=sd>            },
+</span></span></span><span class=line><span class=cl><span class=sd>            {
+</span></span></span><span class=line><span class=cl><span class=sd>              op: &#34;add&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>              path: &#34;/metadata/annotations/added-by&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>              value: &#34;cue&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>            }
+</span></span></span><span class=line><span class=cl><span class=sd>          ]</span><span class=w>          
+</span></span></span></code></pre></td></tr></table></div></div><p>template example:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># Oversell current object resource, set resources.requests to limit * factor</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>overrideRules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>targetOperations</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>CREATE</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>overriders</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>resourcesOversell</span><span class=w> </span><span class=c># Also support other types now.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>operation</span><span class=p>:</span><span class=w> </span><span class=l>replace</span><span class=w> </span><span class=c># set remove to reset oversell</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>resourcesOversell</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=nt>cpuFactor</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;0.5&#34;</span><span class=w> </span><span class=c># use half of limit / set 0 as placeholder when it needed remove</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=nt>memoryFactor</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;0.2&#34;</span><span class=w> </span><span class=c># use 1/5 of limit</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=nt>diskFactor</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;0.1&#34;</span><span class=w> </span><span class=c># use 1/10 of limit</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>The template shown above is only a part of the implementation, for more usage you can check the examples on the official website, <a href=https://k-cloud-labs.github.io/kinitiras-doc/usage/basic-usage/ target=_blank rel="noopener noreffer">click to jump</a></p><h2 id=4implement>4.Implement</h2><p>The above describes how kinitiras works and the core concepts, from here on the implementation of its core capabilities are briefly described, so that it is easy to debug or understand the underlying implementation when using it.</p><div class="details admonition abstract open"><div class="details-summary admonition-title"><i class="icon fas fa-list-ul fa-fw" aria-hidden=true></i>Project structure<i class="details-icon fas fa-angle-right fa-fw" aria-hidden=true></i></div><div class=details-content><div class=admonition-content>The project as a whole is divided into three repo&rsquo;s, namely <code>kinitiras</code>, <code>pkg</code>, and <code>pidalio</code>. Each repo is positioned differently, where <code>kinitiras</code> is a more conventional webhook project, responsible for registering itself to the apiserver and handling callbacks, and <code>pkg</code> is the implementation of the core modules, such as api definitions, execution policies, and so on. And <code>pidalio</code> is the transport middleware for client-go, which can intercept requests and execute policy applications on the client side. This article focuses on the core implementation of the first two repo&rsquo;s.</div></div></div><h3 id=41-kinitiras>4.1 kinitiras</h3><p>Repo URL: <a href=https://github.com/k-cloud-labs/kinitiras target=_blank rel="noopener noreffer">https://github.com/k-cloud-labs/kinitiras</a></p><p>The core logic of this project, as a webhook, is to initialize the parameters and register itself to the apiserver, and then call the unified processing method provided by <code>pkg</code> in the callback function.</p><h4 id=412-initialize>4.1.2 Initialize</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Run runs the webhook server with options. This should never exit.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nf>Run</span><span class=p>(</span><span class=nx>ctx</span> <span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>*</span><span class=nx>options</span><span class=p>.</span><span class=nx>Options</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>klog</span><span class=p>.</span><span class=nf>InfoS</span><span class=p>(</span><span class=s>&#34;kinitiras webhook starting.&#34;</span><span class=p>,</span> <span class=s>&#34;version&#34;</span><span class=p>,</span> <span class=nx>version</span><span class=p>.</span><span class=nf>Get</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>    <span class=nx>config</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>controllerruntime</span><span class=p>.</span><span class=nf>GetConfig</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=nx>config</span><span class=p>.</span><span class=nx>QPS</span><span class=p>,</span> <span class=nx>config</span><span class=p>.</span><span class=nx>Burst</span> <span class=p>=</span> <span class=nx>opts</span><span class=p>.</span><span class=nx>KubeAPIQPS</span><span class=p>,</span> <span class=nx>opts</span><span class=p>.</span><span class=nx>KubeAPIBurst</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>hookManager</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>controllerruntime</span><span class=p>.</span><span class=nf>NewManager</span><span class=p>(</span><span class=nx>config</span><span class=p>,</span> <span class=nx>controllerruntime</span><span class=p>.</span><span class=nx>Options</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// ... set options
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;failed to build webhook server.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// init clients, informer, lister
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>sm</span> <span class=o>:=</span> <span class=o>&amp;</span><span class=nx>setupManager</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>sm</span><span class=p>.</span><span class=nf>init</span><span class=p>(</span><span class=nx>hookManager</span><span class=p>,</span> <span class=nx>ctx</span><span class=p>.</span><span class=nf>Done</span><span class=p>());</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;init setup manager failed&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>sm</span><span class=p>.</span><span class=nf>waitForCacheSync</span><span class=p>(</span><span class=nx>ctx</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;wait for cache sync failed&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>sm</span><span class=p>.</span><span class=nf>setupInterrupter</span><span class=p>();</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;setup interrupter failed&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>setupCh</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>cert</span><span class=p>.</span><span class=nf>SetupCertRotator</span><span class=p>(</span><span class=nx>hookManager</span><span class=p>,</span> <span class=nx>cert</span><span class=p>.</span><span class=nx>Options</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// ... set options
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;failed to setup cert rotator controller.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>go</span> <span class=kd>func</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=o>&lt;-</span><span class=nx>setupCh</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1>// register handler here
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nx>hookServer</span> <span class=o>:=</span> <span class=nx>hookManager</span><span class=p>.</span><span class=nf>GetWebhookServer</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=nx>hookServer</span><span class=p>.</span><span class=nf>Register</span><span class=p>(</span><span class=s>&#34;/mutate&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>webhook</span><span class=p>.</span><span class=nx>Admission</span><span class=p>{</span><span class=nx>Handler</span><span class=p>:</span> <span class=nx>pkgwebhook</span><span class=p>.</span><span class=nf>NewMutatingAdmissionHandler</span><span class=p>(</span><span class=nx>sm</span><span class=p>.</span><span class=nx>overrideManager</span><span class=p>,</span> <span class=nx>sm</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>)})</span>
+</span></span><span class=line><span class=cl>        <span class=nx>hookServer</span><span class=p>.</span><span class=nf>Register</span><span class=p>(</span><span class=s>&#34;/validate&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>webhook</span><span class=p>.</span><span class=nx>Admission</span><span class=p>{</span><span class=nx>Handler</span><span class=p>:</span> <span class=nx>pkgwebhook</span><span class=p>.</span><span class=nf>NewValidatingAdmissionHandler</span><span class=p>(</span><span class=nx>sm</span><span class=p>.</span><span class=nx>validateManager</span><span class=p>,</span> <span class=nx>sm</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>)})</span>
+</span></span><span class=line><span class=cl>        <span class=nx>hookServer</span><span class=p>.</span><span class=nx>WebhookMux</span><span class=p>.</span><span class=nf>Handle</span><span class=p>(</span><span class=s>&#34;/readyz&#34;</span><span class=p>,</span> <span class=nx>http</span><span class=p>.</span><span class=nf>StripPrefix</span><span class=p>(</span><span class=s>&#34;/readyz&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>healthz</span><span class=p>.</span><span class=nx>Handler</span><span class=p>{}))</span>
+</span></span><span class=line><span class=cl>    <span class=p>}()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// blocks until the context is done.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>hookManager</span><span class=p>.</span><span class=nf>Start</span><span class=p>(</span><span class=nx>ctx</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;webhook server exits unexpectedly.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// never reach here
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>return</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>The above code is quite conventional, only <code>sm.setupInterrupter()</code> is mentioned separately. The webhook defines several CRDs as the carrier of the policy, and the policy itself needs to be verified and modified, especially after providing a template (<code>template</code>), which needs to be rendered into a <code>cue</code> script, so the concept of <code>interrupter</code> is introduced in order to be able to verify and render the policy when it is created. <code>Interrupter</code>, as the name suggests &ndash; an interceptor, is used to intercept the policy and perform checks on specific fields of the policy and rendering of the template, these logic is not quite the same as the regular object checks and modifications, so it does not go through the ordinary logic, but only through the logical part of <code>interrupter</code>. And the above <code>sm.setupInterrupter()</code> is used to initialize these <code>interrupters</code> with the following code.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>setupManager</span><span class=p>)</span> <span class=nf>setupInterrupter</span><span class=p>()</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// Init template -- render template is implemented based on go tmpl.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>otm</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>templatemanager</span><span class=p>.</span><span class=nf>NewOverrideTemplateManager</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>templatemanager</span><span class=p>.</span><span class=nx>TemplateSource</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Content</span><span class=p>:</span>      <span class=nx>templates</span><span class=p>.</span><span class=nx>OverrideTemplate</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>TemplateName</span><span class=p>:</span> <span class=s>&#34;BaseTemplate&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;failed to setup mutating template manager.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// validate template same as above.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>vtm</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>templatemanager</span><span class=p>.</span><span class=nf>NewValidateTemplateManager</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>templatemanager</span><span class=p>.</span><span class=nx>TemplateSource</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Content</span><span class=p>:</span>      <span class=nx>templates</span><span class=p>.</span><span class=nx>ValidateTemplate</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>TemplateName</span><span class=p>:</span> <span class=s>&#34;BaseTemplate&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;failed to setup validate template manager.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// base
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>baseInterrupter</span> <span class=o>:=</span> <span class=nx>interrupter</span><span class=p>.</span><span class=nf>NewBaseInterrupter</span><span class=p>(</span><span class=nx>otm</span><span class=p>,</span> <span class=nx>vtm</span><span class=p>,</span> <span class=nx>templatemanager</span><span class=p>.</span><span class=nf>NewCueManager</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// op
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>overridePolicyInterrupter</span> <span class=o>:=</span> <span class=nx>interrupter</span><span class=p>.</span><span class=nf>NewOverridePolicyInterrupter</span><span class=p>(</span><span class=nx>baseInterrupter</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>tokenManager</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>client</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>opLister</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// register interrupter to manager
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>s</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>.</span><span class=nf>AddInterrupter</span><span class=p>(</span><span class=nx>schema</span><span class=p>.</span><span class=nx>GroupVersionKind</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Group</span><span class=p>:</span>   <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Group</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Version</span><span class=p>:</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Version</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Kind</span><span class=p>:</span>    <span class=s>&#34;OverridePolicy&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span> <span class=nx>overridePolicyInterrupter</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// cop
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>s</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>.</span><span class=nf>AddInterrupter</span><span class=p>(</span><span class=nx>schema</span><span class=p>.</span><span class=nx>GroupVersionKind</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Group</span><span class=p>:</span>   <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Group</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Version</span><span class=p>:</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Version</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Kind</span><span class=p>:</span>    <span class=s>&#34;ClusterOverridePolicy&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span> <span class=nx>interrupter</span><span class=p>.</span><span class=nf>NewClusterOverridePolicyInterrupter</span><span class=p>(</span><span class=nx>overridePolicyInterrupter</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>copLister</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// cvp
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>s</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>.</span><span class=nf>AddInterrupter</span><span class=p>(</span><span class=nx>schema</span><span class=p>.</span><span class=nx>GroupVersionKind</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Group</span><span class=p>:</span>   <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Group</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Version</span><span class=p>:</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Version</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Kind</span><span class=p>:</span>    <span class=s>&#34;ClusterValidatePolicy&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span> <span class=nx>interrupter</span><span class=p>.</span><span class=nf>NewClusterValidatePolicyInterrupter</span><span class=p>(</span><span class=nx>baseInterrupter</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>tokenManager</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>client</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>cvpLister</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>s</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>.</span><span class=nf>OnStartUp</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=412-admission-handler>4.1.2 admission handler</h4><p>Now, lets take a look to the registered handler.</p><p>Take mutating as an example：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>a</span> <span class=o>*</span><span class=nx>MutatingAdmission</span><span class=p>)</span> <span class=nf>Handle</span><span class=p>(</span><span class=nx>ctx</span> <span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>req</span> <span class=nx>admission</span><span class=p>.</span><span class=nx>Request</span><span class=p>)</span> <span class=nx>admission</span><span class=p>.</span><span class=nx>Response</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>obj</span><span class=p>,</span> <span class=nx>oldObj</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>decodeObj</span><span class=p>(</span><span class=nx>a</span><span class=p>.</span><span class=nx>decoder</span><span class=p>,</span> <span class=nx>req</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>Errored</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusBadRequest</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>newObj</span> <span class=o>:=</span> <span class=nx>obj</span><span class=p>.</span><span class=nf>DeepCopy</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// It will check the object kind then handle it in interrupter.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>patches</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>a</span><span class=p>.</span><span class=nx>policyInterrupterManager</span><span class=p>.</span><span class=nf>OnMutating</span><span class=p>(</span><span class=nx>newObj</span><span class=p>,</span> <span class=nx>oldObj</span><span class=p>,</span> <span class=nx>req</span><span class=p>.</span><span class=nx>Operation</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>Errored</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusInternalServerError</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=nx>patches</span><span class=p>)</span> <span class=o>!=</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// It means current object is a known policy and there are some changes(probably rendered cue) need to apply.
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nx>klog</span><span class=p>.</span><span class=nf>V</span><span class=p>(</span><span class=mi>4</span><span class=p>).</span><span class=nf>InfoS</span><span class=p>(</span><span class=s>&#34;patches for policy&#34;</span><span class=p>,</span> <span class=s>&#34;policy&#34;</span><span class=p>,</span> <span class=nx>obj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>(),</span> <span class=s>&#34;patchesCount&#34;</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=nx>patches</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// patch data
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nx>patchedObj</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>json</span><span class=p>.</span><span class=nf>Marshal</span><span class=p>(</span><span class=nx>newObj</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>Errored</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusInternalServerError</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>PatchResponseFromRaw</span><span class=p>(</span><span class=nx>req</span><span class=p>.</span><span class=nx>Object</span><span class=p>.</span><span class=nx>Raw</span><span class=p>,</span> <span class=nx>patchedObj</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// Other objects or policy no need to change
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// It will match with policies and execute it.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>cops</span><span class=p>,</span> <span class=nx>ops</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>a</span><span class=p>.</span><span class=nx>overrideManager</span><span class=p>.</span><span class=nf>ApplyOverridePolicies</span><span class=p>(</span><span class=nx>newObj</span><span class=p>,</span> <span class=nx>oldObj</span><span class=p>,</span> <span class=nx>req</span><span class=p>.</span><span class=nx>Operation</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>Errored</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusInternalServerError</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>req</span><span class=p>.</span><span class=nx>Operation</span> <span class=o>==</span> <span class=nx>admissionv1</span><span class=p>.</span><span class=nx>Delete</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>Allowed</span><span class=p>(</span><span class=s>&#34;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>patchedObj</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>json</span><span class=p>.</span><span class=nf>Marshal</span><span class=p>(</span><span class=nx>newObj</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>Errored</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusInternalServerError</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>admission</span><span class=p>.</span><span class=nf>PatchResponseFromRaw</span><span class=p>(</span><span class=nx>req</span><span class=p>.</span><span class=nx>Object</span><span class=p>.</span><span class=nx>Raw</span><span class=p>,</span> <span class=nx>patchedObj</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>Here, the core logic of <code>kinitiras</code> is basically finished, his responsibility is to initialize, register, and direct callback requests to the implemented processing methods, which are implemented by the <code>pkg</code> project.</p><h3 id=42-pkg>4.2 pkg</h3><p>Repo URL: <a href=https://github.com/k-cloud-labs/pkg target=_blank rel="noopener noreffer">https://github.com/k-cloud-labs/pkg</a></p><p>The <code>pkg</code> contains most of the logic implementation, as well as the definition of the crd and the generated client code. Following the above, we will focus on the implementation of <code>interrupter</code> and the hitting and execution of the policy.</p><h4 id=421-interrupter>4.2.1 interrupter</h4><p>definition:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// PolicyInterrupterManager manage multi PolicyInterrupter and decide which one to use by gvk.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>PolicyInterrupterManager</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>PolicyInterrupter</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// AddInterrupter add a PolicyInterrupter to manager,
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//  it will replace interrupter if already add with same gvk.s
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>AddInterrupter</span><span class=p>(</span><span class=nx>gvk</span> <span class=nx>schema</span><span class=p>.</span><span class=nx>GroupVersionKind</span><span class=p>,</span> <span class=nx>pi</span> <span class=nx>PolicyInterrupter</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// PolicyInterrupter defines interrupt process for policy change
+</span></span></span><span class=line><span class=cl><span class=c1>// It validate and mutate policy.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>PolicyInterrupter</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// OnMutating called on &#34;/mutating&#34; api to complete policy
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// return nil means obj is not defined policy
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OnMutating</span><span class=p>(</span><span class=nx>obj</span><span class=p>,</span> <span class=nx>oldObj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>operation</span> <span class=nx>admissionv1</span><span class=p>.</span><span class=nx>Operation</span><span class=p>)</span> <span class=p>([]</span><span class=nx>jsonpatchv2</span><span class=p>.</span><span class=nx>JsonPatchOperation</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// OnValidating called on &#34;/validating&#34; api to validate policy
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// return nil means obj is not defined policy or no invalid field
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OnValidating</span><span class=p>(</span><span class=nx>obj</span><span class=p>,</span> <span class=nx>oldObj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>operation</span> <span class=nx>admissionv1</span><span class=p>.</span><span class=nx>Operation</span><span class=p>)</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// OnStartUp called when webhook process initialize
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// return error if initial phase get any error
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OnStartUp</span><span class=p>()</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><code>PolicyInterrupterManager</code> inherits from <code>PolicyInterrupter</code> and adds a method to add interrupters to manage multiple interrupters, and each interrupter implements the following three methods.</p><ul><li>OnMutating: Called when the apiserver calls back the <code>/mutating</code> interface, mainly to render and supplement policy information</li><li>OnValidating: called when the apiserver calls back the <code>/validating</code> interface, mainly to validate policy information</li><li>OnStartUp: called during the webhook startup phase to do some initialization work (pulling cache, etc.)</li></ul><p>The implementation of manager is different from the actual interrupter, it first identifies if the current resource is the policy crd we defined, then looks for a corresponding registered interrupter from memory and calls the corresponding method of that interrupter. The code is as follows.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>policyInterrupterManagerImpl</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>interrupters</span> <span class=nx>sync</span><span class=p>.</span><span class=nx>Map</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>p</span> <span class=o>*</span><span class=nx>policyInterrupterManagerImpl</span><span class=p>)</span> <span class=nf>OnValidating</span><span class=p>(</span><span class=nx>obj</span><span class=p>,</span> <span class=nx>oldObj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>operation</span> <span class=nx>admissionv1</span><span class=p>.</span><span class=nx>Operation</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>interrupter</span> <span class=o>:=</span> <span class=nx>p</span><span class=p>.</span><span class=nf>getInterrupter</span><span class=p>(</span><span class=nx>obj</span><span class=p>);</span> <span class=nx>interrupter</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>interrupter</span><span class=p>.</span><span class=nf>OnValidating</span><span class=p>(</span><span class=nx>obj</span><span class=p>,</span> <span class=nx>oldObj</span><span class=p>,</span> <span class=nx>operation</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>p</span> <span class=o>*</span><span class=nx>policyInterrupterManagerImpl</span><span class=p>)</span> <span class=nf>getInterrupter</span><span class=p>(</span><span class=nx>obj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>)</span> <span class=nx>PolicyInterrupter</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>!</span><span class=nx>p</span><span class=p>.</span><span class=nf>isKnownPolicy</span><span class=p>(</span><span class=nx>obj</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>V</span><span class=p>(</span><span class=mi>5</span><span class=p>).</span><span class=nf>InfoS</span><span class=p>(</span><span class=s>&#34;unknown policy&#34;</span><span class=p>,</span> <span class=s>&#34;gvk&#34;</span><span class=p>,</span> <span class=nx>obj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>i</span><span class=p>,</span> <span class=nx>ok</span> <span class=o>:=</span> <span class=nx>p</span><span class=p>.</span><span class=nx>interrupters</span><span class=p>.</span><span class=nf>Load</span><span class=p>(</span><span class=nx>obj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>ok</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>V</span><span class=p>(</span><span class=mi>4</span><span class=p>).</span><span class=nf>InfoS</span><span class=p>(</span><span class=s>&#34;sub interrupter found&#34;</span><span class=p>,</span> <span class=s>&#34;gvk&#34;</span><span class=p>,</span> <span class=nx>obj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>i</span><span class=p>.(</span><span class=nx>PolicyInterrupter</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>p</span> <span class=o>*</span><span class=nx>policyInterrupterManagerImpl</span><span class=p>)</span> <span class=nf>isKnownPolicy</span><span class=p>(</span><span class=nx>obj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>)</span> <span class=kt>bool</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>group</span> <span class=o>:=</span> <span class=nx>strings</span><span class=p>.</span><span class=nf>Split</span><span class=p>(</span><span class=nx>obj</span><span class=p>.</span><span class=nf>GetAPIVersion</span><span class=p>(),</span> <span class=s>&#34;/&#34;</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>group</span> <span class=o>==</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>SchemeGroupVersion</span><span class=p>.</span><span class=nx>Group</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=422-render>4.2.2 Render</h4><p>The matter of rendering has been mentioned few times before, now lets talk about it.</p><p><strong>About background.</strong></p><p>The project has supported the user to write cue by hand to execute complex logic in the strategy to meet different needs in the early days. However, writing cue requires some knowledge of the syntax and features of the language and there is no good mechanism to verify the legitimacy of cue scripts, which makes it difficult to get started, so we came up with the idea of abstracting some common cases into a structured template, where the user only needs to fill in the necessary parameters, and webhook itself translates the template into cue scripts.</p><p>To be able to translate structured data into cue scripts, we wrote a more complex <code>go/tmpl</code> ([template link](<a href=https://github.com/k-cloud-labs/pkg/tree/main/utils/templatemanager/ target=_blank rel="noopener noreffer">https://github.com/k-cloud-labs/pkg/tree/main/utils/templatemanager/</a> templates)), and then proceeded to translate it. The process is as follows.</p><ol><li>interrupter checks if template information is filled in</li><li>render according to the template type (tmpl.Execute) to generate the cue script</li><li>format and lint check the result</li></ol><p>This process is called <code>render</code>.</p><p><strong>About implement.</strong></p><p>Since there are more related templates and code, instead of showing them here, only the core implementation is illustrated.</p><ol><li>different <code>tmpl</code>s are written for different policies. Since the structure of cue execution results for validate and override policies are different, two <code>tmpl</code>s are written to perform different rendering according to the policy. <a href=https://github.com/k-cloud-labs/pkg/blob/main/utils/templatemanager/templatemanager.go target=_blank rel="noopener noreffer">code link</a> 2.</li><li>use the official go package provided by cue for formatting and lint. cue is implemented in the go language, so it is friendly to go and provides a package for formatting and linting cue scripts directly in the code to ensure that the rendered cue scripts are legal and runnable. <a href=https://github.com/k-cloud-labs/pkg/blob/main/utils/templatemanager/cuemanager.go target=_blank rel="noopener noreffer">code link</a></li></ol><h4 id=423-how-to-match-with-policies>4.2.3 How to match with policies</h4><p>The matching process between the current object and the policy is as follows.</p><ol><li>List all current policies. This is read from informer memory, and the corresponding policy list is read depending on whether it is currently validating or mutating.</li><li>For policies that do not have a resource selector set, the policy is considered a hit by default.</li><li>for policies with resource selector set, perform policy matching (code will be shown below.)</li><li>Match the operation type of the hit policy with the operation type of the current object.</li><li>Matching is done.</li></ol><p>Resource selector matching rules.</p><p><em>any means no matter if it&rsquo;s empty or not.</em></p><table><thead><tr><th style=text-align:left>name</th><th style=text-align:left>label selector</th><th style=text-align:left>field selector</th><th style=text-align:left>result</th></tr></thead><tbody><tr><td style=text-align:left>not empty</td><td style=text-align:left>any</td><td style=text-align:left>any</td><td style=text-align:left>match name only</td></tr><tr><td style=text-align:left>empty</td><td style=text-align:left>empty</td><td style=text-align:left>empty</td><td style=text-align:left>match all</td></tr><tr><td style=text-align:left>empty</td><td style=text-align:left>not empty</td><td style=text-align:left>empty</td><td style=text-align:left>match labels only</td></tr><tr><td style=text-align:left>empty</td><td style=text-align:left>empty</td><td style=text-align:left>not empty</td><td style=text-align:left>match fields only</td></tr><tr><td style=text-align:left>empty</td><td style=text-align:left>not empty</td><td style=text-align:left>not empty</td><td style=text-align:left>match both labels and fields</td></tr></tbody></table><p>Related code:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// ResourceMatchSelectors tells if the specific resource matches the selectors.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nf>ResourceMatchSelectors</span><span class=p>(</span><span class=nx>resource</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>selectors</span> <span class=o>...</span><span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>ResourceSelector</span><span class=p>)</span> <span class=kt>bool</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>rs</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>selectors</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// A policy can config multi resource selector
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>if</span> <span class=nf>ResourceMatches</span><span class=p>(</span><span class=nx>resource</span><span class=p>,</span> <span class=nx>rs</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>true</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// ResourceMatches tells if the specific resource matches the selector.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nf>ResourceMatches</span><span class=p>(</span><span class=nx>resource</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>rs</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>ResourceSelector</span><span class=p>)</span> <span class=kt>bool</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>resource</span><span class=p>.</span><span class=nf>GetAPIVersion</span><span class=p>()</span> <span class=o>!=</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>APIVersion</span> <span class=o>||</span>
+</span></span><span class=line><span class=cl>        <span class=nx>resource</span><span class=p>.</span><span class=nf>GetKind</span><span class=p>()</span> <span class=o>!=</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>Kind</span> <span class=o>||</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=nx>rs</span><span class=p>.</span><span class=nx>Namespace</span><span class=p>)</span> <span class=p>&gt;</span> <span class=mi>0</span> <span class=o>&amp;&amp;</span> <span class=nx>resource</span><span class=p>.</span><span class=nf>GetNamespace</span><span class=p>()</span> <span class=o>!=</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>Namespace</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// name not empty, don&#39;t need to consult selector.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=nx>rs</span><span class=p>.</span><span class=nx>Name</span><span class=p>)</span> <span class=p>&gt;</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>Name</span> <span class=o>==</span> <span class=nx>resource</span><span class=p>.</span><span class=nf>GetName</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// all empty, matches all
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>LabelSelector</span> <span class=o>==</span> <span class=kc>nil</span> <span class=o>&amp;&amp;</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>FieldSelector</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>true</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// matches with field selector
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>FieldSelector</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>match</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>FieldSelector</span><span class=p>.</span><span class=nf>MatchObject</span><span class=p>(</span><span class=nx>resource</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;match fields failed&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>!</span><span class=nx>match</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=c1>// return false if not match
+</span></span></span><span class=line><span class=cl><span class=c1></span>            <span class=k>return</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// matches with selector
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=nx>rs</span><span class=p>.</span><span class=nx>LabelSelector</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kd>var</span> <span class=nx>s</span> <span class=nx>labels</span><span class=p>.</span><span class=nx>Selector</span>
+</span></span><span class=line><span class=cl>        <span class=kd>var</span> <span class=nx>err</span> <span class=kt>error</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>s</span><span class=p>,</span> <span class=nx>err</span> <span class=p>=</span> <span class=nx>metav1</span><span class=p>.</span><span class=nf>LabelSelectorAsSelector</span><span class=p>(</span><span class=nx>rs</span><span class=p>.</span><span class=nx>LabelSelector</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=c1>// should not happen because all resource selector should be fully validated by webhook.
+</span></span></span><span class=line><span class=cl><span class=c1></span>            <span class=nx>klog</span><span class=p>.</span><span class=nf>ErrorS</span><span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=s>&#34;match labels failed&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>s</span><span class=p>.</span><span class=nf>Matches</span><span class=p>(</span><span class=nx>labels</span><span class=p>.</span><span class=nf>Set</span><span class=p>(</span><span class=nx>resource</span><span class=p>.</span><span class=nf>GetLabels</span><span class=p>()))</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kc>true</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=424-how-to-execute-policies>4.2.4 How to execute policies</h4><p>After the policy is hit in the previous step, the policies are sorted in a dictionary and then executed in order, while the execution process is based on the rules configured for each policy. The process is as follows (using the Override policy as an example).</p><ol><li>check if the template is configured and rendered, and if so, execute the cue script</li></ol><div class="details admonition note open"><div class="details-summary admonition-title"><i class="icon fas fa-pencil-alt fa-fw" aria-hidden=true></i>About cue execution after execution rendering<i class="details-icon fas fa-angle-right fa-fw" aria-hidden=true></i></div><div class=details-content><div class=admonition-content><p>The template supports referencing the current object or other objects in the cluster or even external http interface data, so you need to determine what data is referenced and prepare the data in advance before executing cue (i.e., get the object or request http for the response body)</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=nf>BuildCueParamsViaOverridePolicy</span><span class=p>(</span><span class=nx>c</span> <span class=nx>dynamiclister</span><span class=p>.</span><span class=nx>DynamicResourceLister</span><span class=p>,</span> <span class=nx>curObject</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>tmpl</span> <span class=o>*</span><span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>OverrideRuleTemplate</span><span class=p>)</span> <span class=p>(</span><span class=o>*</span><span class=nx>CueParams</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kd>var</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=nx>cp</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>CueParams</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>ExtraParams</span><span class=p>:</span> <span class=nb>make</span><span class=p>(</span><span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=nx>any</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>klog</span><span class=p>.</span><span class=nf>V</span><span class=p>(</span><span class=mi>2</span><span class=p>).</span><span class=nf>InfoS</span><span class=p>(</span><span class=s>&#34;BuildCueParamsViaOverridePolicy value ref&#34;</span><span class=p>,</span> <span class=s>&#34;refFrom&#34;</span><span class=p>,</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span><span class=p>.</span><span class=nx>From</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span><span class=p>.</span><span class=nx>From</span> <span class=o>==</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>FromOwnerReference</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>obj</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>getOwnerReference</span><span class=p>(</span><span class=nx>c</span><span class=p>,</span> <span class=nx>curObject</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=kc>nil</span><span class=p>,</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Errorf</span><span class=p>(</span><span class=s>&#34;getOwnerReference got error=%w&#34;</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=nx>cp</span><span class=p>.</span><span class=nx>ExtraParams</span><span class=p>[</span><span class=s>&#34;otherObject&#34;</span><span class=p>]</span> <span class=p>=</span> <span class=nx>obj</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span><span class=p>.</span><span class=nx>From</span> <span class=o>==</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>FromK8s</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>obj</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>getObject</span><span class=p>(</span><span class=nx>c</span><span class=p>,</span> <span class=nx>curObject</span><span class=p>,</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span><span class=p>.</span><span class=nx>K8s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=kc>nil</span><span class=p>,</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Errorf</span><span class=p>(</span><span class=s>&#34;getObject got error=%w&#34;</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=nx>cp</span><span class=p>.</span><span class=nx>ExtraParams</span><span class=p>[</span><span class=s>&#34;otherObject&#34;</span><span class=p>]</span> <span class=p>=</span> <span class=nx>obj</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span><span class=p>.</span><span class=nx>From</span> <span class=o>==</span> <span class=nx>policyv1alpha1</span><span class=p>.</span><span class=nx>FromHTTP</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>obj</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>getHttpResponse</span><span class=p>(</span><span class=kc>nil</span><span class=p>,</span> <span class=nx>curObject</span><span class=p>,</span> <span class=nx>tmpl</span><span class=p>.</span><span class=nx>ValueRef</span><span class=p>.</span><span class=nx>Http</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=kc>nil</span><span class=p>,</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Errorf</span><span class=p>(</span><span class=s>&#34;getHttpResponse got error=%w&#34;</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=nx>cp</span><span class=p>.</span><span class=nx>ExtraParams</span><span class=p>[</span><span class=s>&#34;http&#34;</span><span class=p>]</span> <span class=p>=</span> <span class=nx>obj</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>cp</span><span class=p>,</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div></div></div></div><p>Execute cue script:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// applyPolicyOverriders applies OverridePolicy/ClusterOverridePolicy overriders to target object
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>o</span> <span class=o>*</span><span class=nx>overrideManagerImpl</span><span class=p>)</span> <span class=nf>applyPolicyOverriders</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=nx>oldObj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>p</span> <span class=nx>policyOverriders</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>policyName</span> <span class=o>:=</span> <span class=nx>p</span><span class=p>.</span><span class=nx>name</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>p</span><span class=p>.</span><span class=nx>namespace</span> <span class=o>!=</span> <span class=s>&#34;&#34;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>policyName</span> <span class=p>=</span> <span class=nx>p</span><span class=p>.</span><span class=nx>namespace</span> <span class=o>+</span> <span class=s>&#34;/&#34;</span> <span class=o>+</span> <span class=nx>p</span><span class=p>.</span><span class=nx>name</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>Template</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=o>&amp;&amp;</span> <span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>RenderedCue</span> <span class=o>!=</span> <span class=s>&#34;&#34;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>cp</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>cue</span><span class=p>.</span><span class=nf>BuildCueParamsViaOverridePolicy</span><span class=p>(</span><span class=nx>o</span><span class=p>.</span><span class=nx>dynamicLister</span><span class=p>,</span> <span class=nx>rawObj</span><span class=p>,</span> <span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>Template</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>metrics</span><span class=p>.</span><span class=nf>PolicyGotError</span><span class=p>(</span><span class=nx>policyName</span><span class=p>,</span> <span class=nx>rawObj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>(),</span> <span class=nx>metrics</span><span class=p>.</span><span class=nx>ErrTypePrepareCueParams</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Errorf</span><span class=p>(</span><span class=s>&#34;BuildCueParamsViaOverridePolicy error=%w&#34;</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=nx>cp</span><span class=p>.</span><span class=nx>Object</span> <span class=p>=</span> <span class=nx>rawObj</span>
+</span></span><span class=line><span class=cl>        <span class=nx>cp</span><span class=p>.</span><span class=nx>OldObject</span> <span class=p>=</span> <span class=nx>oldObj</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>cp</span><span class=p>.</span><span class=nx>OldObject</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>cp</span><span class=p>.</span><span class=nx>OldObject</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>{</span><span class=nx>Object</span><span class=p>:</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kd>interface</span><span class=p>{}{}}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=nx>params</span> <span class=o>:=</span> <span class=p>[]</span><span class=nx>cue</span><span class=p>.</span><span class=nx>Parameter</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=nx>Object</span><span class=p>:</span> <span class=nx>cp</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                <span class=nx>Name</span><span class=p>:</span>   <span class=nx>utils</span><span class=p>.</span><span class=nx>DataParameterName</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span> <span class=c1>// This params will pass to cue, so cue can refer data from go code.
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>        <span class=nx>patches</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>executeCueV2</span><span class=p>(</span><span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>RenderedCue</span><span class=p>,</span> <span class=nx>params</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>metrics</span><span class=p>.</span><span class=nf>PolicyGotError</span><span class=p>(</span><span class=nx>policyName</span><span class=p>,</span> <span class=nx>rawObj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>(),</span> <span class=nx>metrics</span><span class=p>.</span><span class=nx>ErrorTypeCueExecute</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=nx>patches</span><span class=p>)</span> <span class=p>&gt;</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>metrics</span><span class=p>.</span><span class=nf>OverridePolicyOverride</span><span class=p>(</span><span class=nx>policyName</span><span class=p>,</span> <span class=nx>rawObj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>applyJSONPatch</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=nx>patches</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// ... ignore code
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>    
+</span></span></code></pre></td></tr></table></div></div><p>cue example:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// simple cue code
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>data</span><span class=p>:</span> <span class=nx>_</span> <span class=err>@</span><span class=nf>tag</span><span class=p>(</span><span class=nx>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nx>object</span> <span class=o>:=</span> <span class=nx>data</span><span class=p>.</span><span class=nx>object</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>patches</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>object</span><span class=p>.</span><span class=nx>metadata</span><span class=p>.</span><span class=nx>annotations</span> <span class=o>==</span> <span class=nx>_</span><span class=p>|</span><span class=nx>_</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>op</span><span class=p>:</span> <span class=s>&#34;add&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nx>path</span><span class=p>:</span> <span class=s>&#34;/metadata/annotations&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nx>value</span><span class=p>:</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>op</span><span class=p>:</span> <span class=s>&#34;add&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nx>path</span><span class=p>:</span> <span class=s>&#34;/metadata/annotations/added-by&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nx>value</span><span class=p>:</span> <span class=s>&#34;cue&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>]</span>
+</span></span></code></pre></td></tr></table></div></div><ol start=2><li>Check if a custom cue script is configured, and if so, execute</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// applyPolicyOverriders applies OverridePolicy/ClusterOverridePolicy overriders to target object
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>o</span> <span class=o>*</span><span class=nx>overrideManagerImpl</span><span class=p>)</span> <span class=nf>applyPolicyOverriders</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=nx>oldObj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>p</span> <span class=nx>policyOverriders</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// ...ignore code
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>Cue</span> <span class=o>!=</span> <span class=s>&#34;&#34;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>patches</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>executeCue</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>Cue</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>metrics</span><span class=p>.</span><span class=nf>PolicyGotError</span><span class=p>(</span><span class=nx>policyName</span><span class=p>,</span> <span class=nx>rawObj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>(),</span> <span class=nx>metrics</span><span class=p>.</span><span class=nx>ErrorTypeCueExecute</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>patches</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=o>&amp;&amp;</span> <span class=nb>len</span><span class=p>(</span><span class=o>*</span><span class=nx>patches</span><span class=p>)</span> <span class=p>&gt;</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>metrics</span><span class=p>.</span><span class=nf>OverridePolicyOverride</span><span class=p>(</span><span class=nx>policyName</span><span class=p>,</span> <span class=nx>rawObj</span><span class=p>.</span><span class=nf>GroupVersionKind</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nf>applyJSONPatch</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=o>*</span><span class=nx>patches</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nx>err</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// ...ignore code
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ol start=3><li>Check if the plaintext form of patch is configured, and if so, apply it directly</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// applyPolicyOverriders applies OverridePolicy/ClusterOverridePolicy overriders to target object
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>o</span> <span class=o>*</span><span class=nx>overrideManagerImpl</span><span class=p>)</span> <span class=nf>applyPolicyOverriders</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=nx>oldObj</span> <span class=o>*</span><span class=nx>unstructured</span><span class=p>.</span><span class=nx>Unstructured</span><span class=p>,</span> <span class=nx>p</span> <span class=nx>policyOverriders</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// ...ignore code
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>return</span> <span class=nf>applyJSONPatch</span><span class=p>(</span><span class=nx>rawObj</span><span class=p>,</span> <span class=nf>parseJSONPatchesByPlaintext</span><span class=p>(</span><span class=nx>p</span><span class=p>.</span><span class=nx>overriders</span><span class=p>.</span><span class=nx>Plaintext</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=5summarize>5.Summarize</h2><p>This article introduces the webhook product launched by <code>k-cloud-labs</code>, which is excellent in terms of functionality and usability. I am now working as one of the maintainers of the project to add and optimize certain features to the project, and will continue to update new capabilities and solve more problems later.</p><p>Main content.</p><ul><li>Introduced the background of developing the webhook and the problem it solves</li><li>Introduced the core design ideas and api definitions</li><li>Introduces the implementation of the core logic</li></ul><p>For more detailed design details and use cases and installation methods, please <a href=https://k-cloud-labs.github.io/kinitiras-doc/ target=_blank rel="noopener noreffer">click here to jump</a> the official website to understand.</p><h2 id=6links>6.Links🔗</h2><ul><li>Official Website: <a href=https://k-cloud-labs.github.io/kinitiras-doc/ target=_blank rel="noopener noreffer">https://k-cloud-labs.github.io/kinitiras-doc/</a></li><li>Github: <a href=https://github.com/k-cloud-labs target=_blank rel="noopener noreffer">https://github.com/k-cloud-labs</a></li></ul></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>Updated on 2023-02-02</span></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=/en/posts/policy-engine/index.md target=_blank>Read Markdown</a></span></div><div class=post-info-share><span><a href=javascript:void(0); title="Share on Twitter" data-sharer=twitter data-url=https://yusank.github.io/en/posts/policy-engine/ data-title="Policy based kubernetes admission webhook part 1" data-via=yusankurban data-hashtags=kubernetes,policy-engine,webhook><i class="fab fa-twitter fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="Share on Facebook" data-sharer=facebook data-url=https://yusank.github.io/en/posts/policy-engine/ data-hashtag=kubernetes><i class="fab fa-facebook-square fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="Share on Linkedin" data-sharer=linkedin data-url=https://yusank.github.io/en/posts/policy-engine/><i class="fab fa-linkedin fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="Share on WhatsApp" data-sharer=whatsapp data-url=https://yusank.github.io/en/posts/policy-engine/ data-title="Policy based kubernetes admission webhook part 1" data-web><i class="fab fa-whatsapp fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="Share on Hacker News" data-sharer=hackernews data-url=https://yusank.github.io/en/posts/policy-engine/ data-title="Policy based kubernetes admission webhook part 1"><i class="fab fa-hacker-news fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="Share on Reddit" data-sharer=reddit data-url=https://yusank.github.io/en/posts/policy-engine/><i class="fab fa-reddit fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="Share on Line" data-sharer=line data-url=https://yusank.github.io/en/posts/policy-engine/ data-title="Policy based kubernetes admission webhook part 1"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@7.0.0/icons/line.svg aria-hidden=true></i></a><a href=javascript:void(0); title="Share on 微博" data-sharer=weibo data-url=https://yusank.github.io/en/posts/policy-engine/ data-title="Policy based kubernetes admission webhook part 1" data-ralateuid=yusann><i class="fab fa-weibo fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="Share on Blogger" data-sharer=blogger data-url=https://yusank.github.io/en/posts/policy-engine/ data-title="Policy based kubernetes admission webhook part 1" data-description><i class="fab fa-blogger fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="Share on 百度" data-sharer=baidu data-url=https://yusank.github.io/en/posts/policy-engine/ data-title="Policy based kubernetes admission webhook part 1"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@7.0.0/icons/baidu.svg aria-hidden=true></i></a><a href=javascript:void(0); title="Share on Evernote" data-sharer=evernote data-url=https://yusank.github.io/en/posts/policy-engine/ data-title="Policy based kubernetes admission webhook part 1"><i class="fab fa-evernote fa-fw" aria-hidden=true></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw" aria-hidden=true></i>&nbsp;<a href=/en/tags/kubernetes/>kubernetes</a>,&nbsp;<a href=/en/tags/policy-engine/>policy-engine</a>,&nbsp;<a href=/en/tags/webhook/>webhook</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>Back</a></span>&nbsp;|&nbsp;<span><a href=/en/>Home</a></span></section></div><div class=post-nav><a href=/en/posts/start-up/ class=prev rel=prev title="Start to write with English"><i class="fas fa-angle-left fa-fw" aria-hidden=true></i>Start to write with English</a></div></div><div id=comments><div id=utterances class=comment></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>utterances</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>Keep learning and stay with lights.<br>❤ yusank<br></div><div class=footer-line>Powered by <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.110.0">Hugo</a> | Theme - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden=true></i> LoveIt</a></div><div class=footer-line itemscope itemtype=http://schema.org/CreativeWork><i class="far fa-copyright fa-fw" aria-hidden=true></i><span itemprop=copyrightYear>2017 - 2023</span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by/4.0/deed.zh target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title="Back to Top"><i class="fas fa-arrow-up fa-fw" aria-hidden=true></i>
+</a><a href=# id=view-comments class=fixed-button title="View Comments"><i class="fas fa-comment fa-fw" aria-hidden=true></i></a></div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/autocomplete.js@0.38.1/dist/autocomplete.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@8.6.0/dist/index.umd.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/copy-tex.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/mhchem.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"Copy to clipboard",maxShownLines:70},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"Comment",lightTheme:"github-light",repo:"yusank/yusank.github.io"}},data:{"id-1":"usank`s Site","id-2":"usank`s Site"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!0,left:"\\begin{equation}",right:"\\end{equation}"},{display:!0,left:"\\begin{equation*}",right:"\\end{equation*}"},{display:!0,left:"\\begin{align}",right:"\\end{align}"},{display:!0,left:"\\begin{align*}",right:"\\end{align*}"},{display:!0,left:"\\begin{alignat}",right:"\\end{alignat}"},{display:!0,left:"\\begin{alignat*}",right:"\\end{alignat*}"},{display:!0,left:"\\begin{gather}",right:"\\end{gather}"},{display:!0,left:"\\begin{CD}",right:"\\end{CD}"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1},search:{highlightTag:"em",lunrIndexURL:"/en/index.json",maxResultLength:10,noResultsFound:"No results found",snippetLength:50,type:"lunr"},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:90}}</script><script type=text/javascript src=/js/theme.min.js></script><script type=text/javascript>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-24P8ZSJHCQ",{anonymize_ip:!0})</script><script type=text/javascript src="https://www.googletagmanager.com/gtag/js?id=G-24P8ZSJHCQ" async></script></body></html>
