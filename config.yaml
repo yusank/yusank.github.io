@@ -50,12 +50,29 @@ languages:
           url: 'https://github.com/yusank'
           title: GitHub
           weight: 5
+        - identifier: cv
+          pre: <i class='far fa-address-card'></i>
+          post: ''
+          name: Online CV
+          url: 'https://yusank.github.io/online-cv'
+          title: Yusank`s Online CV
+          weight: 6
     params:
       version: 0.2.X
       description: 'This is my personal blog, I''ll share posts about tech in here.'
       keywords:
         - yusank
         - Tech
+        - go
+        - golang
+        - kubernetes
+        - blog
+        - grpc
+        - docker
+        - k8s
+        - mq
+        - mysql
+        - redis
       defaultTheme: auto
       gitRepo: ''
       fingerprint: ''
@@ -134,12 +151,29 @@ languages:
           url: 'https://go-goim.github.io'
           title: GoIM
           weight: 7
+        - identifier: cv
+          pre: <i class='far fa-address-card'></i>
+          post: ''
+          name: Online CV
+          url: 'https://yusank.github.io/online-cv'
+          title: Yusank`s Online CV
+          weight: 8
 params:
   version: 0.2.X
   description: 这是我的个人博客，我会在这里分享学习和成长过程中的积累和经验.
   keywords:
     - yusank
     - Tech
+    - go
+    - golang
+    - kubernetes
+    - blog
+    - grpc
+    - docker
+    - k8s
+    - mq
+    - mysql
+    - redis
   defaultTheme: auto
   gitRepo: ''
   fingerprint: ''
