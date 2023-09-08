@@ -374,7 +374,7 @@ params:
       Trello: false
       Mix: false
     comment:
-      enable: true
+      enable: false
       disqus:
         enable: false
         shortname: yusank
